@@ -1,11 +1,16 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:nicotinaai_flutter/core/theme/app_theme.dart';
 import 'package:nicotinaai_flutter/core/theme/theme_provider.dart';
 import 'package:nicotinaai_flutter/core/theme/theme_switch.dart';
+import 'package:nicotinaai_flutter/core/routes/app_routes.dart';
 import 'package:nicotinaai_flutter/features/auth/providers/auth_provider.dart';
+import 'package:nicotinaai_flutter/features/home/widgets/new_record_sheet.dart';
+import 'package:nicotinaai_flutter/features/home/widgets/register_craving_sheet.dart';
+import 'package:nicotinaai_flutter/features/tracking/screens/dashboard_screen.dart';
 import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -94,7 +99,7 @@ class HomeScreen extends StatelessWidget {
                         Colors.redAccent,
                         Icons.air,
                         () {
-                          // TODO: Implementar ação para registrar fissura
+                          RegisterCravingSheet.show(context);
                         },
                       ),
                     ),
@@ -107,7 +112,7 @@ class HomeScreen extends StatelessWidget {
                         Colors.blueAccent,
                         Icons.smoking_rooms,
                         () {
-                          // TODO: Implementar ação para novo registro
+                          NewRecordSheet.show(context);
                         },
                       ),
                     ),
@@ -196,7 +201,8 @@ class HomeScreen extends StatelessWidget {
                     ),
                     TextButton(
                       onPressed: () {
-                        // Navegar para a tela de conquistas
+                        // Navigate to achievements screen
+                        context.go(AppRoutes.achievements.path);
                       },
                       style: TextButton.styleFrom(
                         foregroundColor: context.primaryColor,
@@ -251,9 +257,29 @@ class HomeScreen extends StatelessWidget {
               // Estatísticas diárias
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Text(
-                  l10n.homeTodayStats,
-                  style: context.titleStyle,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      l10n.homeTodayStats,
+                      style: context.titleStyle,
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        // Navigate to dashboard
+                        context.go(AppRoutes.dashboard.path);
+                      },
+                      style: TextButton.styleFrom(
+                        foregroundColor: context.primaryColor,
+                      ),
+                      child: Text(
+                        'View Dashboard',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
               

@@ -12,6 +12,10 @@ import 'package:nicotinaai_flutter/features/settings/screens/settings_screen.dar
 import 'package:nicotinaai_flutter/features/settings/screens/language_selection_screen.dart';
 import 'package:nicotinaai_flutter/features/onboarding/screens/onboarding_screen.dart';
 import 'package:nicotinaai_flutter/features/onboarding/providers/onboarding_provider.dart';
+import 'package:nicotinaai_flutter/features/tracking/screens/dashboard_screen.dart';
+import 'package:nicotinaai_flutter/features/tracking/screens/add_smoking_log_screen.dart';
+import 'package:nicotinaai_flutter/features/tracking/screens/add_craving_screen.dart';
+import 'package:nicotinaai_flutter/core/routes/app_routes.dart';
 
 /// Router para configuração de rotas da aplicação com proteção de autenticação
 class AppRouter {
@@ -71,6 +75,20 @@ class AppRouter {
       GoRoute(
         path: LanguageSelectionScreen.routeName,
         builder: (context, state) => const LanguageSelectionScreen(),
+      ),
+      
+      // Rotas de tracking
+      GoRoute(
+        path: AppRoutes.dashboard.path,
+        builder: (context, state) => const DashboardScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.addSmokingLog.path,
+        builder: (context, state) => const AddSmokingLogScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.addCraving.path,
+        builder: (context, state) => const AddCravingScreen(),
       ),
     ],
     errorBuilder: (context, state) => Scaffold(

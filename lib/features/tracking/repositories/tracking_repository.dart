@@ -1,0 +1,224 @@
+import 'package:nicotinaai_flutter/config/supabase_config.dart';
+import 'package:nicotinaai_flutter/features/tracking/models/craving.dart';
+import 'package:nicotinaai_flutter/features/tracking/models/smoking_log.dart';
+import 'package:nicotinaai_flutter/features/tracking/models/user_stats.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+
+class TrackingRepository {
+  final _client = SupabaseConfig.client;
+
+  // Smoking Logs Methods
+  Future<List<SmokingLog>> getSmokingLogs({int limit = 20, int offset = 0}) async {
+    try {
+      final user = _client.auth.currentUser;
+      
+      if (user == null) {
+        throw Exception('User not authenticated');
+      }
+      
+      final response = await _client
+          .from('smoking_logs')
+          .select()
+          .eq('user_id', user.id)
+          .order('timestamp', ascending: false)
+          .range(offset, offset + limit - 1);
+      
+      return response.map((log) => SmokingLog.fromJson(log)).toList();
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<SmokingLog> addSmokingLog(SmokingLog log) async {
+    try {
+      final user = _client.auth.currentUser;
+      
+      if (user == null) {
+        throw Exception('User not authenticated');
+      }
+      
+      final data = log.toJson();
+      data['user_id'] = user.id;
+      
+      final response = await _client
+          .from('smoking_logs')
+          .insert(data)
+          .select()
+          .single();
+      
+      return SmokingLog.fromJson(response);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<void> deleteSmokingLog(String logId) async {
+    try {
+      final user = _client.auth.currentUser;
+      
+      if (user == null) {
+        throw Exception('User not authenticated');
+      }
+      
+      await _client
+          .from('smoking_logs')
+          .delete()
+          .eq('id', logId)
+          .eq('user_id', user.id);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  // Cravings Methods
+  Future<List<Craving>> getCravings({int limit = 20, int offset = 0}) async {
+    try {
+      final user = _client.auth.currentUser;
+      
+      if (user == null) {
+        throw Exception('User not authenticated');
+      }
+      
+      final response = await _client
+          .from('cravings')
+          .select()
+          .eq('user_id', user.id)
+          .order('timestamp', ascending: false)
+          .range(offset, offset + limit - 1);
+      
+      return response.map((craving) => Craving.fromJson(craving)).toList();
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<Craving> addCraving(Craving craving) async {
+    try {
+      final user = _client.auth.currentUser;
+      
+      if (user == null) {
+        throw Exception('User not authenticated');
+      }
+      
+      final data = craving.toJson();
+      data['user_id'] = user.id;
+      
+      final response = await _client
+          .from('cravings')
+          .insert(data)
+          .select()
+          .single();
+      
+      return Craving.fromJson(response);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<Craving> updateCraving(Craving craving) async {
+    try {
+      final user = _client.auth.currentUser;
+      
+      if (user == null) {
+        throw Exception('User not authenticated');
+      }
+      
+      if (craving.id == null) {
+        throw Exception('Craving ID is required for update');
+      }
+      
+      final data = craving.toJson();
+      data['user_id'] = user.id;
+      
+      final response = await _client
+          .from('cravings')
+          .update(data)
+          .eq('id', craving.id!)
+          .select()
+          .single();
+      
+      return Craving.fromJson(response);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  // User Stats Methods
+  Future<UserStats?> getUserStats() async {
+    try {
+      final user = _client.auth.currentUser;
+      
+      if (user == null) {
+        throw Exception('User not authenticated');
+      }
+      
+      final response = await _client
+          .from('user_stats')
+          .select()
+          .eq('user_id', user.id)
+          .maybeSingle();
+      
+      if (response == null) {
+        return null;
+      }
+      
+      return UserStats.fromJson(response);
+    } catch (e) {
+      if (e is PostgrestException && e.message.contains('No rows found')) {
+        return null;
+      }
+      rethrow;
+    }
+  }
+
+  Future<void> updateUserStats() async {
+    try {
+      final user = _client.auth.currentUser;
+      
+      if (user == null) {
+        throw Exception('User not authenticated');
+      }
+      
+      // Call the edge function to update user stats
+      await _client.functions.invoke('updateUserStats', 
+        body: {'userId': user.id},
+      );
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<void> checkAchievements() async {
+    try {
+      final user = _client.auth.currentUser;
+      
+      if (user == null) {
+        throw Exception('User not authenticated');
+      }
+      
+      // Call the edge function to check achievements
+      await _client.functions.invoke('checkAchievements', 
+        body: {'userId': user.id},
+      );
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<void> checkHealthRecoveries() async {
+    try {
+      final user = _client.auth.currentUser;
+      
+      if (user == null) {
+        throw Exception('User not authenticated');
+      }
+      
+      // Call the edge function to check health recoveries
+      await _client.functions.invoke('checkHealthRecoveries', 
+        body: {'userId': user.id},
+      );
+    } catch (e) {
+      rethrow;
+    }
+  }
+}

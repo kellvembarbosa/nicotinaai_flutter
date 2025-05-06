@@ -3,6 +3,7 @@ import 'package:nicotinaai_flutter/core/theme/app_theme.dart';
 import 'package:nicotinaai_flutter/features/achievements/screens/achievements_screen.dart';
 import 'package:nicotinaai_flutter/features/home/screens/home_screen.dart';
 import 'package:nicotinaai_flutter/features/settings/screens/settings_screen.dart';
+import 'package:nicotinaai_flutter/features/tracking/screens/dashboard_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:nicotinaai_flutter/features/auth/providers/auth_provider.dart';
 import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
@@ -23,6 +24,7 @@ class _MainScreenState extends State<MainScreen> {
   // List of screens for the tabs
   final List<Widget> _screens = [
     const HomeScreen(),
+    const DashboardScreen(),
     const AchievementsScreen(),
     const SettingsScreen(),
   ];
@@ -74,6 +76,11 @@ class _MainScreenState extends State<MainScreen> {
             icon: const Icon(Icons.home_outlined),
             activeIcon: const Icon(Icons.home),
             label: localizations.home,
+          ),
+          BottomNavigationBarItem(
+            icon: const Icon(Icons.dashboard_outlined),
+            activeIcon: const Icon(Icons.dashboard),
+            label: 'Dashboard',
           ),
           BottomNavigationBarItem(
             icon: const Icon(Icons.emoji_events_outlined),

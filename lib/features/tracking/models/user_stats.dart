@@ -1,0 +1,158 @@
+class UserStats {
+  final String? id;
+  final String userId;
+  final int cigarettesAvoided;
+  final int moneySaved; // stored in cents
+  final int cravingsResisted;
+  final int currentStreakDays;
+  final int longestStreakDays;
+  final DateTime? healthiestDayDate;
+  final DateTime? lastSmokeDate;
+  final int totalSmokeFreedays;
+  final int totalXp;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
+
+  const UserStats({
+    this.id,
+    required this.userId,
+    this.cigarettesAvoided = 0,
+    this.moneySaved = 0,
+    this.cravingsResisted = 0,
+    this.currentStreakDays = 0,
+    this.longestStreakDays = 0,
+    this.healthiestDayDate,
+    this.lastSmokeDate,
+    this.totalSmokeFreedays = 0,
+    this.totalXp = 0,
+    this.createdAt,
+    this.updatedAt,
+  });
+
+  // Copy constructor
+  UserStats copyWith({
+    String? id,
+    String? userId,
+    int? cigarettesAvoided,
+    int? moneySaved,
+    int? cravingsResisted,
+    int? currentStreakDays,
+    int? longestStreakDays,
+    DateTime? healthiestDayDate,
+    DateTime? lastSmokeDate,
+    int? totalSmokeFreedays,
+    int? totalXp,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) {
+    return UserStats(
+      id: id ?? this.id,
+      userId: userId ?? this.userId,
+      cigarettesAvoided: cigarettesAvoided ?? this.cigarettesAvoided,
+      moneySaved: moneySaved ?? this.moneySaved,
+      cravingsResisted: cravingsResisted ?? this.cravingsResisted,
+      currentStreakDays: currentStreakDays ?? this.currentStreakDays,
+      longestStreakDays: longestStreakDays ?? this.longestStreakDays,
+      healthiestDayDate: healthiestDayDate ?? this.healthiestDayDate,
+      lastSmokeDate: lastSmokeDate ?? this.lastSmokeDate,
+      totalSmokeFreedays: totalSmokeFreedays ?? this.totalSmokeFreedays,
+      totalXp: totalXp ?? this.totalXp,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
+
+  // Calculated properties
+  // Money saved in currency format (e.g., $10.50)
+  String get formattedMoneySaved {
+    final dollars = moneySaved / 100;
+    return 'R\$ ${dollars.toStringAsFixed(2)}';
+  }
+
+  // Days since last smoke
+  int get daysSinceLastSmoke {
+    if (lastSmokeDate == null) return 0;
+    
+    final now = DateTime.now();
+    return now.difference(lastSmokeDate!).inDays;
+  }
+
+  // From JSON to Model
+  factory UserStats.fromJson(Map<String, dynamic> json) {
+    return UserStats(
+      id: json['id'],
+      userId: json['user_id'],
+      cigarettesAvoided: json['cigarettes_avoided'] ?? 0,
+      moneySaved: json['money_saved'] ?? 0,
+      cravingsResisted: json['cravings_resisted'] ?? 0,
+      currentStreakDays: json['current_streak_days'] ?? 0,
+      longestStreakDays: json['longest_streak_days'] ?? 0,
+      healthiestDayDate: json['healthiest_day_date'] != null
+          ? DateTime.parse(json['healthiest_day_date'])
+          : null,
+      lastSmokeDate: json['last_smoke_date'] != null
+          ? DateTime.parse(json['last_smoke_date'])
+          : null,
+      totalSmokeFreedays: json['total_smoke_free_days'] ?? 0,
+      totalXp: json['total_xp'] ?? 0,
+      createdAt: json['created_at'] != null
+          ? DateTime.parse(json['created_at'])
+          : null,
+      updatedAt: json['updated_at'] != null
+          ? DateTime.parse(json['updated_at'])
+          : null,
+    );
+  }
+
+  // From Model to JSON
+  Map<String, dynamic> toJson() {
+    return {
+      if (id != null) 'id': id,
+      'user_id': userId,
+      'cigarettes_avoided': cigarettesAvoided,
+      'money_saved': moneySaved,
+      'cravings_resisted': cravingsResisted,
+      'current_streak_days': currentStreakDays,
+      'longest_streak_days': longestStreakDays,
+      if (healthiestDayDate != null)
+        'healthiest_day_date': healthiestDayDate!.toIso8601String(),
+      if (lastSmokeDate != null)
+        'last_smoke_date': lastSmokeDate!.toIso8601String(),
+      'total_smoke_free_days': totalSmokeFreedays,
+      'total_xp': totalXp,
+    };
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+  
+    return other is UserStats &&
+      other.id == id &&
+      other.userId == userId &&
+      other.cigarettesAvoided == cigarettesAvoided &&
+      other.moneySaved == moneySaved &&
+      other.cravingsResisted == cravingsResisted &&
+      other.currentStreakDays == currentStreakDays &&
+      other.longestStreakDays == longestStreakDays &&
+      other.healthiestDayDate == healthiestDayDate &&
+      other.lastSmokeDate == lastSmokeDate &&
+      other.totalSmokeFreedays == totalSmokeFreedays &&
+      other.totalXp == totalXp;
+  }
+
+  @override
+  int get hashCode {
+    return id.hashCode ^
+      userId.hashCode ^
+      cigarettesAvoided.hashCode ^
+      moneySaved.hashCode ^
+      cravingsResisted.hashCode ^
+      currentStreakDays.hashCode ^
+      longestStreakDays.hashCode ^
+      healthiestDayDate.hashCode ^
+      lastSmokeDate.hashCode ^
+      totalSmokeFreedays.hashCode ^
+      totalXp.hashCode;
+  }
+}

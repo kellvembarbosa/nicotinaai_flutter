@@ -296,7 +296,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get noAccount => 'Não tem uma conta?';
 
   @override
-  String get register => 'Registre-se';
+  String get register => 'Registrar';
 
   @override
   String get emailRequired => 'Por favor, insira seu e-mail';
@@ -311,7 +311,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get settings => 'Configurações';
 
   @override
-  String get home => 'Início';
+  String get home => 'Casa';
 
   @override
   String get achievements => 'Conquistas';
@@ -852,4 +852,133 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get newRecordSubtitle => 'Quando você fumar';
+
+  @override
+  String get whereAreYou => 'Onde você está?';
+
+  @override
+  String get work => 'Trabalho';
+
+  @override
+  String get car => 'Carro';
+
+  @override
+  String get restaurant => 'Restaurante';
+
+  @override
+  String get bar => 'Bar';
+
+  @override
+  String get street => 'Rua';
+
+  @override
+  String get park => 'Parque';
+
+  @override
+  String get others => 'Outros';
+
+  @override
+  String get notes => 'Observações (opcional)';
+
+  @override
+  String get howAreYouFeeling => 'Como você está se sentindo?';
+
+  @override
+  String get whatTriggeredCraving => 'O que desencadeou sua fissura?';
+
+  @override
+  String get stress => 'Estresse';
+
+  @override
+  String get boredom => 'Tédio';
+
+  @override
+  String get socialSituation => 'Situação social';
+
+  @override
+  String get afterMeal => 'Após refeição';
+
+  @override
+  String get coffee => 'Café';
+
+  @override
+  String get alcohol => 'Álcool';
+
+  @override
+  String get craving => 'Fissura';
+
+  @override
+  String get other => 'Outro';
+
+  @override
+  String get intensityLevel => 'Nível de intensidade';
+
+  @override
+  String get mild => 'Leve';
+
+  @override
+  String get intense => 'Intenso';
+
+  @override
+  String get veryIntense => 'Muito intenso';
+
+  @override
+  String get pleaseSelectLocation => 'Por favor, selecione o local onde você está';
+
+  @override
+  String get pleaseSelectTrigger => 'Por favor, selecione o que desencadeou sua fissura';
+
+  @override
+  String get pleaseSelectIntensity => 'Por favor, selecione o nível de intensidade';
+
+  @override
+  String get whatsTheReason => 'Qual o motivo?';
+
+  @override
+  String get anxiety => 'Ansiedade';
+
+  @override
+  String get pleaseSelectReason => 'Por favor, selecione um motivo';
+
+  @override
+  String get howDoYouFeel => 'Como você se sente? O que poderia ter feito diferente?';
+
+  @override
+  String get didYouResist => 'Você resistiu?';
+
+  @override
+  String get yes => 'Sim';
+
+  @override
+  String get no => 'Não';
+
+  @override
+  String get howMuchDidYouSmoke => 'Quanto você fumou?';
+
+  @override
+  String get oneOrLess => '1 ou menos';
+
+  @override
+  String get twoToFive => '2-5';
+
+  @override
+  String get moreThanFive => 'Mais de 5';
+
+  @override
+  String get pleaseSelectAmount => 'Por favor, selecione quanto você fumou';
+
+  @override
+  String get howLongDidItLast => 'Quanto tempo durou?';
+
+  @override
+  String get lessThan5min => 'Menos de 5 min';
+
+  @override
+  String get fiveToFifteenMin => '5-15 min';
+
+  @override
+  String get moreThan15min => 'Mais de 15 min';
+
+  @override
+  String get pleaseSelectDuration => 'Por favor, selecione quanto tempo durou';
 }

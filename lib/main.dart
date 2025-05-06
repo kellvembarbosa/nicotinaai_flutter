@@ -10,8 +10,12 @@ import 'package:nicotinaai_flutter/core/theme/theme_provider.dart';
 import 'package:nicotinaai_flutter/core/localization/locale_provider.dart';
 import 'package:nicotinaai_flutter/features/auth/providers/auth_provider.dart';
 import 'package:nicotinaai_flutter/features/auth/repositories/auth_repository.dart';
+import 'package:nicotinaai_flutter/features/home/providers/craving_provider.dart';
+import 'package:nicotinaai_flutter/features/home/providers/smoking_record_provider.dart';
 import 'package:nicotinaai_flutter/features/onboarding/providers/onboarding_provider.dart';
 import 'package:nicotinaai_flutter/features/onboarding/repositories/onboarding_repository.dart';
+import 'package:nicotinaai_flutter/features/tracking/providers/tracking_provider.dart';
+import 'package:nicotinaai_flutter/features/tracking/repositories/tracking_repository.dart';
 import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
 
 void main() async {
@@ -36,20 +40,24 @@ void main() async {
   // Cria os repositórios
   final authRepository = AuthRepository();
   final onboardingRepository = OnboardingRepository();
+  final trackingRepository = TrackingRepository();
   
   runApp(MyApp(
     authRepository: authRepository,
     onboardingRepository: onboardingRepository,
+    trackingRepository: trackingRepository,
   ));
 }
 
 class MyApp extends StatelessWidget {
   final AuthRepository authRepository;
   final OnboardingRepository onboardingRepository;
+  final TrackingRepository trackingRepository;
   
   const MyApp({
     required this.authRepository,
     required this.onboardingRepository,
+    required this.trackingRepository,
     super.key,
   });
 
@@ -108,6 +116,45 @@ class MyApp extends StatelessWidget {
               });
             } else {
               print('🔒 [MyApp] Usuário não autenticado. Onboarding não inicializado');
+            }
+            
+            return provider;
+          },
+        ),
+        
+        // Provider para registro de fissuras
+        ChangeNotifierProxyProvider<AuthProvider, CravingProvider>(
+          create: (_) => CravingProvider(),
+          update: (_, authProvider, previousProvider) {
+            final provider = previousProvider ?? CravingProvider();
+            return provider;
+          },
+        ),
+        
+        // Provider para registro de cigarros fumados
+        ChangeNotifierProxyProvider<AuthProvider, SmokingRecordProvider>(
+          create: (_) => SmokingRecordProvider(),
+          update: (_, authProvider, previousProvider) {
+            final provider = previousProvider ?? SmokingRecordProvider();
+            return provider;
+          },
+        ),
+        
+        // Provider para o sistema de tracking
+        ChangeNotifierProxyProvider<AuthProvider, TrackingProvider>(
+          create: (_) => TrackingProvider(
+            repository: trackingRepository,
+          ),
+          update: (_, authProvider, previousProvider) {
+            final provider = previousProvider ?? 
+                TrackingProvider(repository: trackingRepository);
+                
+            // Inicializa apenas se o usuário estiver autenticado
+            if (authProvider.isAuthenticated) {
+              // Agenda a inicialização para o próximo ciclo de frame
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                provider.initialize();
+              });
             }
             
             return provider;

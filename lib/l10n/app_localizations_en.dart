@@ -852,4 +852,133 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get newRecordSubtitle => 'Record when you smoke';
+
+  @override
+  String get whereAreYou => 'Where are you?';
+
+  @override
+  String get work => 'Work';
+
+  @override
+  String get car => 'Car';
+
+  @override
+  String get restaurant => 'Restaurant';
+
+  @override
+  String get bar => 'Bar';
+
+  @override
+  String get street => 'Street';
+
+  @override
+  String get park => 'Park';
+
+  @override
+  String get others => 'Others';
+
+  @override
+  String get notes => 'Notes (optional)';
+
+  @override
+  String get howAreYouFeeling => 'How are you feeling?';
+
+  @override
+  String get whatTriggeredCraving => 'What triggered your craving?';
+
+  @override
+  String get stress => 'Stress';
+
+  @override
+  String get boredom => 'Boredom';
+
+  @override
+  String get socialSituation => 'Social situation';
+
+  @override
+  String get afterMeal => 'After meal';
+
+  @override
+  String get coffee => 'Coffee';
+
+  @override
+  String get alcohol => 'Alcohol';
+
+  @override
+  String get craving => 'Craving';
+
+  @override
+  String get other => 'Other';
+
+  @override
+  String get intensityLevel => 'Intensity level';
+
+  @override
+  String get mild => 'Mild';
+
+  @override
+  String get intense => 'Intense';
+
+  @override
+  String get veryIntense => 'Very intense';
+
+  @override
+  String get pleaseSelectLocation => 'Please select your location';
+
+  @override
+  String get pleaseSelectTrigger => 'Please select what triggered your craving';
+
+  @override
+  String get pleaseSelectIntensity => 'Please select the intensity level';
+
+  @override
+  String get whatsTheReason => 'What\'s the reason?';
+
+  @override
+  String get anxiety => 'Anxiety';
+
+  @override
+  String get pleaseSelectReason => 'Please select a reason';
+
+  @override
+  String get howDoYouFeel => 'How do you feel? What could you have done differently?';
+
+  @override
+  String get didYouResist => 'Did you resist?';
+
+  @override
+  String get yes => 'Yes';
+
+  @override
+  String get no => 'No';
+
+  @override
+  String get howMuchDidYouSmoke => 'How much did you smoke?';
+
+  @override
+  String get oneOrLess => '1 or less';
+
+  @override
+  String get twoToFive => '2-5';
+
+  @override
+  String get moreThanFive => 'More than 5';
+
+  @override
+  String get pleaseSelectAmount => 'Please select how much you smoked';
+
+  @override
+  String get howLongDidItLast => 'How long did it last?';
+
+  @override
+  String get lessThan5min => 'Less than 5 min';
+
+  @override
+  String get fiveToFifteenMin => '5-15 min';
+
+  @override
+  String get moreThan15min => 'More than 15 min';
+
+  @override
+  String get pleaseSelectDuration => 'Please select how long it lasted';
 }

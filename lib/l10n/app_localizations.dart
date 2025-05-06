@@ -641,7 +641,7 @@ abstract class AppLocalizations {
   /// **'Don\'t have an account?'**
   String get noAccount;
 
-  /// Link for account registration
+  /// Register button text
   ///
   /// In en, this message translates to:
   /// **'Register'**
@@ -671,7 +671,7 @@ abstract class AppLocalizations {
   /// **'Settings'**
   String get settings;
 
-  /// Home screen title
+  /// Location option: Home
   ///
   /// In en, this message translates to:
   /// **'Home'**
@@ -917,7 +917,7 @@ abstract class AppLocalizations {
   /// **'Confirm'**
   String get confirm;
 
-  /// Save button
+  /// Save button text
   ///
   /// In en, this message translates to:
   /// **'Save'**
@@ -977,7 +977,7 @@ abstract class AppLocalizations {
   /// **'Low'**
   String get low;
 
-  /// Moderate consumption level
+  /// Intensity level: Moderate
   ///
   /// In en, this message translates to:
   /// **'Moderate'**
@@ -1732,6 +1732,264 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Record when you smoke'**
   String get newRecordSubtitle;
+
+  /// Question asking user's location when registering a craving
+  ///
+  /// In en, this message translates to:
+  /// **'Where are you?'**
+  String get whereAreYou;
+
+  /// Location option: Work
+  ///
+  /// In en, this message translates to:
+  /// **'Work'**
+  String get work;
+
+  /// Location option: Car
+  ///
+  /// In en, this message translates to:
+  /// **'Car'**
+  String get car;
+
+  /// Location option: Restaurant
+  ///
+  /// In en, this message translates to:
+  /// **'Restaurant'**
+  String get restaurant;
+
+  /// Location option: Bar
+  ///
+  /// In en, this message translates to:
+  /// **'Bar'**
+  String get bar;
+
+  /// Location option: Street
+  ///
+  /// In en, this message translates to:
+  /// **'Street'**
+  String get street;
+
+  /// Location option: Park
+  ///
+  /// In en, this message translates to:
+  /// **'Park'**
+  String get park;
+
+  /// Location option: Others
+  ///
+  /// In en, this message translates to:
+  /// **'Others'**
+  String get others;
+
+  /// Label for optional notes field
+  ///
+  /// In en, this message translates to:
+  /// **'Notes (optional)'**
+  String get notes;
+
+  /// Placeholder text for notes field in craving registration
+  ///
+  /// In en, this message translates to:
+  /// **'How are you feeling?'**
+  String get howAreYouFeeling;
+
+  /// Question about what triggered the craving
+  ///
+  /// In en, this message translates to:
+  /// **'What triggered your craving?'**
+  String get whatTriggeredCraving;
+
+  /// Trigger option: Stress
+  ///
+  /// In en, this message translates to:
+  /// **'Stress'**
+  String get stress;
+
+  /// Trigger option: Boredom
+  ///
+  /// In en, this message translates to:
+  /// **'Boredom'**
+  String get boredom;
+
+  /// Trigger option: Social situation
+  ///
+  /// In en, this message translates to:
+  /// **'Social situation'**
+  String get socialSituation;
+
+  /// Trigger option: After meal
+  ///
+  /// In en, this message translates to:
+  /// **'After meal'**
+  String get afterMeal;
+
+  /// Trigger option: Coffee
+  ///
+  /// In en, this message translates to:
+  /// **'Coffee'**
+  String get coffee;
+
+  /// Trigger option: Alcohol
+  ///
+  /// In en, this message translates to:
+  /// **'Alcohol'**
+  String get alcohol;
+
+  /// Trigger option: Craving
+  ///
+  /// In en, this message translates to:
+  /// **'Craving'**
+  String get craving;
+
+  /// Trigger option: Other
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get other;
+
+  /// Label for craving intensity level selection
+  ///
+  /// In en, this message translates to:
+  /// **'Intensity level'**
+  String get intensityLevel;
+
+  /// Intensity level: Mild
+  ///
+  /// In en, this message translates to:
+  /// **'Mild'**
+  String get mild;
+
+  /// Intensity level: Intense
+  ///
+  /// In en, this message translates to:
+  /// **'Intense'**
+  String get intense;
+
+  /// Intensity level: Very intense
+  ///
+  /// In en, this message translates to:
+  /// **'Very intense'**
+  String get veryIntense;
+
+  /// Validation message for location selection
+  ///
+  /// In en, this message translates to:
+  /// **'Please select your location'**
+  String get pleaseSelectLocation;
+
+  /// Validation message for trigger selection
+  ///
+  /// In en, this message translates to:
+  /// **'Please select what triggered your craving'**
+  String get pleaseSelectTrigger;
+
+  /// Validation message for intensity selection
+  ///
+  /// In en, this message translates to:
+  /// **'Please select the intensity level'**
+  String get pleaseSelectIntensity;
+
+  /// Question asking for the reason for smoking
+  ///
+  /// In en, this message translates to:
+  /// **'What\'s the reason?'**
+  String get whatsTheReason;
+
+  /// Reason option: Anxiety
+  ///
+  /// In en, this message translates to:
+  /// **'Anxiety'**
+  String get anxiety;
+
+  /// Validation message for reason selection
+  ///
+  /// In en, this message translates to:
+  /// **'Please select a reason'**
+  String get pleaseSelectReason;
+
+  /// Placeholder for notes field in smoking record
+  ///
+  /// In en, this message translates to:
+  /// **'How do you feel? What could you have done differently?'**
+  String get howDoYouFeel;
+
+  /// Question about whether user resisted the craving
+  ///
+  /// In en, this message translates to:
+  /// **'Did you resist?'**
+  String get didYouResist;
+
+  /// Yes option
+  ///
+  /// In en, this message translates to:
+  /// **'Yes'**
+  String get yes;
+
+  /// No option
+  ///
+  /// In en, this message translates to:
+  /// **'No'**
+  String get no;
+
+  /// Question about amount smoked
+  ///
+  /// In en, this message translates to:
+  /// **'How much did you smoke?'**
+  String get howMuchDidYouSmoke;
+
+  /// Smoking amount option: 1 or less
+  ///
+  /// In en, this message translates to:
+  /// **'1 or less'**
+  String get oneOrLess;
+
+  /// Smoking amount option: 2-5 cigarettes
+  ///
+  /// In en, this message translates to:
+  /// **'2-5'**
+  String get twoToFive;
+
+  /// Smoking amount option: More than 5 cigarettes
+  ///
+  /// In en, this message translates to:
+  /// **'More than 5'**
+  String get moreThanFive;
+
+  /// Validation message for smoking amount selection
+  ///
+  /// In en, this message translates to:
+  /// **'Please select how much you smoked'**
+  String get pleaseSelectAmount;
+
+  /// Question about duration of smoking session
+  ///
+  /// In en, this message translates to:
+  /// **'How long did it last?'**
+  String get howLongDidItLast;
+
+  /// Duration option: Less than 5 minutes
+  ///
+  /// In en, this message translates to:
+  /// **'Less than 5 min'**
+  String get lessThan5min;
+
+  /// Duration option: 5-15 minutes
+  ///
+  /// In en, this message translates to:
+  /// **'5-15 min'**
+  String get fiveToFifteenMin;
+
+  /// Duration option: More than 15 minutes
+  ///
+  /// In en, this message translates to:
+  /// **'More than 15 min'**
+  String get moreThan15min;
+
+  /// Validation message for duration selection
+  ///
+  /// In en, this message translates to:
+  /// **'Please select how long it lasted'**
+  String get pleaseSelectDuration;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

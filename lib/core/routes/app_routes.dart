@@ -19,6 +19,13 @@ enum AppRoutes {
   achievements('/achievements'),
   settings('/settings'),
   
+  // Rotas de tracking
+  dashboard('/dashboard'),
+  addSmokingLog('/tracking/add-smoking'),
+  addCraving('/tracking/add-craving'),
+  smokingLogs('/tracking/smoking-logs'),
+  cravingLogs('/tracking/craving-logs'),
+  
   // Outras rotas
   profile('/profile'),
   editProfile('/profile/edit'),

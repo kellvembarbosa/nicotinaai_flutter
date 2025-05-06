@@ -1442,5 +1442,240 @@
   "newRecordSubtitle": "Record when you smoke",
   "@newRecordSubtitle": {
     "description": "Subtitle for smoking record button"
+  },
+  
+  "whereAreYou": "Where are you?",
+  "@whereAreYou": {
+    "description": "Question asking user's location when registering a craving"
+  },
+  
+  "home": "Home",
+  "@home": {
+    "description": "Location option: Home"
+  },
+  
+  "work": "Work",
+  "@work": {
+    "description": "Location option: Work"
+  },
+  
+  "car": "Car",
+  "@car": {
+    "description": "Location option: Car"
+  },
+  
+  "restaurant": "Restaurant",
+  "@restaurant": {
+    "description": "Location option: Restaurant"
+  },
+  
+  "bar": "Bar",
+  "@bar": {
+    "description": "Location option: Bar"
+  },
+  
+  "street": "Street",
+  "@street": {
+    "description": "Location option: Street"
+  },
+  
+  "park": "Park",
+  "@park": {
+    "description": "Location option: Park"
+  },
+  
+  "others": "Others",
+  "@others": {
+    "description": "Location option: Others"
+  },
+  
+  "notes": "Notes (optional)",
+  "@notes": {
+    "description": "Label for optional notes field"
+  },
+  
+  "howAreYouFeeling": "How are you feeling?",
+  "@howAreYouFeeling": {
+    "description": "Placeholder text for notes field in craving registration"
+  },
+  
+  "whatTriggeredCraving": "What triggered your craving?",
+  "@whatTriggeredCraving": {
+    "description": "Question about what triggered the craving"
+  },
+  
+  "stress": "Stress",
+  "@stress": {
+    "description": "Trigger option: Stress"
+  },
+  
+  "boredom": "Boredom",
+  "@boredom": {
+    "description": "Trigger option: Boredom"
+  },
+  
+  "socialSituation": "Social situation",
+  "@socialSituation": {
+    "description": "Trigger option: Social situation"
+  },
+  
+  "afterMeal": "After meal",
+  "@afterMeal": {
+    "description": "Trigger option: After meal"
+  },
+  
+  "coffee": "Coffee",
+  "@coffee": {
+    "description": "Trigger option: Coffee"
+  },
+  
+  "alcohol": "Alcohol",
+  "@alcohol": {
+    "description": "Trigger option: Alcohol"
+  },
+  
+  "craving": "Craving",
+  "@craving": {
+    "description": "Trigger option: Craving"
+  },
+  
+  "other": "Other",
+  "@other": {
+    "description": "Trigger option: Other"
+  },
+  
+  "intensityLevel": "Intensity level",
+  "@intensityLevel": {
+    "description": "Label for craving intensity level selection"
+  },
+  
+  "mild": "Mild",
+  "@mild": {
+    "description": "Intensity level: Mild"
+  },
+  
+  "moderate": "Moderate",
+  "@moderate": {
+    "description": "Intensity level: Moderate"
+  },
+  
+  "intense": "Intense",
+  "@intense": {
+    "description": "Intensity level: Intense"
+  },
+  
+  "veryIntense": "Very intense",
+  "@veryIntense": {
+    "description": "Intensity level: Very intense"
+  },
+  
+  "save": "Save",
+  "@save": {
+    "description": "Save button text"
+  },
+  
+  "pleaseSelectLocation": "Please select your location",
+  "@pleaseSelectLocation": {
+    "description": "Validation message for location selection"
+  },
+  
+  "pleaseSelectTrigger": "Please select what triggered your craving",
+  "@pleaseSelectTrigger": {
+    "description": "Validation message for trigger selection"
+  },
+  
+  "pleaseSelectIntensity": "Please select the intensity level",
+  "@pleaseSelectIntensity": {
+    "description": "Validation message for intensity selection"
+  },
+  
+  "whatsTheReason": "What's the reason?",
+  "@whatsTheReason": {
+    "description": "Question asking for the reason for smoking"
+  },
+  
+  "register": "Register",
+  "@register": {
+    "description": "Register button text"
+  },
+  
+  "anxiety": "Anxiety",
+  "@anxiety": {
+    "description": "Reason option: Anxiety"
+  },
+  
+  "pleaseSelectReason": "Please select a reason",
+  "@pleaseSelectReason": {
+    "description": "Validation message for reason selection"
+  },
+  
+  "howDoYouFeel": "How do you feel? What could you have done differently?",
+  "@howDoYouFeel": {
+    "description": "Placeholder for notes field in smoking record"
+  },
+  
+  "didYouResist": "Did you resist?",
+  "@didYouResist": {
+    "description": "Question about whether user resisted the craving"
+  },
+  
+  "yes": "Yes",
+  "@yes": {
+    "description": "Yes option"
+  },
+  
+  "no": "No",
+  "@no": {
+    "description": "No option"
+  },
+  
+  "howMuchDidYouSmoke": "How much did you smoke?",
+  "@howMuchDidYouSmoke": {
+    "description": "Question about amount smoked"
+  },
+  
+  "oneOrLess": "1 or less",
+  "@oneOrLess": {
+    "description": "Smoking amount option: 1 or less"
+  },
+  
+  "twoToFive": "2-5",
+  "@twoToFive": {
+    "description": "Smoking amount option: 2-5 cigarettes"
+  },
+  
+  "moreThanFive": "More than 5",
+  "@moreThanFive": {
+    "description": "Smoking amount option: More than 5 cigarettes"
+  },
+  
+  "pleaseSelectAmount": "Please select how much you smoked",
+  "@pleaseSelectAmount": {
+    "description": "Validation message for smoking amount selection"
+  },
+  
+  "howLongDidItLast": "How long did it last?",
+  "@howLongDidItLast": {
+    "description": "Question about duration of smoking session"
+  },
+  
+  "lessThan5min": "Less than 5 min",
+  "@lessThan5min": {
+    "description": "Duration option: Less than 5 minutes"
+  },
+  
+  "fiveToFifteenMin": "5-15 min",
+  "@fiveToFifteenMin": {
+    "description": "Duration option: 5-15 minutes"
+  },
+  
+  "moreThan15min": "More than 15 min",
+  "@moreThan15min": {
+    "description": "Duration option: More than 15 minutes"
+  },
+  
+  "pleaseSelectDuration": "Please select how long it lasted",
+  "@pleaseSelectDuration": {
+    "description": "Validation message for duration selection"
   }
 }
