@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:nicotinaai_flutter/core/theme/app_theme.dart';
 import 'package:nicotinaai_flutter/features/onboarding/providers/onboarding_provider.dart';
 import 'package:nicotinaai_flutter/features/onboarding/widgets/progress_bar.dart';
+import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
 
 class OnboardingContainer extends StatefulWidget {
   final String title;
@@ -12,7 +13,7 @@ class OnboardingContainer extends StatefulWidget {
   final Widget content;
   final bool showBackButton;
   final bool canProceed;
-  final String nextButtonText;
+  final String? nextButtonText;
   final VoidCallback onNext;
   
   const OnboardingContainer({
@@ -22,7 +23,7 @@ class OnboardingContainer extends StatefulWidget {
     required this.content,
     this.showBackButton = true,
     this.canProceed = true,
-    this.nextButtonText = 'Continuar',
+    this.nextButtonText,
     required this.onNext,
   }) : super(key: key);
   
@@ -134,7 +135,7 @@ class _OnboardingContainerState extends State<OnboardingContainer> {
               children: [
                 const Icon(Icons.arrow_back, size: 18),
                 const SizedBox(width: 8),
-                Text('Voltar'),
+                Text(AppLocalizations.of(context).back),
               ],
             ),
           )
@@ -155,7 +156,7 @@ class _OnboardingContainerState extends State<OnboardingContainer> {
           ),
           child: Row(
             children: [
-              Text(widget.nextButtonText),
+              Text(widget.nextButtonText ?? AppLocalizations.of(context).continueButton),
               const SizedBox(width: 8),
               const Icon(Icons.arrow_forward, size: 18),
             ],

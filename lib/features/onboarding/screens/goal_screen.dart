@@ -5,6 +5,7 @@ import 'package:nicotinaai_flutter/features/onboarding/models/onboarding_model.d
 import 'package:nicotinaai_flutter/features/onboarding/providers/onboarding_provider.dart';
 import 'package:nicotinaai_flutter/features/onboarding/screens/onboarding_container.dart';
 import 'package:nicotinaai_flutter/features/onboarding/widgets/option_card.dart';
+import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
 
 class GoalScreen extends StatefulWidget {
   const GoalScreen({Key? key}) : super(key: key);
@@ -31,20 +32,21 @@ class _GoalScreenState extends State<GoalScreen> {
   Widget build(BuildContext context) {
     final provider = Provider.of<OnboardingProvider>(context);
     final currentOnboarding = provider.state.onboarding;
+    final localizations = AppLocalizations.of(context);
     
     if (currentOnboarding == null) {
       return const Center(child: CircularProgressIndicator());
     }
 
     return OnboardingContainer(
-      title: "Qual é o seu objetivo?",
-      subtitle: "Selecione o que você deseja alcançar",
+      title: localizations.goalQuestion,
+      subtitle: localizations.selectGoal,
       content: Column(
         children: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24),
             child: Text(
-              'Definir um objetivo claro é essencial para o seu sucesso. Queremos ajudar você a alcançar o que deseja.',
+              localizations.goalExplanation,
               style: GoogleFonts.poppins(
                 fontSize: 16,
                 color: Colors.grey[700],
@@ -63,8 +65,8 @@ class _GoalScreenState extends State<GoalScreen> {
                 _selectedGoal = GoalType.reduce;
               });
             },
-            label: 'Reduzir o consumo',
-            description: 'Quero fumar menos cigarros e ter mais controle sobre o hábito',
+            label: localizations.reduceConsumption,
+            description: localizations.reduceDescription,
             child: _selectedGoal == GoalType.reduce ? Padding(
               padding: const EdgeInsets.only(top: 12),
               child: Row(
@@ -85,7 +87,7 @@ class _GoalScreenState extends State<GoalScreen> {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            'Reduzir',
+                            localizations.reduce,
                             style: GoogleFonts.poppins(
                               fontSize: 14,
                               fontWeight: FontWeight.w500,
@@ -111,8 +113,8 @@ class _GoalScreenState extends State<GoalScreen> {
                 _selectedGoal = GoalType.quit;
               });
             },
-            label: 'Parar de fumar',
-            description: 'Quero largar completamente o cigarro e viver livre do tabaco',
+            label: localizations.quitSmoking,
+            description: localizations.quitDescription,
             child: _selectedGoal == GoalType.quit ? Padding(
               padding: const EdgeInsets.only(top: 12),
               child: Row(
@@ -133,7 +135,7 @@ class _GoalScreenState extends State<GoalScreen> {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            'Parar',
+                            localizations.quit,
                             style: GoogleFonts.poppins(
                               fontSize: 14,
                               fontWeight: FontWeight.w500,
@@ -155,7 +157,7 @@ class _GoalScreenState extends State<GoalScreen> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24),
             child: Text(
-              'Adaptaremos nossos recursos e recomendações com base em seu objetivo. Você poderá modificá-lo mais tarde se mudar de ideia.',
+              localizations.goalHelp,
               style: GoogleFonts.poppins(
                 fontSize: 14,
                 color: Colors.grey[600],
@@ -177,9 +179,9 @@ class _GoalScreenState extends State<GoalScreen> {
         } else {
           // Mostrar mensagem de erro se nenhum objetivo for selecionado
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Por favor, selecione um objetivo'),
-              duration: Duration(seconds: 2),
+            SnackBar(
+              content: Text(localizations.pleaseSelectGoal),
+              duration: const Duration(seconds: 2),
             ),
           );
         }

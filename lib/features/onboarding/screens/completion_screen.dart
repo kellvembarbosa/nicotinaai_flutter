@@ -7,6 +7,7 @@ import 'package:nicotinaai_flutter/features/onboarding/screens/onboarding_contai
 import 'package:go_router/go_router.dart';
 import 'package:nicotinaai_flutter/core/routes/app_routes.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
 import 'dart:ui';
 
 class CompletionScreen extends StatefulWidget {
@@ -23,6 +24,7 @@ class _CompletionScreenState extends State<CompletionScreen> {
   Widget build(BuildContext context) {
     final provider = Provider.of<OnboardingProvider>(context);
     final onboarding = provider.state.onboarding;
+    final localizations = AppLocalizations.of(context);
     
     if (onboarding == null) {
       return const Center(child: CircularProgressIndicator());
@@ -54,10 +56,10 @@ class _CompletionScreenState extends State<CompletionScreen> {
     }
 
     return OnboardingContainer(
-      title: "Tudo pronto!",
-      subtitle: "Sua jornada personalizada começa agora",
+      title: localizations.allDone,
+      subtitle: localizations.personalizedJourney,
       showBackButton: false,
-      nextButtonText: "Iniciar Minha Jornada",
+      nextButtonText: localizations.startMyJourney,
       content: Column(
         children: [
           const SizedBox(height: 24),
@@ -109,7 +111,7 @@ class _CompletionScreenState extends State<CompletionScreen> {
           
           // Texto explicativo
           Text(
-            "Parabéns pelo primeiro passo!",
+            localizations.congratulations,
             style: GoogleFonts.poppins(
               fontSize: 20,
               fontWeight: FontWeight.bold,
@@ -122,7 +124,9 @@ class _CompletionScreenState extends State<CompletionScreen> {
           
           // Resumo personalizado
           Text(
-            "Criamos um plano personalizado com base em suas respostas para ajudá-lo a $goalText $timelineText.",
+            onboarding.goal == GoalType.reduce 
+                ? localizations.personalizedPlanReduce(timelineText)
+                : localizations.personalizedPlanQuit(timelineText),
             style: context.textTheme.bodyLarge?.copyWith(
               color: context.subtitleColor,
               height: 1.5,
@@ -178,7 +182,7 @@ class _CompletionScreenState extends State<CompletionScreen> {
             // Mostrar erro
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text('Erro ao finalizar: ${e.toString()}'),
+                content: Text(localizations.loadingError(e.toString())),
                 duration: const Duration(seconds: 3),
                 behavior: SnackBarBehavior.floating,
               ),
@@ -224,6 +228,8 @@ class _CompletionScreenState extends State<CompletionScreen> {
   
   // Painel de resumo com suporte a dark mode
   Widget _buildSummaryPanel(BuildContext context, int cigarettesPerDay, double monthlyCost, String goalText, OnboardingModel onboarding) {
+    final localizations = AppLocalizations.of(context);
+    
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
@@ -252,7 +258,7 @@ class _CompletionScreenState extends State<CompletionScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            "Seu resumo personalizado",
+            localizations.yourPersonalizedSummary,
             style: context.textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.w600,
               color: context.contentColor,
@@ -264,8 +270,8 @@ class _CompletionScreenState extends State<CompletionScreen> {
           _buildInfoItem(
             context,
             Icons.smoking_rooms,
-            "Consumo diário",
-            "$cigarettesPerDay cigarros por dia",
+            localizations.dailyConsumption,
+            localizations.cigarettesPerDayValue(cigarettesPerDay),
           ),
           
           _buildDivider(context),
@@ -274,7 +280,7 @@ class _CompletionScreenState extends State<CompletionScreen> {
           _buildInfoItem(
             context,
             Icons.savings,
-            "Economia mensal potencial",
+            localizations.potentialMonthlySavings,
             "R\$ ${monthlyCost.toStringAsFixed(2)}",
           ),
           
@@ -284,8 +290,8 @@ class _CompletionScreenState extends State<CompletionScreen> {
           _buildInfoItem(
             context,
             onboarding.goal == GoalType.reduce ? Icons.trending_down : Icons.smoke_free,
-            "Seu objetivo",
-            onboarding.goal == GoalType.reduce ? "Reduzir o consumo" : "Parar de fumar",
+            localizations.yourGoal,
+            onboarding.goal == GoalType.reduce ? localizations.reduceConsumption : localizations.quitSmoking,
           ),
           
           _buildDivider(context),
@@ -294,7 +300,7 @@ class _CompletionScreenState extends State<CompletionScreen> {
           _buildInfoItem(
             context,
             _getChallengeIcon(onboarding.quitChallenge),
-            "Seu desafio principal",
+            localizations.mainChallenge,
             _getChallengeText(onboarding.quitChallenge),
           ),
         ],
@@ -312,24 +318,26 @@ class _CompletionScreenState extends State<CompletionScreen> {
   
   // Lista de benefícios
   Widget _buildBenefitsList(BuildContext context) {
+    final localizations = AppLocalizations.of(context);
+    
     return Column(
       children: [
         _buildBenefitItem(
           context,
-          "Monitoramento personalizado",
-          "Acompanhe seu progresso com base nos seus hábitos"
+          localizations.personalized,
+          localizations.personalizedDescription
         ),
         
         _buildBenefitItem(
           context,
-          "Conquistas importantes",
-          "Celebre cada marco na sua jornada"
+          localizations.importantAchievements,
+          localizations.achievementsDescription
         ),
         
         _buildBenefitItem(
           context,
-          "Suporte quando precisar",
-          "Dicas e estratégias para os momentos difíceis"
+          localizations.supportWhenNeeded,
+          localizations.supportDescription
         ),
       ],
     );
@@ -337,6 +345,8 @@ class _CompletionScreenState extends State<CompletionScreen> {
   
   // Grid de benefícios
   Widget _buildBenefitsGrid(BuildContext context) {
+    final localizations = AppLocalizations.of(context);
+    
     return GridView.count(
       crossAxisCount: 2,
       shrinkWrap: true,
@@ -349,26 +359,26 @@ class _CompletionScreenState extends State<CompletionScreen> {
         _buildBenefitCard(
           context,
           Icons.monitor_heart,
-          "Monitoramento personalizado",
-          "Acompanhe seu progresso com base nos seus hábitos",
+          localizations.personalized,
+          localizations.personalizedDescription,
         ),
         _buildBenefitCard(
           context,
           Icons.emoji_events,
-          "Conquistas importantes",
-          "Celebre cada marco na sua jornada",
+          localizations.importantAchievements,
+          localizations.achievementsDescription,
         ),
         _buildBenefitCard(
           context,
           Icons.support_agent,
-          "Suporte quando precisar",
-          "Dicas e estratégias para os momentos difíceis",
+          localizations.supportWhenNeeded,
+          localizations.supportDescription,
         ),
         _buildBenefitCard(
           context,
           Icons.trending_up,
-          "Resultado garantido",
-          "Com nossa tecnologia baseada em ciência",
+          localizations.guaranteedResults,
+          localizations.resultsDescription,
         ),
       ],
     );
@@ -443,15 +453,17 @@ class _CompletionScreenState extends State<CompletionScreen> {
   }
   
   String _getChallengeText(QuitChallenge? challenge) {
+    final localizations = AppLocalizations.of(context);
+    
     switch (challenge) {
       case QuitChallenge.stress:
-        return "Estresse e ansiedade";
+        return localizations.stressAnxiety;
       case QuitChallenge.habit:
-        return "Força do hábito";
+        return localizations.habitStrength;
       case QuitChallenge.social:
-        return "Influência social";
+        return localizations.socialInfluence;
       case QuitChallenge.addiction:
-        return "Dependência física";
+        return localizations.physicalDependence;
       default:
         return "Não especificado";
     }

@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
 
 class NavigationButtons extends StatelessWidget {
   final VoidCallback onBack;
   final VoidCallback onNext;
   final bool canGoBack;
   final bool disableNext;
-  final String nextText;
+  final String? nextText;
   
   const NavigationButtons({
     Key? key,
@@ -14,7 +15,7 @@ class NavigationButtons extends StatelessWidget {
     required this.onNext,
     this.canGoBack = true,
     this.disableNext = false,
-    this.nextText = 'Continuar',
+    this.nextText,
   }) : super(key: key);
   
   @override
@@ -70,7 +71,7 @@ class NavigationButtons extends StatelessWidget {
           child: Row(
             children: [
               Text(
-                nextText,
+                nextText ?? AppLocalizations.of(context).continueButton,
                 style: GoogleFonts.poppins(
                   fontSize: 15,
                   fontWeight: FontWeight.w600,

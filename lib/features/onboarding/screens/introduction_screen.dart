@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:nicotinaai_flutter/features/onboarding/providers/onboarding_provider.dart';
 import 'package:nicotinaai_flutter/features/onboarding/screens/onboarding_container.dart';
+import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class IntroductionScreen extends StatelessWidget {
@@ -10,12 +11,13 @@ class IntroductionScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<OnboardingProvider>(context);
+    final localizations = AppLocalizations.of(context);
 
     return OnboardingContainer(
-      title: "Bem-vindo ao NicotinaAI",
-      subtitle: "Seu assistente pessoal para parar de fumar",
+      title: localizations.welcomeToNicotinaAI,
+      subtitle: localizations.personalAssistant,
       showBackButton: false,
-      nextButtonText: "Começar",
+      nextButtonText: localizations.start,
       content: Column(
         children: [
           const SizedBox(height: 24),
@@ -42,7 +44,7 @@ class IntroductionScreen extends StatelessWidget {
           
           // Texto explicativo
           Text(
-            "RESPIRE LIBERDADE. SUA NOVA VIDA COMEÇA AGORA.",
+            localizations.breatheFreedom,
             style: GoogleFonts.poppins(
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -55,7 +57,7 @@ class IntroductionScreen extends StatelessWidget {
           const SizedBox(height: 24),
           
           Text(
-            "Vamos personalizar sua experiência para ajudá-lo a alcançar seus objetivos de parar de fumar. Responda algumas perguntas para começarmos.",
+            localizations.personalizeExperience,
             style: GoogleFonts.poppins(
               fontSize: 16,
               color: Colors.grey[700],
