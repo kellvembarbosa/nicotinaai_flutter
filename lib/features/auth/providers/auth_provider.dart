@@ -35,24 +35,32 @@ class AuthProvider extends ChangeNotifier {
       _state = AuthState.initial();
       notifyListeners();
       
+      print('🔍 [AuthProvider] Verificando estado de autenticação');
+      
       // Verifica se há uma sessão válida
       final hasSession = await _authRepository.hasSession();
       
       if (!hasSession) {
+        print('🔒 [AuthProvider] Nenhuma sessão encontrada');
         _state = AuthState.unauthenticated();
         notifyListeners();
         return;
       }
       
+      print('🔓 [AuthProvider] Sessão encontrada');
+      
       // Obtém o usuário da sessão atual (Supabase já restaura automaticamente)
       final user = await _authRepository.getSession();
       
       if (user != null) {
+        print('👤 [AuthProvider] Usuário autenticado: ${user.email}');
         _state = AuthState.authenticated(user);
       } else {
+        print('⚠️ [AuthProvider] Sessão encontrada, mas sem usuário válido');
         _state = AuthState.unauthenticated();
       }
     } catch (e) {
+      print('❌ [AuthProvider] Erro ao verificar autenticação: $e');
       _state = AuthState.unauthenticated();
     } finally {
       notifyListeners();
@@ -62,7 +70,7 @@ class AuthProvider extends ChangeNotifier {
   /// Realiza o login com e-mail e senha
   Future<void> signInWithEmailAndPassword(String email, String password) async {
     try {
-      print('Início do login: ${DateTime.now()}');
+      print('🔄 [AuthProvider] Início do login: ${DateTime.now()}');
       _state = AuthState.authenticating();
       notifyListeners();
       
@@ -71,19 +79,19 @@ class AuthProvider extends ChangeNotifier {
         password,
       );
       
-      print('Usuário autenticado: ${user.email}');
+      print('✅ [AuthProvider] Usuário autenticado: ${user.email}');
       _state = AuthState.authenticated(user);
-      print('Estado atualizado para autenticado: ${DateTime.now()}');
+      print('📊 [AuthProvider] Estado atualizado para autenticado: ${DateTime.now()}');
     } catch (e) {
       final error = e is app_exceptions.AuthException
           ? e
           : app_exceptions.AuthException.fromSupabaseError(e);
           
-      print('Erro na autenticação: ${error.message}');
+      print('❌ [AuthProvider] Erro na autenticação: ${error.message}');
       _state = AuthState.error(error.message);
     } finally {
       notifyListeners();
-      print('Notificação enviada após login: ${DateTime.now()}');
+      print('🔔 [AuthProvider] Notificação enviada após login: ${DateTime.now()}');
     }
   }
   
@@ -94,6 +102,7 @@ class AuthProvider extends ChangeNotifier {
     {String? name}
   ) async {
     try {
+      print('🔄 [AuthProvider] Iniciando registro');
       _state = AuthState.authenticating();
       notifyListeners();
       
@@ -103,12 +112,14 @@ class AuthProvider extends ChangeNotifier {
         name: name,
       );
       
+      print('✅ [AuthProvider] Usuário registrado com sucesso: ${user.email}');
       _state = AuthState.authenticated(user);
     } catch (e) {
       final error = e is app_exceptions.AuthException
           ? e
           : app_exceptions.AuthException.fromSupabaseError(e);
           
+      print('❌ [AuthProvider] Erro no registro: ${error.message}');
       _state = AuthState.error(error.message);
     } finally {
       notifyListeners();
@@ -118,33 +129,45 @@ class AuthProvider extends ChangeNotifier {
   /// Realiza o logout
   Future<void> signOut() async {
     try {
+      print('🔄 [AuthProvider] Iniciando logout');
       await _authRepository.signOut();
+      print('✅ [AuthProvider] Logout realizado com sucesso');
       _state = AuthState.unauthenticated();
     } catch (e) {
       final error = e is app_exceptions.AuthException
           ? e
           : app_exceptions.AuthException.fromSupabaseError(e);
           
+      print('❌ [AuthProvider] Erro no logout: ${error.message}');
       _state = AuthState.error(error.message);
     } finally {
       notifyListeners();
     }
   }
   
+  /// Força a verificação do estado atual de autenticação
+  Future<void> refreshAuthState() async {
+    print('🔄 [AuthProvider] Atualizando estado de autenticação');
+    await _checkCurrentAuthState();
+  }
+  
   /// Envia e-mail para recuperação de senha
   Future<void> sendPasswordResetEmail(String email) async {
     try {
+      print('🔄 [AuthProvider] Enviando e-mail de recuperação de senha');
       _state = _state.copyWith(isLoading: true);
       notifyListeners();
       
       await _authRepository.sendPasswordResetEmail(email);
       
+      print('✉️ [AuthProvider] E-mail de recuperação enviado');
       _state = _state.copyWith(isLoading: false);
     } catch (e) {
       final error = e is app_exceptions.AuthException
           ? e
           : app_exceptions.AuthException.fromSupabaseError(e);
           
+      print('❌ [AuthProvider] Erro ao enviar e-mail: ${error.message}');
       _state = AuthState.error(error.message);
     } finally {
       notifyListeners();
@@ -157,6 +180,7 @@ class AuthProvider extends ChangeNotifier {
     String? avatarUrl,
   }) async {
     try {
+      print('🔄 [AuthProvider] Atualizando dados do usuário');
       _state = _state.copyWith(isLoading: true);
       notifyListeners();
       
@@ -165,12 +189,14 @@ class AuthProvider extends ChangeNotifier {
         avatarUrl: avatarUrl,
       );
       
+      print('✅ [AuthProvider] Dados atualizados com sucesso');
       _state = AuthState.authenticated(updatedUser);
     } catch (e) {
       final error = e is app_exceptions.AuthException
           ? e
           : app_exceptions.AuthException.fromSupabaseError(e);
           
+      print('❌ [AuthProvider] Erro ao atualizar dados: ${error.message}');
       _state = AuthState.error(error.message);
     } finally {
       notifyListeners();

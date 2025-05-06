@@ -1,17 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:nicotinaai_flutter/config/supabase_config.dart';
 import 'package:nicotinaai_flutter/core/routes/app_router.dart';
+import 'package:nicotinaai_flutter/core/theme/theme_provider.dart';
 import 'package:nicotinaai_flutter/features/auth/providers/auth_provider.dart';
 import 'package:nicotinaai_flutter/features/auth/repositories/auth_repository.dart';
 import 'package:nicotinaai_flutter/features/onboarding/providers/onboarding_provider.dart';
 import 'package:nicotinaai_flutter/features/onboarding/repositories/onboarding_repository.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 void main() async {
   // Garante que os widgets estão iniciados antes de chamar código nativo
   WidgetsFlutterBinding.ensureInitialized();
+  
+  // Configura a aparência da barra de status
+  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+    statusBarColor: Colors.transparent,
+  ));
   
   // Carrega as variáveis de ambiente
   await dotenv.load();
@@ -43,6 +49,16 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
+        // Provider de tema
+        ChangeNotifierProvider(
+          create: (_) {
+            final themeProvider = ThemeProvider();
+            // Inicializa o provider de tema
+            themeProvider.initialize();
+            return themeProvider;
+          },
+        ),
+        
         // Provider de autenticação
         ChangeNotifierProvider(
           create: (_) => AuthProvider(
@@ -59,22 +75,32 @@ class MyApp extends StatelessWidget {
             final provider = previousOnboardingProvider ?? 
                 OnboardingProvider(repository: onboardingRepository);
                 
-            // Inicializa apenas se o usuário estiver autenticado e ainda não inicializou
-            if (authProvider.isAuthenticated && 
-                provider.state.isInitial && 
-                !provider.state.isLoading) {
+            // Inicializa apenas se o usuário estiver autenticado
+            if (authProvider.isAuthenticated) {
               // Agende a inicialização para o próximo ciclo de frame
+              // para evitar chamadas múltiplas durante a construção
+              print('👤 [MyApp] Usuário autenticado. Agendando inicialização do onboarding');
               WidgetsBinding.instance.addPostFrameCallback((_) {
+                print('🔄 [MyApp] Iniciando onboarding após autenticação');
                 provider.initialize();
+                
+                // Verificar explicitamente o status de conclusão no banco de dados
+                WidgetsBinding.instance.addPostFrameCallback((_) async {
+                  await Future.delayed(const Duration(milliseconds: 500));
+                  print('🔍 [MyApp] Verificando status de onboarding no banco de dados');
+                  await provider.checkCompletionStatus();
+                });
               });
+            } else {
+              print('🔒 [MyApp] Usuário não autenticado. Onboarding não inicializado');
             }
             
             return provider;
           },
         ),
       ],
-      child: Consumer2<AuthProvider, OnboardingProvider>(
-        builder: (context, authProvider, onboardingProvider, _) {
+      child: Consumer3<ThemeProvider, AuthProvider, OnboardingProvider>(
+        builder: (context, themeProvider, authProvider, onboardingProvider, _) {
           // Criamos o router dentro do Consumer para reconstruir quando o estado mudar
           final appRouter = AppRouter(
             authProvider: authProvider,
@@ -84,125 +110,12 @@ class MyApp extends StatelessWidget {
           return MaterialApp.router(
             title: 'NicotinaAI',
             debugShowCheckedModeBanner: false,
-            theme: ThemeData(
-              // Paleta de cores baseada em azul para transmitir confiança
-              colorScheme: ColorScheme.fromSeed(
-                seedColor: const Color(0xFF2962FF), // Azul vibrante
-                primary: const Color(0xFF2962FF),
-                secondary: const Color(0xFF0D47A1),
-                tertiary: const Color(0xFF82B1FF),
-                background: Colors.white,
-                surface: Colors.white,
-                onPrimary: Colors.white,
-                onSecondary: Colors.white,
-                onSurface: Colors.black,
-                brightness: Brightness.light,
-              ),
-              useMaterial3: true,
-              textTheme: GoogleFonts.poppinsTextTheme(
-                Theme.of(context).textTheme,
-              ),
-              appBarTheme: AppBarTheme(
-                centerTitle: true,
-                backgroundColor: Colors.white,
-                elevation: 0,
-                iconTheme: const IconThemeData(color: Colors.black),
-                titleTextStyle: GoogleFonts.poppins(
-                  color: Colors.black,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              elevatedButtonTheme: ElevatedButtonThemeData(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF2962FF), // Azul primário
-                  foregroundColor: Colors.white,
-                  textStyle: GoogleFonts.poppins(
-                    fontWeight: FontWeight.w600,
-                  ),
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 12,
-                    horizontal: 24,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-              ),
-              inputDecorationTheme: InputDecorationTheme(
-                filled: true,
-                fillColor: Colors.grey[100],
-                contentPadding: const EdgeInsets.symmetric(
-                  vertical: 16,
-                  horizontal: 16,
-                ),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(
-                    color: Colors.grey[300]!,
-                    width: 1,
-                  ),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(
-                    color: Color(0xFF2962FF), // Azul primário
-                    width: 2,
-                  ),
-                ),
-                errorBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(
-                    color: Colors.red,
-                    width: 1,
-                  ),
-                ),
-                focusedErrorBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(
-                    color: Colors.red,
-                    width: 2,
-                  ),
-                ),
-                labelStyle: GoogleFonts.poppins(
-                  color: Colors.grey[800],
-                ),
-                floatingLabelStyle: GoogleFonts.poppins(
-                  color: Color(0xFF2962FF), // Azul primário
-                ),
-              ),
-              // Estilo de botões de texto
-              textButtonTheme: TextButtonThemeData(
-                style: TextButton.styleFrom(
-                  foregroundColor: const Color(0xFF2962FF), // Azul primário
-                  textStyle: GoogleFonts.poppins(
-                    fontWeight: FontWeight.w500,
-                    fontSize: 15,
-                  ),
-                ),
-              ),
-              // Estilo de botões outlined
-              outlinedButtonTheme: OutlinedButtonThemeData(
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: const Color(0xFF2962FF), // Azul primário
-                  side: const BorderSide(color: Color(0xFF2962FF), width: 1.5),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 12,
-                    horizontal: 24,
-                  ),
-                  textStyle: GoogleFonts.poppins(
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-            ),
+            
+            // Configuração de temas
+            themeMode: themeProvider.themeMode,
+            theme: themeProvider.lightTheme,
+            darkTheme: themeProvider.darkTheme,
+            
             routerConfig: appRouter.router,
           );
         },

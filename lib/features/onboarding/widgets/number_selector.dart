@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:nicotinaai_flutter/core/theme/app_theme.dart';
 
 class NumberSelector extends StatelessWidget {
   final int value;
@@ -19,6 +19,8 @@ class NumberSelector extends StatelessWidget {
   
   @override
   Widget build(BuildContext context) {
+    final isDark = context.isDarkMode;
+    
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -28,21 +30,32 @@ class NumberSelector extends StatelessWidget {
               : () => onChanged(value - step),
           icon: const Icon(Icons.remove),
           style: IconButton.styleFrom(
-            backgroundColor: Colors.grey[200],
-            foregroundColor: Colors.grey[800],
-            disabledBackgroundColor: Colors.grey[100],
-            disabledForegroundColor: Colors.grey[400],
+            backgroundColor: isDark 
+                ? Colors.grey[800] 
+                : Colors.grey[200],
+            foregroundColor: isDark 
+                ? Colors.white 
+                : Colors.grey[800],
+            disabledBackgroundColor: isDark 
+                ? Colors.grey[900] 
+                : Colors.grey[100],
+            disabledForegroundColor: isDark 
+                ? Colors.grey[700] 
+                : Colors.grey[400],
             padding: EdgeInsets.zero,
             minimumSize: const Size(36, 36),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
           ),
         ),
-        Padding(
+        Container(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Text(
             value.toString(),
-            style: GoogleFonts.poppins(
-              fontSize: 16,
+            style: context.textTheme.titleMedium!.copyWith(
               fontWeight: FontWeight.w500,
+              color: context.contentColor,
             ),
           ),
         ),
@@ -52,12 +65,23 @@ class NumberSelector extends StatelessWidget {
               : () => onChanged(value + step),
           icon: const Icon(Icons.add),
           style: IconButton.styleFrom(
-            backgroundColor: Colors.grey[200],
-            foregroundColor: Colors.grey[800],
-            disabledBackgroundColor: Colors.grey[100],
-            disabledForegroundColor: Colors.grey[400],
+            backgroundColor: isDark 
+                ? Colors.grey[800] 
+                : Colors.grey[200],
+            foregroundColor: isDark 
+                ? Colors.white 
+                : Colors.grey[800],
+            disabledBackgroundColor: isDark 
+                ? Colors.grey[900] 
+                : Colors.grey[100],
+            disabledForegroundColor: isDark 
+                ? Colors.grey[700] 
+                : Colors.grey[400],
             padding: EdgeInsets.zero,
             minimumSize: const Size(36, 36),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
           ),
         ),
       ],

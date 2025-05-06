@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:nicotinaai_flutter/core/theme/app_theme.dart';
+import 'package:nicotinaai_flutter/core/theme/theme_provider.dart';
+import 'package:nicotinaai_flutter/core/theme/theme_settings.dart';
 import 'package:nicotinaai_flutter/features/auth/providers/auth_provider.dart';
 
 class SettingsScreen extends StatelessWidget {
@@ -12,33 +14,61 @@ class SettingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
+    final themeProvider = Provider.of<ThemeProvider>(context);
     final user = authProvider.currentUser;
 
     return Scaffold(
-      appBar: AppBar(title: Text('Configurações', style: GoogleFonts.poppins(fontWeight: FontWeight.w600)), centerTitle: true, elevation: 0),
+      backgroundColor: context.backgroundColor,
+      appBar: AppBar(
+        title: Text('Configurações', style: context.titleStyle),
+        centerTitle: true,
+        elevation: 0,
+        backgroundColor: context.backgroundColor,
+      ),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.all(16.0),
           children: [
             // Perfil do usuário
             Card(
-              elevation: 2,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              elevation: context.isDarkMode ? 0 : 2,
+              color: context.cardColor,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+                side: context.isDarkMode 
+                    ? BorderSide(color: context.borderColor) 
+                    : BorderSide.none,
+              ),
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
                   children: [
                     CircleAvatar(
                       radius: 40,
-                      backgroundColor: Theme.of(context).primaryColor.withOpacity(0.2),
+                      backgroundColor: context.primaryColor.withOpacity(0.2),
                       child: Text(
                         user?.name?.substring(0, 1).toUpperCase() ?? 'U',
-                        style: GoogleFonts.poppins(fontSize: 32, fontWeight: FontWeight.bold, color: Theme.of(context).primaryColor),
+                        style: TextStyle(
+                          fontSize: 32,
+                          fontWeight: FontWeight.bold,
+                          color: context.primaryColor,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 16),
-                    Text(user?.name ?? 'Usuário', style: GoogleFonts.poppins(fontSize: 20, fontWeight: FontWeight.bold)),
-                    Text(user?.email ?? 'email@exemplo.com', style: GoogleFonts.poppins(fontSize: 14, color: Colors.grey[600])),
+                    Text(
+                      user?.name ?? 'Usuário',
+                      style: context.textTheme.titleLarge!.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: context.contentColor,
+                      ),
+                    ),
+                    Text(
+                      user?.email ?? 'email@exemplo.com',
+                      style: context.textTheme.bodyMedium!.copyWith(
+                        color: context.subtitleColor,
+                      ),
+                    ),
                     const SizedBox(height: 16),
                     ElevatedButton.icon(
                       onPressed: () {
@@ -47,6 +77,8 @@ class SettingsScreen extends StatelessWidget {
                       icon: const Icon(Icons.edit),
                       label: const Text('Editar Perfil'),
                       style: ElevatedButton.styleFrom(
+                        backgroundColor: context.primaryColor,
+                        foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                       ),
@@ -69,21 +101,22 @@ class SettingsScreen extends StatelessWidget {
                 // Navegação para configurações de notificações
               },
             ),
-            _buildSettingItem(
-              context,
-              'Tema',
-              'Alternar entre temas claro e escuro',
-              Icons.palette_outlined,
-              onTap: () {
-                // Alternar tema
-              },
-              trailing: Switch(
-                value: false, // Tema claro por padrão
-                onChanged: (value) {
-                  // Alternar tema
-                },
+            
+            // Configuração de tema com ThemeSettings
+            Card(
+              elevation: 0,
+              color: context.cardColor,
+              margin: const EdgeInsets.only(bottom: 8),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+                side: BorderSide(color: context.borderColor),
+              ),
+              child: const Padding(
+                padding: EdgeInsets.all(16),
+                child: ThemeSettings(),
               ),
             ),
+            
             _buildSettingItem(
               context,
               'Idioma',
@@ -162,10 +195,28 @@ class SettingsScreen extends StatelessWidget {
                   context: context,
                   builder:
                       (context) => AlertDialog(
-                        title: Text('Sair da conta', style: GoogleFonts.poppins(fontWeight: FontWeight.bold)),
-                        content: Text('Tem certeza que deseja sair da sua conta?', style: GoogleFonts.poppins()),
+                        backgroundColor: context.cardColor,
+                        title: Text(
+                          'Sair da conta',
+                          style: context.textTheme.titleLarge!.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: context.contentColor,
+                          ),
+                        ),
+                        content: Text(
+                          'Tem certeza que deseja sair da sua conta?',
+                          style: context.bodyStyle,
+                        ),
                         actions: [
-                          TextButton(onPressed: () => Navigator.of(context).pop(), child: Text('Cancelar', style: GoogleFonts.poppins())),
+                          TextButton(
+                            onPressed: () => Navigator.of(context).pop(),
+                            child: Text(
+                              'Cancelar',
+                              style: context.textTheme.labelLarge!.copyWith(
+                                color: context.isDarkMode ? Colors.grey[300] : Colors.grey[700],
+                              ),
+                            ),
+                          ),
                           ElevatedButton(
                             onPressed: () async {
                               Navigator.of(context).pop();
@@ -174,15 +225,19 @@ class SettingsScreen extends StatelessWidget {
                                 context.go('/login');
                               }
                             },
-                            style: ElevatedButton.styleFrom(backgroundColor: Theme.of(context).primaryColor),
-                            child: Text('Sair', style: GoogleFonts.poppins(color: Colors.white)),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: context.primaryColor,
+                              foregroundColor: Colors.white,
+                            ),
+                            child: const Text('Sair'),
                           ),
                         ],
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                       ),
                 );
               },
-              textColor: Theme.of(context).primaryColor,
-              iconColor: Theme.of(context).primaryColor,
+              textColor: context.primaryColor,
+              iconColor: context.primaryColor,
             ),
 
             const SizedBox(height: 24),
@@ -221,7 +276,14 @@ class SettingsScreen extends StatelessWidget {
             const SizedBox(height: 16),
 
             // Versão do app
-            Center(child: Text('Versão 1.0.0', style: GoogleFonts.poppins(fontSize: 12, color: Colors.grey[600]))),
+            Center(
+              child: Text(
+                'Versão 1.0.0',
+                style: context.textTheme.bodySmall!.copyWith(
+                  color: context.subtitleColor,
+                ),
+              ),
+            ),
           ],
         ),
       ),
@@ -231,7 +293,13 @@ class SettingsScreen extends StatelessWidget {
   Widget _buildSectionHeader(BuildContext context, String title) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8.0),
-      child: Text(title, style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.bold)),
+      child: Text(
+        title,
+        style: context.textTheme.titleMedium!.copyWith(
+          fontWeight: FontWeight.bold,
+          color: context.contentColor,
+        ),
+      ),
     );
   }
 
@@ -247,15 +315,36 @@ class SettingsScreen extends StatelessWidget {
   }) {
     return Card(
       elevation: 0,
-      color: Colors.grey[50],
+      color: context.cardColor,
       margin: const EdgeInsets.only(bottom: 8),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: context.borderColor),
+      ),
       child: ListTile(
         onTap: onTap,
-        leading: Icon(icon, color: iconColor ?? Colors.grey[600]),
-        title: Text(title, style: GoogleFonts.poppins(fontWeight: FontWeight.w500, color: textColor)),
-        subtitle: Text(subtitle, style: GoogleFonts.poppins(fontSize: 12, color: Colors.grey[600])),
-        trailing: trailing ?? const Icon(Icons.arrow_forward_ios, size: 16),
+        leading: Icon(
+          icon,
+          color: iconColor ?? context.subtitleColor,
+        ),
+        title: Text(
+          title,
+          style: context.textTheme.titleMedium!.copyWith(
+            fontWeight: FontWeight.w500,
+            color: textColor ?? context.contentColor,
+          ),
+        ),
+        subtitle: Text(
+          subtitle,
+          style: context.textTheme.bodySmall!.copyWith(
+            color: context.subtitleColor,
+          ),
+        ),
+        trailing: trailing ?? Icon(
+          Icons.arrow_forward_ios,
+          size: 16,
+          color: context.subtitleColor,
+        ),
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
@@ -267,20 +356,35 @@ class SettingsScreen extends StatelessWidget {
       context: context,
       builder:
           (context) => AlertDialog(
-            title: Text('Excluir Conta', style: GoogleFonts.poppins(fontWeight: FontWeight.bold)),
+            backgroundColor: context.cardColor,
+            title: Text(
+              'Excluir Conta',
+              style: context.textTheme.titleLarge!.copyWith(
+                fontWeight: FontWeight.bold,
+                color: context.contentColor,
+              ),
+            ),
             content: Text(
               'Tem certeza que deseja excluir sua conta? Esta ação é irreversível e todos os seus dados serão perdidos.',
-              style: GoogleFonts.poppins(),
+              style: context.bodyStyle,
             ),
             actions: [
-              TextButton(onPressed: () => Navigator.of(context).pop(), child: Text('Cancelar', style: GoogleFonts.poppins())),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text(
+                  'Cancelar',
+                  style: context.textTheme.labelLarge!.copyWith(
+                    color: context.isDarkMode ? Colors.grey[300] : Colors.grey[700],
+                  ),
+                ),
+              ),
               ElevatedButton(
                 onPressed: () {
                   // Implementar exclusão de conta
                   Navigator.of(context).pop();
                 },
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-                child: Text('Excluir', style: GoogleFonts.poppins(color: Colors.white)),
+                child: const Text('Excluir', style: TextStyle(color: Colors.white)),
               ),
             ],
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -295,13 +399,13 @@ class SettingsScreen extends StatelessWidget {
           (context) => AboutDialog(
             applicationName: 'NicotinaAI',
             applicationVersion: '1.0.0',
-            applicationIcon: FlutterLogo(size: 50),
+            applicationIcon: const FlutterLogo(size: 50),
             applicationLegalese: '© 2024 NicotinaAI. Todos os direitos reservados.',
             children: [
               const SizedBox(height: 16),
               Text(
                 'NicotinaAI é uma aplicação de apoio para parar de fumar, que usa inteligência artificial para ajudar no monitoramento de hábitos e fornecer suporte personalizado durante o processo de parar de fumar.',
-                style: GoogleFonts.poppins(fontSize: 14),
+                style: context.bodyStyle,
               ),
             ],
           ),

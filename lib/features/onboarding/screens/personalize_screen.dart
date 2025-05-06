@@ -93,7 +93,7 @@ class _PersonalizeScreenState extends State<PersonalizeScreen> {
           const SizedBox(height: 40),
         ],
       ),
-      disableNextButton: _selectedTimes.isEmpty,
+      canProceed: _selectedTimes.isNotEmpty,
       onNext: () {
         // Salvar dados e avançar
         final updatedData = Map<String, dynamic>.from(onboarding.additionalData);

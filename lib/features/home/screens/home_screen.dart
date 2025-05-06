@@ -1,7 +1,11 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:nicotinaai_flutter/core/theme/app_theme.dart';
+import 'package:nicotinaai_flutter/core/theme/theme_provider.dart';
+import 'package:nicotinaai_flutter/core/theme/theme_switch.dart';
 import 'package:nicotinaai_flutter/features/auth/providers/auth_provider.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class HomeScreen extends StatelessWidget {
   static const String routeName = '/home';
@@ -21,7 +25,19 @@ class HomeScreen extends StatelessWidget {
     const dailyMinutesGained = 240;
     
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: context.backgroundColor,
+      appBar: AppBar(
+        title: Text(
+          'NicotinaAI',
+          style: context.titleStyle,
+        ),
+        backgroundColor: context.backgroundColor,
+        elevation: 0,
+        actions: const [
+          ThemeSwitch(useIcons: true),
+          SizedBox(width: 8),
+        ],
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
@@ -29,7 +45,7 @@ class HomeScreen extends StatelessWidget {
             children: [
               // Cabeçalho com saudação e contador de dias
               Padding(
-                padding: const EdgeInsets.fromLTRB(20, 40, 20, 20),
+                padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -38,31 +54,24 @@ class HomeScreen extends StatelessWidget {
                       children: [
                         Text(
                           'Olá, ${user?.name?.split(' ')[0] ?? 'Usuário'}! 👋',
-                          style: GoogleFonts.poppins(
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style: context.headlineStyle,
                         ),
                         const SizedBox(height: 4),
                         Text(
                           '$daysWithoutSmoking dias sem fumar',
-                          style: GoogleFonts.poppins(
-                            fontSize: 16,
-                            color: Colors.grey[700],
-                            fontWeight: FontWeight.w500,
-                          ),
+                          style: context.subtitleStyle,
                         ),
                       ],
                     ),
                     CircleAvatar(
                       radius: 26,
-                      backgroundColor: Colors.deepPurple.withOpacity(0.2),
+                      backgroundColor: context.primaryColor.withOpacity(0.2),
                       child: Text(
                         user?.name?.substring(0, 1).toUpperCase() ?? 'U',
-                        style: GoogleFonts.poppins(
+                        style: TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
-                          color: Colors.deepPurple,
+                          color: context.primaryColor,
                         ),
                       ),
                     ),
@@ -75,10 +84,7 @@ class HomeScreen extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Text(
                   'Recuperação da Saúde',
-                  style: GoogleFonts.poppins(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: context.titleStyle,
                 ),
               ),
               
@@ -135,57 +141,9 @@ class HomeScreen extends StatelessWidget {
               // Próximo marco
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [Colors.deepPurple.shade300, Colors.deepPurple.shade700],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: const Icon(
-                          Icons.flag_rounded,
-                          color: Colors.white,
-                          size: 24,
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Próximo Marco',
-                              style: GoogleFonts.poppins(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.white,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              'Em 3 dias: Fluxo sanguíneo melhora',
-                              style: GoogleFonts.poppins(
-                                fontSize: 14,
-                                color: Colors.white.withOpacity(0.85),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+                child: context.isDarkMode 
+                    ? _buildGlassMorphicNextMilestone(context)
+                    : _buildNextMilestone(context),
               ),
               
               const SizedBox(height: 24),
@@ -198,21 +156,18 @@ class HomeScreen extends StatelessWidget {
                   children: [
                     Text(
                       'Conquistas Recentes',
-                      style: GoogleFonts.poppins(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: context.titleStyle,
                     ),
                     TextButton(
                       onPressed: () {
                         // Navegar para a tela de conquistas
                       },
                       style: TextButton.styleFrom(
-                        foregroundColor: Colors.deepPurple,
+                        foregroundColor: context.primaryColor,
                       ),
                       child: Text(
                         'Ver todas',
-                        style: GoogleFonts.poppins(
+                        style: TextStyle(
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -249,7 +204,7 @@ class HomeScreen extends StatelessWidget {
                       '1 semana',
                       'Persistência',
                       'Uma semana inteira sem cigarros!',
-                      Colors.deepPurple,
+                      context.primaryColor,
                     ),
                   ],
                 ),
@@ -262,10 +217,7 @@ class HomeScreen extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Text(
                   'Estatísticas de Hoje',
-                  style: GoogleFonts.poppins(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: context.titleStyle,
                 ),
               ),
               
@@ -317,33 +269,39 @@ class HomeScreen extends StatelessWidget {
             width: 60,
             decoration: BoxDecoration(
               color: isActive 
-                ? Colors.deepPurple.withOpacity(0.15) 
-                : Colors.grey[200],
+                ? context.primaryColor.withOpacity(0.15) 
+                : context.isDarkMode 
+                    ? Colors.grey[800] 
+                    : Colors.grey[200],
               shape: BoxShape.circle,
               border: Border.all(
                 color: isActive 
-                  ? Colors.deepPurple 
-                  : Colors.grey[400]!,
+                  ? context.primaryColor 
+                  : context.isDarkMode
+                      ? Colors.grey[700]!
+                      : Colors.grey[400]!,
                 width: 2,
               ),
             ),
             child: Icon(
               Icons.check_circle,
               color: isActive 
-                ? Colors.deepPurple 
-                : Colors.grey[400],
+                ? context.primaryColor 
+                : context.isDarkMode
+                    ? Colors.grey[600]
+                    : Colors.grey[400],
               size: 28,
             ),
           ),
           const SizedBox(height: 8),
           Text(
             title,
-            style: GoogleFonts.poppins(
+            style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w500,
               color: isActive 
-                ? Colors.deepPurple 
-                : Colors.grey[600],
+                ? context.primaryColor 
+                : context.subtitleColor,
             ),
             textAlign: TextAlign.center,
           ),
@@ -356,15 +314,20 @@ class HomeScreen extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cardColor,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        border: context.isDarkMode 
+            ? Border.all(color: context.borderColor)
+            : null,
+        boxShadow: context.isDarkMode 
+            ? null
+            : [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -372,29 +335,29 @@ class HomeScreen extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: color.withOpacity(0.15),
+              color: color.withOpacity(context.isDarkMode ? 0.2 : 0.15),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(
               icon,
-              color: color,
+              color: color.withOpacity(context.isDarkMode ? 0.9 : 1.0),
               size: 20,
             ),
           ),
           const SizedBox(height: 12),
           Text(
             value,
-            style: GoogleFonts.poppins(
-              fontSize: 24,
+            style: context.textTheme.headlineMedium!.copyWith(
               fontWeight: FontWeight.bold,
+              color: context.contentColor,
+              fontSize: 24,
             ),
           ),
           const SizedBox(height: 4),
           Text(
             label,
-            style: GoogleFonts.poppins(
-              fontSize: 12,
-              color: Colors.grey[600],
+            style: context.textTheme.bodySmall!.copyWith(
+              color: context.subtitleColor,
               height: 1.2,
             ),
           ),
@@ -403,20 +366,105 @@ class HomeScreen extends StatelessWidget {
     );
   }
   
+  Widget _buildNextMilestone(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            context.primaryColor.withOpacity(0.7), 
+            context.primaryColor
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: _buildMilestoneContent(context, Colors.white),
+    );
+  }
+  
+  Widget _buildGlassMorphicNextMilestone(BuildContext context) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(16),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: context.primaryColor.withOpacity(0.2),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: context.primaryColor.withOpacity(0.3),
+              width: 1.5,
+            ),
+          ),
+          child: _buildMilestoneContent(context, Colors.white),
+        ),
+      ),
+    );
+  }
+  
+  Widget _buildMilestoneContent(BuildContext context, Color textColor) {
+    return Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.2),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Icon(
+            Icons.flag_rounded,
+            color: textColor,
+            size: 24,
+          ),
+        ),
+        const SizedBox(width: 16),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Próximo Marco',
+                style: context.textTheme.titleMedium!.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: textColor,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                'Em 3 dias: Fluxo sanguíneo melhora',
+                style: context.textTheme.bodyMedium!.copyWith(
+                  color: textColor.withOpacity(0.85),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+  
   Widget _buildAchievementCard(BuildContext context, String milestone, String title, String description, Color color) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 8),
       width: 160,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cardColor,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        border: context.isDarkMode 
+            ? Border.all(color: context.borderColor)
+            : null,
+        boxShadow: context.isDarkMode 
+            ? null
+            : [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
       ),
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -425,32 +473,32 @@ class HomeScreen extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
-              color: color.withOpacity(0.15),
+              color: color.withOpacity(context.isDarkMode ? 0.2 : 0.15),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Text(
               milestone,
-              style: GoogleFonts.poppins(
-                fontSize: 12,
+              style: context.textTheme.labelSmall!.copyWith(
                 fontWeight: FontWeight.w600,
-                color: color,
+                color: color.withOpacity(context.isDarkMode ? 0.9 : 1.0),
+                fontSize: 12,
               ),
             ),
           ),
           const SizedBox(height: 12),
           Text(
             title,
-            style: GoogleFonts.poppins(
-              fontSize: 16,
+            style: context.textTheme.titleMedium!.copyWith(
               fontWeight: FontWeight.bold,
+              color: context.contentColor,
+              fontSize: 16,
             ),
           ),
           const SizedBox(height: 4),
           Text(
             description,
-            style: GoogleFonts.poppins(
-              fontSize: 12,
-              color: Colors.grey[600],
+            style: context.textTheme.bodySmall!.copyWith(
+              color: context.subtitleColor,
             ),
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
@@ -464,15 +512,20 @@ class HomeScreen extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cardColor,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        border: context.isDarkMode 
+            ? Border.all(color: context.borderColor)
+            : null,
+        boxShadow: context.isDarkMode 
+            ? null
+            : [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -482,12 +535,12 @@ class HomeScreen extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.15),
+                  color: color.withOpacity(context.isDarkMode ? 0.2 : 0.15),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Icon(
                   icon,
-                  color: color,
+                  color: color.withOpacity(context.isDarkMode ? 0.9 : 1.0),
                   size: 18,
                 ),
               ),
@@ -500,10 +553,10 @@ class HomeScreen extends StatelessWidget {
               const SizedBox(width: 2),
               Text(
                 '8%',
-                style: GoogleFonts.poppins(
-                  fontSize: 12,
+                style: context.textTheme.labelSmall!.copyWith(
                   fontWeight: FontWeight.w600,
                   color: Colors.green,
+                  fontSize: 12,
                 ),
               ),
             ],
@@ -511,17 +564,17 @@ class HomeScreen extends StatelessWidget {
           const SizedBox(height: 12),
           Text(
             value,
-            style: GoogleFonts.poppins(
-              fontSize: 24,
+            style: context.textTheme.headlineMedium!.copyWith(
               fontWeight: FontWeight.bold,
+              color: context.contentColor,
+              fontSize: 24,
             ),
           ),
           const SizedBox(height: 4),
           Text(
             label,
-            style: GoogleFonts.poppins(
-              fontSize: 12,
-              color: Colors.grey[600],
+            style: context.textTheme.bodySmall!.copyWith(
+              color: context.subtitleColor,
               height: 1.2,
             ),
           ),
