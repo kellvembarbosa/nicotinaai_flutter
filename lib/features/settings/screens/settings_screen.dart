@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:nicotinaai_flutter/core/routes/app_routes.dart';
 import 'package:nicotinaai_flutter/core/theme/app_theme.dart';
 import 'package:nicotinaai_flutter/core/theme/theme_provider.dart';
 import 'package:nicotinaai_flutter/core/theme/theme_settings.dart';
+import 'package:nicotinaai_flutter/core/localization/locale_provider.dart';
 import 'package:nicotinaai_flutter/features/auth/providers/auth_provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class SettingsScreen extends StatelessWidget {
   static const String routeName = '/settings';
@@ -15,12 +18,14 @@ class SettingsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
     final themeProvider = Provider.of<ThemeProvider>(context);
+    final localeProvider = Provider.of<LocaleProvider>(context);
+    final localizations = AppLocalizations.of(context);
     final user = authProvider.currentUser;
 
     return Scaffold(
       backgroundColor: context.backgroundColor,
       appBar: AppBar(
-        title: Text('Configurações', style: context.titleStyle),
+        title: Text(localizations.settings, style: context.titleStyle),
         centerTitle: true,
         elevation: 0,
         backgroundColor: context.backgroundColor,
@@ -57,7 +62,7 @@ class SettingsScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      user?.name ?? 'Usuário',
+                      user?.name ?? localizations.profile,
                       style: context.textTheme.titleLarge!.copyWith(
                         fontWeight: FontWeight.bold,
                         color: context.contentColor,
@@ -75,7 +80,7 @@ class SettingsScreen extends StatelessWidget {
                         // Navegar para tela de edição de perfil
                       },
                       icon: const Icon(Icons.edit),
-                      label: const Text('Editar Perfil'),
+                      label: Text(localizations.editProfile),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: context.primaryColor,
                         foregroundColor: Colors.white,
@@ -91,11 +96,11 @@ class SettingsScreen extends StatelessWidget {
             const SizedBox(height: 24),
 
             // Seção de configurações do app
-            _buildSectionHeader(context, 'Configurações do Aplicativo'),
+            _buildSectionHeader(context, localizations.appSettings),
             _buildSettingItem(
               context,
-              'Notificações',
-              'Gerenciar notificações',
+              localizations.notifications,
+              localizations.manageNotifications,
               Icons.notifications_outlined,
               onTap: () {
                 // Navegação para configurações de notificações
@@ -119,22 +124,29 @@ class SettingsScreen extends StatelessWidget {
             
             _buildSettingItem(
               context,
-              'Idioma',
-              'Alterar o idioma do aplicativo',
+              localizations.language,
+              localizations.changeLanguage,
               Icons.language_outlined,
               onTap: () {
                 // Navegação para configurações de idioma
+                context.push(AppRoutes.language.path);
               },
+              trailing: Text(
+                localeProvider.currentLanguageName,
+                style: context.textTheme.bodySmall!.copyWith(
+                  color: context.subtitleColor,
+                ),
+              ),
             ),
 
             const SizedBox(height: 24),
 
             // Seção de rastreamento de hábitos
-            _buildSectionHeader(context, 'Rastreamento de Hábitos'),
+            _buildSectionHeader(context, localizations.habitTracking),
             _buildSettingItem(
               context,
-              'Cigarros por dia antes de parar',
-              'Configure seus hábitos anteriores',
+              localizations.cigarettesPerDay,
+              localizations.configureHabits,
               Icons.smoking_rooms_outlined,
               onTap: () {
                 // Abrir diálogo para configurar cigarros por dia
@@ -142,8 +154,8 @@ class SettingsScreen extends StatelessWidget {
             ),
             _buildSettingItem(
               context,
-              'Preço do maço',
-              'Definir o preço para cálculos de economia',
+              localizations.packPrice,
+              localizations.setPriceForCalculations,
               Icons.attach_money_outlined,
               onTap: () {
                 // Abrir diálogo para configurar preço
@@ -151,8 +163,8 @@ class SettingsScreen extends StatelessWidget {
             ),
             _buildSettingItem(
               context,
-              'Data de início',
-              'Quando você parou de fumar',
+              localizations.startDate,
+              localizations.whenYouQuitSmoking,
               Icons.calendar_today_outlined,
               onTap: () {
                 // Abrir seletor de data
@@ -162,11 +174,11 @@ class SettingsScreen extends StatelessWidget {
             const SizedBox(height: 24),
 
             // Seção de conta
-            _buildSectionHeader(context, 'Conta'),
+            _buildSectionHeader(context, localizations.account),
             _buildSettingItem(
               context,
-              'Redefinir senha',
-              'Altere sua senha de acesso',
+              localizations.resetPassword,
+              localizations.changePassword,
               Icons.lock_outline,
               onTap: () {
                 // Navegação para redefinição de senha
@@ -174,8 +186,8 @@ class SettingsScreen extends StatelessWidget {
             ),
             _buildSettingItem(
               context,
-              'Excluir conta',
-              'Remover permanentemente sua conta',
+              localizations.deleteAccount,
+              localizations.permanentlyRemoveAccount,
               Icons.delete_outline,
               onTap: () {
                 // Mostrar diálogo de confirmação
@@ -186,8 +198,8 @@ class SettingsScreen extends StatelessWidget {
             ),
             _buildSettingItem(
               context,
-              'Sair',
-              'Desconectar da sua conta',
+              localizations.logout,
+              localizations.logoutFromAccount,
               Icons.logout,
               onTap: () async {
                 // Confirmar logout
@@ -197,21 +209,21 @@ class SettingsScreen extends StatelessWidget {
                       (context) => AlertDialog(
                         backgroundColor: context.cardColor,
                         title: Text(
-                          'Sair da conta',
+                          localizations.logoutTitle,
                           style: context.textTheme.titleLarge!.copyWith(
                             fontWeight: FontWeight.bold,
                             color: context.contentColor,
                           ),
                         ),
                         content: Text(
-                          'Tem certeza que deseja sair da sua conta?',
+                          localizations.logoutConfirmation,
                           style: context.bodyStyle,
                         ),
                         actions: [
                           TextButton(
                             onPressed: () => Navigator.of(context).pop(),
                             child: Text(
-                              'Cancelar',
+                              localizations.cancel,
                               style: context.textTheme.labelLarge!.copyWith(
                                 color: context.isDarkMode ? Colors.grey[300] : Colors.grey[700],
                               ),
@@ -229,7 +241,7 @@ class SettingsScreen extends StatelessWidget {
                               backgroundColor: context.primaryColor,
                               foregroundColor: Colors.white,
                             ),
-                            child: const Text('Sair'),
+                            child: Text(localizations.logout),
                           ),
                         ],
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -243,11 +255,11 @@ class SettingsScreen extends StatelessWidget {
             const SizedBox(height: 24),
 
             // Seção de sobre
-            _buildSectionHeader(context, 'Sobre'),
+            _buildSectionHeader(context, localizations.about),
             _buildSettingItem(
               context,
-              'Política de Privacidade',
-              'Leia nossa política de privacidade',
+              localizations.privacyPolicy,
+              localizations.readPrivacyPolicy,
               Icons.privacy_tip_outlined,
               onTap: () {
                 // Abrir política de privacidade
@@ -255,8 +267,8 @@ class SettingsScreen extends StatelessWidget {
             ),
             _buildSettingItem(
               context,
-              'Termos de Uso',
-              'Veja os termos de uso do aplicativo',
+              localizations.termsOfUse,
+              localizations.viewTermsOfUse,
               Icons.description_outlined,
               onTap: () {
                 // Abrir termos de uso
@@ -264,8 +276,8 @@ class SettingsScreen extends StatelessWidget {
             ),
             _buildSettingItem(
               context,
-              'Sobre o App',
-              'Versão e informações do aplicativo',
+              localizations.aboutApp,
+              localizations.appInfo,
               Icons.info_outline,
               onTap: () {
                 // Mostrar diálogo com informações
@@ -278,7 +290,7 @@ class SettingsScreen extends StatelessWidget {
             // Versão do app
             Center(
               child: Text(
-                'Versão 1.0.0',
+                localizations.version('1.0.0'),
                 style: context.textTheme.bodySmall!.copyWith(
                   color: context.subtitleColor,
                 ),
@@ -352,27 +364,29 @@ class SettingsScreen extends StatelessWidget {
   }
 
   void _showDeleteAccountDialog(BuildContext context) {
+    final localizations = AppLocalizations.of(context);
+    
     showDialog(
       context: context,
       builder:
           (context) => AlertDialog(
             backgroundColor: context.cardColor,
             title: Text(
-              'Excluir Conta',
+              localizations.deleteAccountTitle,
               style: context.textTheme.titleLarge!.copyWith(
                 fontWeight: FontWeight.bold,
                 color: context.contentColor,
               ),
             ),
             content: Text(
-              'Tem certeza que deseja excluir sua conta? Esta ação é irreversível e todos os seus dados serão perdidos.',
+              localizations.deleteAccountConfirmation,
               style: context.bodyStyle,
             ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(context).pop(),
                 child: Text(
-                  'Cancelar',
+                  localizations.cancel,
                   style: context.textTheme.labelLarge!.copyWith(
                     color: context.isDarkMode ? Colors.grey[300] : Colors.grey[700],
                   ),
@@ -384,7 +398,7 @@ class SettingsScreen extends StatelessWidget {
                   Navigator.of(context).pop();
                 },
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-                child: const Text('Excluir', style: TextStyle(color: Colors.white)),
+                child: Text(localizations.delete, style: const TextStyle(color: Colors.white)),
               ),
             ],
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -393,11 +407,13 @@ class SettingsScreen extends StatelessWidget {
   }
 
   void _showAboutDialog(BuildContext context) {
+    final localizations = AppLocalizations.of(context);
+    
     showDialog(
       context: context,
       builder:
           (context) => AboutDialog(
-            applicationName: 'NicotinaAI',
+            applicationName: localizations.appName,
             applicationVersion: '1.0.0',
             applicationIcon: const FlutterLogo(size: 50),
             applicationLegalese: '© 2024 NicotinaAI. Todos os direitos reservados.',

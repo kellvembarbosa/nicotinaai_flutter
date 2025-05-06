@@ -1,0 +1,314 @@
+{
+  "@@locale": "pt",
+  
+  "appName": "NicotinaAI",
+  "@appName": {
+    "description": "Nome do aplicativo"
+  },
+
+  "settings": "Configurações",
+  "@settings": {
+    "description": "Título da tela de configurações"
+  },
+
+  "home": "Início",
+  "@home": {
+    "description": "Título da tela inicial"
+  },
+
+  "achievements": "Conquistas",
+  "@achievements": {
+    "description": "Título da tela de conquistas"
+  },
+
+  "profile": "Perfil",
+  "@profile": {
+    "description": "Título da seção de perfil do usuário"
+  },
+
+  "editProfile": "Editar Perfil",
+  "@editProfile": {
+    "description": "Botão para editar perfil"
+  },
+
+  "appSettings": "Configurações do Aplicativo",
+  "@appSettings": {
+    "description": "Título da seção de configurações do aplicativo"
+  },
+
+  "notifications": "Notificações",
+  "@notifications": {
+    "description": "Item para gerenciar notificações"
+  },
+
+  "manageNotifications": "Gerenciar notificações",
+  "@manageNotifications": {
+    "description": "Descrição do item de notificações"
+  },
+
+  "language": "Idioma",
+  "@language": {
+    "description": "Item para alterar o idioma"
+  },
+
+  "changeLanguage": "Alterar o idioma do aplicativo",
+  "@changeLanguage": {
+    "description": "Descrição do item de idioma"
+  },
+
+  "theme": "Tema",
+  "@theme": {
+    "description": "Item para alterar o tema"
+  },
+
+  "dark": "Escuro",
+  "@dark": {
+    "description": "Opção de tema escuro"
+  },
+
+  "light": "Claro",
+  "@light": {
+    "description": "Opção de tema claro"
+  },
+
+  "system": "Sistema",
+  "@system": {
+    "description": "Opção de tema do sistema"
+  },
+
+  "habitTracking": "Rastreamento de Hábitos",
+  "@habitTracking": {
+    "description": "Título da seção de rastreamento de hábitos"
+  },
+
+  "cigarettesPerDay": "Cigarros por dia antes de parar",
+  "@cigarettesPerDay": {
+    "description": "Item para configurar cigarros por dia"
+  },
+
+  "configureHabits": "Configure seus hábitos anteriores",
+  "@configureHabits": {
+    "description": "Descrição do item de cigarros por dia"
+  },
+
+  "packPrice": "Preço do maço",
+  "@packPrice": {
+    "description": "Item para configurar preço do maço"
+  },
+
+  "setPriceForCalculations": "Definir o preço para cálculos de economia",
+  "@setPriceForCalculations": {
+    "description": "Descrição do item de preço do maço"
+  },
+
+  "startDate": "Data de início",
+  "@startDate": {
+    "description": "Item para configurar data de início"
+  },
+
+  "whenYouQuitSmoking": "Quando você parou de fumar",
+  "@whenYouQuitSmoking": {
+    "description": "Descrição do item de data de início"
+  },
+
+  "account": "Conta",
+  "@account": {
+    "description": "Título da seção de conta"
+  },
+
+  "resetPassword": "Redefinir senha",
+  "@resetPassword": {
+    "description": "Item para redefinir senha"
+  },
+
+  "changePassword": "Altere sua senha de acesso",
+  "@changePassword": {
+    "description": "Descrição do item de redefinir senha"
+  },
+
+  "deleteAccount": "Excluir conta",
+  "@deleteAccount": {
+    "description": "Item para excluir conta"
+  },
+
+  "permanentlyRemoveAccount": "Remover permanentemente sua conta",
+  "@permanentlyRemoveAccount": {
+    "description": "Descrição do item de excluir conta"
+  },
+
+  "deleteAccountTitle": "Excluir Conta",
+  "@deleteAccountTitle": {
+    "description": "Título do diálogo de exclusão de conta"
+  },
+
+  "deleteAccountConfirmation": "Tem certeza que deseja excluir sua conta? Esta ação é irreversível e todos os seus dados serão perdidos.",
+  "@deleteAccountConfirmation": {
+    "description": "Mensagem de confirmação de exclusão de conta"
+  },
+
+  "logout": "Sair",
+  "@logout": {
+    "description": "Item para sair da conta"
+  },
+
+  "logoutFromAccount": "Desconectar da sua conta",
+  "@logoutFromAccount": {
+    "description": "Descrição do item de sair"
+  },
+
+  "logoutTitle": "Sair da conta",
+  "@logoutTitle": {
+    "description": "Título do diálogo de sair da conta"
+  },
+
+  "logoutConfirmation": "Tem certeza que deseja sair da sua conta?",
+  "@logoutConfirmation": {
+    "description": "Mensagem de confirmação de sair da conta"
+  },
+
+  "about": "Sobre",
+  "@about": {
+    "description": "Título da seção de sobre"
+  },
+
+  "privacyPolicy": "Política de Privacidade",
+  "@privacyPolicy": {
+    "description": "Item para política de privacidade"
+  },
+
+  "readPrivacyPolicy": "Leia nossa política de privacidade",
+  "@readPrivacyPolicy": {
+    "description": "Descrição do item de política de privacidade"
+  },
+
+  "termsOfUse": "Termos de Uso",
+  "@termsOfUse": {
+    "description": "Item para termos de uso"
+  },
+
+  "viewTermsOfUse": "Veja os termos de uso do aplicativo",
+  "@viewTermsOfUse": {
+    "description": "Descrição do item de termos de uso"
+  },
+
+  "aboutApp": "Sobre o App",
+  "@aboutApp": {
+    "description": "Item para sobre o aplicativo"
+  },
+
+  "appInfo": "Versão e informações do aplicativo",
+  "@appInfo": {
+    "description": "Descrição do item de sobre o aplicativo"
+  },
+
+  "version": "Versão {version}",
+  "@version": {
+    "description": "Versão do aplicativo",
+    "placeholders": {
+      "version": {
+        "type": "String",
+        "example": "1.0.0"
+      }
+    }
+  },
+
+  "cancel": "Cancelar",
+  "@cancel": {
+    "description": "Botão de cancelar"
+  },
+
+  "confirm": "Confirmar",
+  "@confirm": {
+    "description": "Botão de confirmar"
+  },
+
+  "save": "Salvar",
+  "@save": {
+    "description": "Botão de salvar"
+  },
+
+  "delete": "Excluir",
+  "@delete": {
+    "description": "Botão de excluir"
+  },
+
+  "next": "Próximo",
+  "@next": {
+    "description": "Botão de próximo"
+  },
+
+  "back": "Voltar",
+  "@back": {
+    "description": "Botão de voltar"
+  },
+
+  "finish": "Finalizar",
+  "@finish": {
+    "description": "Botão de finalizar"
+  },
+
+  "cigarettesPerDayQuestion": "Quantos cigarros você fuma por dia?",
+  "@cigarettesPerDayQuestion": {
+    "description": "Pergunta sobre quantidade de cigarros por dia"
+  },
+
+  "cigarettesPerDaySubtitle": "Isso nos ajuda a entender seu nível de consumo",
+  "@cigarettesPerDaySubtitle": {
+    "description": "Subtítulo da pergunta sobre quantidade de cigarros por dia"
+  },
+
+  "exactNumber": "Número exato: ",
+  "@exactNumber": {
+    "description": "Rótulo para número exato de cigarros"
+  },
+
+  "selectConsumptionLevel": "Ou selecione seu nível de consumo:",
+  "@selectConsumptionLevel": {
+    "description": "Instrução para selecionar nível de consumo"
+  },
+
+  "low": "Baixo",
+  "@low": {
+    "description": "Nível de consumo baixo"
+  },
+
+  "moderate": "Moderado",
+  "@moderate": {
+    "description": "Nível de consumo moderado"
+  },
+
+  "high": "Alto",
+  "@high": {
+    "description": "Nível de consumo alto"
+  },
+
+  "veryHigh": "Muito Alto",
+  "@veryHigh": {
+    "description": "Nível de consumo muito alto"
+  },
+
+  "upTo5": "Até 5 cigarros por dia",
+  "@upTo5": {
+    "description": "Descrição de consumo baixo"
+  },
+
+  "6to15": "6 a 15 cigarros por dia",
+  "@6to15": {
+    "description": "Descrição de consumo moderado"
+  },
+
+  "16to25": "16 a 25 cigarros por dia",
+  "@16to25": {
+    "description": "Descrição de consumo alto"
+  },
+
+  "moreThan25": "Mais de 25 cigarros por dia",
+  "@moreThan25": {
+    "description": "Descrição de consumo muito alto"
+  },
+
+  "selectConsumptionLevelError": "Por favor, selecione seu nível de consumo",
+  "@selectConsumptionLevelError": {
+    "description": "Mensagem de erro para seleção de nível de consumo"
+  }
+}

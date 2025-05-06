@@ -1,0 +1,314 @@
+{
+  "@@locale": "en",
+  
+  "appName": "NicotinaAI",
+  "@appName": {
+    "description": "Name of the application"
+  },
+
+  "settings": "Settings",
+  "@settings": {
+    "description": "Settings screen title"
+  },
+
+  "home": "Home",
+  "@home": {
+    "description": "Home screen title"
+  },
+
+  "achievements": "Achievements",
+  "@achievements": {
+    "description": "Achievements screen title"
+  },
+
+  "profile": "Profile",
+  "@profile": {
+    "description": "User profile section title"
+  },
+
+  "editProfile": "Edit Profile",
+  "@editProfile": {
+    "description": "Button to edit profile"
+  },
+
+  "appSettings": "App Settings",
+  "@appSettings": {
+    "description": "App settings section title"
+  },
+
+  "notifications": "Notifications",
+  "@notifications": {
+    "description": "Item to manage notifications"
+  },
+
+  "manageNotifications": "Manage notifications",
+  "@manageNotifications": {
+    "description": "Description of notifications item"
+  },
+
+  "language": "Language",
+  "@language": {
+    "description": "Item to change language"
+  },
+
+  "changeLanguage": "Change the language of the app",
+  "@changeLanguage": {
+    "description": "Description of language item"
+  },
+
+  "theme": "Theme",
+  "@theme": {
+    "description": "Item to change theme"
+  },
+
+  "dark": "Dark",
+  "@dark": {
+    "description": "Dark theme option"
+  },
+
+  "light": "Light",
+  "@light": {
+    "description": "Light theme option"
+  },
+
+  "system": "System",
+  "@system": {
+    "description": "System theme option"
+  },
+
+  "habitTracking": "Habit Tracking",
+  "@habitTracking": {
+    "description": "Habit tracking section title"
+  },
+
+  "cigarettesPerDay": "Cigarettes per day before quitting",
+  "@cigarettesPerDay": {
+    "description": "Item to configure cigarettes per day"
+  },
+
+  "configureHabits": "Configure your previous habits",
+  "@configureHabits": {
+    "description": "Description of cigarettes per day item"
+  },
+
+  "packPrice": "Pack price",
+  "@packPrice": {
+    "description": "Item to configure pack price"
+  },
+
+  "setPriceForCalculations": "Set the price for savings calculations",
+  "@setPriceForCalculations": {
+    "description": "Description of pack price item"
+  },
+
+  "startDate": "Start date",
+  "@startDate": {
+    "description": "Item to configure start date"
+  },
+
+  "whenYouQuitSmoking": "When you quit smoking",
+  "@whenYouQuitSmoking": {
+    "description": "Description of start date item"
+  },
+
+  "account": "Account",
+  "@account": {
+    "description": "Account section title"
+  },
+
+  "resetPassword": "Reset password",
+  "@resetPassword": {
+    "description": "Item to reset password"
+  },
+
+  "changePassword": "Change your access password",
+  "@changePassword": {
+    "description": "Description of reset password item"
+  },
+
+  "deleteAccount": "Delete account",
+  "@deleteAccount": {
+    "description": "Item to delete account"
+  },
+
+  "permanentlyRemoveAccount": "Permanently remove your account",
+  "@permanentlyRemoveAccount": {
+    "description": "Description of delete account item"
+  },
+
+  "deleteAccountTitle": "Delete Account",
+  "@deleteAccountTitle": {
+    "description": "Title of delete account dialog"
+  },
+
+  "deleteAccountConfirmation": "Are you sure you want to delete your account? This action is irreversible and all your data will be lost.",
+  "@deleteAccountConfirmation": {
+    "description": "Delete account confirmation message"
+  },
+
+  "logout": "Logout",
+  "@logout": {
+    "description": "Item to logout"
+  },
+
+  "logoutFromAccount": "Disconnect from your account",
+  "@logoutFromAccount": {
+    "description": "Description of logout item"
+  },
+
+  "logoutTitle": "Logout",
+  "@logoutTitle": {
+    "description": "Title of logout dialog"
+  },
+
+  "logoutConfirmation": "Are you sure you want to logout from your account?",
+  "@logoutConfirmation": {
+    "description": "Logout confirmation message"
+  },
+
+  "about": "About",
+  "@about": {
+    "description": "About section title"
+  },
+
+  "privacyPolicy": "Privacy Policy",
+  "@privacyPolicy": {
+    "description": "Item for privacy policy"
+  },
+
+  "readPrivacyPolicy": "Read our privacy policy",
+  "@readPrivacyPolicy": {
+    "description": "Description of privacy policy item"
+  },
+
+  "termsOfUse": "Terms of Use",
+  "@termsOfUse": {
+    "description": "Item for terms of use"
+  },
+
+  "viewTermsOfUse": "View the app's terms of use",
+  "@viewTermsOfUse": {
+    "description": "Description of terms of use item"
+  },
+
+  "aboutApp": "About the App",
+  "@aboutApp": {
+    "description": "Item for about the app"
+  },
+
+  "appInfo": "Version and app information",
+  "@appInfo": {
+    "description": "Description of about the app item"
+  },
+
+  "version": "Version {version}",
+  "@version": {
+    "description": "App version",
+    "placeholders": {
+      "version": {
+        "type": "String",
+        "example": "1.0.0"
+      }
+    }
+  },
+
+  "cancel": "Cancel",
+  "@cancel": {
+    "description": "Cancel button"
+  },
+
+  "confirm": "Confirm",
+  "@confirm": {
+    "description": "Confirm button"
+  },
+
+  "save": "Save",
+  "@save": {
+    "description": "Save button"
+  },
+
+  "delete": "Delete",
+  "@delete": {
+    "description": "Delete button"
+  },
+
+  "next": "Next",
+  "@next": {
+    "description": "Next button"
+  },
+
+  "back": "Back",
+  "@back": {
+    "description": "Back button"
+  },
+
+  "finish": "Finish",
+  "@finish": {
+    "description": "Finish button"
+  },
+
+  "cigarettesPerDayQuestion": "How many cigarettes do you smoke per day?",
+  "@cigarettesPerDayQuestion": {
+    "description": "Question about number of cigarettes per day"
+  },
+
+  "cigarettesPerDaySubtitle": "This helps us understand your consumption level",
+  "@cigarettesPerDaySubtitle": {
+    "description": "Subtitle for cigarettes per day question"
+  },
+
+  "exactNumber": "Exact number: ",
+  "@exactNumber": {
+    "description": "Label for exact number of cigarettes"
+  },
+
+  "selectConsumptionLevel": "Or select your consumption level:",
+  "@selectConsumptionLevel": {
+    "description": "Instruction to select consumption level"
+  },
+
+  "low": "Low",
+  "@low": {
+    "description": "Low consumption level"
+  },
+
+  "moderate": "Moderate",
+  "@moderate": {
+    "description": "Moderate consumption level"
+  },
+
+  "high": "High",
+  "@high": {
+    "description": "High consumption level"
+  },
+
+  "veryHigh": "Very High",
+  "@veryHigh": {
+    "description": "Very high consumption level"
+  },
+
+  "upTo5": "Up to 5 cigarettes per day",
+  "@upTo5": {
+    "description": "Low consumption description"
+  },
+
+  "6to15": "6 to 15 cigarettes per day",
+  "@6to15": {
+    "description": "Moderate consumption description"
+  },
+
+  "16to25": "16 to 25 cigarettes per day",
+  "@16to25": {
+    "description": "High consumption description"
+  },
+
+  "moreThan25": "More than 25 cigarettes per day",
+  "@moreThan25": {
+    "description": "Very high consumption description"
+  },
+
+  "selectConsumptionLevelError": "Please select your consumption level",
+  "@selectConsumptionLevelError": {
+    "description": "Error message for consumption level selection"
+  }
+}

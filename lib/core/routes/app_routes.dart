@@ -23,6 +23,7 @@ enum AppRoutes {
   profile('/profile'),
   editProfile('/profile/edit'),
   notifications('/notifications'),
+  language('/settings/language'),
   privacyPolicy('/privacy-policy'),
   termsOfService('/terms-of-service'),
   about('/about');

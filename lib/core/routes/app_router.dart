@@ -9,6 +9,7 @@ import 'package:nicotinaai_flutter/features/main/screens/main_screen.dart';
 import 'package:nicotinaai_flutter/features/home/screens/home_screen.dart';
 import 'package:nicotinaai_flutter/features/achievements/screens/achievements_screen.dart';
 import 'package:nicotinaai_flutter/features/settings/screens/settings_screen.dart';
+import 'package:nicotinaai_flutter/features/settings/screens/language_selection_screen.dart';
 import 'package:nicotinaai_flutter/features/onboarding/screens/onboarding_screen.dart';
 import 'package:nicotinaai_flutter/features/onboarding/providers/onboarding_provider.dart';
 
@@ -66,6 +67,10 @@ class AppRouter {
       GoRoute(
         path: SettingsScreen.routeName,
         builder: (context, state) => const SettingsScreen(),
+      ),
+      GoRoute(
+        path: LanguageSelectionScreen.routeName,
+        builder: (context, state) => const LanguageSelectionScreen(),
       ),
     ],
     errorBuilder: (context, state) => Scaffold(

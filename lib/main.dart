@@ -2,13 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:nicotinaai_flutter/config/supabase_config.dart';
 import 'package:nicotinaai_flutter/core/routes/app_router.dart';
 import 'package:nicotinaai_flutter/core/theme/theme_provider.dart';
+import 'package:nicotinaai_flutter/core/localization/locale_provider.dart';
 import 'package:nicotinaai_flutter/features/auth/providers/auth_provider.dart';
 import 'package:nicotinaai_flutter/features/auth/repositories/auth_repository.dart';
 import 'package:nicotinaai_flutter/features/onboarding/providers/onboarding_provider.dart';
 import 'package:nicotinaai_flutter/features/onboarding/repositories/onboarding_repository.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 void main() async {
   // Garante que os widgets estão iniciados antes de chamar código nativo
@@ -59,6 +62,11 @@ class MyApp extends StatelessWidget {
           },
         ),
         
+        // Provider de localização
+        ChangeNotifierProvider(
+          create: (_) => LocaleProvider(),
+        ),
+        
         // Provider de autenticação
         ChangeNotifierProvider(
           create: (_) => AuthProvider(
@@ -99,8 +107,8 @@ class MyApp extends StatelessWidget {
           },
         ),
       ],
-      child: Consumer3<ThemeProvider, AuthProvider, OnboardingProvider>(
-        builder: (context, themeProvider, authProvider, onboardingProvider, _) {
+      child: Consumer4<ThemeProvider, LocaleProvider, AuthProvider, OnboardingProvider>(
+        builder: (context, themeProvider, localeProvider, authProvider, onboardingProvider, _) {
           // Criamos o router dentro do Consumer para reconstruir quando o estado mudar
           final appRouter = AppRouter(
             authProvider: authProvider,
@@ -115,6 +123,16 @@ class MyApp extends StatelessWidget {
             themeMode: themeProvider.themeMode,
             theme: themeProvider.lightTheme,
             darkTheme: themeProvider.darkTheme,
+            
+            // Configuração de localização
+            locale: localeProvider.locale,
+            localizationsDelegates: const [
+              AppLocalizations.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: localeProvider.supportedLocales,
             
             routerConfig: appRouter.router,
           );
