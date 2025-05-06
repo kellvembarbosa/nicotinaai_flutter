@@ -1267,5 +1267,40 @@
         "example": "Falha na conexão"
       }
     }
+  },
+  
+  "listView": "Visualização em lista",
+  "@listView": {
+    "description": "Toggle for list view display"
+  },
+
+  "gridView": "Visualização em grade",
+  "@gridView": {
+    "description": "Toggle for grid view display"
+  },
+
+  "atYourOwnPace": "ao seu próprio ritmo",
+  "@atYourOwnPace": {
+    "description": "Text for timeline at user's own pace"
+  },
+
+  "nextSevenDays": "nos próximos 7 dias",
+  "@nextSevenDays": {
+    "description": "Text for timeline of next 7 days"
+  },
+
+  "nextTwoWeeks": "nas próximas 2 semanas",
+  "@nextTwoWeeks": {
+    "description": "Text for timeline of next 2 weeks"
+  },
+
+  "nextMonth": "no próximo mês",
+  "@nextMonth": {
+    "description": "Text for timeline of next month"
+  },
+
+  "notSpecified": "Não especificado",
+  "@notSpecified": {
+    "description": "Text for unspecified or default value"
   }
 }

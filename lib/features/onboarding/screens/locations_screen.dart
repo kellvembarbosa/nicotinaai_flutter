@@ -4,6 +4,7 @@ import 'package:nicotinaai_flutter/core/theme/app_theme.dart';
 import 'package:nicotinaai_flutter/features/onboarding/providers/onboarding_provider.dart';
 import 'package:nicotinaai_flutter/features/onboarding/screens/onboarding_container.dart';
 import 'package:nicotinaai_flutter/features/onboarding/widgets/multi_select_option_card.dart';
+import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
 
 class LocationsScreen extends StatefulWidget {
   const LocationsScreen({Key? key}) : super(key: key);
@@ -33,6 +34,7 @@ class _LocationsScreenState extends State<LocationsScreen> {
   Widget build(BuildContext context) {
     final provider = Provider.of<OnboardingProvider>(context);
     final onboarding = provider.state.onboarding;
+    final localizations = AppLocalizations.of(context);
     
     if (onboarding == null) {
       return const Scaffold(
@@ -43,8 +45,8 @@ class _LocationsScreenState extends State<LocationsScreen> {
     }
     
     return OnboardingContainer(
-      title: "Onde você geralmente fuma?",
-      subtitle: "Selecione os lugares onde você mais costuma fumar",
+      title: localizations.locationsQuestion,
+      subtitle: localizations.selectCommonPlaces,
       content: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -54,7 +56,7 @@ class _LocationsScreenState extends State<LocationsScreen> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8),
             child: Text(
-              'Conhecer seus locais habituais nos ajuda a identificar padrões e criar estratégias específicas.',
+              localizations.locationsExplanation,
               style: context.textTheme.bodyMedium!.copyWith(
                 color: context.subtitleColor,
               ),
@@ -66,8 +68,8 @@ class _LocationsScreenState extends State<LocationsScreen> {
           // Opções de locais
           _buildLocationOption(
             'casa',
-            'Em casa', 
-            'Varanda, sala, escritório',
+            localizations.atHome, 
+            localizations.homeDetails,
             Icons.home_outlined,
           ),
           
@@ -75,8 +77,8 @@ class _LocationsScreenState extends State<LocationsScreen> {
           
           _buildLocationOption(
             'trabalho',
-            'No trabalho/escola', 
-            'Durante intervalos ou pausas',
+            localizations.atWork, 
+            localizations.workDetails,
             Icons.work_outline,
           ),
           
@@ -84,8 +86,8 @@ class _LocationsScreenState extends State<LocationsScreen> {
           
           _buildLocationOption(
             'carro',
-            'No carro/transporte', 
-            'Durante deslocamentos',
+            localizations.inCar, 
+            localizations.carDetails,
             Icons.directions_car_outlined,
           ),
           
@@ -93,8 +95,8 @@ class _LocationsScreenState extends State<LocationsScreen> {
           
           _buildLocationOption(
             'social',
-            'Em eventos sociais', 
-            'Bares, festas, restaurantes',
+            localizations.socialEvents, 
+            localizations.socialDetails,
             Icons.people_outline,
           ),
           
@@ -102,8 +104,8 @@ class _LocationsScreenState extends State<LocationsScreen> {
           
           _buildLocationOption(
             'exterior',
-            'Ao ar livre', 
-            'Parques, calçadas, áreas externas',
+            localizations.outdoors, 
+            localizations.outdoorsDetails,
             Icons.nature_people_outlined,
           ),
           
@@ -111,8 +113,8 @@ class _LocationsScreenState extends State<LocationsScreen> {
           
           _buildLocationOption(
             'outros',
-            'Outros lugares', 
-            'Quando estou ansioso, independente do local',
+            localizations.otherPlaces, 
+            localizations.otherPlacesDetails,
             Icons.more_horiz,
           ),
           
@@ -122,7 +124,7 @@ class _LocationsScreenState extends State<LocationsScreen> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8),
             child: Text(
-              'Identificar os locais mais comuns ajuda a evitar gatilhos e criar estratégias para mudança de hábito.',
+              localizations.locationsHelp,
               style: context.textTheme.bodySmall!.copyWith(
                 color: context.subtitleColor,
               ),

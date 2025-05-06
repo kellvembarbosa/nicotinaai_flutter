@@ -42,17 +42,17 @@ class _CompletionScreenState extends State<CompletionScreen> {
     
     // Texto para o objetivo
     final goalText = onboarding.goal == GoalType.reduce 
-        ? "reduzir o consumo" 
-        : "parar de fumar";
+        ? localizations.reduceConsumption
+        : localizations.quitSmoking;
     
     // Texto para o prazo
-    String timelineText = "ao seu próprio ritmo";
+    String timelineText = localizations.atYourOwnPace;
     if (onboarding.goalTimeline == GoalTimeline.sevenDays) {
-      timelineText = "nos próximos 7 dias";
+      timelineText = localizations.nextSevenDays;
     } else if (onboarding.goalTimeline == GoalTimeline.fourteenDays) {
-      timelineText = "nas próximas 2 semanas";
+      timelineText = localizations.nextTwoWeeks;
     } else if (onboarding.goalTimeline == GoalTimeline.thirtyDays) {
-      timelineText = "no próximo mês";
+      timelineText = localizations.nextMonth;
     }
 
     return OnboardingContainer(
@@ -87,7 +87,7 @@ class _CompletionScreenState extends State<CompletionScreen> {
                         ? context.primaryColor 
                         : context.isDarkMode ? Colors.grey[400] : Colors.grey[600],
                   ),
-                  tooltip: "Visualização em lista",
+                  tooltip: localizations.listView,
                 ),
                 IconButton(
                   onPressed: () {
@@ -101,7 +101,7 @@ class _CompletionScreenState extends State<CompletionScreen> {
                         ? context.primaryColor 
                         : context.isDarkMode ? Colors.grey[400] : Colors.grey[600],
                   ),
-                  tooltip: "Visualização em grade",
+                  tooltip: localizations.gridView,
                 ),
               ],
             ),
@@ -465,7 +465,7 @@ class _CompletionScreenState extends State<CompletionScreen> {
       case QuitChallenge.addiction:
         return localizations.physicalDependence;
       default:
-        return "Não especificado";
+        return localizations.notSpecified;
     }
   }
   

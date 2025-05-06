@@ -1522,6 +1522,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Error completing: {error}'**
   String loadingError(String error);
+
+  /// Toggle for list view display
+  ///
+  /// In en, this message translates to:
+  /// **'List View'**
+  String get listView;
+
+  /// Toggle for grid view display
+  ///
+  /// In en, this message translates to:
+  /// **'Grid View'**
+  String get gridView;
+
+  /// Text for timeline at user's own pace
+  ///
+  /// In en, this message translates to:
+  /// **'at your own pace'**
+  String get atYourOwnPace;
+
+  /// Text for timeline of next 7 days
+  ///
+  /// In en, this message translates to:
+  /// **'in the next 7 days'**
+  String get nextSevenDays;
+
+  /// Text for timeline of next 2 weeks
+  ///
+  /// In en, this message translates to:
+  /// **'in the next 2 weeks'**
+  String get nextTwoWeeks;
+
+  /// Text for timeline of next month
+  ///
+  /// In en, this message translates to:
+  /// **'in the next month'**
+  String get nextMonth;
+
+  /// Text for unspecified or default value
+  ///
+  /// In en, this message translates to:
+  /// **'Not specified'**
+  String get notSpecified;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

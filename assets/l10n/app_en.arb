@@ -1267,5 +1267,40 @@
         "example": "Connection failed"
       }
     }
+  },
+
+  "listView": "List View",
+  "@listView": {
+    "description": "Toggle for list view display"
+  },
+
+  "gridView": "Grid View",
+  "@gridView": {
+    "description": "Toggle for grid view display"
+  },
+
+  "atYourOwnPace": "at your own pace",
+  "@atYourOwnPace": {
+    "description": "Text for timeline at user's own pace"
+  },
+
+  "nextSevenDays": "in the next 7 days",
+  "@nextSevenDays": {
+    "description": "Text for timeline of next 7 days"
+  },
+
+  "nextTwoWeeks": "in the next 2 weeks",
+  "@nextTwoWeeks": {
+    "description": "Text for timeline of next 2 weeks"
+  },
+
+  "nextMonth": "in the next month",
+  "@nextMonth": {
+    "description": "Text for timeline of next month"
+  },
+
+  "notSpecified": "Not specified",
+  "@notSpecified": {
+    "description": "Text for unspecified or default value"
   }
 }

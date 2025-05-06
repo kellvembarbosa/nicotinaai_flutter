@@ -747,4 +747,25 @@ class AppLocalizationsPt extends AppLocalizations {
   String loadingError(String error) {
     return 'Erro ao finalizar: $error';
   }
+
+  @override
+  String get listView => 'List View';
+
+  @override
+  String get gridView => 'Grid View';
+
+  @override
+  String get atYourOwnPace => 'at your own pace';
+
+  @override
+  String get nextSevenDays => 'in the next 7 days';
+
+  @override
+  String get nextTwoWeeks => 'in the next 2 weeks';
+
+  @override
+  String get nextMonth => 'in the next month';
+
+  @override
+  String get notSpecified => 'Not specified';
 }

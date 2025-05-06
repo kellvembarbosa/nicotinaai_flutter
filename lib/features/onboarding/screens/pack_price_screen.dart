@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:nicotinaai_flutter/features/onboarding/providers/onboarding_provider.dart';
 import 'package:nicotinaai_flutter/features/onboarding/screens/onboarding_container.dart';
+import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
 
 class PackPriceScreen extends StatefulWidget {
   const PackPriceScreen({Key? key}) : super(key: key);
@@ -56,20 +57,21 @@ class _PackPriceScreenState extends State<PackPriceScreen> {
   Widget build(BuildContext context) {
     final provider = Provider.of<OnboardingProvider>(context);
     final currentOnboarding = provider.state.onboarding;
+    final localizations = AppLocalizations.of(context);
     
     if (currentOnboarding == null) {
       return const Center(child: CircularProgressIndicator());
     }
 
     return OnboardingContainer(
-      title: "Quanto custa um maço de cigarros?",
-      subtitle: "Isso nos ajuda a calcular sua economia financeira",
+      title: localizations.packPriceQuestion,
+      subtitle: localizations.helpCalculateFinancial,
       content: Column(
         children: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24),
             child: Text(
-              'Informe o valor médio que você paga por um maço de cigarros.',
+              localizations.enterAveragePrice,
               style: GoogleFonts.poppins(
                 fontSize: 16,
                 color: Colors.grey[700],
@@ -163,7 +165,7 @@ class _PackPriceScreenState extends State<PackPriceScreen> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24),
             child: Text(
-              'Essas informações nos ajudam a mostrar quanto você economizará ao reduzir ou parar de fumar.',
+              localizations.priceHelp,
               style: GoogleFonts.poppins(
                 fontSize: 14,
                 color: Colors.grey[600],

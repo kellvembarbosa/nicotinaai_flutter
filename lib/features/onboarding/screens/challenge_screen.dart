@@ -5,6 +5,7 @@ import 'package:nicotinaai_flutter/features/onboarding/models/onboarding_model.d
 import 'package:nicotinaai_flutter/features/onboarding/providers/onboarding_provider.dart';
 import 'package:nicotinaai_flutter/features/onboarding/screens/onboarding_container.dart';
 import 'package:nicotinaai_flutter/features/onboarding/widgets/option_card.dart';
+import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
 
 class ChallengeScreen extends StatefulWidget {
   const ChallengeScreen({Key? key}) : super(key: key);
@@ -31,25 +32,26 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
   Widget build(BuildContext context) {
     final provider = Provider.of<OnboardingProvider>(context);
     final currentOnboarding = provider.state.onboarding;
+    final localizations = AppLocalizations.of(context);
     
     if (currentOnboarding == null) {
       return const Center(child: CircularProgressIndicator());
     }
 
-    // Ajustar o título com base no objetivo selecionado (reduzir ou parar)
-    final goalText = currentOnboarding.goal == GoalType.reduce 
-        ? "reduzir" 
-        : "parar de fumar";
+    // Use the goal type to determine the correct question string with placeholder
+    final String challengeQuestion = currentOnboarding.goal == GoalType.reduce
+        ? localizations.challengeQuestion('reduzir') 
+        : localizations.challengeQuestion('parar de fumar');
 
     return OnboardingContainer(
-      title: "O que torna difícil $goalText para você?",
-      subtitle: "Identificar seu principal desafio nos ajuda a fornecer melhor suporte",
+      title: challengeQuestion,
+      subtitle: localizations.identifyChallenge,
       content: Column(
         children: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24),
             child: Text(
-              'Entender o que torna o cigarro difícil de largar é o primeiro passo para superar esse obstáculo.',
+              localizations.challengeExplanation,
               style: GoogleFonts.poppins(
                 fontSize: 16,
                 color: Colors.grey[700],
@@ -68,8 +70,8 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
                 _selectedChallenge = QuitChallenge.stress;
               });
             },
-            label: 'Estresse e ansiedade',
-            description: 'Fumo para lidar com situações estressantes e ansiedade',
+            label: localizations.stressAnxiety,
+            description: localizations.stressDescription,
             child: _selectedChallenge == QuitChallenge.stress ? _buildChallengeIcon(Icons.mood_bad) : null,
           ),
           
@@ -82,8 +84,8 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
                 _selectedChallenge = QuitChallenge.habit;
               });
             },
-            label: 'Força do hábito',
-            description: 'Fumar já faz parte da minha rotina diária',
+            label: localizations.habitStrength,
+            description: localizations.habitDescription,
             child: _selectedChallenge == QuitChallenge.habit ? _buildChallengeIcon(Icons.access_time) : null,
           ),
           
@@ -96,8 +98,8 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
                 _selectedChallenge = QuitChallenge.social;
               });
             },
-            label: 'Influência social',
-            description: 'Pessoas ao meu redor fumam ou me incentivam a fumar',
+            label: localizations.socialInfluence,
+            description: localizations.socialDescription,
             child: _selectedChallenge == QuitChallenge.social ? _buildChallengeIcon(Icons.people) : null,
           ),
           
@@ -110,8 +112,8 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
                 _selectedChallenge = QuitChallenge.addiction;
               });
             },
-            label: 'Dependência física',
-            description: 'Sinto sintomas físicos quando fico sem fumar',
+            label: localizations.physicalDependence,
+            description: localizations.dependenceDescription,
             child: _selectedChallenge == QuitChallenge.addiction ? _buildChallengeIcon(Icons.medication) : null,
           ),
           
@@ -121,7 +123,7 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24),
             child: Text(
-              'Suas respostas nos ajudam a personalizar dicas e estratégias mais eficazes para seu caso específico.',
+              localizations.challengeHelp,
               style: GoogleFonts.poppins(
                 fontSize: 14,
                 color: Colors.grey[600],
@@ -143,9 +145,9 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
         } else {
           // Mostrar mensagem de erro se nenhum desafio for selecionado
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Por favor, selecione um desafio'),
-              duration: Duration(seconds: 2),
+            SnackBar(
+              content: Text(localizations.pleaseSelectChallenge),
+              duration: const Duration(seconds: 2),
             ),
           );
         }
