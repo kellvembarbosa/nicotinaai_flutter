@@ -5,8 +5,9 @@ import 'package:nicotinaai_flutter/features/home/screens/home_screen.dart';
 import 'package:nicotinaai_flutter/features/settings/screens/settings_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:nicotinaai_flutter/features/auth/providers/auth_provider.dart';
+import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
 
-/// MainScreen com navegação em tabs
+/// MainScreen with tab navigation
 class MainScreen extends StatefulWidget {
   static const String routeName = '/main';
 
@@ -19,7 +20,7 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
   
-  // Lista de telas para as tabs
+  // List of screens for the tabs
   final List<Widget> _screens = [
     const HomeScreen(),
     const AchievementsScreen(),
@@ -29,7 +30,7 @@ class _MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
-    final userName = authProvider.currentUser?.name ?? 'Usuário';
+    final userName = authProvider.currentUser?.name ?? 'User';
     
     return Scaffold(
       body: IndexedStack(
@@ -42,6 +43,7 @@ class _MainScreenState extends State<MainScreen> {
   
   Widget _buildBottomNavigationBar(BuildContext context) {
     final isDark = context.isDarkMode;
+    final localizations = AppLocalizations.of(context);
     
     return Container(
       decoration: BoxDecoration(
@@ -67,31 +69,31 @@ class _MainScreenState extends State<MainScreen> {
             _currentIndex = index;
           });
         },
-        items: const [
+        items: [
           BottomNavigationBarItem(
-            icon: Icon(Icons.home_outlined),
-            activeIcon: Icon(Icons.home),
-            label: 'Home',
+            icon: const Icon(Icons.home_outlined),
+            activeIcon: const Icon(Icons.home),
+            label: localizations.home,
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.emoji_events_outlined),
-            activeIcon: Icon(Icons.emoji_events),
-            label: 'Conquistas',
+            icon: const Icon(Icons.emoji_events_outlined),
+            activeIcon: const Icon(Icons.emoji_events),
+            label: localizations.achievements,
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.settings_outlined),
-            activeIcon: Icon(Icons.settings),
-            label: 'Configurações',
+            icon: const Icon(Icons.settings_outlined),
+            activeIcon: const Icon(Icons.settings),
+            label: localizations.settings,
           ),
         ],
         backgroundColor: isDark ? const Color(0xFF121212) : Colors.white,
         selectedItemColor: context.primaryColor,
         unselectedItemColor: isDark ? Colors.grey[500] : Colors.grey[600],
-        selectedLabelStyle: TextStyle(
+        selectedLabelStyle: const TextStyle(
           fontWeight: FontWeight.w600,
           fontSize: 12,
         ),
-        unselectedLabelStyle: TextStyle(
+        unselectedLabelStyle: const TextStyle(
           fontWeight: FontWeight.normal,
           fontSize: 12,
         ),
