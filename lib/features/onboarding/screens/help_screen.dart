@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:nicotinaai_flutter/features/onboarding/providers/onboarding_provider.dart';
 import 'package:nicotinaai_flutter/features/onboarding/screens/onboarding_container.dart';
 import 'package:nicotinaai_flutter/features/onboarding/widgets/multi_select_option_card.dart';
+import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
 
 class HelpScreen extends StatefulWidget {
   const HelpScreen({Key? key}) : super(key: key);
@@ -13,7 +14,7 @@ class HelpScreen extends StatefulWidget {
 }
 
 class _HelpScreenState extends State<HelpScreen> {
-  // Lista de opções de ajuda disponíveis
+  // List of available help options
   final List<String> _availableHelp = [
     'dicas_diarias',
     'lembretes',
@@ -23,7 +24,7 @@ class _HelpScreenState extends State<HelpScreen> {
     'economia',
   ];
   
-  // Lista de opções selecionadas
+  // List of selected options
   List<String> _selectedHelp = [];
   
   @override
@@ -41,20 +42,22 @@ class _HelpScreenState extends State<HelpScreen> {
   Widget build(BuildContext context) {
     final provider = Provider.of<OnboardingProvider>(context);
     final currentOnboarding = provider.state.onboarding;
+    // Adding localization
+    final localizations = AppLocalizations.of(context);
     
     if (currentOnboarding == null) {
       return const Center(child: CircularProgressIndicator());
     }
 
     return OnboardingContainer(
-      title: "Como podemos ajudar você?",
-      subtitle: "Selecione todas as opções que te interessam",
+      title: localizations.helpScreenTitle,
+      subtitle: localizations.selectAllInterests,
       content: Column(
         children: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24),
             child: Text(
-              'Oferecemos diferentes recursos para apoiar sua jornada. Selecione todos que acredita que podem ajudar.',
+              localizations.helpScreenExplanation,
               style: GoogleFonts.poppins(
                 fontSize: 16,
                 color: Colors.grey[700],
@@ -65,7 +68,7 @@ class _HelpScreenState extends State<HelpScreen> {
           
           const SizedBox(height: 32),
           
-          // Opções de recursos de ajuda
+          // Help resource options
           MultiSelectOptionCard(
             selected: _selectedHelp.contains('dicas_diarias'),
             onPress: () {
@@ -73,8 +76,8 @@ class _HelpScreenState extends State<HelpScreen> {
                 _toggleOption('dicas_diarias');
               });
             },
-            label: 'Dicas diárias',
-            description: 'Receba conselhos práticos todos os dias para apoiar sua jornada',
+            label: localizations.dailyTips,
+            description: localizations.dailyTipsDescription,
             child: _selectedHelp.contains('dicas_diarias') 
                 ? _buildHelpIcon(Icons.tips_and_updates) 
                 : null,
@@ -89,8 +92,8 @@ class _HelpScreenState extends State<HelpScreen> {
                 _toggleOption('lembretes');
               });
             },
-            label: 'Lembretes personalizados',
-            description: 'Notificações para te manter motivado e no caminho certo',
+            label: localizations.customReminders,
+            description: localizations.customRemindersDescription,
             child: _selectedHelp.contains('lembretes') 
                 ? _buildHelpIcon(Icons.notifications_active) 
                 : null,
@@ -105,8 +108,8 @@ class _HelpScreenState extends State<HelpScreen> {
                 _toggleOption('monitoramento');
               });
             },
-            label: 'Monitoramento de progresso',
-            description: 'Acompanhe visualmente sua evolução ao longo do tempo',
+            label: localizations.progressMonitoring,
+            description: localizations.progressMonitoringDescription,
             child: _selectedHelp.contains('monitoramento') 
                 ? _buildHelpIcon(Icons.insert_chart) 
                 : null,
@@ -121,8 +124,8 @@ class _HelpScreenState extends State<HelpScreen> {
                 _toggleOption('comunidade');
               });
             },
-            label: 'Comunidade de apoio',
-            description: 'Conecte-se com outras pessoas em jornada semelhante',
+            label: localizations.supportCommunity,
+            description: localizations.supportCommunityDescription,
             child: _selectedHelp.contains('comunidade') 
                 ? _buildHelpIcon(Icons.people) 
                 : null,
@@ -137,8 +140,8 @@ class _HelpScreenState extends State<HelpScreen> {
                 _toggleOption('substitutos');
               });
             },
-            label: 'Alternativas ao cigarro',
-            description: 'Sugestões de atividades e produtos para substituir o hábito',
+            label: localizations.cigaretteAlternatives,
+            description: localizations.cigaretteAlternativesDescription,
             child: _selectedHelp.contains('substitutos') 
                 ? _buildHelpIcon(Icons.swap_horiz) 
                 : null,
@@ -153,8 +156,8 @@ class _HelpScreenState extends State<HelpScreen> {
                 _toggleOption('economia');
               });
             },
-            label: 'Calculadora de economia',
-            description: 'Veja quanto dinheiro você está economizando ao reduzir ou parar',
+            label: localizations.savingsCalculator,
+            description: localizations.savingsCalculatorDescription,
             child: _selectedHelp.contains('economia') 
                 ? _buildHelpIcon(Icons.savings) 
                 : null,
@@ -162,11 +165,11 @@ class _HelpScreenState extends State<HelpScreen> {
           
           const SizedBox(height: 24),
           
-          // Texto informativo
+          // Informational text
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24),
             child: Text(
-              'Você pode modificar estas preferências a qualquer momento nas configurações do app.',
+              localizations.modifyPreferencesAnytime,
               style: GoogleFonts.poppins(
                 fontSize: 14,
                 color: Colors.grey[600],
@@ -185,7 +188,7 @@ class _HelpScreenState extends State<HelpScreen> {
           provider.nextStep();
         });
       },
-      canProceed: true, // Pode prosseguir mesmo sem selecionar (não é obrigatório)
+      canProceed: true, // Can proceed even without selecting (not mandatory)
     );
   }
   

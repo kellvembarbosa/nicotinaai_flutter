@@ -5,6 +5,7 @@ import 'package:nicotinaai_flutter/features/onboarding/models/onboarding_model.d
 import 'package:nicotinaai_flutter/features/onboarding/providers/onboarding_provider.dart';
 import 'package:nicotinaai_flutter/features/onboarding/screens/onboarding_container.dart';
 import 'package:nicotinaai_flutter/features/onboarding/widgets/option_card.dart';
+import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
 
 class InterestsScreen extends StatefulWidget {
   const InterestsScreen({Key? key}) : super(key: key);
@@ -19,7 +20,7 @@ class _InterestsScreenState extends State<InterestsScreen> {
   @override
   void initState() {
     super.initState();
-    // Carregar dados salvos se disponíveis
+    // Load saved data if available
     final provider = Provider.of<OnboardingProvider>(context, listen: false);
     final onboarding = provider.state.onboarding;
     
@@ -47,6 +48,7 @@ class _InterestsScreenState extends State<InterestsScreen> {
   Widget build(BuildContext context) {
     final provider = Provider.of<OnboardingProvider>(context);
     final onboarding = provider.state.onboarding;
+    final localizations = AppLocalizations.of(context);
     
     if (onboarding == null) {
       return const Scaffold(
@@ -56,14 +58,19 @@ class _InterestsScreenState extends State<InterestsScreen> {
       );
     }
 
+    // Determine correct goal text for the challenge question
+    final String goalText = onboarding.goal == GoalType.reduce
+        ? 'reduzir'
+        : 'parar de fumar';
+
     return OnboardingContainer(
-      title: "O que torna difícil parar de fumar para você?",
-      subtitle: "Identificar seu principal desafio nos ajuda a fornecer melhor suporte",
+      title: localizations.challengeQuestion(goalText),
+      subtitle: localizations.identifyChallenge,
       content: Column(
         children: [
           const SizedBox(height: 16),
           
-          // Opção: Estresse
+          // Stress option
           OptionCard(
             selected: _selectedChallenge == 'stress',
             onPress: () {
@@ -71,13 +78,13 @@ class _InterestsScreenState extends State<InterestsScreen> {
                 _selectedChallenge = 'stress';
               });
             },
-            label: 'Lidar com o estresse',
-            description: 'Fumar me ajuda a relaxar quando estou estressado',
+            label: localizations.stressAnxiety,
+            description: localizations.stressDescription,
           ),
           
           const SizedBox(height: 12),
           
-          // Opção: Hábito
+          // Habit option
           OptionCard(
             selected: _selectedChallenge == 'habit',
             onPress: () {
@@ -85,13 +92,13 @@ class _InterestsScreenState extends State<InterestsScreen> {
                 _selectedChallenge = 'habit';
               });
             },
-            label: 'Quebrar o hábito',
-            description: 'É parte da minha rotina diária',
+            label: localizations.habitStrength,
+            description: localizations.habitDescription,
           ),
           
           const SizedBox(height: 12),
           
-          // Opção: Social
+          // Social option
           OptionCard(
             selected: _selectedChallenge == 'social',
             onPress: () {
@@ -99,13 +106,13 @@ class _InterestsScreenState extends State<InterestsScreen> {
                 _selectedChallenge = 'social';
               });
             },
-            label: 'Pressão social',
-            description: 'Meus amigos/familiares fumam',
+            label: localizations.socialInfluence,
+            description: localizations.socialDescription,
           ),
           
           const SizedBox(height: 12),
           
-          // Opção: Dependência
+          // Addiction option
           OptionCard(
             selected: _selectedChallenge == 'addiction',
             onPress: () {
@@ -113,17 +120,17 @@ class _InterestsScreenState extends State<InterestsScreen> {
                 _selectedChallenge = 'addiction';
               });
             },
-            label: 'Dependência física',
-            description: 'Sinto sintomas de abstinência quando não fumo',
+            label: localizations.physicalDependence,
+            description: localizations.dependenceDescription,
           ),
           
           const SizedBox(height: 24),
           
-          // Texto informativo
+          // Informational text
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24),
             child: Text(
-              'Essas informações nos ajudam a personalizar estratégias mais eficazes para seu caso específico.',
+              localizations.challengeHelp,
               style: context.textTheme.bodyMedium!.copyWith(
                 color: context.subtitleColor,
               ),
@@ -134,7 +141,7 @@ class _InterestsScreenState extends State<InterestsScreen> {
       ),
       canProceed: _selectedChallenge != null,
       onNext: () {
-        // Mapear a seleção para o enum correspondente
+        // Map selection to corresponding enum
         QuitChallenge? challenge;
         
         switch (_selectedChallenge) {
@@ -152,7 +159,7 @@ class _InterestsScreenState extends State<InterestsScreen> {
             break;
         }
         
-        // Atualizar o modelo
+        // Update the model
         if (challenge != null) {
           final updated = onboarding.copyWith(
             quitChallenge: challenge,
@@ -161,6 +168,14 @@ class _InterestsScreenState extends State<InterestsScreen> {
           provider.updateOnboarding(updated).then((_) {
             provider.nextStep();
           });
+        } else {
+          // Show error message if no challenge is selected
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(localizations.pleaseSelectChallenge),
+              duration: const Duration(seconds: 2),
+            ),
+          );
         }
       },
     );

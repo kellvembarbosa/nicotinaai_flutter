@@ -38,7 +38,7 @@ class LocaleProvider extends ChangeNotifier {
   // Limpa as preferências de idioma e redefine para inglês
   Future<void> resetToDefaultLocale() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(_localeKey);
+    await prefs.setString(_localeKey, 'en_US');
     _locale = const Locale('en', 'US');
     notifyListeners();
   }

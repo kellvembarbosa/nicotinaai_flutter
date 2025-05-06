@@ -9,6 +9,78 @@ class AppLocalizationsPt extends AppLocalizations {
   AppLocalizationsPt([String locale = 'pt']) : super(locale);
 
   @override
+  String get helpScreenTitle => 'Como podemos ajudar você?';
+
+  @override
+  String get selectAllInterests => 'Selecione todas as opções que te interessam';
+
+  @override
+  String get helpScreenExplanation => 'Oferecemos diferentes recursos para apoiar sua jornada. Selecione todos que acredita que podem ajudar.';
+
+  @override
+  String get dailyTips => 'Dicas diárias';
+
+  @override
+  String get dailyTipsDescription => 'Receba conselhos práticos todos os dias para apoiar sua jornada';
+
+  @override
+  String get customReminders => 'Lembretes personalizados';
+
+  @override
+  String get customRemindersDescription => 'Notificações para te manter motivado e no caminho certo';
+
+  @override
+  String get progressMonitoring => 'Monitoramento de progresso';
+
+  @override
+  String get progressMonitoringDescription => 'Acompanhe visualmente sua evolução ao longo do tempo';
+
+  @override
+  String get supportCommunity => 'Comunidade de apoio';
+
+  @override
+  String get supportCommunityDescription => 'Conecte-se com outras pessoas em jornada semelhante';
+
+  @override
+  String get cigaretteAlternatives => 'Alternativas ao cigarro';
+
+  @override
+  String get cigaretteAlternativesDescription => 'Sugestões de atividades e produtos para substituir o hábito';
+
+  @override
+  String get savingsCalculator => 'Calculadora de economia';
+
+  @override
+  String get savingsCalculatorDescription => 'Veja quanto dinheiro você está economizando ao reduzir ou parar';
+
+  @override
+  String get modifyPreferencesAnytime => 'Você pode modificar estas preferências a qualquer momento nas configurações do app.';
+
+  @override
+  String get personalizeScreenTitle => 'Quando você costuma fumar mais?';
+
+  @override
+  String get personalizeScreenSubtitle => 'Selecione o momento em que você sente mais vontade de fumar';
+
+  @override
+  String get afterMeals => 'Depois das refeições';
+
+  @override
+  String get duringWorkBreaks => 'Durante pausas no trabalho';
+
+  @override
+  String get inSocialEvents => 'Em eventos sociais';
+
+  @override
+  String get whenStressed => 'Quando estou estressado';
+
+  @override
+  String get withCoffeeOrAlcohol => 'Quando bebo café ou álcool';
+
+  @override
+  String get whenBored => 'Quando estou entediado';
+
+  @override
   String homeDaysWithoutSmoking(int days) {
     return '$days dias sem fumar';
   }
@@ -749,23 +821,23 @@ class AppLocalizationsPt extends AppLocalizations {
   }
 
   @override
-  String get listView => 'List View';
+  String get listView => 'Visualização em lista';
 
   @override
-  String get gridView => 'Grid View';
+  String get gridView => 'Visualização em grade';
 
   @override
-  String get atYourOwnPace => 'at your own pace';
+  String get atYourOwnPace => 'ao seu próprio ritmo';
 
   @override
-  String get nextSevenDays => 'in the next 7 days';
+  String get nextSevenDays => 'nos próximos 7 dias';
 
   @override
-  String get nextTwoWeeks => 'in the next 2 weeks';
+  String get nextTwoWeeks => 'nas próximas 2 semanas';
 
   @override
-  String get nextMonth => 'in the next month';
+  String get nextMonth => 'no próximo mês';
 
   @override
-  String get notSpecified => 'Not specified';
+  String get notSpecified => 'Não especificado';
 }

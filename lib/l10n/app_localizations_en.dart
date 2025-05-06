@@ -9,6 +9,78 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
+  String get helpScreenTitle => 'How can we help you?';
+
+  @override
+  String get selectAllInterests => 'Select all options that interest you';
+
+  @override
+  String get helpScreenExplanation => 'We offer different resources to support your journey. Select all that you believe can help.';
+
+  @override
+  String get dailyTips => 'Daily tips';
+
+  @override
+  String get dailyTipsDescription => 'Receive practical advice every day to support your journey';
+
+  @override
+  String get customReminders => 'Custom reminders';
+
+  @override
+  String get customRemindersDescription => 'Notifications to keep you motivated and on track';
+
+  @override
+  String get progressMonitoring => 'Progress monitoring';
+
+  @override
+  String get progressMonitoringDescription => 'Visually track your progress over time';
+
+  @override
+  String get supportCommunity => 'Support community';
+
+  @override
+  String get supportCommunityDescription => 'Connect with others on a similar journey';
+
+  @override
+  String get cigaretteAlternatives => 'Cigarette alternatives';
+
+  @override
+  String get cigaretteAlternativesDescription => 'Suggestions for activities and products to replace the habit';
+
+  @override
+  String get savingsCalculator => 'Savings calculator';
+
+  @override
+  String get savingsCalculatorDescription => 'See how much money you\'re saving by reducing or quitting';
+
+  @override
+  String get modifyPreferencesAnytime => 'You can modify these preferences at any time in the app settings.';
+
+  @override
+  String get personalizeScreenTitle => 'When do you usually smoke more?';
+
+  @override
+  String get personalizeScreenSubtitle => 'Select the times when you feel more like smoking';
+
+  @override
+  String get afterMeals => 'After meals';
+
+  @override
+  String get duringWorkBreaks => 'During work breaks';
+
+  @override
+  String get inSocialEvents => 'At social events';
+
+  @override
+  String get whenStressed => 'When I\'m stressed';
+
+  @override
+  String get withCoffeeOrAlcohol => 'When drinking coffee or alcohol';
+
+  @override
+  String get whenBored => 'When I\'m bored';
+
+  @override
   String homeDaysWithoutSmoking(int days) {
     return '$days days without smoking';
   }

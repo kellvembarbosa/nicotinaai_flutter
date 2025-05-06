@@ -1,6 +1,126 @@
 {
   "@@locale": "pt",
   
+  "helpScreenTitle": "Como podemos ajudar você?",
+  "@helpScreenTitle": {
+    "description": "Title for help screen"
+  },
+  
+  "selectAllInterests": "Selecione todas as opções que te interessam",
+  "@selectAllInterests": {
+    "description": "Subtitle for help screen"
+  },
+  
+  "helpScreenExplanation": "Oferecemos diferentes recursos para apoiar sua jornada. Selecione todos que acredita que podem ajudar.",
+  "@helpScreenExplanation": {
+    "description": "Explanation text on help screen"
+  },
+  
+  "dailyTips": "Dicas diárias",
+  "@dailyTips": {
+    "description": "Option for daily tips"
+  },
+  
+  "dailyTipsDescription": "Receba conselhos práticos todos os dias para apoiar sua jornada",
+  "@dailyTipsDescription": {
+    "description": "Description for daily tips"
+  },
+  
+  "customReminders": "Lembretes personalizados",
+  "@customReminders": {
+    "description": "Option for custom reminders"
+  },
+  
+  "customRemindersDescription": "Notificações para te manter motivado e no caminho certo",
+  "@customRemindersDescription": {
+    "description": "Description for custom reminders"
+  },
+  
+  "progressMonitoring": "Monitoramento de progresso",
+  "@progressMonitoring": {
+    "description": "Option for progress monitoring"
+  },
+  
+  "progressMonitoringDescription": "Acompanhe visualmente sua evolução ao longo do tempo",
+  "@progressMonitoringDescription": {
+    "description": "Description for progress monitoring"
+  },
+  
+  "supportCommunity": "Comunidade de apoio",
+  "@supportCommunity": {
+    "description": "Option for support community"
+  },
+  
+  "supportCommunityDescription": "Conecte-se com outras pessoas em jornada semelhante",
+  "@supportCommunityDescription": {
+    "description": "Description for support community"
+  },
+  
+  "cigaretteAlternatives": "Alternativas ao cigarro",
+  "@cigaretteAlternatives": {
+    "description": "Option for cigarette alternatives"
+  },
+  
+  "cigaretteAlternativesDescription": "Sugestões de atividades e produtos para substituir o hábito",
+  "@cigaretteAlternativesDescription": {
+    "description": "Description for cigarette alternatives"
+  },
+  
+  "savingsCalculator": "Calculadora de economia",
+  "@savingsCalculator": {
+    "description": "Option for savings calculator"
+  },
+  
+  "savingsCalculatorDescription": "Veja quanto dinheiro você está economizando ao reduzir ou parar",
+  "@savingsCalculatorDescription": {
+    "description": "Description for savings calculator"
+  },
+  
+  "modifyPreferencesAnytime": "Você pode modificar estas preferências a qualquer momento nas configurações do app.",
+  "@modifyPreferencesAnytime": {
+    "description": "Text explaining that preferences can be modified later"
+  },
+  
+  "personalizeScreenTitle": "Quando você costuma fumar mais?",
+  "@personalizeScreenTitle": {
+    "description": "Title for personalize screen"
+  },
+  
+  "personalizeScreenSubtitle": "Selecione o momento em que você sente mais vontade de fumar",
+  "@personalizeScreenSubtitle": {
+    "description": "Subtitle for personalize screen"
+  },
+  
+  "afterMeals": "Depois das refeições",
+  "@afterMeals": {
+    "description": "Option for smoking after meals"
+  },
+  
+  "duringWorkBreaks": "Durante pausas no trabalho",
+  "@duringWorkBreaks": {
+    "description": "Option for smoking during work breaks"
+  },
+  
+  "inSocialEvents": "Em eventos sociais",
+  "@inSocialEvents": {
+    "description": "Option for smoking at social events"
+  },
+  
+  "whenStressed": "Quando estou estressado",
+  "@whenStressed": {
+    "description": "Option for smoking when stressed"
+  },
+  
+  "withCoffeeOrAlcohol": "Quando bebo café ou álcool",
+  "@withCoffeeOrAlcohol": {
+    "description": "Option for smoking with coffee or alcohol"
+  },
+  
+  "whenBored": "Quando estou entediado",
+  "@whenBored": {
+    "description": "Option for smoking when bored"
+  },
+  
   "achievementCategoryAll": "Todas",
   "@achievementCategoryAll": {
     "description": "All achievements category"

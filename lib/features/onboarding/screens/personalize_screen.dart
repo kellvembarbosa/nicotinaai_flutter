@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:nicotinaai_flutter/features/onboarding/providers/onboarding_provider.dart';
 import 'package:nicotinaai_flutter/features/onboarding/screens/onboarding_container.dart';
 import 'package:nicotinaai_flutter/features/onboarding/widgets/multi_select_option_card.dart';
+import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
 
 class PersonalizeScreen extends StatefulWidget {
   const PersonalizeScreen({Key? key}) : super(key: key);
@@ -18,7 +19,7 @@ class _PersonalizeScreenState extends State<PersonalizeScreen> {
   void initState() {
     super.initState();
     
-    // Carregar dados salvos se disponíveis
+    // Load saved data if available
     final provider = Provider.of<OnboardingProvider>(context, listen: false);
     final onboarding = provider.state.onboarding;
     
@@ -32,6 +33,7 @@ class _PersonalizeScreenState extends State<PersonalizeScreen> {
   Widget build(BuildContext context) {
     final provider = Provider.of<OnboardingProvider>(context);
     final onboarding = provider.state.onboarding;
+    final localizations = AppLocalizations.of(context);
     
     if (onboarding == null) {
       return const Scaffold(
@@ -42,51 +44,51 @@ class _PersonalizeScreenState extends State<PersonalizeScreen> {
     }
     
     return OnboardingContainer(
-      title: "Quando você costuma fumar mais?",
-      subtitle: "Selecione o momento em que você sente mais vontade de fumar",
+      title: localizations.personalizeScreenTitle,
+      subtitle: localizations.personalizeScreenSubtitle,
       content: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 16),
           
-          // Opções de momento de fumar
+          // Smoking time options
           _buildOptionCard(
-            "Depois das refeições", 
+            localizations.afterMeals, 
             "after_meals",
           ),
           
           const SizedBox(height: 12),
           
           _buildOptionCard(
-            "Durante pausas no trabalho", 
+            localizations.duringWorkBreaks, 
             "work_breaks",
           ),
           
           const SizedBox(height: 12),
           
           _buildOptionCard(
-            "Em eventos sociais", 
+            localizations.inSocialEvents, 
             "social_events",
           ),
           
           const SizedBox(height: 12),
           
           _buildOptionCard(
-            "Quando estou estressado", 
+            localizations.whenStressed, 
             "stress",
           ),
           
           const SizedBox(height: 12),
           
           _buildOptionCard(
-            "Quando bebo café ou álcool", 
+            localizations.withCoffeeOrAlcohol, 
             "drinking",
           ),
           
           const SizedBox(height: 12),
           
           _buildOptionCard(
-            "Quando estou entediado", 
+            localizations.whenBored, 
             "boredom",
           ),
           
@@ -95,7 +97,7 @@ class _PersonalizeScreenState extends State<PersonalizeScreen> {
       ),
       canProceed: _selectedTimes.isNotEmpty,
       onNext: () {
-        // Salvar dados e avançar
+        // Save data and proceed
         final updatedData = Map<String, dynamic>.from(onboarding.additionalData);
         updatedData['smoking_times'] = _selectedTimes;
         

@@ -95,6 +95,150 @@ abstract class AppLocalizations {
     Locale('pt')
   ];
 
+  /// Title for help screen
+  ///
+  /// In en, this message translates to:
+  /// **'How can we help you?'**
+  String get helpScreenTitle;
+
+  /// Subtitle for help screen
+  ///
+  /// In en, this message translates to:
+  /// **'Select all options that interest you'**
+  String get selectAllInterests;
+
+  /// Explanation text on help screen
+  ///
+  /// In en, this message translates to:
+  /// **'We offer different resources to support your journey. Select all that you believe can help.'**
+  String get helpScreenExplanation;
+
+  /// Option for daily tips
+  ///
+  /// In en, this message translates to:
+  /// **'Daily tips'**
+  String get dailyTips;
+
+  /// Description for daily tips
+  ///
+  /// In en, this message translates to:
+  /// **'Receive practical advice every day to support your journey'**
+  String get dailyTipsDescription;
+
+  /// Option for custom reminders
+  ///
+  /// In en, this message translates to:
+  /// **'Custom reminders'**
+  String get customReminders;
+
+  /// Description for custom reminders
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications to keep you motivated and on track'**
+  String get customRemindersDescription;
+
+  /// Option for progress monitoring
+  ///
+  /// In en, this message translates to:
+  /// **'Progress monitoring'**
+  String get progressMonitoring;
+
+  /// Description for progress monitoring
+  ///
+  /// In en, this message translates to:
+  /// **'Visually track your progress over time'**
+  String get progressMonitoringDescription;
+
+  /// Option for support community
+  ///
+  /// In en, this message translates to:
+  /// **'Support community'**
+  String get supportCommunity;
+
+  /// Description for support community
+  ///
+  /// In en, this message translates to:
+  /// **'Connect with others on a similar journey'**
+  String get supportCommunityDescription;
+
+  /// Option for cigarette alternatives
+  ///
+  /// In en, this message translates to:
+  /// **'Cigarette alternatives'**
+  String get cigaretteAlternatives;
+
+  /// Description for cigarette alternatives
+  ///
+  /// In en, this message translates to:
+  /// **'Suggestions for activities and products to replace the habit'**
+  String get cigaretteAlternativesDescription;
+
+  /// Option for savings calculator
+  ///
+  /// In en, this message translates to:
+  /// **'Savings calculator'**
+  String get savingsCalculator;
+
+  /// Description for savings calculator
+  ///
+  /// In en, this message translates to:
+  /// **'See how much money you\'re saving by reducing or quitting'**
+  String get savingsCalculatorDescription;
+
+  /// Text explaining that preferences can be modified later
+  ///
+  /// In en, this message translates to:
+  /// **'You can modify these preferences at any time in the app settings.'**
+  String get modifyPreferencesAnytime;
+
+  /// Title for personalize screen
+  ///
+  /// In en, this message translates to:
+  /// **'When do you usually smoke more?'**
+  String get personalizeScreenTitle;
+
+  /// Subtitle for personalize screen
+  ///
+  /// In en, this message translates to:
+  /// **'Select the times when you feel more like smoking'**
+  String get personalizeScreenSubtitle;
+
+  /// Option for smoking after meals
+  ///
+  /// In en, this message translates to:
+  /// **'After meals'**
+  String get afterMeals;
+
+  /// Option for smoking during work breaks
+  ///
+  /// In en, this message translates to:
+  /// **'During work breaks'**
+  String get duringWorkBreaks;
+
+  /// Option for smoking at social events
+  ///
+  /// In en, this message translates to:
+  /// **'At social events'**
+  String get inSocialEvents;
+
+  /// Option for smoking when stressed
+  ///
+  /// In en, this message translates to:
+  /// **'When I\'m stressed'**
+  String get whenStressed;
+
+  /// Option for smoking with coffee or alcohol
+  ///
+  /// In en, this message translates to:
+  /// **'When drinking coffee or alcohol'**
+  String get withCoffeeOrAlcohol;
+
+  /// Option for smoking when bored
+  ///
+  /// In en, this message translates to:
+  /// **'When I\'m bored'**
+  String get whenBored;
+
   /// Days without smoking counter
   ///
   /// In en, this message translates to:

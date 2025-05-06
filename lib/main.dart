@@ -29,9 +29,9 @@ void main() async {
   // Inicializa o Supabase
   await SupabaseConfig.initialize();
   
-  // Limpa a preferência de idioma para garantir que começa em inglês
+  // Garante que a preferência de idioma está definida para inglês
   final prefs = await SharedPreferences.getInstance();
-  await prefs.remove('app_locale');
+  await prefs.setString('app_locale', 'en_US');
   
   // Cria os repositórios
   final authRepository = AuthRepository();
