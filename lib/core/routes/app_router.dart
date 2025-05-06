@@ -100,10 +100,13 @@ class AppRouter {
     final isInitializing = authProvider.state.status == AuthStatus.initial;
     
     // Verifica se já completou o onboarding
-    // Só considera se o estado já está carregado
+    // Sempre considera o estado atual, mesmo que ainda não esteja totalmente carregado
     final onboardingState = onboardingProvider.state;
     final hasCompletedOnboarding = onboardingState.isCompleted;
     final isOnboardingLoaded = !onboardingState.isInitial && !onboardingState.isLoading;
+    
+    // Log para depuração
+    print('🧭 [AppRouter] Redirecionamento - Autenticado: $isAuthenticated, Onboarding completo: $hasCompletedOnboarding, Rota: $currentLocation');
     
     // Se estiver inicializando ou autenticando, permite permanecer na página atual
     if (isInitializing || isAuthenticating) {
@@ -117,8 +120,9 @@ class AppRouter {
     
     // Se estiver autenticado mas não completou onboarding
     // e não está indo para a página de onboarding
-    // Só redireciona se o estado do onboarding já foi carregado
-    if (isAuthenticated && isOnboardingLoaded && !hasCompletedOnboarding && !isGoingToOnboarding) {
+    // Dar alta prioridade para este redirecionamento
+    if (isAuthenticated && !onboardingProvider.state.isCompleted && !isGoingToOnboarding) {
+      print('🔄 [AppRouter] Redirecionando para onboarding - usuário autenticado mas onboarding não concluído');
       return OnboardingScreen.routeName;
     }
     
@@ -130,8 +134,13 @@ class AppRouter {
     
     // Se estiver autenticado e tentando acessar página pública
     if (isAuthenticated && isGoingToPublicPage) {
-      // Só redireciona para onboarding se o estado já foi carregado
-      if (isOnboardingLoaded && !hasCompletedOnboarding) {
+      // Verificar diretamente no repositório se o onboarding está completo
+      final isCompleted = onboardingProvider.state.isCompleted;
+      
+      print('🔄 [AppRouter] Usuário autenticado acessando página pública. Onboarding concluído: $isCompleted');
+      
+      // Se não estiver completo, redirecionar para onboarding (prioridade máxima)
+      if (!isCompleted) {
         return OnboardingScreen.routeName;
       }
       return MainScreen.routeName;

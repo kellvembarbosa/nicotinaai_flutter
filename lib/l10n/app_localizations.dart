@@ -1708,6 +1708,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Not specified'**
   String get notSpecified;
+
+  /// Button to register a new craving
+  ///
+  /// In en, this message translates to:
+  /// **'Register Craving'**
+  String get registerCraving;
+
+  /// Subtitle for craving button
+  ///
+  /// In en, this message translates to:
+  /// **'Track when you feel urges'**
+  String get registerCravingSubtitle;
+
+  /// Button to register a new smoking record
+  ///
+  /// In en, this message translates to:
+  /// **'New Record'**
+  String get newRecord;
+
+  /// Subtitle for smoking record button
+  ///
+  /// In en, this message translates to:
+  /// **'Record when you smoke'**
+  String get newRecordSubtitle;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

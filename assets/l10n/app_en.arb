@@ -1422,5 +1422,25 @@
   "notSpecified": "Not specified",
   "@notSpecified": {
     "description": "Text for unspecified or default value"
+  },
+  
+  "registerCraving": "Register Craving",
+  "@registerCraving": {
+    "description": "Button to register a new craving"
+  },
+  
+  "registerCravingSubtitle": "Track when you feel urges",
+  "@registerCravingSubtitle": {
+    "description": "Subtitle for craving button"
+  },
+  
+  "newRecord": "New Record",
+  "@newRecord": {
+    "description": "Button to register a new smoking record"
+  },
+  
+  "newRecordSubtitle": "Record when you smoke",
+  "@newRecordSubtitle": {
+    "description": "Subtitle for smoking record button"
   }
 }

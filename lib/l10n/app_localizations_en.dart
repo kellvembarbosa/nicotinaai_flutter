@@ -840,4 +840,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get notSpecified => 'Not specified';
+
+  @override
+  String get registerCraving => 'Register Craving';
+
+  @override
+  String get registerCravingSubtitle => 'Track when you feel urges';
+
+  @override
+  String get newRecord => 'New Record';
+
+  @override
+  String get newRecordSubtitle => 'Record when you smoke';
 }

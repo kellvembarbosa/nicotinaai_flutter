@@ -29,11 +29,8 @@ class OnboardingProvider extends ChangeNotifier {
       return;
     }
     
-    // Se já estiver carregado e não tiver erro, não precisa inicializar novamente
-    // a menos que seja forçado com force: true
-    if (!_state.isInitial && !_state.hasError) {
-      return;
-    }
+    // Forçar verificação mesmo que já esteja carregado
+    // para sincronizar com o servidor
     
     try {
       _isInitializing = true;

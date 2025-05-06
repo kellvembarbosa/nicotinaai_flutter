@@ -47,7 +47,7 @@ class HomeScreen extends StatelessWidget {
             children: [
               // Cabeçalho com saudação e contador de dias
               Padding(
-                padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
+                padding: const EdgeInsets.fromLTRB(20, 20, 20, 10),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -75,6 +75,40 @@ class HomeScreen extends StatelessWidget {
                           fontWeight: FontWeight.bold,
                           color: context.primaryColor,
                         ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              
+              // Botões de registro
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: _buildActionButton(
+                        context,
+                        l10n.registerCraving,
+                        l10n.registerCravingSubtitle,
+                        Colors.redAccent,
+                        Icons.air,
+                        () {
+                          // TODO: Implementar ação para registrar fissura
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: _buildActionButton(
+                        context,
+                        l10n.newRecord,
+                        l10n.newRecordSubtitle,
+                        Colors.blueAccent,
+                        Icons.smoking_rooms,
+                        () {
+                          // TODO: Implementar ação para novo registro
+                        },
                       ),
                     ),
                   ],
@@ -581,6 +615,69 @@ class HomeScreen extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+  
+  Widget _buildActionButton(
+    BuildContext context, 
+    String title,
+    String subtitle,
+    Color color,
+    IconData icon,
+    VoidCallback onTap,
+  ) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+        decoration: BoxDecoration(
+          color: context.isDarkMode ? color.withOpacity(0.1) : Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: color,
+            width: 1,
+          ),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.2),
+                shape: BoxShape.circle,
+              ),
+              child: Center(
+                child: Icon(
+                  icon,
+                  color: color,
+                  size: 28,
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: context.contentColor,
+                fontSize: 16,
+              ),
+            ),
+            Text(
+              subtitle,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: context.subtitleColor,
+                fontSize: 12,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

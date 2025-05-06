@@ -82,6 +82,12 @@ class AuthProvider extends ChangeNotifier {
       print('✅ [AuthProvider] Usuário autenticado: ${user.email}');
       _state = AuthState.authenticated(user);
       print('📊 [AuthProvider] Estado atualizado para autenticado: ${DateTime.now()}');
+      
+      // Forçar redirecionamento imediato para garantir navegação adequada
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        // Esta chamada é vazia, mas força um rebuild que ativa o sistema de rotas
+        notifyListeners();
+      });
     } catch (e) {
       final error = e is app_exceptions.AuthException
           ? e
@@ -114,6 +120,12 @@ class AuthProvider extends ChangeNotifier {
       
       print('✅ [AuthProvider] Usuário registrado com sucesso: ${user.email}');
       _state = AuthState.authenticated(user);
+      
+      // Forçar redirecionamento imediato para garantir navegação adequada
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        // Esta chamada é vazia, mas força um rebuild que ativa o sistema de rotas
+        notifyListeners();
+      });
     } catch (e) {
       final error = e is app_exceptions.AuthException
           ? e

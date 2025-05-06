@@ -840,4 +840,16 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get notSpecified => 'Não especificado';
+
+  @override
+  String get registerCraving => 'Registrar Fissura';
+
+  @override
+  String get registerCravingSubtitle => 'Quando sentir vontade';
+
+  @override
+  String get newRecord => 'Novo Registro';
+
+  @override
+  String get newRecordSubtitle => 'Quando você fumar';
 }

@@ -1422,5 +1422,25 @@
   "notSpecified": "Não especificado",
   "@notSpecified": {
     "description": "Text for unspecified or default value"
+  },
+  
+  "registerCraving": "Registrar Fissura",
+  "@registerCraving": {
+    "description": "Button to register a new craving"
+  },
+  
+  "registerCravingSubtitle": "Quando sentir vontade",
+  "@registerCravingSubtitle": {
+    "description": "Subtitle for craving button"
+  },
+  
+  "newRecord": "Novo Registro",
+  "@newRecord": {
+    "description": "Button to register a new smoking record"
+  },
+  
+  "newRecordSubtitle": "Quando você fumar",
+  "@newRecordSubtitle": {
+    "description": "Subtitle for smoking record button"
   }
 }

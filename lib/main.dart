@@ -98,10 +98,12 @@ class MyApp extends StatelessWidget {
                 provider.initialize();
                 
                 // Verificar explicitamente o status de conclusão no banco de dados
+                // com uma pequena espera para garantir que a conexão está estável
                 WidgetsBinding.instance.addPostFrameCallback((_) async {
-                  await Future.delayed(const Duration(milliseconds: 500));
+                  await Future.delayed(const Duration(milliseconds: 1000));
                   print('🔍 [MyApp] Verificando status de onboarding no banco de dados');
-                  await provider.checkCompletionStatus();
+                  final isCompleted = await provider.checkCompletionStatus();
+                  print('🔍 [MyApp] Status de conclusão do onboarding: ${isCompleted ? "Completo" : "Incompleto"}');
                 });
               });
             } else {
