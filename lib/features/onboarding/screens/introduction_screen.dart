@@ -29,10 +29,11 @@ class IntroductionScreen extends StatelessWidget {
               borderRadius: BorderRadius.circular(16),
             ),
             child: const Center(
-              child: Icon(
-                Icons.health_and_safety_outlined,
-                size: 100,
-                color: Colors.deepPurple,
+              child: Image(
+                image: AssetImage('assets/images/smoke-one.png'),
+                width: 180,
+                height: 180,
+                fit: BoxFit.contain,
               ),
             ),
           ),
