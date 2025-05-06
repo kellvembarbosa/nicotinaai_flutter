@@ -131,12 +131,7 @@ class MyApp extends StatelessWidget {
             
             // Configuração de localização
             locale: localeProvider.locale,
-            localizationsDelegates: const [
-              AppLocalizations.delegate,
-              GlobalMaterialLocalizations.delegate,
-              GlobalWidgetsLocalizations.delegate,
-              GlobalCupertinoLocalizations.delegate,
-            ],
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
             supportedLocales: localeProvider.supportedLocales,
             
             routerConfig: appRouter.router,
