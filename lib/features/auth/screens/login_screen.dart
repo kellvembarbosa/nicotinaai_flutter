@@ -6,7 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:nicotinaai_flutter/features/auth/screens/register_screen.dart';
 import 'package:nicotinaai_flutter/features/auth/screens/forgot_password_screen.dart';
 import 'package:nicotinaai_flutter/features/main/screens/main_screen.dart';
-import 'package:nicotinaai_flutter/assets/l10n/app_localizations.dart';
+import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
 
 class LoginScreen extends StatefulWidget {
   static const String routeName = '/login';

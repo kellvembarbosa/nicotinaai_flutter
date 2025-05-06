@@ -7,7 +7,7 @@ import 'package:nicotinaai_flutter/core/theme/theme_provider.dart';
 import 'package:nicotinaai_flutter/core/theme/theme_settings.dart';
 import 'package:nicotinaai_flutter/core/localization/locale_provider.dart';
 import 'package:nicotinaai_flutter/features/auth/providers/auth_provider.dart';
-import 'package:nicotinaai_flutter/assets/l10n/app_localizations.dart';
+import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
 
 class SettingsScreen extends StatelessWidget {
   static const String routeName = '/settings';
