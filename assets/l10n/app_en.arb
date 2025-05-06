@@ -702,5 +702,570 @@
   "selectConsumptionLevelError": "Please select your consumption level",
   "@selectConsumptionLevelError": {
     "description": "Error message for consumption level selection"
+  },
+
+  "welcomeToNicotinaAI": "Welcome to NicotinaAI",
+  "@welcomeToNicotinaAI": {
+    "description": "Title of the introduction screen"
+  },
+
+  "personalAssistant": "Your personal assistant to quit smoking",
+  "@personalAssistant": {
+    "description": "Subtitle of the introduction screen"
+  },
+
+  "start": "Start",
+  "@start": {
+    "description": "Start button text"
+  },
+
+  "breatheFreedom": "BREATHE FREEDOM. YOUR NEW LIFE STARTS NOW.",
+  "@breatheFreedom": {
+    "description": "Main slogan on introduction screen"
+  },
+
+  "personalizeExperience": "Let's personalize your experience to help you achieve your goals of quitting smoking. Answer a few questions to get started.",
+  "@personalizeExperience": {
+    "description": "Explanation text on introduction screen"
+  },
+
+  "cigarettesPerPackQuestion": "How many cigarettes come in a pack?",
+  "@cigarettesPerPackQuestion": {
+    "description": "Question about number of cigarettes per pack"
+  },
+
+  "selectStandardAmount": "Select the standard amount for your cigarette packs",
+  "@selectStandardAmount": {
+    "description": "Subtitle for cigarettes per pack question"
+  },
+
+  "packSizesInfo": "Cigarette packs typically come with 10 or 20 units. Select the amount that corresponds to the packs you buy.",
+  "@packSizesInfo": {
+    "description": "Information about standard cigarette pack sizes"
+  },
+
+  "tenCigarettes": "10 cigarettes",
+  "@tenCigarettes": {
+    "description": "Option for 10 cigarettes pack"
+  },
+
+  "twentyCigarettes": "20 cigarettes",
+  "@twentyCigarettes": {
+    "description": "Option for 20 cigarettes pack"
+  },
+
+  "smallPack": "Small/compact pack",
+  "@smallPack": {
+    "description": "Description for small pack"
+  },
+
+  "standardPack": "Standard/traditional pack",
+  "@standardPack": {
+    "description": "Description for standard pack"
+  },
+
+  "otherQuantity": "Other quantity",
+  "@otherQuantity": {
+    "description": "Option for other pack size"
+  },
+
+  "selectCustomValue": "Select a custom value",
+  "@selectCustomValue": {
+    "description": "Description for custom pack size"
+  },
+
+  "quantity": "Quantity: ",
+  "@quantity": {
+    "description": "Label for quantity selector"
+  },
+
+  "packSizeHelp": "This information helps us accurately calculate your consumption and the benefits of reducing or quitting smoking.",
+  "@packSizeHelp": {
+    "description": "Help text for pack size selection"
+  },
+
+  "packPriceQuestion": "How much does a pack of cigarettes cost?",
+  "@packPriceQuestion": {
+    "description": "Question about cigarette pack price"
+  },
+
+  "helpCalculateFinancial": "This helps us calculate your financial savings",
+  "@helpCalculateFinancial": {
+    "description": "Subtitle for pack price question"
+  },
+
+  "enterAveragePrice": "Enter the average price you pay for a pack of cigarettes.",
+  "@enterAveragePrice": {
+    "description": "Instruction for entering pack price"
+  },
+
+  "priceHelp": "This information helps us show how much you'll save by reducing or quitting smoking.",
+  "@priceHelp": {
+    "description": "Help text for price input"
+  },
+
+  "productTypeQuestion": "What type of product do you consume?",
+  "@productTypeQuestion": {
+    "description": "Question about product type"
+  },
+
+  "selectApplicable": "Select what applies to you",
+  "@selectApplicable": {
+    "description": "Subtitle for product type question"
+  },
+
+  "helpPersonalizeStrategy": "This helps us personalize strategies and recommendations for your specific case.",
+  "@helpPersonalizeStrategy": {
+    "description": "Help text for product type selection"
+  },
+
+  "cigaretteOnly": "Traditional cigarettes only",
+  "@cigaretteOnly": {
+    "description": "Option for traditional cigarettes only"
+  },
+
+  "traditionalCigarettes": "Conventional tobacco cigarettes",
+  "@traditionalCigarettes": {
+    "description": "Description for traditional cigarettes"
+  },
+
+  "vapeOnly": "Vape/e-cigarettes only",
+  "@vapeOnly": {
+    "description": "Option for vape/e-cigarettes only"
+  },
+
+  "electronicDevices": "Electronic vaping devices",
+  "@electronicDevices": {
+    "description": "Description for electronic vaping devices"
+  },
+
+  "both": "Both",
+  "@both": {
+    "description": "Option for both traditional and electronic cigarettes"
+  },
+
+  "useBoth": "I use both traditional and electronic cigarettes",
+  "@useBoth": {
+    "description": "Description for using both types of products"
+  },
+
+  "productTypeHelp": "Different products contain different amounts of nicotine and may require distinct strategies for reduction or cessation.",
+  "@productTypeHelp": {
+    "description": "Help text explaining importance of product type"
+  },
+
+  "pleaseSelectProductType": "Please select a product type",
+  "@pleaseSelectProductType": {
+    "description": "Error message when no product type is selected"
+  },
+
+  "goalQuestion": "What is your goal?",
+  "@goalQuestion": {
+    "description": "Question about user's goal"
+  },
+
+  "selectGoal": "Select what you want to achieve",
+  "@selectGoal": {
+    "description": "Subtitle for goal question"
+  },
+
+  "goalExplanation": "Setting a clear goal is essential for your success. We want to help you achieve what you desire.",
+  "@goalExplanation": {
+    "description": "Explanation about importance of setting a goal"
+  },
+
+  "reduceConsumption": "Reduce consumption",
+  "@reduceConsumption": {
+    "description": "Option to reduce smoking"
+  },
+
+  "reduceDescription": "I want to smoke fewer cigarettes and have more control over the habit",
+  "@reduceDescription": {
+    "description": "Description for reducing consumption"
+  },
+
+  "reduce": "Reduce",
+  "@reduce": {
+    "description": "Label for reduce icon"
+  },
+
+  "quitSmoking": "Quit smoking",
+  "@quitSmoking": {
+    "description": "Option to quit smoking"
+  },
+
+  "quitDescription": "I want to completely quit cigarettes and live tobacco-free",
+  "@quitDescription": {
+    "description": "Description for quitting smoking"
+  },
+
+  "quit": "Quit",
+  "@quit": {
+    "description": "Label for quit icon"
+  },
+
+  "goalHelp": "We'll adapt our resources and recommendations based on your goal. You can modify it later if you change your mind.",
+  "@goalHelp": {
+    "description": "Help text for goal selection"
+  },
+
+  "pleaseSelectGoal": "Please select a goal",
+  "@pleaseSelectGoal": {
+    "description": "Error message when no goal is selected"
+  },
+
+  "timelineQuestionReduce": "When do you want to reduce consumption?",
+  "@timelineQuestionReduce": {
+    "description": "Question about timeline for reducing consumption"
+  },
+
+  "timelineQuestionQuit": "When do you want to quit smoking?",
+  "@timelineQuestionQuit": {
+    "description": "Question about timeline for quitting smoking"
+  },
+
+  "establishDeadline": "Establish a deadline that seems achievable to you",
+  "@establishDeadline": {
+    "description": "Subtitle for timeline question"
+  },
+
+  "timelineExplanation": "A realistic timeline increases your chances of success. Choose a deadline that you're comfortable with.",
+  "@timelineExplanation": {
+    "description": "Explanation about setting a realistic timeline"
+  },
+
+  "sevenDays": "7 days",
+  "@sevenDays": {
+    "description": "Option for 7-day timeline"
+  },
+
+  "sevenDaysDescription": "I want quick results and I'm committed",
+  "@sevenDaysDescription": {
+    "description": "Description for 7-day timeline"
+  },
+
+  "fourteenDays": "14 days",
+  "@fourteenDays": {
+    "description": "Option for 14-day timeline"
+  },
+
+  "fourteenDaysDescription": "A balanced timeframe for habit change",
+  "@fourteenDaysDescription": {
+    "description": "Description for 14-day timeline"
+  },
+
+  "thirtyDays": "30 days",
+  "@thirtyDays": {
+    "description": "Option for 30-day timeline"
+  },
+
+  "thirtyDaysDescription": "A month for gradual and sustainable change",
+  "@thirtyDaysDescription": {
+    "description": "Description for 30-day timeline"
+  },
+
+  "noDeadline": "No set deadline",
+  "@noDeadline": {
+    "description": "Option for no deadline"
+  },
+
+  "noDeadlineDescription": "I prefer to go at my own pace",
+  "@noDeadlineDescription": {
+    "description": "Description for no deadline"
+  },
+
+  "timelineHelp": "Don't worry if you don't achieve your goal exactly on schedule. Continuous progress is what matters.",
+  "@timelineHelp": {
+    "description": "Help text for timeline selection"
+  },
+
+  "pleaseSelectTimeline": "Please select a timeline",
+  "@pleaseSelectTimeline": {
+    "description": "Error message when no timeline is selected"
+  },
+
+  "challengeQuestion": "What makes it difficult to {goalText} for you?",
+  "@challengeQuestion": {
+    "description": "Question about quitting challenge with goal text placeholder",
+    "placeholders": {
+      "goalText": {
+        "type": "String",
+        "example": "quit smoking"
+      }
+    }
+  },
+
+  "identifyChallenge": "Identifying your main challenge helps us provide better support",
+  "@identifyChallenge": {
+    "description": "Subtitle for challenge question"
+  },
+
+  "challengeExplanation": "Understanding what makes cigarettes hard to quit is the first step in overcoming that obstacle.",
+  "@challengeExplanation": {
+    "description": "Explanation about importance of identifying challenges"
+  },
+
+  "stressAnxiety": "Stress and anxiety",
+  "@stressAnxiety": {
+    "description": "Option for stress/anxiety challenge"
+  },
+
+  "stressDescription": "I smoke to deal with stressful situations and anxiety",
+  "@stressDescription": {
+    "description": "Description for stress/anxiety challenge"
+  },
+
+  "habitStrength": "Habit strength",
+  "@habitStrength": {
+    "description": "Option for habit strength challenge"
+  },
+
+  "habitDescription": "Smoking is already part of my daily routine",
+  "@habitDescription": {
+    "description": "Description for habit strength challenge"
+  },
+
+  "socialInfluence": "Social influence",
+  "@socialInfluence": {
+    "description": "Option for social influence challenge"
+  },
+
+  "socialDescription": "People around me smoke or encourage me to smoke",
+  "@socialDescription": {
+    "description": "Description for social influence challenge"
+  },
+
+  "physicalDependence": "Physical dependence",
+  "@physicalDependence": {
+    "description": "Option for physical dependence challenge"
+  },
+
+  "dependenceDescription": "I experience physical symptoms when I go without smoking",
+  "@dependenceDescription": {
+    "description": "Description for physical dependence challenge"
+  },
+
+  "challengeHelp": "Your answers help us personalize more effective tips and strategies for your specific case.",
+  "@challengeHelp": {
+    "description": "Help text for challenge selection"
+  },
+
+  "pleaseSelectChallenge": "Please select a challenge",
+  "@pleaseSelectChallenge": {
+    "description": "Error message when no challenge is selected"
+  },
+
+  "locationsQuestion": "Where do you usually smoke?",
+  "@locationsQuestion": {
+    "description": "Question about smoking locations"
+  },
+
+  "selectCommonPlaces": "Select the places where you most often smoke",
+  "@selectCommonPlaces": {
+    "description": "Subtitle for locations question"
+  },
+
+  "locationsExplanation": "Knowing your usual locations helps us identify patterns and create specific strategies.",
+  "@locationsExplanation": {
+    "description": "Explanation about importance of identifying locations"
+  },
+
+  "atHome": "At home",
+  "@atHome": {
+    "description": "Option for smoking at home"
+  },
+
+  "homeDetails": "Balcony, living room, office",
+  "@homeDetails": {
+    "description": "Details for home location"
+  },
+
+  "atWork": "At work/school",
+  "@atWork": {
+    "description": "Option for smoking at work/school"
+  },
+
+  "workDetails": "During breaks or pauses",
+  "@workDetails": {
+    "description": "Details for work location"
+  },
+
+  "inCar": "In car/transport",
+  "@inCar": {
+    "description": "Option for smoking in car/transport"
+  },
+
+  "carDetails": "During travel",
+  "@carDetails": {
+    "description": "Details for car location"
+  },
+
+  "socialEvents": "At social events",
+  "@socialEvents": {
+    "description": "Option for smoking at social events"
+  },
+
+  "socialDetails": "Bars, parties, restaurants",
+  "@socialDetails": {
+    "description": "Details for social events location"
+  },
+
+  "outdoors": "Outdoors",
+  "@outdoors": {
+    "description": "Option for smoking outdoors"
+  },
+
+  "outdoorsDetails": "Parks, sidewalks, outdoor areas",
+  "@outdoorsDetails": {
+    "description": "Details for outdoor location"
+  },
+
+  "otherPlaces": "Other places",
+  "@otherPlaces": {
+    "description": "Option for other smoking locations"
+  },
+
+  "otherPlacesDetails": "When I'm anxious, regardless of location",
+  "@otherPlacesDetails": {
+    "description": "Details for other locations"
+  },
+
+  "locationsHelp": "Identifying the most common locations helps avoid triggers and create strategies for habit change.",
+  "@locationsHelp": {
+    "description": "Help text for locations selection"
+  },
+
+  "continueButton": "Continue",
+  "@continueButton": {
+    "description": "Continue button text"
+  },
+
+  "allDone": "All done!",
+  "@allDone": {
+    "description": "Title for completion screen"
+  },
+
+  "personalizedJourney": "Your personalized journey begins now",
+  "@personalizedJourney": {
+    "description": "Subtitle for completion screen"
+  },
+
+  "startMyJourney": "Start My Journey",
+  "@startMyJourney": {
+    "description": "Button text to start journey"
+  },
+
+  "congratulations": "Congratulations on taking the first step!",
+  "@congratulations": {
+    "description": "Congratulatory text on completion screen"
+  },
+
+  "personalizedPlanReduce": "We've created a personalized plan based on your answers to help you reduce consumption {timelineText}.",
+  "@personalizedPlanReduce": {
+    "description": "Text explaining personalized plan for reducing consumption",
+    "placeholders": {
+      "timelineText": {
+        "type": "String",
+        "example": "in the next 7 days"
+      }
+    }
+  },
+
+  "personalizedPlanQuit": "We've created a personalized plan based on your answers to help you quit smoking {timelineText}.",
+  "@personalizedPlanQuit": {
+    "description": "Text explaining personalized plan for quitting smoking",
+    "placeholders": {
+      "timelineText": {
+        "type": "String",
+        "example": "in the next 7 days"
+      }
+    }
+  },
+
+  "yourPersonalizedSummary": "Your personalized summary",
+  "@yourPersonalizedSummary": {
+    "description": "Title for personalized summary section"
+  },
+
+  "dailyConsumption": "Daily consumption",
+  "@dailyConsumption": {
+    "description": "Label for daily consumption in summary"
+  },
+
+  "cigarettesPerDayValue": "{count} cigarettes per day",
+  "@cigarettesPerDayValue": {
+    "description": "Value for cigarettes per day",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "10"
+      }
+    }
+  },
+
+  "potentialMonthlySavings": "Potential monthly savings",
+  "@potentialMonthlySavings": {
+    "description": "Label for potential monthly savings"
+  },
+
+  "yourGoal": "Your goal",
+  "@yourGoal": {
+    "description": "Label for user's goal in summary"
+  },
+
+  "mainChallenge": "Your main challenge",
+  "@mainChallenge": {
+    "description": "Label for main challenge in summary"
+  },
+
+  "personalized": "Personalized monitoring",
+  "@personalized": {
+    "description": "Title for personalized monitoring benefit"
+  },
+
+  "personalizedDescription": "Track your progress based on your habits",
+  "@personalizedDescription": {
+    "description": "Description for personalized monitoring"
+  },
+
+  "importantAchievements": "Important achievements",
+  "@importantAchievements": {
+    "description": "Title for important achievements benefit"
+  },
+
+  "achievementsDescription": "Celebrate each milestone in your journey",
+  "@achievementsDescription": {
+    "description": "Description for achievements benefit"
+  },
+
+  "supportWhenNeeded": "Support when you need it",
+  "@supportWhenNeeded": {
+    "description": "Title for support benefit"
+  },
+
+  "supportDescription": "Tips and strategies for difficult moments",
+  "@supportDescription": {
+    "description": "Description for support benefit"
+  },
+
+  "guaranteedResults": "Guaranteed results",
+  "@guaranteedResults": {
+    "description": "Title for guaranteed results benefit"
+  },
+
+  "resultsDescription": "With our science-based technology",
+  "@resultsDescription": {
+    "description": "Description for guaranteed results"
+  },
+
+  "loadingError": "Error completing: {error}",
+  "@loadingError": {
+    "description": "Error message during completion",
+    "placeholders": {
+      "error": {
+        "type": "String",
+        "example": "Connection failed"
+      }
+    }
   }
 }

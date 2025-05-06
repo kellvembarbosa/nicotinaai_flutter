@@ -416,4 +416,335 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get selectConsumptionLevelError => 'Please select your consumption level';
+
+  @override
+  String get welcomeToNicotinaAI => 'Welcome to NicotinaAI';
+
+  @override
+  String get personalAssistant => 'Your personal assistant to quit smoking';
+
+  @override
+  String get start => 'Start';
+
+  @override
+  String get breatheFreedom => 'BREATHE FREEDOM. YOUR NEW LIFE STARTS NOW.';
+
+  @override
+  String get personalizeExperience => 'Let\'s personalize your experience to help you achieve your goals of quitting smoking. Answer a few questions to get started.';
+
+  @override
+  String get cigarettesPerPackQuestion => 'How many cigarettes come in a pack?';
+
+  @override
+  String get selectStandardAmount => 'Select the standard amount for your cigarette packs';
+
+  @override
+  String get packSizesInfo => 'Cigarette packs typically come with 10 or 20 units. Select the amount that corresponds to the packs you buy.';
+
+  @override
+  String get tenCigarettes => '10 cigarettes';
+
+  @override
+  String get twentyCigarettes => '20 cigarettes';
+
+  @override
+  String get smallPack => 'Small/compact pack';
+
+  @override
+  String get standardPack => 'Standard/traditional pack';
+
+  @override
+  String get otherQuantity => 'Other quantity';
+
+  @override
+  String get selectCustomValue => 'Select a custom value';
+
+  @override
+  String get quantity => 'Quantity: ';
+
+  @override
+  String get packSizeHelp => 'This information helps us accurately calculate your consumption and the benefits of reducing or quitting smoking.';
+
+  @override
+  String get packPriceQuestion => 'How much does a pack of cigarettes cost?';
+
+  @override
+  String get helpCalculateFinancial => 'This helps us calculate your financial savings';
+
+  @override
+  String get enterAveragePrice => 'Enter the average price you pay for a pack of cigarettes.';
+
+  @override
+  String get priceHelp => 'This information helps us show how much you\'ll save by reducing or quitting smoking.';
+
+  @override
+  String get productTypeQuestion => 'What type of product do you consume?';
+
+  @override
+  String get selectApplicable => 'Select what applies to you';
+
+  @override
+  String get helpPersonalizeStrategy => 'This helps us personalize strategies and recommendations for your specific case.';
+
+  @override
+  String get cigaretteOnly => 'Traditional cigarettes only';
+
+  @override
+  String get traditionalCigarettes => 'Conventional tobacco cigarettes';
+
+  @override
+  String get vapeOnly => 'Vape/e-cigarettes only';
+
+  @override
+  String get electronicDevices => 'Electronic vaping devices';
+
+  @override
+  String get both => 'Both';
+
+  @override
+  String get useBoth => 'I use both traditional and electronic cigarettes';
+
+  @override
+  String get productTypeHelp => 'Different products contain different amounts of nicotine and may require distinct strategies for reduction or cessation.';
+
+  @override
+  String get pleaseSelectProductType => 'Please select a product type';
+
+  @override
+  String get goalQuestion => 'What is your goal?';
+
+  @override
+  String get selectGoal => 'Select what you want to achieve';
+
+  @override
+  String get goalExplanation => 'Setting a clear goal is essential for your success. We want to help you achieve what you desire.';
+
+  @override
+  String get reduceConsumption => 'Reduce consumption';
+
+  @override
+  String get reduceDescription => 'I want to smoke fewer cigarettes and have more control over the habit';
+
+  @override
+  String get reduce => 'Reduce';
+
+  @override
+  String get quitSmoking => 'Quit smoking';
+
+  @override
+  String get quitDescription => 'I want to completely quit cigarettes and live tobacco-free';
+
+  @override
+  String get quit => 'Quit';
+
+  @override
+  String get goalHelp => 'We\'ll adapt our resources and recommendations based on your goal. You can modify it later if you change your mind.';
+
+  @override
+  String get pleaseSelectGoal => 'Please select a goal';
+
+  @override
+  String get timelineQuestionReduce => 'When do you want to reduce consumption?';
+
+  @override
+  String get timelineQuestionQuit => 'When do you want to quit smoking?';
+
+  @override
+  String get establishDeadline => 'Establish a deadline that seems achievable to you';
+
+  @override
+  String get timelineExplanation => 'A realistic timeline increases your chances of success. Choose a deadline that you\'re comfortable with.';
+
+  @override
+  String get sevenDays => '7 days';
+
+  @override
+  String get sevenDaysDescription => 'I want quick results and I\'m committed';
+
+  @override
+  String get fourteenDays => '14 days';
+
+  @override
+  String get fourteenDaysDescription => 'A balanced timeframe for habit change';
+
+  @override
+  String get thirtyDays => '30 days';
+
+  @override
+  String get thirtyDaysDescription => 'A month for gradual and sustainable change';
+
+  @override
+  String get noDeadline => 'No set deadline';
+
+  @override
+  String get noDeadlineDescription => 'I prefer to go at my own pace';
+
+  @override
+  String get timelineHelp => 'Don\'t worry if you don\'t achieve your goal exactly on schedule. Continuous progress is what matters.';
+
+  @override
+  String get pleaseSelectTimeline => 'Please select a timeline';
+
+  @override
+  String challengeQuestion(String goalText) {
+    return 'What makes it difficult to $goalText for you?';
+  }
+
+  @override
+  String get identifyChallenge => 'Identifying your main challenge helps us provide better support';
+
+  @override
+  String get challengeExplanation => 'Understanding what makes cigarettes hard to quit is the first step in overcoming that obstacle.';
+
+  @override
+  String get stressAnxiety => 'Stress and anxiety';
+
+  @override
+  String get stressDescription => 'I smoke to deal with stressful situations and anxiety';
+
+  @override
+  String get habitStrength => 'Habit strength';
+
+  @override
+  String get habitDescription => 'Smoking is already part of my daily routine';
+
+  @override
+  String get socialInfluence => 'Social influence';
+
+  @override
+  String get socialDescription => 'People around me smoke or encourage me to smoke';
+
+  @override
+  String get physicalDependence => 'Physical dependence';
+
+  @override
+  String get dependenceDescription => 'I experience physical symptoms when I go without smoking';
+
+  @override
+  String get challengeHelp => 'Your answers help us personalize more effective tips and strategies for your specific case.';
+
+  @override
+  String get pleaseSelectChallenge => 'Please select a challenge';
+
+  @override
+  String get locationsQuestion => 'Where do you usually smoke?';
+
+  @override
+  String get selectCommonPlaces => 'Select the places where you most often smoke';
+
+  @override
+  String get locationsExplanation => 'Knowing your usual locations helps us identify patterns and create specific strategies.';
+
+  @override
+  String get atHome => 'At home';
+
+  @override
+  String get homeDetails => 'Balcony, living room, office';
+
+  @override
+  String get atWork => 'At work/school';
+
+  @override
+  String get workDetails => 'During breaks or pauses';
+
+  @override
+  String get inCar => 'In car/transport';
+
+  @override
+  String get carDetails => 'During travel';
+
+  @override
+  String get socialEvents => 'At social events';
+
+  @override
+  String get socialDetails => 'Bars, parties, restaurants';
+
+  @override
+  String get outdoors => 'Outdoors';
+
+  @override
+  String get outdoorsDetails => 'Parks, sidewalks, outdoor areas';
+
+  @override
+  String get otherPlaces => 'Other places';
+
+  @override
+  String get otherPlacesDetails => 'When I\'m anxious, regardless of location';
+
+  @override
+  String get locationsHelp => 'Identifying the most common locations helps avoid triggers and create strategies for habit change.';
+
+  @override
+  String get continueButton => 'Continue';
+
+  @override
+  String get allDone => 'All done!';
+
+  @override
+  String get personalizedJourney => 'Your personalized journey begins now';
+
+  @override
+  String get startMyJourney => 'Start My Journey';
+
+  @override
+  String get congratulations => 'Congratulations on taking the first step!';
+
+  @override
+  String personalizedPlanReduce(String timelineText) {
+    return 'We\'ve created a personalized plan based on your answers to help you reduce consumption $timelineText.';
+  }
+
+  @override
+  String personalizedPlanQuit(String timelineText) {
+    return 'We\'ve created a personalized plan based on your answers to help you quit smoking $timelineText.';
+  }
+
+  @override
+  String get yourPersonalizedSummary => 'Your personalized summary';
+
+  @override
+  String get dailyConsumption => 'Daily consumption';
+
+  @override
+  String cigarettesPerDayValue(int count) {
+    return '$count cigarettes per day';
+  }
+
+  @override
+  String get potentialMonthlySavings => 'Potential monthly savings';
+
+  @override
+  String get yourGoal => 'Your goal';
+
+  @override
+  String get mainChallenge => 'Your main challenge';
+
+  @override
+  String get personalized => 'Personalized monitoring';
+
+  @override
+  String get personalizedDescription => 'Track your progress based on your habits';
+
+  @override
+  String get importantAchievements => 'Important achievements';
+
+  @override
+  String get achievementsDescription => 'Celebrate each milestone in your journey';
+
+  @override
+  String get supportWhenNeeded => 'Support when you need it';
+
+  @override
+  String get supportDescription => 'Tips and strategies for difficult moments';
+
+  @override
+  String get guaranteedResults => 'Guaranteed results';
+
+  @override
+  String get resultsDescription => 'With our science-based technology';
+
+  @override
+  String loadingError(String error) {
+    return 'Error completing: $error';
+  }
 }

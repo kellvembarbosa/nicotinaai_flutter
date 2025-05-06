@@ -880,6 +880,648 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Please select your consumption level'**
   String get selectConsumptionLevelError;
+
+  /// Title of the introduction screen
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome to NicotinaAI'**
+  String get welcomeToNicotinaAI;
+
+  /// Subtitle of the introduction screen
+  ///
+  /// In en, this message translates to:
+  /// **'Your personal assistant to quit smoking'**
+  String get personalAssistant;
+
+  /// Start button text
+  ///
+  /// In en, this message translates to:
+  /// **'Start'**
+  String get start;
+
+  /// Main slogan on introduction screen
+  ///
+  /// In en, this message translates to:
+  /// **'BREATHE FREEDOM. YOUR NEW LIFE STARTS NOW.'**
+  String get breatheFreedom;
+
+  /// Explanation text on introduction screen
+  ///
+  /// In en, this message translates to:
+  /// **'Let\'s personalize your experience to help you achieve your goals of quitting smoking. Answer a few questions to get started.'**
+  String get personalizeExperience;
+
+  /// Question about number of cigarettes per pack
+  ///
+  /// In en, this message translates to:
+  /// **'How many cigarettes come in a pack?'**
+  String get cigarettesPerPackQuestion;
+
+  /// Subtitle for cigarettes per pack question
+  ///
+  /// In en, this message translates to:
+  /// **'Select the standard amount for your cigarette packs'**
+  String get selectStandardAmount;
+
+  /// Information about standard cigarette pack sizes
+  ///
+  /// In en, this message translates to:
+  /// **'Cigarette packs typically come with 10 or 20 units. Select the amount that corresponds to the packs you buy.'**
+  String get packSizesInfo;
+
+  /// Option for 10 cigarettes pack
+  ///
+  /// In en, this message translates to:
+  /// **'10 cigarettes'**
+  String get tenCigarettes;
+
+  /// Option for 20 cigarettes pack
+  ///
+  /// In en, this message translates to:
+  /// **'20 cigarettes'**
+  String get twentyCigarettes;
+
+  /// Description for small pack
+  ///
+  /// In en, this message translates to:
+  /// **'Small/compact pack'**
+  String get smallPack;
+
+  /// Description for standard pack
+  ///
+  /// In en, this message translates to:
+  /// **'Standard/traditional pack'**
+  String get standardPack;
+
+  /// Option for other pack size
+  ///
+  /// In en, this message translates to:
+  /// **'Other quantity'**
+  String get otherQuantity;
+
+  /// Description for custom pack size
+  ///
+  /// In en, this message translates to:
+  /// **'Select a custom value'**
+  String get selectCustomValue;
+
+  /// Label for quantity selector
+  ///
+  /// In en, this message translates to:
+  /// **'Quantity: '**
+  String get quantity;
+
+  /// Help text for pack size selection
+  ///
+  /// In en, this message translates to:
+  /// **'This information helps us accurately calculate your consumption and the benefits of reducing or quitting smoking.'**
+  String get packSizeHelp;
+
+  /// Question about cigarette pack price
+  ///
+  /// In en, this message translates to:
+  /// **'How much does a pack of cigarettes cost?'**
+  String get packPriceQuestion;
+
+  /// Subtitle for pack price question
+  ///
+  /// In en, this message translates to:
+  /// **'This helps us calculate your financial savings'**
+  String get helpCalculateFinancial;
+
+  /// Instruction for entering pack price
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the average price you pay for a pack of cigarettes.'**
+  String get enterAveragePrice;
+
+  /// Help text for price input
+  ///
+  /// In en, this message translates to:
+  /// **'This information helps us show how much you\'ll save by reducing or quitting smoking.'**
+  String get priceHelp;
+
+  /// Question about product type
+  ///
+  /// In en, this message translates to:
+  /// **'What type of product do you consume?'**
+  String get productTypeQuestion;
+
+  /// Subtitle for product type question
+  ///
+  /// In en, this message translates to:
+  /// **'Select what applies to you'**
+  String get selectApplicable;
+
+  /// Help text for product type selection
+  ///
+  /// In en, this message translates to:
+  /// **'This helps us personalize strategies and recommendations for your specific case.'**
+  String get helpPersonalizeStrategy;
+
+  /// Option for traditional cigarettes only
+  ///
+  /// In en, this message translates to:
+  /// **'Traditional cigarettes only'**
+  String get cigaretteOnly;
+
+  /// Description for traditional cigarettes
+  ///
+  /// In en, this message translates to:
+  /// **'Conventional tobacco cigarettes'**
+  String get traditionalCigarettes;
+
+  /// Option for vape/e-cigarettes only
+  ///
+  /// In en, this message translates to:
+  /// **'Vape/e-cigarettes only'**
+  String get vapeOnly;
+
+  /// Description for electronic vaping devices
+  ///
+  /// In en, this message translates to:
+  /// **'Electronic vaping devices'**
+  String get electronicDevices;
+
+  /// Option for both traditional and electronic cigarettes
+  ///
+  /// In en, this message translates to:
+  /// **'Both'**
+  String get both;
+
+  /// Description for using both types of products
+  ///
+  /// In en, this message translates to:
+  /// **'I use both traditional and electronic cigarettes'**
+  String get useBoth;
+
+  /// Help text explaining importance of product type
+  ///
+  /// In en, this message translates to:
+  /// **'Different products contain different amounts of nicotine and may require distinct strategies for reduction or cessation.'**
+  String get productTypeHelp;
+
+  /// Error message when no product type is selected
+  ///
+  /// In en, this message translates to:
+  /// **'Please select a product type'**
+  String get pleaseSelectProductType;
+
+  /// Question about user's goal
+  ///
+  /// In en, this message translates to:
+  /// **'What is your goal?'**
+  String get goalQuestion;
+
+  /// Subtitle for goal question
+  ///
+  /// In en, this message translates to:
+  /// **'Select what you want to achieve'**
+  String get selectGoal;
+
+  /// Explanation about importance of setting a goal
+  ///
+  /// In en, this message translates to:
+  /// **'Setting a clear goal is essential for your success. We want to help you achieve what you desire.'**
+  String get goalExplanation;
+
+  /// Option to reduce smoking
+  ///
+  /// In en, this message translates to:
+  /// **'Reduce consumption'**
+  String get reduceConsumption;
+
+  /// Description for reducing consumption
+  ///
+  /// In en, this message translates to:
+  /// **'I want to smoke fewer cigarettes and have more control over the habit'**
+  String get reduceDescription;
+
+  /// Label for reduce icon
+  ///
+  /// In en, this message translates to:
+  /// **'Reduce'**
+  String get reduce;
+
+  /// Option to quit smoking
+  ///
+  /// In en, this message translates to:
+  /// **'Quit smoking'**
+  String get quitSmoking;
+
+  /// Description for quitting smoking
+  ///
+  /// In en, this message translates to:
+  /// **'I want to completely quit cigarettes and live tobacco-free'**
+  String get quitDescription;
+
+  /// Label for quit icon
+  ///
+  /// In en, this message translates to:
+  /// **'Quit'**
+  String get quit;
+
+  /// Help text for goal selection
+  ///
+  /// In en, this message translates to:
+  /// **'We\'ll adapt our resources and recommendations based on your goal. You can modify it later if you change your mind.'**
+  String get goalHelp;
+
+  /// Error message when no goal is selected
+  ///
+  /// In en, this message translates to:
+  /// **'Please select a goal'**
+  String get pleaseSelectGoal;
+
+  /// Question about timeline for reducing consumption
+  ///
+  /// In en, this message translates to:
+  /// **'When do you want to reduce consumption?'**
+  String get timelineQuestionReduce;
+
+  /// Question about timeline for quitting smoking
+  ///
+  /// In en, this message translates to:
+  /// **'When do you want to quit smoking?'**
+  String get timelineQuestionQuit;
+
+  /// Subtitle for timeline question
+  ///
+  /// In en, this message translates to:
+  /// **'Establish a deadline that seems achievable to you'**
+  String get establishDeadline;
+
+  /// Explanation about setting a realistic timeline
+  ///
+  /// In en, this message translates to:
+  /// **'A realistic timeline increases your chances of success. Choose a deadline that you\'re comfortable with.'**
+  String get timelineExplanation;
+
+  /// Option for 7-day timeline
+  ///
+  /// In en, this message translates to:
+  /// **'7 days'**
+  String get sevenDays;
+
+  /// Description for 7-day timeline
+  ///
+  /// In en, this message translates to:
+  /// **'I want quick results and I\'m committed'**
+  String get sevenDaysDescription;
+
+  /// Option for 14-day timeline
+  ///
+  /// In en, this message translates to:
+  /// **'14 days'**
+  String get fourteenDays;
+
+  /// Description for 14-day timeline
+  ///
+  /// In en, this message translates to:
+  /// **'A balanced timeframe for habit change'**
+  String get fourteenDaysDescription;
+
+  /// Option for 30-day timeline
+  ///
+  /// In en, this message translates to:
+  /// **'30 days'**
+  String get thirtyDays;
+
+  /// Description for 30-day timeline
+  ///
+  /// In en, this message translates to:
+  /// **'A month for gradual and sustainable change'**
+  String get thirtyDaysDescription;
+
+  /// Option for no deadline
+  ///
+  /// In en, this message translates to:
+  /// **'No set deadline'**
+  String get noDeadline;
+
+  /// Description for no deadline
+  ///
+  /// In en, this message translates to:
+  /// **'I prefer to go at my own pace'**
+  String get noDeadlineDescription;
+
+  /// Help text for timeline selection
+  ///
+  /// In en, this message translates to:
+  /// **'Don\'t worry if you don\'t achieve your goal exactly on schedule. Continuous progress is what matters.'**
+  String get timelineHelp;
+
+  /// Error message when no timeline is selected
+  ///
+  /// In en, this message translates to:
+  /// **'Please select a timeline'**
+  String get pleaseSelectTimeline;
+
+  /// Question about quitting challenge with goal text placeholder
+  ///
+  /// In en, this message translates to:
+  /// **'What makes it difficult to {goalText} for you?'**
+  String challengeQuestion(String goalText);
+
+  /// Subtitle for challenge question
+  ///
+  /// In en, this message translates to:
+  /// **'Identifying your main challenge helps us provide better support'**
+  String get identifyChallenge;
+
+  /// Explanation about importance of identifying challenges
+  ///
+  /// In en, this message translates to:
+  /// **'Understanding what makes cigarettes hard to quit is the first step in overcoming that obstacle.'**
+  String get challengeExplanation;
+
+  /// Option for stress/anxiety challenge
+  ///
+  /// In en, this message translates to:
+  /// **'Stress and anxiety'**
+  String get stressAnxiety;
+
+  /// Description for stress/anxiety challenge
+  ///
+  /// In en, this message translates to:
+  /// **'I smoke to deal with stressful situations and anxiety'**
+  String get stressDescription;
+
+  /// Option for habit strength challenge
+  ///
+  /// In en, this message translates to:
+  /// **'Habit strength'**
+  String get habitStrength;
+
+  /// Description for habit strength challenge
+  ///
+  /// In en, this message translates to:
+  /// **'Smoking is already part of my daily routine'**
+  String get habitDescription;
+
+  /// Option for social influence challenge
+  ///
+  /// In en, this message translates to:
+  /// **'Social influence'**
+  String get socialInfluence;
+
+  /// Description for social influence challenge
+  ///
+  /// In en, this message translates to:
+  /// **'People around me smoke or encourage me to smoke'**
+  String get socialDescription;
+
+  /// Option for physical dependence challenge
+  ///
+  /// In en, this message translates to:
+  /// **'Physical dependence'**
+  String get physicalDependence;
+
+  /// Description for physical dependence challenge
+  ///
+  /// In en, this message translates to:
+  /// **'I experience physical symptoms when I go without smoking'**
+  String get dependenceDescription;
+
+  /// Help text for challenge selection
+  ///
+  /// In en, this message translates to:
+  /// **'Your answers help us personalize more effective tips and strategies for your specific case.'**
+  String get challengeHelp;
+
+  /// Error message when no challenge is selected
+  ///
+  /// In en, this message translates to:
+  /// **'Please select a challenge'**
+  String get pleaseSelectChallenge;
+
+  /// Question about smoking locations
+  ///
+  /// In en, this message translates to:
+  /// **'Where do you usually smoke?'**
+  String get locationsQuestion;
+
+  /// Subtitle for locations question
+  ///
+  /// In en, this message translates to:
+  /// **'Select the places where you most often smoke'**
+  String get selectCommonPlaces;
+
+  /// Explanation about importance of identifying locations
+  ///
+  /// In en, this message translates to:
+  /// **'Knowing your usual locations helps us identify patterns and create specific strategies.'**
+  String get locationsExplanation;
+
+  /// Option for smoking at home
+  ///
+  /// In en, this message translates to:
+  /// **'At home'**
+  String get atHome;
+
+  /// Details for home location
+  ///
+  /// In en, this message translates to:
+  /// **'Balcony, living room, office'**
+  String get homeDetails;
+
+  /// Option for smoking at work/school
+  ///
+  /// In en, this message translates to:
+  /// **'At work/school'**
+  String get atWork;
+
+  /// Details for work location
+  ///
+  /// In en, this message translates to:
+  /// **'During breaks or pauses'**
+  String get workDetails;
+
+  /// Option for smoking in car/transport
+  ///
+  /// In en, this message translates to:
+  /// **'In car/transport'**
+  String get inCar;
+
+  /// Details for car location
+  ///
+  /// In en, this message translates to:
+  /// **'During travel'**
+  String get carDetails;
+
+  /// Option for smoking at social events
+  ///
+  /// In en, this message translates to:
+  /// **'At social events'**
+  String get socialEvents;
+
+  /// Details for social events location
+  ///
+  /// In en, this message translates to:
+  /// **'Bars, parties, restaurants'**
+  String get socialDetails;
+
+  /// Option for smoking outdoors
+  ///
+  /// In en, this message translates to:
+  /// **'Outdoors'**
+  String get outdoors;
+
+  /// Details for outdoor location
+  ///
+  /// In en, this message translates to:
+  /// **'Parks, sidewalks, outdoor areas'**
+  String get outdoorsDetails;
+
+  /// Option for other smoking locations
+  ///
+  /// In en, this message translates to:
+  /// **'Other places'**
+  String get otherPlaces;
+
+  /// Details for other locations
+  ///
+  /// In en, this message translates to:
+  /// **'When I\'m anxious, regardless of location'**
+  String get otherPlacesDetails;
+
+  /// Help text for locations selection
+  ///
+  /// In en, this message translates to:
+  /// **'Identifying the most common locations helps avoid triggers and create strategies for habit change.'**
+  String get locationsHelp;
+
+  /// Continue button text
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get continueButton;
+
+  /// Title for completion screen
+  ///
+  /// In en, this message translates to:
+  /// **'All done!'**
+  String get allDone;
+
+  /// Subtitle for completion screen
+  ///
+  /// In en, this message translates to:
+  /// **'Your personalized journey begins now'**
+  String get personalizedJourney;
+
+  /// Button text to start journey
+  ///
+  /// In en, this message translates to:
+  /// **'Start My Journey'**
+  String get startMyJourney;
+
+  /// Congratulatory text on completion screen
+  ///
+  /// In en, this message translates to:
+  /// **'Congratulations on taking the first step!'**
+  String get congratulations;
+
+  /// Text explaining personalized plan for reducing consumption
+  ///
+  /// In en, this message translates to:
+  /// **'We\'ve created a personalized plan based on your answers to help you reduce consumption {timelineText}.'**
+  String personalizedPlanReduce(String timelineText);
+
+  /// Text explaining personalized plan for quitting smoking
+  ///
+  /// In en, this message translates to:
+  /// **'We\'ve created a personalized plan based on your answers to help you quit smoking {timelineText}.'**
+  String personalizedPlanQuit(String timelineText);
+
+  /// Title for personalized summary section
+  ///
+  /// In en, this message translates to:
+  /// **'Your personalized summary'**
+  String get yourPersonalizedSummary;
+
+  /// Label for daily consumption in summary
+  ///
+  /// In en, this message translates to:
+  /// **'Daily consumption'**
+  String get dailyConsumption;
+
+  /// Value for cigarettes per day
+  ///
+  /// In en, this message translates to:
+  /// **'{count} cigarettes per day'**
+  String cigarettesPerDayValue(int count);
+
+  /// Label for potential monthly savings
+  ///
+  /// In en, this message translates to:
+  /// **'Potential monthly savings'**
+  String get potentialMonthlySavings;
+
+  /// Label for user's goal in summary
+  ///
+  /// In en, this message translates to:
+  /// **'Your goal'**
+  String get yourGoal;
+
+  /// Label for main challenge in summary
+  ///
+  /// In en, this message translates to:
+  /// **'Your main challenge'**
+  String get mainChallenge;
+
+  /// Title for personalized monitoring benefit
+  ///
+  /// In en, this message translates to:
+  /// **'Personalized monitoring'**
+  String get personalized;
+
+  /// Description for personalized monitoring
+  ///
+  /// In en, this message translates to:
+  /// **'Track your progress based on your habits'**
+  String get personalizedDescription;
+
+  /// Title for important achievements benefit
+  ///
+  /// In en, this message translates to:
+  /// **'Important achievements'**
+  String get importantAchievements;
+
+  /// Description for achievements benefit
+  ///
+  /// In en, this message translates to:
+  /// **'Celebrate each milestone in your journey'**
+  String get achievementsDescription;
+
+  /// Title for support benefit
+  ///
+  /// In en, this message translates to:
+  /// **'Support when you need it'**
+  String get supportWhenNeeded;
+
+  /// Description for support benefit
+  ///
+  /// In en, this message translates to:
+  /// **'Tips and strategies for difficult moments'**
+  String get supportDescription;
+
+  /// Title for guaranteed results benefit
+  ///
+  /// In en, this message translates to:
+  /// **'Guaranteed results'**
+  String get guaranteedResults;
+
+  /// Description for guaranteed results
+  ///
+  /// In en, this message translates to:
+  /// **'With our science-based technology'**
+  String get resultsDescription;
+
+  /// Error message during completion
+  ///
+  /// In en, this message translates to:
+  /// **'Error completing: {error}'**
+  String loadingError(String error);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
