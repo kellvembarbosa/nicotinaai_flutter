@@ -6,7 +6,7 @@ import 'package:nicotinaai_flutter/features/onboarding/providers/onboarding_prov
 import 'package:nicotinaai_flutter/features/onboarding/screens/onboarding_container.dart';
 import 'package:nicotinaai_flutter/features/onboarding/widgets/number_selector.dart';
 import 'package:nicotinaai_flutter/features/onboarding/widgets/option_card.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:nicotinaai_flutter/assets/l10n/app_localizations.dart';
 
 class CigarettesPerDayScreen extends StatefulWidget {
   const CigarettesPerDayScreen({Key? key}) : super(key: key);

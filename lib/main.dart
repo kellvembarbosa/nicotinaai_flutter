@@ -12,7 +12,7 @@ import 'package:nicotinaai_flutter/features/auth/providers/auth_provider.dart';
 import 'package:nicotinaai_flutter/features/auth/repositories/auth_repository.dart';
 import 'package:nicotinaai_flutter/features/onboarding/providers/onboarding_provider.dart';
 import 'package:nicotinaai_flutter/features/onboarding/repositories/onboarding_repository.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:nicotinaai_flutter/assets/l10n/app_localizations.dart';
 
 void main() async {
   // Garante que os widgets estão iniciados antes de chamar código nativo

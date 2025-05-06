@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:nicotinaai_flutter/core/localization/locale_provider.dart';
 import 'package:nicotinaai_flutter/core/theme/app_theme.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:nicotinaai_flutter/assets/l10n/app_localizations.dart';
 
 class LanguageSelectionScreen extends StatelessWidget {
   static const String routeName = '/settings/language';
