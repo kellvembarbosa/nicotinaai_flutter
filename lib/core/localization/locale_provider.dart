@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LocaleProvider extends ChangeNotifier {
-  Locale _locale = const Locale('en', 'US');
+  Locale _locale = const Locale('pt', 'BR');
   final String _localeKey = 'app_locale';
 
   LocaleProvider() {
@@ -13,8 +13,8 @@ class LocaleProvider extends ChangeNotifier {
 
   // Idiomas suportados pelo aplicativo
   List<Locale> get supportedLocales => const [
-        Locale('en', 'US'), // Inglês (EUA) - primeiro por ser o idioma padrão
-        Locale('pt', 'BR'), // Português (Brasil)
+        Locale('pt', 'BR'), // Português (Brasil) - primeiro por ser o idioma padrão
+        Locale('en', 'US'), // Inglês (EUA)
       ];
 
   // Carrega o idioma salvo das preferências
@@ -29,17 +29,17 @@ class LocaleProvider extends ChangeNotifier {
         notifyListeners();
       }
     } else {
-      // Se não houver idioma salvo, definir inglês explicitamente e salvar
-      _locale = const Locale('en', 'US');
-      await prefs.setString(_localeKey, 'en_US');
+      // Se não houver idioma salvo, definir português explicitamente e salvar
+      _locale = const Locale('pt', 'BR');
+      await prefs.setString(_localeKey, 'pt_BR');
     }
   }
   
-  // Limpa as preferências de idioma e redefine para inglês
+  // Limpa as preferências de idioma e redefine para português
   Future<void> resetToDefaultLocale() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_localeKey);
-    _locale = const Locale('en', 'US');
+    _locale = const Locale('pt', 'BR');
     notifyListeners();
   }
 
