@@ -25,10 +25,10 @@ class MultiSelectOptionCard extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: selected ? Colors.deepPurple.withOpacity(0.1) : Colors.white,
+          color: selected ? const Color(0xFF2962FF).withOpacity(0.1) : Colors.white,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: selected ? Colors.deepPurple : Colors.grey[300]!,
+            color: selected ? const Color(0xFF2962FF) : Colors.grey[300]!,
             width: 1.5,
           ),
         ),
@@ -44,10 +44,10 @@ class MultiSelectOptionCard extends StatelessWidget {
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(4),
                     border: Border.all(
-                      color: selected ? Colors.deepPurple : Colors.grey[400]!,
+                      color: selected ? const Color(0xFF2962FF) : Colors.grey[400]!,
                       width: 1.5,
                     ),
-                    color: selected ? Colors.deepPurple : Colors.transparent,
+                    color: selected ? const Color(0xFF2962FF) : Colors.transparent,
                   ),
                   child: selected
                       ? const Icon(

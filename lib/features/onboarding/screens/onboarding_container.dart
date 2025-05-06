@@ -119,9 +119,9 @@ class _OnboardingContainerState extends State<OnboardingContainer> {
                   ElevatedButton(
                     onPressed: widget.disableNextButton ? null : widget.onNext,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.deepPurple,
+                      backgroundColor: const Color(0xFF2962FF), // Azul primário
                       foregroundColor: Colors.white,
-                      disabledBackgroundColor: Colors.deepPurple.withOpacity(0.4),
+                      disabledBackgroundColor: const Color(0xFF2962FF).withOpacity(0.4),
                       disabledForegroundColor: Colors.white.withOpacity(0.8),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),

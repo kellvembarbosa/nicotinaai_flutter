@@ -85,7 +85,19 @@ class MyApp extends StatelessWidget {
             title: 'NicotinaAI',
             debugShowCheckedModeBanner: false,
             theme: ThemeData(
-              colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+              // Paleta de cores baseada em azul para transmitir confiança
+              colorScheme: ColorScheme.fromSeed(
+                seedColor: const Color(0xFF2962FF), // Azul vibrante
+                primary: const Color(0xFF2962FF),
+                secondary: const Color(0xFF0D47A1),
+                tertiary: const Color(0xFF82B1FF),
+                background: Colors.white,
+                surface: Colors.white,
+                onPrimary: Colors.white,
+                onSecondary: Colors.white,
+                onSurface: Colors.black,
+                brightness: Brightness.light,
+              ),
               useMaterial3: true,
               textTheme: GoogleFonts.poppinsTextTheme(
                 Theme.of(context).textTheme,
@@ -103,7 +115,7 @@ class MyApp extends StatelessWidget {
               ),
               elevatedButtonTheme: ElevatedButtonThemeData(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.deepPurple,
+                  backgroundColor: const Color(0xFF2962FF), // Azul primário
                   foregroundColor: Colors.white,
                   textStyle: GoogleFonts.poppins(
                     fontWeight: FontWeight.w600,
@@ -138,7 +150,7 @@ class MyApp extends StatelessWidget {
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide: const BorderSide(
-                    color: Colors.deepPurple,
+                    color: Color(0xFF2962FF), // Azul primário
                     width: 2,
                   ),
                 ),
@@ -160,7 +172,34 @@ class MyApp extends StatelessWidget {
                   color: Colors.grey[800],
                 ),
                 floatingLabelStyle: GoogleFonts.poppins(
-                  color: Colors.deepPurple,
+                  color: Color(0xFF2962FF), // Azul primário
+                ),
+              ),
+              // Estilo de botões de texto
+              textButtonTheme: TextButtonThemeData(
+                style: TextButton.styleFrom(
+                  foregroundColor: const Color(0xFF2962FF), // Azul primário
+                  textStyle: GoogleFonts.poppins(
+                    fontWeight: FontWeight.w500,
+                    fontSize: 15,
+                  ),
+                ),
+              ),
+              // Estilo de botões outlined
+              outlinedButtonTheme: OutlinedButtonThemeData(
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: const Color(0xFF2962FF), // Azul primário
+                  side: const BorderSide(color: Color(0xFF2962FF), width: 1.5),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 12,
+                    horizontal: 24,
+                  ),
+                  textStyle: GoogleFonts.poppins(
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ),
             ),

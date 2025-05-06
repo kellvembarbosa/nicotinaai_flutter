@@ -25,7 +25,7 @@ class IntroductionScreen extends StatelessWidget {
             width: double.infinity,
             height: 200,
             decoration: BoxDecoration(
-              color: Colors.deepPurple.withOpacity(0.1),
+              color: const Color(0xFF2962FF).withOpacity(0.1), // Azul primário com opacidade
               borderRadius: BorderRadius.circular(16),
             ),
             child: const Center(
@@ -46,7 +46,7 @@ class IntroductionScreen extends StatelessWidget {
             style: GoogleFonts.poppins(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: Colors.deepPurple,
+              color: const Color(0xFF2962FF), // Azul primário
               letterSpacing: 0.5,
             ),
             textAlign: TextAlign.center,

@@ -111,12 +111,12 @@ class CompletionScreen extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: Colors.deepPurple.withOpacity(0.1),
+              color: const Color(0xFF4CAF50).withOpacity(0.1), // Verde para sucessos
               shape: BoxShape.circle,
             ),
             child: const Icon(
               Icons.star,
-              color: Colors.deepPurple,
+              color: Color(0xFF4CAF50), // Verde para sucessos
               size: 16,
             ),
           ),
