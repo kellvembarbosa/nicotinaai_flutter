@@ -71,6 +71,139 @@
     "description": "Mensagem de erro quando senha está vazia"
   },
 
+  "homeDaysWithoutSmoking": "{days} dias sem fumar",
+  "@homeDaysWithoutSmoking": {
+    "description": "Contador de dias sem fumar",
+    "placeholders": {
+      "days": {
+        "type": "int",
+        "example": "7"
+      }
+    }
+  },
+  
+  "homeGreeting": "Olá, {name}! 👋",
+  "@homeGreeting": {
+    "description": "Saudação com nome do usuário",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "João"
+      }
+    }
+  },
+  
+  "homeHealthRecovery": "Recuperação da Saúde",
+  "@homeHealthRecovery": {
+    "description": "Título da seção de recuperação da saúde"
+  },
+  
+  "homeTaste": "Paladar",
+  "@homeTaste": {
+    "description": "Indicador de saúde do paladar"
+  },
+  
+  "homeSmell": "Olfato",
+  "@homeSmell": {
+    "description": "Indicador de saúde do olfato"
+  },
+  
+  "homeCirculation": "Circulação",
+  "@homeCirculation": {
+    "description": "Indicador de saúde da circulação"
+  },
+  
+  "homeLungs": "Pulmões",
+  "@homeLungs": {
+    "description": "Indicador de saúde dos pulmões"
+  },
+  
+  "homeHeart": "Coração",
+  "@homeHeart": {
+    "description": "Indicador de saúde do coração"
+  },
+  
+  "homeMinutesLifeGained": "minutos de vida\nganhos",
+  "@homeMinutesLifeGained": {
+    "description": "Rótulo de minutos de vida ganhos"
+  },
+  
+  "homeLungCapacity": "capacidade\npulmonar",
+  "@homeLungCapacity": {
+    "description": "Rótulo de capacidade pulmonar"
+  },
+  
+  "homeNextMilestone": "Próximo Marco",
+  "@homeNextMilestone": {
+    "description": "Título do próximo marco"
+  },
+  
+  "homeNextMilestoneDescription": "Em {days} dias: Fluxo sanguíneo melhora",
+  "@homeNextMilestoneDescription": {
+    "description": "Descrição do próximo marco",
+    "placeholders": {
+      "days": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  
+  "homeRecentAchievements": "Conquistas Recentes",
+  "@homeRecentAchievements": {
+    "description": "Título da seção de conquistas recentes"
+  },
+  
+  "homeSeeAll": "Ver todas",
+  "@homeSeeAll": {
+    "description": "Botão para ver todas"
+  },
+  
+  "homeFirstDay": "Primeiro Dia",
+  "@homeFirstDay": {
+    "description": "Título da conquista do primeiro dia"
+  },
+  
+  "homeFirstDayDescription": "Você passou 24 horas sem fumar!",
+  "@homeFirstDayDescription": {
+    "description": "Descrição da conquista do primeiro dia"
+  },
+  
+  "homeOvercoming": "Superando",
+  "@homeOvercoming": {
+    "description": "Título da conquista de superação"
+  },
+  
+  "homeOvercomingDescription": "Níveis de nicotina eliminados do corpo",
+  "@homeOvercomingDescription": {
+    "description": "Descrição da conquista de superação"
+  },
+  
+  "homePersistence": "Persistência",
+  "@homePersistence": {
+    "description": "Título da conquista de persistência"
+  },
+  
+  "homePersistenceDescription": "Uma semana inteira sem cigarros!",
+  "@homePersistenceDescription": {
+    "description": "Descrição da conquista de persistência"
+  },
+  
+  "homeTodayStats": "Estatísticas de Hoje",
+  "@homeTodayStats": {
+    "description": "Título da seção de estatísticas de hoje"
+  },
+  
+  "homeCravingsResisted": "Desejos\nResistidos",
+  "@homeCravingsResisted": {
+    "description": "Rótulo de desejos resistidos"
+  },
+  
+  "homeMinutesGainedToday": "Minutos de Vida\nGanhos Hoje",
+  "@homeMinutesGainedToday": {
+    "description": "Rótulo de minutos ganhos hoje"
+  },
+  
   "settings": "Configurações",
   "@settings": {
     "description": "Título da tela de configurações"

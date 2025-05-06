@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:nicotinaai_flutter/core/theme/app_theme.dart';
+import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
 
 class AchievementsScreen extends StatefulWidget {
   static const String routeName = '/achievements';
@@ -15,12 +16,12 @@ class AchievementsScreen extends StatefulWidget {
 
 class _AchievementsScreenState extends State<AchievementsScreen> with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  final List<String> _categories = ['Todos', 'Saúde', 'Tempo', 'Economia', 'Hábitos'];
+  late List<String> _categories;
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: _categories.length, vsync: this);
+    _tabController = TabController(length: 5, vsync: this);
   }
 
   @override
@@ -31,16 +32,26 @@ class _AchievementsScreenState extends State<AchievementsScreen> with SingleTick
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    
+    _categories = [
+      l10n.achievementCategoryAll,
+      l10n.achievementCategoryHealth,
+      l10n.achievementCategoryTime,
+      l10n.achievementCategorySavings,
+      l10n.achievementCategoryHabits
+    ];
+    
     return Scaffold(
       backgroundColor: context.backgroundColor,
       body: CustomScrollView(
         physics: const BouncingScrollPhysics(),
         slivers: [
-          _buildSliverAppBar(),
+          _buildSliverAppBar(l10n),
           SliverToBoxAdapter(
             child: Column(
               children: [
-                _buildSummarySection(),
+                _buildSummarySection(l10n),
                 const SizedBox(height: 24),
                 _buildTabBar(),
               ],
@@ -50,9 +61,9 @@ class _AchievementsScreenState extends State<AchievementsScreen> with SingleTick
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
-                _buildProgressTracker(),
+                _buildProgressTracker(l10n),
                 const SizedBox(height: 24),
-                ..._buildAchievementsList(),
+                ..._buildAchievementsList(l10n),
               ]),
             ),
           ),
@@ -61,7 +72,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> with SingleTick
     );
   }
 
-  Widget _buildSliverAppBar() {
+  Widget _buildSliverAppBar(AppLocalizations l10n) {
     return SliverAppBar(
       expandedHeight: 180.0,
       floating: false,
@@ -69,7 +80,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> with SingleTick
       backgroundColor: context.backgroundColor,
       flexibleSpace: FlexibleSpaceBar(
         title: Text(
-          'Conquistas',
+          l10n.achievements,
           style: GoogleFonts.poppins(
             fontWeight: FontWeight.w600,
             color: context.contentColor,
@@ -120,16 +131,16 @@ class _AchievementsScreenState extends State<AchievementsScreen> with SingleTick
     );
   }
 
-  Widget _buildSummarySection() {
+  Widget _buildSummarySection(AppLocalizations l10n) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 24, 16, 0),
       child: context.isDarkMode 
-          ? _buildGlassmorphicSummaryCard() 
-          : _buildRegularSummaryCard(),
+          ? _buildGlassmorphicSummaryCard(l10n) 
+          : _buildRegularSummaryCard(l10n),
     );
   }
 
-  Widget _buildGlassmorphicSummaryCard() {
+  Widget _buildGlassmorphicSummaryCard(AppLocalizations l10n) {
     return ClipRRect(
       borderRadius: BorderRadius.circular(24),
       child: BackdropFilter(
@@ -144,13 +155,13 @@ class _AchievementsScreenState extends State<AchievementsScreen> with SingleTick
               width: 1.5,
             ),
           ),
-          child: _buildSummaryContent(),
+          child: _buildSummaryContent(l10n),
         ),
       ),
     );
   }
 
-  Widget _buildRegularSummaryCard() {
+  Widget _buildRegularSummaryCard(AppLocalizations l10n) {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
@@ -171,21 +182,21 @@ class _AchievementsScreenState extends State<AchievementsScreen> with SingleTick
           ),
         ],
       ),
-      child: _buildSummaryContent(textColor: Colors.white),
+      child: _buildSummaryContent(l10n, textColor: Colors.white),
     );
   }
 
-  Widget _buildSummaryContent({Color? textColor}) {
+  Widget _buildSummaryContent(AppLocalizations l10n, {Color? textColor}) {
     final textStyle = textColor ?? context.contentColor;
     
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        _buildAchievementCountItem('4', 'Desbloqueadas', textStyle),
+        _buildAchievementCountItem('4', l10n.achievementUnlocked, textStyle),
         _buildDivider(context),
-        _buildAchievementCountItem('8', 'Em progresso', textStyle),
+        _buildAchievementCountItem('8', l10n.achievementInProgress, textStyle),
         _buildDivider(context),
-        _buildAchievementCountItem('33%', 'Concluídas', textStyle),
+        _buildAchievementCountItem('33%', l10n.achievementCompleted, textStyle),
       ],
     );
   }
@@ -254,25 +265,25 @@ class _AchievementsScreenState extends State<AchievementsScreen> with SingleTick
     );
   }
 
-  Widget _buildProgressTracker() {
+  Widget _buildProgressTracker(AppLocalizations l10n) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
           padding: const EdgeInsets.only(top: 24, bottom: 16),
           child: Text(
-            'Seu Progresso Atual',
+            l10n.achievementCurrentProgress,
             style: context.titleStyle.copyWith(fontSize: 20),
           ),
         ),
         context.isDarkMode
-            ? _buildGlassmorphicProgressCard()
-            : _buildRegularProgressCard(),
+            ? _buildGlassmorphicProgressCard(l10n)
+            : _buildRegularProgressCard(l10n),
       ],
     );
   }
 
-  Widget _buildGlassmorphicProgressCard() {
+  Widget _buildGlassmorphicProgressCard(AppLocalizations l10n) {
     return ClipRRect(
       borderRadius: BorderRadius.circular(20),
       child: BackdropFilter(
@@ -291,13 +302,13 @@ class _AchievementsScreenState extends State<AchievementsScreen> with SingleTick
               width: 1.5,
             ),
           ),
-          child: _buildProgressContent(),
+          child: _buildProgressContent(l10n),
         ),
       ),
     );
   }
 
-  Widget _buildRegularProgressCard() {
+  Widget _buildRegularProgressCard(AppLocalizations l10n) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -314,18 +325,18 @@ class _AchievementsScreenState extends State<AchievementsScreen> with SingleTick
               ],
         border: Border.all(color: context.borderColor),
       ),
-      child: _buildProgressContent(),
+      child: _buildProgressContent(l10n),
     );
   }
 
-  Widget _buildProgressContent() {
+  Widget _buildProgressContent(AppLocalizations l10n) {
     return Column(
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              '7 dias sem fumar',
+              l10n.achievementDaysWithoutSmoking(7),
               style: context.titleStyle.copyWith(fontSize: 18),
             ),
             Container(
@@ -335,7 +346,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> with SingleTick
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Text(
-                'Nível 2',
+                l10n.achievementLevel(2),
                 style: GoogleFonts.poppins(
                   color: context.primaryColor,
                   fontWeight: FontWeight.w600,
@@ -352,7 +363,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> with SingleTick
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'Próximo nível: 2 semanas',
+              l10n.achievementNextLevel('2 weeks'),
               style: GoogleFonts.poppins(
                 color: context.subtitleColor,
                 fontSize: 14,
@@ -369,7 +380,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> with SingleTick
           ],
         ),
         const SizedBox(height: 20),
-        _buildHealthBenefits(),
+        _buildHealthBenefits(l10n),
       ],
     );
   }
@@ -430,13 +441,13 @@ class _AchievementsScreenState extends State<AchievementsScreen> with SingleTick
     );
   }
 
-  Widget _buildHealthBenefits() {
+  Widget _buildHealthBenefits(AppLocalizations l10n) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        _buildBenefitItem('CO2 Normal', Icons.air, Colors.green),
-        _buildBenefitItem('Paladar Melhorado', Icons.restaurant, Colors.orange),
-        _buildBenefitItem('Circulação +15%', Icons.favorite, Colors.red),
+        _buildBenefitItem(l10n.achievementBenefitCO2, Icons.air, Colors.green),
+        _buildBenefitItem(l10n.achievementBenefitTaste, Icons.restaurant, Colors.orange),
+        _buildBenefitItem(l10n.achievementBenefitCirculation, Icons.favorite, Colors.red),
       ],
     );
   }
@@ -470,83 +481,83 @@ class _AchievementsScreenState extends State<AchievementsScreen> with SingleTick
     );
   }
 
-  List<Widget> _buildAchievementsList() {
+  List<Widget> _buildAchievementsList(AppLocalizations l10n) {
     final achievements = [
       _AchievementData(
-        title: 'Primeiro Dia',
-        description: 'Complete 24 horas sem fumar',
+        title: l10n.achievementFirstDay,
+        description: l10n.achievementFirstDayDescription,
         icon: Icons.calendar_today,
         badge: '24h',
         isUnlocked: true,
-        category: 'Tempo',
+        category: l10n.achievementCategoryTime,
       ),
       _AchievementData(
-        title: 'Uma Semana',
-        description: 'Uma semana sem fumar!',
+        title: l10n.achievementOneWeek,
+        description: l10n.achievementOneWeekDescription,
         icon: Icons.celebration,
         badge: '7 dias',
         isUnlocked: true,
-        category: 'Tempo',
+        category: l10n.achievementCategoryTime,
       ),
       _AchievementData(
-        title: 'Circulação Melhorada',
-        description: 'Níveis de oxigênio normalizados',
+        title: l10n.achievementImprovedCirculation,
+        description: l10n.achievementImprovedCirculationDescription,
         icon: Icons.favorite,
-        badge: 'Saúde',
+        badge: l10n.achievementCategoryHealth,
         isUnlocked: true,
-        category: 'Saúde',
+        category: l10n.achievementCategoryHealth,
       ),
       _AchievementData(
-        title: 'Economia Inicial',
-        description: 'Economize o equivalente a 1 maço de cigarros',
+        title: l10n.achievementInitialSavings,
+        description: l10n.achievementInitialSavingsDescription,
         icon: Icons.savings,
         badge: 'R\$ 25',
         isUnlocked: true,
-        category: 'Economia',
+        category: l10n.achievementCategorySavings,
       ),
       _AchievementData(
-        title: 'Duas Semanas',
-        description: 'Duas semanas completas sem fumar!',
+        title: l10n.achievementTwoWeeks,
+        description: l10n.achievementTwoWeeksDescription,
         icon: Icons.calendar_month,
         badge: '14 dias',
         isUnlocked: false,
-        category: 'Tempo',
+        category: l10n.achievementCategoryTime,
         progress: 0.5,
       ),
       _AchievementData(
-        title: 'Economia Substancial',
-        description: 'Economize o equivalente a 10 maços de cigarros',
+        title: l10n.achievementSubstantialSavings,
+        description: l10n.achievementSubstantialSavingsDescription,
         icon: Icons.attach_money,
         badge: 'R\$ 250',
         isUnlocked: false,
-        category: 'Economia',
+        category: l10n.achievementCategorySavings,
         progress: 0.4,
       ),
       _AchievementData(
-        title: 'Respiração Limpa',
-        description: 'Capacidade pulmonar aumentada em 30%',
+        title: l10n.achievementCleanBreathing,
+        description: l10n.achievementCleanBreathingDescription,
         icon: Icons.air,
-        badge: 'Saúde',
+        badge: l10n.achievementCategoryHealth,
         isUnlocked: false,
-        category: 'Saúde',
+        category: l10n.achievementCategoryHealth,
         progress: 0.3,
       ),
       _AchievementData(
-        title: 'Um Mês',
-        description: 'Um mês inteiro sem fumar!',
+        title: l10n.achievementOneMonth,
+        description: l10n.achievementOneMonthDescription,
         icon: Icons.emoji_events,
         badge: '30 dias',
         isUnlocked: false,
-        category: 'Tempo',
+        category: l10n.achievementCategoryTime,
         progress: 0.23,
       ),
       _AchievementData(
-        title: 'Novo Hábito: Exercícios',
-        description: 'Registre 5 dias de exercícios',
+        title: l10n.achievementNewHabitExercise,
+        description: l10n.achievementNewHabitExerciseDescription,
         icon: Icons.fitness_center,
-        badge: 'Hábitos',
+        badge: l10n.achievementCategoryHabits,
         isUnlocked: false,
-        category: 'Hábitos',
+        category: l10n.achievementCategoryHabits,
         progress: 0.2,
       ),
     ];
@@ -560,6 +571,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> with SingleTick
         achievement.isUnlocked,
         badge: achievement.badge,
         progress: achievement.progress,
+        l10n: l10n,
       ),
     ).toList();
   }
@@ -570,13 +582,13 @@ class _AchievementsScreenState extends State<AchievementsScreen> with SingleTick
     String description, 
     IconData icon, 
     bool unlocked, 
-    {String? badge, double progress = 0.0}
+    {String? badge, double progress = 0.0, required AppLocalizations l10n}
   ) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: context.isDarkMode && unlocked
-          ? _buildGlassmorphicAchievementCard(context, title, description, icon, unlocked, badge, progress)
-          : _buildStandardAchievementCard(context, title, description, icon, unlocked, badge, progress),
+          ? _buildGlassmorphicAchievementCard(context, title, description, icon, unlocked, badge, progress, l10n)
+          : _buildStandardAchievementCard(context, title, description, icon, unlocked, badge, progress, l10n),
     );
   }
 
@@ -587,7 +599,8 @@ class _AchievementsScreenState extends State<AchievementsScreen> with SingleTick
     IconData icon, 
     bool unlocked, 
     String? badge, 
-    double progress
+    double progress,
+    AppLocalizations l10n
   ) {
     return ClipRRect(
       borderRadius: BorderRadius.circular(16),
@@ -602,7 +615,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> with SingleTick
               width: 1.5,
             ),
           ),
-          child: _buildAchievementContent(context, title, description, icon, unlocked, badge, progress),
+          child: _buildAchievementContent(context, title, description, icon, unlocked, badge, progress, l10n),
         ),
       ),
     );
@@ -615,7 +628,8 @@ class _AchievementsScreenState extends State<AchievementsScreen> with SingleTick
     IconData icon, 
     bool unlocked, 
     String? badge, 
-    double progress
+    double progress,
+    AppLocalizations l10n
   ) {
     return Container(
       decoration: BoxDecoration(
@@ -632,7 +646,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> with SingleTick
                 ),
               ],
       ),
-      child: _buildAchievementContent(context, title, description, icon, unlocked, badge, progress),
+      child: _buildAchievementContent(context, title, description, icon, unlocked, badge, progress, l10n),
     );
   }
 
@@ -643,7 +657,8 @@ class _AchievementsScreenState extends State<AchievementsScreen> with SingleTick
     IconData icon, 
     bool unlocked, 
     String? badge, 
-    double progress
+    double progress,
+    AppLocalizations l10n
   ) {
     return Padding(
       padding: const EdgeInsets.all(16.0),
@@ -702,7 +717,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> with SingleTick
                   _buildAdvancedProgressBar(progress),
                   const SizedBox(height: 6),
                   Text(
-                    '${(progress * 100).toInt()}% concluído',
+                    l10n.percentCompleted((progress * 100).toInt()),
                     style: GoogleFonts.poppins(
                       fontSize: 12,
                       color: context.subtitleColor,

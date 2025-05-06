@@ -6,6 +6,7 @@ import 'package:nicotinaai_flutter/core/theme/app_theme.dart';
 import 'package:nicotinaai_flutter/core/theme/theme_provider.dart';
 import 'package:nicotinaai_flutter/core/theme/theme_switch.dart';
 import 'package:nicotinaai_flutter/features/auth/providers/auth_provider.dart';
+import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
 
 class HomeScreen extends StatelessWidget {
   static const String routeName = '/home';
@@ -16,6 +17,7 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
     final user = authProvider.currentUser;
+    final l10n = AppLocalizations.of(context);
     
     // Valores fictícios para demonstração - deverão ser substituídos por dados reais
     const daysWithoutSmoking = 7;
@@ -28,7 +30,7 @@ class HomeScreen extends StatelessWidget {
       backgroundColor: context.backgroundColor,
       appBar: AppBar(
         title: Text(
-          'NicotinaAI',
+          l10n.appName,
           style: context.titleStyle,
         ),
         backgroundColor: context.backgroundColor,
@@ -53,12 +55,12 @@ class HomeScreen extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Olá, ${user?.name?.split(' ')[0] ?? 'Usuário'}! 👋',
+                          l10n.homeGreeting(user?.name?.split(' ')[0] ?? 'Usuário'),
                           style: context.headlineStyle,
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          '$daysWithoutSmoking dias sem fumar',
+                          l10n.homeDaysWithoutSmoking(daysWithoutSmoking),
                           style: context.subtitleStyle,
                         ),
                       ],
@@ -83,7 +85,7 @@ class HomeScreen extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Text(
-                  'Recuperação da Saúde',
+                  l10n.homeHealthRecovery,
                   style: context.titleStyle,
                 ),
               ),
@@ -97,11 +99,11 @@ class HomeScreen extends StatelessWidget {
                   scrollDirection: Axis.horizontal,
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   children: [
-                    _buildHealthIndicator(context, 'Paladar', true),
-                    _buildHealthIndicator(context, 'Olfato', true),
-                    _buildHealthIndicator(context, 'Circulação', true),
-                    _buildHealthIndicator(context, 'Pulmões', false),
-                    _buildHealthIndicator(context, 'Coração', false),
+                    _buildHealthIndicator(context, l10n.homeTaste, true),
+                    _buildHealthIndicator(context, l10n.homeSmell, true),
+                    _buildHealthIndicator(context, l10n.homeCirculation, true),
+                    _buildHealthIndicator(context, l10n.homeLungs, false),
+                    _buildHealthIndicator(context, l10n.homeHeart, false),
                   ],
                 ),
               ),
@@ -117,7 +119,7 @@ class HomeScreen extends StatelessWidget {
                       child: _buildStatisticCard(
                         context,
                         '$minutesLifeGained',
-                        'minutos de vida\nganhos',
+                        l10n.homeMinutesLifeGained,
                         Colors.green,
                         Icons.access_time,
                       ),
@@ -127,7 +129,7 @@ class HomeScreen extends StatelessWidget {
                       child: _buildStatisticCard(
                         context,
                         '$breathCapacityPercent%',
-                        'capacidade\npulmonar',
+                        l10n.homeLungCapacity,
                         Colors.blue,
                         Icons.air,
                       ),
@@ -142,8 +144,8 @@ class HomeScreen extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: context.isDarkMode 
-                    ? _buildGlassMorphicNextMilestone(context)
-                    : _buildNextMilestone(context),
+                    ? _buildGlassMorphicNextMilestone(context, l10n)
+                    : _buildNextMilestone(context, l10n),
               ),
               
               const SizedBox(height: 24),
@@ -155,7 +157,7 @@ class HomeScreen extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Conquistas Recentes',
+                      l10n.homeRecentAchievements,
                       style: context.titleStyle,
                     ),
                     TextButton(
@@ -166,7 +168,7 @@ class HomeScreen extends StatelessWidget {
                         foregroundColor: context.primaryColor,
                       ),
                       child: Text(
-                        'Ver todas',
+                        l10n.homeSeeAll,
                         style: TextStyle(
                           fontWeight: FontWeight.w600,
                         ),
@@ -188,22 +190,22 @@ class HomeScreen extends StatelessWidget {
                     _buildAchievementCard(
                       context,
                       '24h',
-                      'Primeiro Dia',
-                      'Você passou 24 horas sem fumar!',
+                      l10n.homeFirstDay,
+                      l10n.homeFirstDayDescription,
                       Colors.amber,
                     ),
                     _buildAchievementCard(
                       context,
                       '3 dias',
-                      'Superando',
-                      'Níveis de nicotina eliminados do corpo',
+                      l10n.homeOvercoming,
+                      l10n.homeOvercomingDescription,
                       Colors.green,
                     ),
                     _buildAchievementCard(
                       context,
                       '1 semana',
-                      'Persistência',
-                      'Uma semana inteira sem cigarros!',
+                      l10n.homePersistence,
+                      l10n.homePersistenceDescription,
                       context.primaryColor,
                     ),
                   ],
@@ -216,7 +218,7 @@ class HomeScreen extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Text(
-                  'Estatísticas de Hoje',
+                  l10n.homeTodayStats,
                   style: context.titleStyle,
                 ),
               ),
@@ -232,7 +234,7 @@ class HomeScreen extends StatelessWidget {
                       child: _buildDailyStatCard(
                         context,
                         '$cravingsResisted',
-                        'Desejos \nResistidos',
+                        l10n.homeCravingsResisted,
                         Colors.orange,
                         Icons.smoke_free,
                       ),
@@ -242,7 +244,7 @@ class HomeScreen extends StatelessWidget {
                       child: _buildDailyStatCard(
                         context,
                         '$dailyMinutesGained',
-                        'Minutos de Vida \nGanhos Hoje',
+                        l10n.homeMinutesGainedToday,
                         Colors.teal,
                         Icons.favorite,
                       ),
@@ -366,7 +368,7 @@ class HomeScreen extends StatelessWidget {
     );
   }
   
-  Widget _buildNextMilestone(BuildContext context) {
+  Widget _buildNextMilestone(BuildContext context, AppLocalizations l10n) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -380,11 +382,11 @@ class HomeScreen extends StatelessWidget {
         ),
         borderRadius: BorderRadius.circular(16),
       ),
-      child: _buildMilestoneContent(context, Colors.white),
+      child: _buildMilestoneContent(context, Colors.white, l10n),
     );
   }
   
-  Widget _buildGlassMorphicNextMilestone(BuildContext context) {
+  Widget _buildGlassMorphicNextMilestone(BuildContext context, AppLocalizations l10n) {
     return ClipRRect(
       borderRadius: BorderRadius.circular(16),
       child: BackdropFilter(
@@ -399,13 +401,13 @@ class HomeScreen extends StatelessWidget {
               width: 1.5,
             ),
           ),
-          child: _buildMilestoneContent(context, Colors.white),
+          child: _buildMilestoneContent(context, Colors.white, l10n),
         ),
       ),
     );
   }
   
-  Widget _buildMilestoneContent(BuildContext context, Color textColor) {
+  Widget _buildMilestoneContent(BuildContext context, Color textColor, AppLocalizations l10n) {
     return Row(
       children: [
         Container(
@@ -426,7 +428,7 @@ class HomeScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Próximo Marco',
+                l10n.homeNextMilestone,
                 style: context.textTheme.titleMedium!.copyWith(
                   fontWeight: FontWeight.w600,
                   color: textColor,
@@ -434,7 +436,7 @@ class HomeScreen extends StatelessWidget {
               ),
               const SizedBox(height: 4),
               Text(
-                'Em 3 dias: Fluxo sanguíneo melhora',
+                l10n.homeNextMilestoneDescription(3),
                 style: context.textTheme.bodyMedium!.copyWith(
                   color: textColor.withOpacity(0.85),
                 ),

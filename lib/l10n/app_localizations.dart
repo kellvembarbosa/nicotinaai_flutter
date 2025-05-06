@@ -95,6 +95,348 @@ abstract class AppLocalizations {
     Locale('pt')
   ];
 
+  /// Days without smoking counter
+  ///
+  /// In en, this message translates to:
+  /// **'{days} days without smoking'**
+  String homeDaysWithoutSmoking(int days);
+
+  /// Greeting with user name
+  ///
+  /// In en, this message translates to:
+  /// **'Hello, {name}! 👋'**
+  String homeGreeting(String name);
+
+  /// Health recovery section title
+  ///
+  /// In en, this message translates to:
+  /// **'Health Recovery'**
+  String get homeHealthRecovery;
+
+  /// Taste health indicator
+  ///
+  /// In en, this message translates to:
+  /// **'Taste'**
+  String get homeTaste;
+
+  /// Smell health indicator
+  ///
+  /// In en, this message translates to:
+  /// **'Smell'**
+  String get homeSmell;
+
+  /// Circulation health indicator
+  ///
+  /// In en, this message translates to:
+  /// **'Circulation'**
+  String get homeCirculation;
+
+  /// Lungs health indicator
+  ///
+  /// In en, this message translates to:
+  /// **'Lungs'**
+  String get homeLungs;
+
+  /// Heart health indicator
+  ///
+  /// In en, this message translates to:
+  /// **'Heart'**
+  String get homeHeart;
+
+  /// Minutes of life gained label
+  ///
+  /// In en, this message translates to:
+  /// **'minutes of life\ngained'**
+  String get homeMinutesLifeGained;
+
+  /// Lung capacity label
+  ///
+  /// In en, this message translates to:
+  /// **'lung\ncapacity'**
+  String get homeLungCapacity;
+
+  /// Next milestone title
+  ///
+  /// In en, this message translates to:
+  /// **'Next Milestone'**
+  String get homeNextMilestone;
+
+  /// Next milestone description
+  ///
+  /// In en, this message translates to:
+  /// **'In {days} days: Blood flow improves'**
+  String homeNextMilestoneDescription(int days);
+
+  /// Recent achievements section title
+  ///
+  /// In en, this message translates to:
+  /// **'Recent Achievements'**
+  String get homeRecentAchievements;
+
+  /// See all button
+  ///
+  /// In en, this message translates to:
+  /// **'See all'**
+  String get homeSeeAll;
+
+  /// First day achievement title
+  ///
+  /// In en, this message translates to:
+  /// **'First Day'**
+  String get homeFirstDay;
+
+  /// First day achievement description
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ve gone 24 hours without smoking!'**
+  String get homeFirstDayDescription;
+
+  /// Overcoming achievement title
+  ///
+  /// In en, this message translates to:
+  /// **'Overcoming'**
+  String get homeOvercoming;
+
+  /// Overcoming achievement description
+  ///
+  /// In en, this message translates to:
+  /// **'Nicotine levels eliminated from body'**
+  String get homeOvercomingDescription;
+
+  /// Persistence achievement title
+  ///
+  /// In en, this message translates to:
+  /// **'Persistence'**
+  String get homePersistence;
+
+  /// Persistence achievement description
+  ///
+  /// In en, this message translates to:
+  /// **'A whole week without cigarettes!'**
+  String get homePersistenceDescription;
+
+  /// Today's statistics section title
+  ///
+  /// In en, this message translates to:
+  /// **'Today\'s Statistics'**
+  String get homeTodayStats;
+
+  /// Cravings resisted label
+  ///
+  /// In en, this message translates to:
+  /// **'Cravings\nResisted'**
+  String get homeCravingsResisted;
+
+  /// Minutes gained today label
+  ///
+  /// In en, this message translates to:
+  /// **'Minutes of Life\nGained Today'**
+  String get homeMinutesGainedToday;
+
+  /// All achievements category
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get achievementCategoryAll;
+
+  /// Health achievements category
+  ///
+  /// In en, this message translates to:
+  /// **'Health'**
+  String get achievementCategoryHealth;
+
+  /// Time achievements category
+  ///
+  /// In en, this message translates to:
+  /// **'Time'**
+  String get achievementCategoryTime;
+
+  /// Savings achievements category
+  ///
+  /// In en, this message translates to:
+  /// **'Savings'**
+  String get achievementCategorySavings;
+
+  /// Habits achievements category
+  ///
+  /// In en, this message translates to:
+  /// **'Habits'**
+  String get achievementCategoryHabits;
+
+  /// Unlocked achievements label
+  ///
+  /// In en, this message translates to:
+  /// **'Unlocked'**
+  String get achievementUnlocked;
+
+  /// In progress achievements label
+  ///
+  /// In en, this message translates to:
+  /// **'In progress'**
+  String get achievementInProgress;
+
+  /// Completed achievements percentage
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get achievementCompleted;
+
+  /// Current progress section title
+  ///
+  /// In en, this message translates to:
+  /// **'Your Current Progress'**
+  String get achievementCurrentProgress;
+
+  /// Achievement level
+  ///
+  /// In en, this message translates to:
+  /// **'Level {level}'**
+  String achievementLevel(int level);
+
+  /// Days without smoking on achievements screen
+  ///
+  /// In en, this message translates to:
+  /// **'{days} days without smoking'**
+  String achievementDaysWithoutSmoking(int days);
+
+  /// Next achievement level
+  ///
+  /// In en, this message translates to:
+  /// **'Next level: {time}'**
+  String achievementNextLevel(String time);
+
+  /// CO2 benefit label
+  ///
+  /// In en, this message translates to:
+  /// **'Normal CO2'**
+  String get achievementBenefitCO2;
+
+  /// Taste benefit label
+  ///
+  /// In en, this message translates to:
+  /// **'Improved Taste'**
+  String get achievementBenefitTaste;
+
+  /// Circulation benefit label
+  ///
+  /// In en, this message translates to:
+  /// **'Circulation +15%'**
+  String get achievementBenefitCirculation;
+
+  /// First day achievement
+  ///
+  /// In en, this message translates to:
+  /// **'First Day'**
+  String get achievementFirstDay;
+
+  /// First day achievement description
+  ///
+  /// In en, this message translates to:
+  /// **'Complete 24 hours without smoking'**
+  String get achievementFirstDayDescription;
+
+  /// One week achievement
+  ///
+  /// In en, this message translates to:
+  /// **'One Week'**
+  String get achievementOneWeek;
+
+  /// One week achievement description
+  ///
+  /// In en, this message translates to:
+  /// **'One week without smoking!'**
+  String get achievementOneWeekDescription;
+
+  /// Improved circulation achievement
+  ///
+  /// In en, this message translates to:
+  /// **'Improved Circulation'**
+  String get achievementImprovedCirculation;
+
+  /// Improved circulation achievement description
+  ///
+  /// In en, this message translates to:
+  /// **'Oxygen levels normalized'**
+  String get achievementImprovedCirculationDescription;
+
+  /// Initial savings achievement
+  ///
+  /// In en, this message translates to:
+  /// **'Initial Savings'**
+  String get achievementInitialSavings;
+
+  /// Initial savings achievement description
+  ///
+  /// In en, this message translates to:
+  /// **'Save the equivalent of 1 pack of cigarettes'**
+  String get achievementInitialSavingsDescription;
+
+  /// Two weeks achievement
+  ///
+  /// In en, this message translates to:
+  /// **'Two Weeks'**
+  String get achievementTwoWeeks;
+
+  /// Two weeks achievement description
+  ///
+  /// In en, this message translates to:
+  /// **'Two complete weeks without smoking!'**
+  String get achievementTwoWeeksDescription;
+
+  /// Substantial savings achievement
+  ///
+  /// In en, this message translates to:
+  /// **'Substantial Savings'**
+  String get achievementSubstantialSavings;
+
+  /// Substantial savings achievement description
+  ///
+  /// In en, this message translates to:
+  /// **'Save the equivalent of 10 packs of cigarettes'**
+  String get achievementSubstantialSavingsDescription;
+
+  /// Clean breathing achievement
+  ///
+  /// In en, this message translates to:
+  /// **'Clean Breathing'**
+  String get achievementCleanBreathing;
+
+  /// Clean breathing achievement description
+  ///
+  /// In en, this message translates to:
+  /// **'Lung capacity increased by 30%'**
+  String get achievementCleanBreathingDescription;
+
+  /// One month achievement
+  ///
+  /// In en, this message translates to:
+  /// **'One Month'**
+  String get achievementOneMonth;
+
+  /// One month achievement description
+  ///
+  /// In en, this message translates to:
+  /// **'A whole month without smoking!'**
+  String get achievementOneMonthDescription;
+
+  /// New exercise habit achievement
+  ///
+  /// In en, this message translates to:
+  /// **'New Habit: Exercise'**
+  String get achievementNewHabitExercise;
+
+  /// New exercise habit achievement description
+  ///
+  /// In en, this message translates to:
+  /// **'Record 5 days of exercise'**
+  String get achievementNewHabitExerciseDescription;
+
+  /// Percentage completed
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}% completed'**
+  String percentCompleted(int percent);
+
   /// Name of the application
   ///
   /// In en, this message translates to:

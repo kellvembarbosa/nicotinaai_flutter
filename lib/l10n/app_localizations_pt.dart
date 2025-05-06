@@ -9,6 +9,191 @@ class AppLocalizationsPt extends AppLocalizations {
   AppLocalizationsPt([String locale = 'pt']) : super(locale);
 
   @override
+  String homeDaysWithoutSmoking(int days) {
+    return '$days dias sem fumar';
+  }
+
+  @override
+  String homeGreeting(String name) {
+    return 'Olá, $name! 👋';
+  }
+
+  @override
+  String get homeHealthRecovery => 'Recuperação da Saúde';
+
+  @override
+  String get homeTaste => 'Paladar';
+
+  @override
+  String get homeSmell => 'Olfato';
+
+  @override
+  String get homeCirculation => 'Circulação';
+
+  @override
+  String get homeLungs => 'Pulmões';
+
+  @override
+  String get homeHeart => 'Coração';
+
+  @override
+  String get homeMinutesLifeGained => 'minutos de vida\nganhos';
+
+  @override
+  String get homeLungCapacity => 'capacidade\npulmonar';
+
+  @override
+  String get homeNextMilestone => 'Próximo Marco';
+
+  @override
+  String homeNextMilestoneDescription(int days) {
+    return 'Em $days dias: Fluxo sanguíneo melhora';
+  }
+
+  @override
+  String get homeRecentAchievements => 'Conquistas Recentes';
+
+  @override
+  String get homeSeeAll => 'Ver todas';
+
+  @override
+  String get homeFirstDay => 'Primeiro Dia';
+
+  @override
+  String get homeFirstDayDescription => 'Você passou 24 horas sem fumar!';
+
+  @override
+  String get homeOvercoming => 'Superando';
+
+  @override
+  String get homeOvercomingDescription => 'Níveis de nicotina eliminados do corpo';
+
+  @override
+  String get homePersistence => 'Persistência';
+
+  @override
+  String get homePersistenceDescription => 'Uma semana inteira sem cigarros!';
+
+  @override
+  String get homeTodayStats => 'Estatísticas de Hoje';
+
+  @override
+  String get homeCravingsResisted => 'Desejos\nResistidos';
+
+  @override
+  String get homeMinutesGainedToday => 'Minutos de Vida\nGanhos Hoje';
+
+  @override
+  String get achievementCategoryAll => 'All';
+
+  @override
+  String get achievementCategoryHealth => 'Health';
+
+  @override
+  String get achievementCategoryTime => 'Time';
+
+  @override
+  String get achievementCategorySavings => 'Savings';
+
+  @override
+  String get achievementCategoryHabits => 'Habits';
+
+  @override
+  String get achievementUnlocked => 'Unlocked';
+
+  @override
+  String get achievementInProgress => 'In progress';
+
+  @override
+  String get achievementCompleted => 'Completed';
+
+  @override
+  String get achievementCurrentProgress => 'Your Current Progress';
+
+  @override
+  String achievementLevel(int level) {
+    return 'Level $level';
+  }
+
+  @override
+  String achievementDaysWithoutSmoking(int days) {
+    return '$days days without smoking';
+  }
+
+  @override
+  String achievementNextLevel(String time) {
+    return 'Next level: $time';
+  }
+
+  @override
+  String get achievementBenefitCO2 => 'Normal CO2';
+
+  @override
+  String get achievementBenefitTaste => 'Improved Taste';
+
+  @override
+  String get achievementBenefitCirculation => 'Circulation +15%';
+
+  @override
+  String get achievementFirstDay => 'First Day';
+
+  @override
+  String get achievementFirstDayDescription => 'Complete 24 hours without smoking';
+
+  @override
+  String get achievementOneWeek => 'One Week';
+
+  @override
+  String get achievementOneWeekDescription => 'One week without smoking!';
+
+  @override
+  String get achievementImprovedCirculation => 'Improved Circulation';
+
+  @override
+  String get achievementImprovedCirculationDescription => 'Oxygen levels normalized';
+
+  @override
+  String get achievementInitialSavings => 'Initial Savings';
+
+  @override
+  String get achievementInitialSavingsDescription => 'Save the equivalent of 1 pack of cigarettes';
+
+  @override
+  String get achievementTwoWeeks => 'Two Weeks';
+
+  @override
+  String get achievementTwoWeeksDescription => 'Two complete weeks without smoking!';
+
+  @override
+  String get achievementSubstantialSavings => 'Substantial Savings';
+
+  @override
+  String get achievementSubstantialSavingsDescription => 'Save the equivalent of 10 packs of cigarettes';
+
+  @override
+  String get achievementCleanBreathing => 'Clean Breathing';
+
+  @override
+  String get achievementCleanBreathingDescription => 'Lung capacity increased by 30%';
+
+  @override
+  String get achievementOneMonth => 'One Month';
+
+  @override
+  String get achievementOneMonthDescription => 'A whole month without smoking!';
+
+  @override
+  String get achievementNewHabitExercise => 'New Habit: Exercise';
+
+  @override
+  String get achievementNewHabitExerciseDescription => 'Record 5 days of exercise';
+
+  @override
+  String percentCompleted(int percent) {
+    return '$percent% completed';
+  }
+
+  @override
   String get appName => 'NicotinaAI';
 
   @override

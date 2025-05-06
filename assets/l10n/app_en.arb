@@ -1,6 +1,333 @@
 {
   "@@locale": "en",
   
+  "homeDaysWithoutSmoking": "{days} days without smoking",
+  "@homeDaysWithoutSmoking": {
+    "description": "Days without smoking counter",
+    "placeholders": {
+      "days": {
+        "type": "int",
+        "example": "7"
+      }
+    }
+  },
+  
+  "homeGreeting": "Hello, {name}! 👋",
+  "@homeGreeting": {
+    "description": "Greeting with user name",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "John"
+      }
+    }
+  },
+  
+  "homeHealthRecovery": "Health Recovery",
+  "@homeHealthRecovery": {
+    "description": "Health recovery section title"
+  },
+  
+  "homeTaste": "Taste",
+  "@homeTaste": {
+    "description": "Taste health indicator"
+  },
+  
+  "homeSmell": "Smell",
+  "@homeSmell": {
+    "description": "Smell health indicator"
+  },
+  
+  "homeCirculation": "Circulation",
+  "@homeCirculation": {
+    "description": "Circulation health indicator"
+  },
+  
+  "homeLungs": "Lungs",
+  "@homeLungs": {
+    "description": "Lungs health indicator"
+  },
+  
+  "homeHeart": "Heart",
+  "@homeHeart": {
+    "description": "Heart health indicator"
+  },
+  
+  "homeMinutesLifeGained": "minutes of life\ngained",
+  "@homeMinutesLifeGained": {
+    "description": "Minutes of life gained label"
+  },
+  
+  "homeLungCapacity": "lung\ncapacity",
+  "@homeLungCapacity": {
+    "description": "Lung capacity label"
+  },
+  
+  "homeNextMilestone": "Next Milestone",
+  "@homeNextMilestone": {
+    "description": "Next milestone title"
+  },
+  
+  "homeNextMilestoneDescription": "In {days} days: Blood flow improves",
+  "@homeNextMilestoneDescription": {
+    "description": "Next milestone description",
+    "placeholders": {
+      "days": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  
+  "homeRecentAchievements": "Recent Achievements",
+  "@homeRecentAchievements": {
+    "description": "Recent achievements section title"
+  },
+  
+  "homeSeeAll": "See all",
+  "@homeSeeAll": {
+    "description": "See all button"
+  },
+  
+  "homeFirstDay": "First Day",
+  "@homeFirstDay": {
+    "description": "First day achievement title"
+  },
+  
+  "homeFirstDayDescription": "You've gone 24 hours without smoking!",
+  "@homeFirstDayDescription": {
+    "description": "First day achievement description"
+  },
+  
+  "homeOvercoming": "Overcoming",
+  "@homeOvercoming": {
+    "description": "Overcoming achievement title"
+  },
+  
+  "homeOvercomingDescription": "Nicotine levels eliminated from body",
+  "@homeOvercomingDescription": {
+    "description": "Overcoming achievement description"
+  },
+  
+  "homePersistence": "Persistence",
+  "@homePersistence": {
+    "description": "Persistence achievement title"
+  },
+  
+  "homePersistenceDescription": "A whole week without cigarettes!",
+  "@homePersistenceDescription": {
+    "description": "Persistence achievement description"
+  },
+  
+  "homeTodayStats": "Today's Statistics",
+  "@homeTodayStats": {
+    "description": "Today's statistics section title"
+  },
+  
+  "homeCravingsResisted": "Cravings\nResisted",
+  "@homeCravingsResisted": {
+    "description": "Cravings resisted label"
+  },
+  
+  "homeMinutesGainedToday": "Minutes of Life\nGained Today",
+  "@homeMinutesGainedToday": {
+    "description": "Minutes gained today label"
+  },
+  
+  "achievementCategoryAll": "All",
+  "@achievementCategoryAll": {
+    "description": "All achievements category"
+  },
+  
+  "achievementCategoryHealth": "Health",
+  "@achievementCategoryHealth": {
+    "description": "Health achievements category"
+  },
+  
+  "achievementCategoryTime": "Time",
+  "@achievementCategoryTime": {
+    "description": "Time achievements category"
+  },
+  
+  "achievementCategorySavings": "Savings",
+  "@achievementCategorySavings": {
+    "description": "Savings achievements category"
+  },
+  
+  "achievementCategoryHabits": "Habits",
+  "@achievementCategoryHabits": {
+    "description": "Habits achievements category"
+  },
+  
+  "achievementUnlocked": "Unlocked",
+  "@achievementUnlocked": {
+    "description": "Unlocked achievements label"
+  },
+  
+  "achievementInProgress": "In progress",
+  "@achievementInProgress": {
+    "description": "In progress achievements label"
+  },
+  
+  "achievementCompleted": "Completed",
+  "@achievementCompleted": {
+    "description": "Completed achievements percentage"
+  },
+  
+  "achievementCurrentProgress": "Your Current Progress",
+  "@achievementCurrentProgress": {
+    "description": "Current progress section title"
+  },
+  
+  "achievementLevel": "Level {level}",
+  "@achievementLevel": {
+    "description": "Achievement level",
+    "placeholders": {
+      "level": {
+        "type": "int",
+        "example": "2"
+      }
+    }
+  },
+  
+  "achievementDaysWithoutSmoking": "{days} days without smoking",
+  "@achievementDaysWithoutSmoking": {
+    "description": "Days without smoking on achievements screen",
+    "placeholders": {
+      "days": {
+        "type": "int",
+        "example": "7"
+      }
+    }
+  },
+  
+  "achievementNextLevel": "Next level: {time}",
+  "@achievementNextLevel": {
+    "description": "Next achievement level",
+    "placeholders": {
+      "time": {
+        "type": "String",
+        "example": "2 weeks"
+      }
+    }
+  },
+  
+  "achievementBenefitCO2": "Normal CO2",
+  "@achievementBenefitCO2": {
+    "description": "CO2 benefit label"
+  },
+  
+  "achievementBenefitTaste": "Improved Taste",
+  "@achievementBenefitTaste": {
+    "description": "Taste benefit label"
+  },
+  
+  "achievementBenefitCirculation": "Circulation +15%",
+  "@achievementBenefitCirculation": {
+    "description": "Circulation benefit label"
+  },
+  
+  "achievementFirstDay": "First Day",
+  "@achievementFirstDay": {
+    "description": "First day achievement"
+  },
+  
+  "achievementFirstDayDescription": "Complete 24 hours without smoking",
+  "@achievementFirstDayDescription": {
+    "description": "First day achievement description"
+  },
+  
+  "achievementOneWeek": "One Week",
+  "@achievementOneWeek": {
+    "description": "One week achievement"
+  },
+  
+  "achievementOneWeekDescription": "One week without smoking!",
+  "@achievementOneWeekDescription": {
+    "description": "One week achievement description"
+  },
+  
+  "achievementImprovedCirculation": "Improved Circulation",
+  "@achievementImprovedCirculation": {
+    "description": "Improved circulation achievement"
+  },
+  
+  "achievementImprovedCirculationDescription": "Oxygen levels normalized",
+  "@achievementImprovedCirculationDescription": {
+    "description": "Improved circulation achievement description"
+  },
+  
+  "achievementInitialSavings": "Initial Savings",
+  "@achievementInitialSavings": {
+    "description": "Initial savings achievement"
+  },
+  
+  "achievementInitialSavingsDescription": "Save the equivalent of 1 pack of cigarettes",
+  "@achievementInitialSavingsDescription": {
+    "description": "Initial savings achievement description"
+  },
+  
+  "achievementTwoWeeks": "Two Weeks",
+  "@achievementTwoWeeks": {
+    "description": "Two weeks achievement"
+  },
+  
+  "achievementTwoWeeksDescription": "Two complete weeks without smoking!",
+  "@achievementTwoWeeksDescription": {
+    "description": "Two weeks achievement description"
+  },
+  
+  "achievementSubstantialSavings": "Substantial Savings",
+  "@achievementSubstantialSavings": {
+    "description": "Substantial savings achievement"
+  },
+  
+  "achievementSubstantialSavingsDescription": "Save the equivalent of 10 packs of cigarettes",
+  "@achievementSubstantialSavingsDescription": {
+    "description": "Substantial savings achievement description"
+  },
+  
+  "achievementCleanBreathing": "Clean Breathing",
+  "@achievementCleanBreathing": {
+    "description": "Clean breathing achievement"
+  },
+  
+  "achievementCleanBreathingDescription": "Lung capacity increased by 30%",
+  "@achievementCleanBreathingDescription": {
+    "description": "Clean breathing achievement description"
+  },
+  
+  "achievementOneMonth": "One Month",
+  "@achievementOneMonth": {
+    "description": "One month achievement"
+  },
+  
+  "achievementOneMonthDescription": "A whole month without smoking!",
+  "@achievementOneMonthDescription": {
+    "description": "One month achievement description"
+  },
+  
+  "achievementNewHabitExercise": "New Habit: Exercise",
+  "@achievementNewHabitExercise": {
+    "description": "New exercise habit achievement"
+  },
+  
+  "achievementNewHabitExerciseDescription": "Record 5 days of exercise",
+  "@achievementNewHabitExerciseDescription": {
+    "description": "New exercise habit achievement description"
+  },
+  
+  "percentCompleted": "{percent}% completed",
+  "@percentCompleted": {
+    "description": "Percentage completed",
+    "placeholders": {
+      "percent": {
+        "type": "int",
+        "example": "33"
+      }
+    }
+  },
+  
   "appName": "NicotinaAI",
   "@appName": {
     "description": "Name of the application"
