@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:nicotinaai_flutter/core/theme/app_theme.dart';
 import 'package:nicotinaai_flutter/features/achievements/screens/achievements_screen.dart';
 import 'package:nicotinaai_flutter/features/home/screens/home_screen.dart';
 import 'package:nicotinaai_flutter/features/settings/screens/settings_screen.dart';
@@ -35,7 +36,31 @@ class _MainScreenState extends State<MainScreen> {
         index: _currentIndex,
         children: _screens,
       ),
-      bottomNavigationBar: BottomNavigationBar(
+      bottomNavigationBar: _buildBottomNavigationBar(context),
+    );
+  }
+  
+  Widget _buildBottomNavigationBar(BuildContext context) {
+    final isDark = context.isDarkMode;
+    
+    return Container(
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF121212) : Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 10,
+            offset: const Offset(0, -5),
+          ),
+        ],
+        border: Border(
+          top: BorderSide(
+            color: isDark ? const Color(0xFF333333) : Colors.grey[200]!,
+            width: 0.5,
+          ),
+        ),
+      ),
+      child: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: (index) {
           setState(() {
@@ -59,10 +84,20 @@ class _MainScreenState extends State<MainScreen> {
             label: 'Configurações',
           ),
         ],
-        selectedItemColor: Theme.of(context).primaryColor,
-        unselectedItemColor: Colors.grey,
+        backgroundColor: isDark ? const Color(0xFF121212) : Colors.white,
+        selectedItemColor: context.primaryColor,
+        unselectedItemColor: isDark ? Colors.grey[500] : Colors.grey[600],
+        selectedLabelStyle: TextStyle(
+          fontWeight: FontWeight.w600,
+          fontSize: 12,
+        ),
+        unselectedLabelStyle: TextStyle(
+          fontWeight: FontWeight.normal,
+          fontSize: 12,
+        ),
         showUnselectedLabels: true,
         type: BottomNavigationBarType.fixed,
+        elevation: 0,
       ),
     );
   }
