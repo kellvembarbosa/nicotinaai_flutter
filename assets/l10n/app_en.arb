@@ -5,6 +5,71 @@
   "@appName": {
     "description": "Name of the application"
   },
+  
+  "welcomeBack": "Welcome Back",
+  "@welcomeBack": {
+    "description": "Login screen title"
+  },
+  
+  "loginToContinue": "Log in to continue",
+  "@loginToContinue": {
+    "description": "Login screen subtitle"
+  },
+  
+  "email": "Email",
+  "@email": {
+    "description": "Email field label"
+  },
+  
+  "emailHint": "example@email.com",
+  "@emailHint": {
+    "description": "Example text for email field"
+  },
+  
+  "password": "Password",
+  "@password": {
+    "description": "Password field label"
+  },
+  
+  "rememberMe": "Remember me",
+  "@rememberMe": {
+    "description": "Remember user option"
+  },
+  
+  "forgotPassword": "Forgot password",
+  "@forgotPassword": {
+    "description": "Link for password recovery"
+  },
+  
+  "login": "Login",
+  "@login": {
+    "description": "Login button"
+  },
+  
+  "noAccount": "Don't have an account?",
+  "@noAccount": {
+    "description": "Text for users without account"
+  },
+  
+  "register": "Register",
+  "@register": {
+    "description": "Link for account registration"
+  },
+  
+  "emailRequired": "Please enter your email",
+  "@emailRequired": {
+    "description": "Error message when email is empty"
+  },
+  
+  "emailInvalid": "Please enter a valid email",
+  "@emailInvalid": {
+    "description": "Error message when email is invalid"
+  },
+  
+  "passwordRequired": "Please enter your password",
+  "@passwordRequired": {
+    "description": "Error message when password is empty"
+  },
 
   "settings": "Settings",
   "@settings": {
@@ -292,13 +357,13 @@
     "description": "Low consumption description"
   },
 
-  "6to15": "6 to 15 cigarettes per day",
-  "@6to15": {
+  "sixTo15": "6 to 15 cigarettes per day",
+  "@sixTo15": {
     "description": "Moderate consumption description"
   },
 
-  "16to25": "16 to 25 cigarettes per day",
-  "@16to25": {
+  "sixteenTo25": "16 to 25 cigarettes per day",
+  "@sixteenTo25": {
     "description": "High consumption description"
   },
 

@@ -5,6 +5,71 @@
   "@appName": {
     "description": "Nome do aplicativo"
   },
+  
+  "welcomeBack": "Bem-vindo de volta",
+  "@welcomeBack": {
+    "description": "Título da tela de login"
+  },
+  
+  "loginToContinue": "Faça login para continuar",
+  "@loginToContinue": {
+    "description": "Subtítulo da tela de login"
+  },
+  
+  "email": "E-mail",
+  "@email": {
+    "description": "Rótulo do campo de e-mail"
+  },
+  
+  "emailHint": "exemplo@email.com",
+  "@emailHint": {
+    "description": "Texto de exemplo para o campo de e-mail"
+  },
+  
+  "password": "Senha",
+  "@password": {
+    "description": "Rótulo do campo de senha"
+  },
+  
+  "rememberMe": "Lembrar-me",
+  "@rememberMe": {
+    "description": "Opção para lembrar usuário"
+  },
+  
+  "forgotPassword": "Esqueci a senha",
+  "@forgotPassword": {
+    "description": "Link para recuperação de senha"
+  },
+  
+  "login": "Entrar",
+  "@login": {
+    "description": "Botão de login"
+  },
+  
+  "noAccount": "Não tem uma conta?",
+  "@noAccount": {
+    "description": "Texto para usuários sem conta"
+  },
+  
+  "register": "Registre-se",
+  "@register": {
+    "description": "Link para registro de conta"
+  },
+  
+  "emailRequired": "Por favor, insira seu e-mail",
+  "@emailRequired": {
+    "description": "Mensagem de erro quando email está vazio"
+  },
+  
+  "emailInvalid": "Por favor, insira um e-mail válido",
+  "@emailInvalid": {
+    "description": "Mensagem de erro quando email é inválido"
+  },
+  
+  "passwordRequired": "Por favor, insira sua senha",
+  "@passwordRequired": {
+    "description": "Mensagem de erro quando senha está vazia"
+  },
 
   "settings": "Configurações",
   "@settings": {
@@ -292,13 +357,13 @@
     "description": "Descrição de consumo baixo"
   },
 
-  "6to15": "6 a 15 cigarros por dia",
-  "@6to15": {
+  "sixTo15": "6 a 15 cigarros por dia",
+  "@sixTo15": {
     "description": "Descrição de consumo moderado"
   },
 
-  "16to25": "16 a 25 cigarros por dia",
-  "@16to25": {
+  "sixteenTo25": "16 a 25 cigarros por dia",
+  "@sixteenTo25": {
     "description": "Descrição de consumo alto"
   },
 

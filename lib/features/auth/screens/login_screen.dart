@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:nicotinaai_flutter/features/auth/screens/register_screen.dart';
 import 'package:nicotinaai_flutter/features/auth/screens/forgot_password_screen.dart';
 import 'package:nicotinaai_flutter/features/main/screens/main_screen.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class LoginScreen extends StatefulWidget {
   static const String routeName = '/login';
@@ -65,6 +66,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
+    final localizations = AppLocalizations.of(context);
     
     return Scaffold(
       body: SafeArea(
@@ -81,7 +83,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     const FlutterLogo(size: 80),
                     const SizedBox(height: 24),
                     Text(
-                      'Bem-vindo de volta',
+                      localizations.welcomeBack,
                       style: GoogleFonts.poppins(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
@@ -90,7 +92,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Faça login para continuar',
+                      localizations.loginToContinue,
                       style: GoogleFonts.poppins(
                         fontSize: 16,
                         color: Colors.grey[600],
@@ -112,8 +114,8 @@ class _LoginScreenState extends State<LoginScreen> {
                         controller: _emailController,
                         keyboardType: TextInputType.emailAddress,
                         decoration: InputDecoration(
-                          labelText: 'E-mail',
-                          hintText: 'exemplo@email.com',
+                          labelText: localizations.email,
+                          hintText: localizations.emailHint,
                           prefixIcon: const Icon(Icons.email_outlined),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -121,10 +123,10 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Por favor, insira seu e-mail';
+                            return localizations.emailRequired;
                           }
                           if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
-                            return 'Por favor, insira um e-mail válido';
+                            return localizations.emailInvalid;
                           }
                           return null;
                         },
@@ -136,7 +138,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         controller: _passwordController,
                         obscureText: _obscurePassword,
                         decoration: InputDecoration(
-                          labelText: 'Senha',
+                          labelText: localizations.password,
                           prefixIcon: const Icon(Icons.lock_outline),
                           suffixIcon: IconButton(
                             icon: Icon(
@@ -156,7 +158,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Por favor, insira sua senha';
+                            return localizations.passwordRequired;
                           }
                           return null;
                         },
@@ -179,7 +181,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 },
                               ),
                               Text(
-                                'Lembrar-me',
+                                localizations.rememberMe,
                                 style: GoogleFonts.poppins(
                                   fontSize: 14,
                                 ),
@@ -191,7 +193,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           TextButton(
                             onPressed: _navigateToForgotPassword,
                             child: Text(
-                              'Esqueci a senha',
+                              localizations.forgotPassword,
                               style: GoogleFonts.poppins(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w500,
@@ -229,7 +231,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         child: authProvider.state.isLoading
                             ? const CircularProgressIndicator()
                             : Text(
-                                'Entrar',
+                                localizations.login,
                                 style: GoogleFonts.poppins(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,
@@ -244,7 +246,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            'Não tem uma conta?',
+                            localizations.noAccount,
                             style: GoogleFonts.poppins(
                               fontSize: 14,
                             ),
@@ -252,7 +254,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           TextButton(
                             onPressed: _navigateToRegister,
                             child: Text(
-                              'Registre-se',
+                              localizations.register,
                               style: GoogleFonts.poppins(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,
