@@ -13,8 +13,8 @@ class LocaleProvider extends ChangeNotifier {
 
   // Idiomas suportados pelo aplicativo
   List<Locale> get supportedLocales => const [
+        Locale('en', 'US'), // Inglês (EUA) - primeiro por ser o idioma padrão
         Locale('pt', 'BR'), // Português (Brasil)
-        Locale('en', 'US'), // Inglês (EUA)
       ];
 
   // Carrega o idioma salvo das preferências
@@ -28,7 +28,19 @@ class LocaleProvider extends ChangeNotifier {
         _locale = Locale(parts[0], parts[1]);
         notifyListeners();
       }
+    } else {
+      // Se não houver idioma salvo, definir inglês explicitamente e salvar
+      _locale = const Locale('en', 'US');
+      await prefs.setString(_localeKey, 'en_US');
     }
+  }
+  
+  // Limpa as preferências de idioma e redefine para inglês
+  Future<void> resetToDefaultLocale() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_localeKey);
+    _locale = const Locale('en', 'US');
+    notifyListeners();
   }
 
   // Altera o idioma do aplicativo

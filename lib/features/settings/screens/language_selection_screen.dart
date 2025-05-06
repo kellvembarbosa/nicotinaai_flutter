@@ -33,7 +33,17 @@ class LanguageSelectionScreen extends StatelessWidget {
               style: context.bodyStyle,
             ),
             
-            const SizedBox(height: 24),
+            const SizedBox(height: 16),
+            
+            // Botão para redefinir para inglês
+            ElevatedButton(
+              onPressed: () {
+                localeProvider.resetToDefaultLocale();
+              },
+              child: const Text("Reset to English (Default)"),
+            ),
+            
+            const SizedBox(height: 16),
             
             // Lista de idiomas disponíveis
             ...localeProvider.supportedLocales.map((locale) {

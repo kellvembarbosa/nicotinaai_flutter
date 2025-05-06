@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:nicotinaai_flutter/config/supabase_config.dart';
 import 'package:nicotinaai_flutter/core/routes/app_router.dart';
 import 'package:nicotinaai_flutter/core/theme/theme_provider.dart';
@@ -27,6 +28,10 @@ void main() async {
   
   // Inicializa o Supabase
   await SupabaseConfig.initialize();
+  
+  // Limpa a preferência de idioma para garantir que começa em inglês
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.remove('app_locale');
   
   // Cria os repositórios
   final authRepository = AuthRepository();
