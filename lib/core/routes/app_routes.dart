@@ -1,0 +1,52 @@
+/// Enum que define todas as rotas do aplicativo
+/// 
+/// Usar este enum para manter consistência nas rotas em todo o aplicativo
+/// ao invés de usar strings hardcoded.
+enum AppRoutes {
+  // Rotas de autenticação
+  login('/login'),
+  register('/register'),
+  forgotPassword('/forgot-password'),
+  
+  // Rota de onboarding
+  onboarding('/onboarding'),
+  
+  // Rota principal com tabs
+  main('/main'),
+  
+  // Rotas individuais para as tabs
+  home('/home'),
+  achievements('/achievements'),
+  settings('/settings'),
+  
+  // Outras rotas
+  profile('/profile'),
+  editProfile('/profile/edit'),
+  notifications('/notifications'),
+  privacyPolicy('/privacy-policy'),
+  termsOfService('/terms-of-service'),
+  about('/about');
+
+  /// Caminho da rota
+  final String path;
+  
+  /// Construtor
+  const AppRoutes(this.path);
+  
+  /// Obtém o caminho com parâmetros opcionais
+  String withParams({Map<String, String>? params}) {
+    if (params == null || params.isEmpty) {
+      return path;
+    }
+    
+    String result = path;
+    params.forEach((key, value) {
+      result = result.replaceAll(':$key', value);
+    });
+    
+    return result;
+  }
+  
+  @override
+  String toString() => path;
+}
