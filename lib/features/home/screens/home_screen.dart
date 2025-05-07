@@ -10,6 +10,7 @@ import 'package:nicotinaai_flutter/core/theme/theme_switch.dart';
 import 'package:nicotinaai_flutter/core/routes/app_routes.dart';
 import 'package:nicotinaai_flutter/features/auth/providers/auth_provider.dart';
 import 'package:nicotinaai_flutter/features/home/providers/craving_provider.dart';
+import 'package:nicotinaai_flutter/features/home/providers/smoking_record_provider.dart';
 import 'package:nicotinaai_flutter/features/home/widgets/new_record_sheet.dart';
 import 'package:nicotinaai_flutter/features/home/widgets/register_craving_sheet.dart';
 import 'package:nicotinaai_flutter/features/tracking/models/user_stats.dart';
@@ -64,7 +65,12 @@ class _HomeScreenState extends State<HomeScreen> {
     if (!mounted) return;
     
     // Evitar múltiplas chamadas simultâneas
-    if (_isUpdating) return;
+    if (_isUpdating) {
+      if (kDebugMode) {
+        print('🚫 Atualização já em andamento, ignorando chamada duplicada');
+      }
+      return;
+    }
     
     setState(() {
       _isUpdating = true;
@@ -72,68 +78,83 @@ class _HomeScreenState extends State<HomeScreen> {
     
     final trackingProvider = Provider.of<TrackingProvider>(context, listen: false);
     
-    // Load tracking data if needed
-    if (trackingProvider.state.isInitial) {
-      trackingProvider.initialize();
-    }
-    
-    // Get health recoveries
-    final userRecoveries = trackingProvider.state.userHealthRecoveries;
-    final allRecoveries = trackingProvider.state.healthRecoveries;
-    
-    // Map recovery IDs to their types
-    Map<String, String> recoveryTypeMap = {};
-    for (var recovery in allRecoveries) {
-      String type = '';
+    // Usamos um método simples de get sem força update
+    try {
+      // Get health recoveries
+      final userRecoveries = trackingProvider.state.userHealthRecoveries;
+      final allRecoveries = trackingProvider.state.healthRecoveries;
       
-      if (recovery.name.toLowerCase().contains('taste')) type = 'taste';
-      else if (recovery.name.toLowerCase().contains('smell')) type = 'smell';
-      else if (recovery.name.toLowerCase().contains('circulation')) type = 'circulation';
-      else if (recovery.name.toLowerCase().contains('lung') || 
-               recovery.name.toLowerCase().contains('breathing')) type = 'lungs';
-      else if (recovery.name.toLowerCase().contains('heart')) type = 'heart';
+      // Map recovery IDs to their types
+      Map<String, String> recoveryTypeMap = {};
+      for (var recovery in allRecoveries) {
+        String type = '';
+        
+        if (recovery.name.toLowerCase().contains('taste')) type = 'taste';
+        else if (recovery.name.toLowerCase().contains('smell')) type = 'smell';
+        else if (recovery.name.toLowerCase().contains('circulation')) type = 'circulation';
+        else if (recovery.name.toLowerCase().contains('lung') || 
+                 recovery.name.toLowerCase().contains('breathing')) type = 'lungs';
+        else if (recovery.name.toLowerCase().contains('heart')) type = 'heart';
+        
+        if (type.isNotEmpty) {
+          recoveryTypeMap[recovery.id] = type;
+        }
+      }
       
-      if (type.isNotEmpty) {
-        recoveryTypeMap[recovery.id] = type;
+      // Get list of recovery IDs user has achieved
+      final newUserRecoveryIds = userRecoveries.map((recovery) => recovery.recoveryId).toList();
+      
+      // Reset health status
+      final Map<String, bool> newHealthRecoveryStatus = {
+        'taste': false,
+        'smell': false,
+        'circulation': false,
+        'lungs': false,
+        'heart': false,
+      };
+      
+      // Update recovery status based on user's achievements
+      for (var recoveryId in newUserRecoveryIds) {
+        final type = recoveryTypeMap[recoveryId];
+        if (type != null && newHealthRecoveryStatus.containsKey(type)) {
+          newHealthRecoveryStatus[type] = true;
+        }
       }
-    }
-    
-    // Get list of recovery IDs user has achieved
-    final newUserRecoveryIds = userRecoveries.map((recovery) => recovery.recoveryId).toList();
-    
-    // Reset health status
-    final Map<String, bool> newHealthRecoveryStatus = {
-      'taste': false,
-      'smell': false,
-      'circulation': false,
-      'lungs': false,
-      'heart': false,
-    };
-    
-    // Update recovery status based on user's achievements
-    for (var recoveryId in newUserRecoveryIds) {
-      final type = recoveryTypeMap[recoveryId];
-      if (type != null && newHealthRecoveryStatus.containsKey(type)) {
-        newHealthRecoveryStatus[type] = true;
+      
+      // Update state variables from provider
+      if (mounted) {
+        // Obter estatísticas atualizadas diretamente do provider
+        final updatedStats = trackingProvider.state.userStats;
+        final updatedCravingsResisted = updatedStats?.cravingsResisted ?? 0;
+        final updatedDaysWithoutSmoking = updatedStats?.currentStreakDays ?? 0;
+        final updatedMoneySaved = updatedStats?.moneySaved ?? 0;
+        
+        setState(() {
+          _userRecoveryIds = newUserRecoveryIds;
+          _healthRecoveryStatus = newHealthRecoveryStatus;
+          _stats = updatedStats;
+          _daysWithoutSmoking = updatedDaysWithoutSmoking;
+          _minutesLifeGained = (_stats?.cigarettesAvoided ?? 0) * 6; // Each cigarette not smoked gives ~6 minutes
+          _breathCapacityPercent = _daysWithoutSmoking > 30 ? 40 : (_daysWithoutSmoking > 7 ? 20 : 10);
+          _cravingsResisted = updatedCravingsResisted;
+          _dailyMinutesGained = _daysWithoutSmoking == 0 ? 0 : _minutesLifeGained ~/ _daysWithoutSmoking;
+          _moneySavedInCents = updatedMoneySaved; // Money saved in cents
+          _isUpdating = false;
+        });
+      } else {
+        _isUpdating = false;
       }
-    }
-    
-    // Update state variables from provider
-    if (mounted) {
-      setState(() {
-        _userRecoveryIds = newUserRecoveryIds;
-        _healthRecoveryStatus = newHealthRecoveryStatus;
-        _stats = trackingProvider.state.userStats;
-        _daysWithoutSmoking = _stats?.currentStreakDays ?? 0;
-        _minutesLifeGained = (_stats?.cigarettesAvoided ?? 0) * 6; // Each cigarette not smoked gives ~6 minutes
-        _breathCapacityPercent = _daysWithoutSmoking > 30 ? 40 : (_daysWithoutSmoking > 7 ? 20 : 10);
-        _cravingsResisted = _stats?.cravingsResisted ?? 0;
-        _dailyMinutesGained = _daysWithoutSmoking == 0 ? 0 : _minutesLifeGained ~/ _daysWithoutSmoking;
-        _moneySavedInCents = _stats?.moneySaved ?? 0; // Money saved in cents
-        _isUpdating = false; // Marca como não mais atualizando
-      });
-    } else {
-      _isUpdating = false; // Caso não esteja montado, também precisamos resetar o flag
+    } catch (error) {
+      if (kDebugMode) {
+        print('❌ Erro ao atualizar dados: $error');
+      }
+      if (mounted) {
+        setState(() {
+          _isUpdating = false;
+        });
+      } else {
+        _isUpdating = false;
+      }
     }
   }
   
@@ -149,18 +170,30 @@ class _HomeScreenState extends State<HomeScreen> {
     final user = authProvider.currentUser;
     final l10n = AppLocalizations.of(context);
     
-    // Use Consumer para ouvir mudanças no TrackingProvider 
-    // sem causar problemas durante o build
-    return Consumer<TrackingProvider>(
-      builder: (_, trackingProvider, child) {
-        // Só acione o recarregamento uma vez quando os dados são carregados inicialmente
-        // ou quando há uma mudança real no número de conquistas para evitar chamadas em excesso
-        if (trackingProvider.state.isLoaded && 
-            (_userRecoveryIds.isEmpty || 
-             (trackingProvider.state.userHealthRecoveries.length != _userRecoveryIds.length && 
-              trackingProvider.state.userHealthRecoveries.isNotEmpty))) {
-          // Usar addPostFrameCallback para evitar mudanças durante o build
-          // e adicionar uma verificação para evitar múltiplas chamadas
+    // Use Selector em vez de Consumer para observar apenas mudanças específicas
+    // e evitar reconstruções e atualizações desnecessárias
+    return Selector<TrackingProvider, Map<String, dynamic>>(
+      // Seleciona apenas os dados específicos que interessam para esta tela
+      selector: (_, provider) => {
+        'userStats': provider.state.userStats,
+        'isLoaded': provider.state.isLoaded,
+        'healthRecoveriesCount': provider.state.userHealthRecoveries.length,
+        'cravingsResisted': provider.state.userStats?.cravingsResisted ?? 0,
+        'daysWithoutSmoking': provider.state.userStats?.currentStreakDays ?? 0,
+        'moneySaved': provider.state.userStats?.moneySaved ?? 0,
+      },
+      // Só reconstrua se algo relevante mudar
+      builder: (_, data, child) {
+        // Detecta eventos reais de mudança para atualizar
+        final bool shouldUpdate = data['isLoaded'] && (
+          _stats?.cravingsResisted != data['cravingsResisted'] || 
+          _stats?.currentStreakDays != data['daysWithoutSmoking'] ||
+          _stats?.moneySaved != data['moneySaved'] ||
+          (_userRecoveryIds.isEmpty && data['healthRecoveriesCount'] > 0)
+        );
+        
+        // Atualiza apenas quando há mudanças reais nos dados
+        if (shouldUpdate && !_isUpdating) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (mounted && !_isUpdating) {
               _loadData();
@@ -203,9 +236,22 @@ class _HomeScreenState extends State<HomeScreen> {
                           style: context.headlineStyle,
                         ),
                         const SizedBox(height: 4),
-                        Text(
-                          l10n.homeDaysWithoutSmoking(_daysWithoutSmoking),
-                          style: context.subtitleStyle,
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              l10n.homeDaysWithoutSmoking(_daysWithoutSmoking),
+                              style: context.subtitleStyle,
+                            ),
+                            if (_stats?.lastSmokeDate != null)
+                              Text(
+                                'Último: ${_formatLastSmokeDate(_stats!.lastSmokeDate!)}',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: context.subtitleColor.withOpacity(0.8),
+                                ),
+                              ),
+                          ],
                         ),
                       ],
                     ),
@@ -238,10 +284,15 @@ class _HomeScreenState extends State<HomeScreen> {
                         Colors.redAccent,
                         Icons.air,
                         () {
-                          RegisterCravingSheet.show(context).then((_) {
-                            // Force refresh after registering a craving
-                            debugPrint("🔄 Refreshing home data after craving registration");
-                            _loadData();
+                          RegisterCravingSheet.show(context).then((registered) {
+                            // Só atualiza se um craving foi realmente registrado
+                            if (registered) {
+                              if (kDebugMode) {
+                                print("🔄 Atualizando após registrar craving");
+                              }
+                              // Trigger immediate update
+                              _loadData();
+                            }
                           });
                         },
                       ),
@@ -255,10 +306,15 @@ class _HomeScreenState extends State<HomeScreen> {
                         Colors.blueAccent,
                         Icons.smoking_rooms,
                         () {
-                          NewRecordSheet.show(context).then((_) {
-                            // Force refresh after registering a smoking record
-                            debugPrint("🔄 Refreshing home data after smoking record registration");
-                            _loadData();
+                          NewRecordSheet.show(context).then((registered) {
+                            // Só atualiza se um record foi realmente registrado
+                            if (registered) {
+                              if (kDebugMode) {
+                                print("🔄 Atualizando após registrar cigarro");
+                              }
+                              // Trigger immediate update
+                              _loadData();
+                            }
                           });
                         },
                       ),
@@ -892,6 +948,53 @@ class _HomeScreenState extends State<HomeScreen> {
     
     final percentage = (days * 3).clamp(1, 30);
     return "$percentage%";
+  }
+  
+  // Formata a data do último cigarro de forma legível
+  String _formatLastSmokeDate(DateTime date) {
+    // Hoje
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    
+    // Data do último cigarro sem horário
+    final smokeDate = DateTime(date.year, date.month, date.day);
+    
+    // Diferença em dias
+    final difference = today.difference(smokeDate).inDays;
+    
+    if (difference == 0) {
+      // Se for hoje, mostrar "Hoje às HH:MM"
+      return 'Hoje às ${_formatTime(date)}';
+    } else if (difference == 1) {
+      // Se for ontem
+      return 'Ontem às ${_formatTime(date)}';
+    } else if (difference < 7) {
+      // Se for nos últimos 7 dias, mostrar o dia da semana
+      final weekday = _getDayOfWeek(date.weekday);
+      return '$weekday às ${_formatTime(date)}';
+    } else {
+      // Formato completo para datas mais antigas
+      return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year} às ${_formatTime(date)}';
+    }
+  }
+  
+  // Formata hora e minuto
+  String _formatTime(DateTime date) {
+    return '${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
+  }
+  
+  // Retorna o nome do dia da semana
+  String _getDayOfWeek(int weekday) {
+    switch (weekday) {
+      case 1: return 'Segunda';
+      case 2: return 'Terça';
+      case 3: return 'Quarta';
+      case 4: return 'Quinta';
+      case 5: return 'Sexta';
+      case 6: return 'Sábado';
+      case 7: return 'Domingo';
+      default: return '';
+    }
   }
   
   // Constrói um card motivacional quando não há conquistas

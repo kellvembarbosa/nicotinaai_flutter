@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:nicotinaai_flutter/features/tracking/models/craving.dart';
 import 'package:nicotinaai_flutter/features/tracking/models/health_recovery.dart';
 import 'package:nicotinaai_flutter/features/tracking/models/smoking_log.dart';
@@ -481,21 +482,31 @@ class TrackingProvider extends ChangeNotifier {
   /// Force update stats immediately after a craving or record is added
   /// This can be called from other providers to ensure stats are updated
   Future<void> forceUpdateStats() async {
-    debugPrint('🔄 [TrackingProvider] Forcing stats update...');
+    if (kDebugMode) {
+      print('🔄 [TrackingProvider] Forcing stats update...');
+    }
+    
     try {
-      // Update stats on the server without UI changes
+      // Atualiza os dados no servidor
       await _repository.updateUserStats();
       
-      // Load updated stats
+      // Carrega as estatísticas atualizadas
       await _loadUserStats();
       
-      // Also refresh cravings since that's often what changed
+      // Também atualiza os cravings, que geralmente mudaram
       await _loadCravings();
       
-      debugPrint('✅ [TrackingProvider] Stats updated successfully');
+      if (kDebugMode) {
+        print('✅ [TrackingProvider] Stats updated successfully');
+      }
+      
+      // Única notificação após carregar todos os dados
+      notifyListeners();
     } catch (e) {
-      debugPrint('❌ [TrackingProvider] Error forcing stats update: $e');
-    } finally {
+      if (kDebugMode) {
+        print('❌ [TrackingProvider] Error forcing stats update: $e');
+      }
+      // Mesmo em caso de erro, garantir que a UI seja atualizada
       notifyListeners();
     }
   }

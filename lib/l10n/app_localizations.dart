@@ -416,7 +416,7 @@ abstract class AppLocalizations {
   /// Unlocked achievements label
   ///
   /// In en, this message translates to:
-  /// **'Unlocked'**
+  /// **'Achievement Unlocked!'**
   String get achievementUnlocked;
 
   /// In progress achievements label
@@ -2092,6 +2092,108 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Common pack prices'**
   String get commonPrices;
+
+  /// No description provided for @refresh.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh'**
+  String get refresh;
+
+  /// No description provided for @errorLoadingNotifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Error loading notifications'**
+  String get errorLoadingNotifications;
+
+  /// No description provided for @noNotificationsYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No notifications yet!'**
+  String get noNotificationsYet;
+
+  /// No description provided for @emptyNotificationsDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue using the app to receive motivational messages and achievements.'**
+  String get emptyNotificationsDescription;
+
+  /// No description provided for @motivationalMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Motivational Message'**
+  String get motivationalMessage;
+
+  /// No description provided for @claimReward.
+  ///
+  /// In en, this message translates to:
+  /// **'Claim {xp} XP'**
+  String claimReward(int xp);
+
+  /// No description provided for @rewardClaimed.
+  ///
+  /// In en, this message translates to:
+  /// **'Reward claimed: {xp} XP'**
+  String rewardClaimed(int xp);
+
+  /// No description provided for @dailyMotivation.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily Motivation'**
+  String get dailyMotivation;
+
+  /// No description provided for @dailyMotivationDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Your personalized daily motivation is here. Open to get your XP reward!'**
+  String get dailyMotivationDescription;
+
+  /// Retry button text for failed operations
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get retry;
+
+  /// Success message when a resisted craving is recorded
+  ///
+  /// In en, this message translates to:
+  /// **'Craving resisted successfully recorded!'**
+  String get cravingResistedRecorded;
+
+  /// Success message when a craving is recorded
+  ///
+  /// In en, this message translates to:
+  /// **'Craving successfully recorded!'**
+  String get cravingRecorded;
+
+  /// Error message when saving craving fails
+  ///
+  /// In en, this message translates to:
+  /// **'Error saving craving. Tap to retry.'**
+  String get errorSavingCraving;
+
+  /// Success message when a smoking record is saved
+  ///
+  /// In en, this message translates to:
+  /// **'Record successfully saved!'**
+  String get recordSaved;
+
+  /// Tooltip text for retry button
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to retry'**
+  String get tapToRetry;
+
+  /// Tooltip text for sync error status
+  ///
+  /// In en, this message translates to:
+  /// **'Sync error'**
+  String get syncError;
+
+  /// Text shown while loading content
+  ///
+  /// In en, this message translates to:
+  /// **'Loading...'**
+  String get loading;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

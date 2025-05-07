@@ -3,7 +3,6 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:nicotinaai_flutter/features/auth/models/user_model.dart';
-import 'package:nicotinaai_flutter/utils/supported_currencies.dart';
 
 /// Classe utilitária para formatação e manipulação de valores monetários
 class CurrencyUtils {

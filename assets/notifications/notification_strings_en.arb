@@ -1,0 +1,26 @@
+{
+  "refresh": "Refresh",
+  "errorLoadingNotifications": "Error loading notifications",
+  "noNotificationsYet": "No notifications yet!",
+  "emptyNotificationsDescription": "Continue using the app to receive motivational messages and achievements.",
+  "motivationalMessage": "Motivational Message",
+  "achievementUnlocked": "Achievement Unlocked!",
+  "claimReward": "Claim {xp} XP",
+  "@claimReward": {
+    "placeholders": {
+      "xp": {
+        "type": "int"
+      }
+    }
+  },
+  "rewardClaimed": "Reward claimed: {xp} XP",
+  "@rewardClaimed": {
+    "placeholders": {
+      "xp": {
+        "type": "int"
+      }
+    }
+  },
+  "dailyMotivation": "Daily Motivation",
+  "dailyMotivationDescription": "Your personalized daily motivation is here. Open to get your XP reward!"
+}

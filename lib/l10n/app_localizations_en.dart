@@ -174,7 +174,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get achievementCategoryHabits => 'Habits';
 
   @override
-  String get achievementUnlocked => 'Unlocked';
+  String get achievementUnlocked => 'Achievement Unlocked!';
 
   @override
   String get achievementInProgress => 'In progress';
@@ -1032,4 +1032,59 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get commonPrices => 'Common pack prices';
+
+  @override
+  String get refresh => 'Refresh';
+
+  @override
+  String get errorLoadingNotifications => 'Error loading notifications';
+
+  @override
+  String get noNotificationsYet => 'No notifications yet!';
+
+  @override
+  String get emptyNotificationsDescription => 'Continue using the app to receive motivational messages and achievements.';
+
+  @override
+  String get motivationalMessage => 'Motivational Message';
+
+  @override
+  String claimReward(int xp) {
+    return 'Claim $xp XP';
+  }
+
+  @override
+  String rewardClaimed(int xp) {
+    return 'Reward claimed: $xp XP';
+  }
+
+  @override
+  String get dailyMotivation => 'Daily Motivation';
+
+  @override
+  String get dailyMotivationDescription => 'Your personalized daily motivation is here. Open to get your XP reward!';
+
+  @override
+  String get retry => 'Retry';
+
+  @override
+  String get cravingResistedRecorded => 'Craving resisted successfully recorded!';
+
+  @override
+  String get cravingRecorded => 'Craving successfully recorded!';
+
+  @override
+  String get errorSavingCraving => 'Error saving craving. Tap to retry.';
+
+  @override
+  String get recordSaved => 'Record successfully saved!';
+
+  @override
+  String get tapToRetry => 'Tap to retry';
+
+  @override
+  String get syncError => 'Sync error';
+
+  @override
+  String get loading => 'Loading...';
 }

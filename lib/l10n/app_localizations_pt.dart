@@ -174,7 +174,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get achievementCategoryHabits => 'Hábitos';
 
   @override
-  String get achievementUnlocked => 'Desbloqueado';
+  String get achievementUnlocked => 'Conquista Desbloqueada!';
 
   @override
   String get achievementInProgress => 'Em progresso';
@@ -1032,4 +1032,59 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get commonPrices => 'Preços comuns de maço';
+
+  @override
+  String get refresh => 'Atualizar';
+
+  @override
+  String get errorLoadingNotifications => 'Erro ao carregar notificações';
+
+  @override
+  String get noNotificationsYet => 'Nenhuma notificação ainda!';
+
+  @override
+  String get emptyNotificationsDescription => 'Continue usando o app para receber mensagens motivacionais e conquistas.';
+
+  @override
+  String get motivationalMessage => 'Mensagem Motivacional';
+
+  @override
+  String claimReward(int xp) {
+    return 'Ganhar $xp XP';
+  }
+
+  @override
+  String rewardClaimed(int xp) {
+    return 'Recompensa recebida: $xp XP';
+  }
+
+  @override
+  String get dailyMotivation => 'Motivação Diária';
+
+  @override
+  String get dailyMotivationDescription => 'Sua motivação personalizada diária chegou. Abra para ganhar sua recompensa em XP!';
+
+  @override
+  String get retry => 'Tentar novamente';
+
+  @override
+  String get cravingResistedRecorded => 'Resistência à fissura registrada com sucesso!';
+
+  @override
+  String get cravingRecorded => 'Fissura registrada com sucesso!';
+
+  @override
+  String get errorSavingCraving => 'Erro ao salvar fissura. Toque para tentar novamente.';
+
+  @override
+  String get recordSaved => 'Registro salvo com sucesso!';
+
+  @override
+  String get tapToRetry => 'Toque para tentar novamente';
+
+  @override
+  String get syncError => 'Erro de sincronização';
+
+  @override
+  String get loading => 'Carregando...';
 }

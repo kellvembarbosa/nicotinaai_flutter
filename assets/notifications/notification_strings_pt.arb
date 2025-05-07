@@ -1,0 +1,26 @@
+{
+  "refresh": "Atualizar",
+  "errorLoadingNotifications": "Erro ao carregar notificações",
+  "noNotificationsYet": "Nenhuma notificação ainda!",
+  "emptyNotificationsDescription": "Continue usando o app para receber mensagens motivacionais e conquistas.",
+  "motivationalMessage": "Mensagem Motivacional",
+  "achievementUnlocked": "Conquista Desbloqueada!",
+  "claimReward": "Ganhar {xp} XP",
+  "@claimReward": {
+    "placeholders": {
+      "xp": {
+        "type": "int"
+      }
+    }
+  },
+  "rewardClaimed": "Recompensa recebida: {xp} XP",
+  "@rewardClaimed": {
+    "placeholders": {
+      "xp": {
+        "type": "int"
+      }
+    }
+  },
+  "dailyMotivation": "Motivação Diária",
+  "dailyMotivationDescription": "Sua motivação personalizada diária chegou. Abra para ganhar sua recompensa em XP!"
+}

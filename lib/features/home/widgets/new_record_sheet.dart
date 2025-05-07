@@ -9,13 +9,15 @@ import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
 class NewRecordSheet extends StatefulWidget {
   const NewRecordSheet({super.key});
 
-  static Future<void> show(BuildContext context) {
-    return showModalBottomSheet(
+  static Future<bool> show(BuildContext context) async {
+    final result = await showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) => const NewRecordSheet(),
     );
+    // Retorna true se um record foi registrado com sucesso
+    return result ?? false;
   }
 
   @override
@@ -484,6 +486,7 @@ class _NewRecordSheetState extends State<NewRecordSheet> {
     
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final recordProvider = Provider.of<SmokingRecordProvider>(context, listen: false);
+    final trackingProvider = Provider.of<TrackingProvider>(context, listen: false);
     final l10n = AppLocalizations.of(context);
     
     final userId = authProvider.currentUser?.id ?? '';
@@ -509,31 +512,48 @@ class _NewRecordSheetState extends State<NewRecordSheet> {
     // Store current context's scaffold messenger
     final scaffoldMessenger = ScaffoldMessenger.of(context);
     
-    // Close the sheet immediately for better UX
-    Navigator.of(context).pop();
+    // Close the sheet immediately for better UX with success result
+    Navigator.of(context).pop(true);
     
-    // Optimistically update the UI and save in the background
-    await recordProvider.saveRecord(record);
-    
-    // Show a success snackbar using the stored scaffold messenger
-    // This avoids the mounted check which can cause issues
-    scaffoldMessenger.showSnackBar(
-      SnackBar(
-        content: Text(successMessage),
-        backgroundColor: Colors.blue,
-        duration: const Duration(seconds: 3),
-        action: recordProvider.error != null ? SnackBarAction(
-          label: retryLabel,
-          onPressed: () {
-            // Find the failed record and retry
-            final failedRecord = recordProvider.failedRecords.firstOrNull;
-            if (failedRecord != null) {
-              recordProvider.retrySyncRecord(failedRecord.id!);
-            }
-          },
-        ) : null,
-      ),
-    );
+    try {
+      // Optimistically update the UI and save in the background
+      await recordProvider.saveRecord(record);
+      
+      // Força a atualização das estatísticas no TrackingProvider
+      await trackingProvider.forceUpdateStats();
+      
+      // Show a success snackbar using the stored scaffold messenger
+      // This avoids the mounted check which can cause issues
+      scaffoldMessenger.showSnackBar(
+        SnackBar(
+          content: Text(successMessage),
+          backgroundColor: Colors.blue,
+          duration: const Duration(seconds: 3),
+          action: recordProvider.error != null ? SnackBarAction(
+            label: retryLabel,
+            onPressed: () {
+              // Find the failed record and retry
+              final failedRecord = recordProvider.failedRecords.firstOrNull;
+              if (failedRecord != null) {
+                recordProvider.retrySyncRecord(failedRecord.id!);
+              }
+            },
+          ) : null,
+        ),
+      );
+    } catch (e) {
+      if (kDebugMode) {
+        print('❌ Error saving record: $e');
+      }
+      // Show error message
+      scaffoldMessenger.showSnackBar(
+        SnackBar(
+          content: Text('Error: ${e.toString()}'),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 3),
+        ),
+      );
+    }
   }
 }
 

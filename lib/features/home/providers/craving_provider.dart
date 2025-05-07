@@ -92,13 +92,22 @@ class CravingProvider extends ChangeNotifier {
       // This ensures the cravings count gets updated
       try {
         debugPrint('Refreshing tracking stats after saving craving...');
+        
+        // Método direto para forçar atualização de estatísticas
         final trackingProvider = await _getTrackingProvider();
         if (trackingProvider != null) {
-          await trackingProvider.refreshUserStats();
-          debugPrint('Tracking stats refreshed successfully');
+          debugPrint('🔥 Forcing immediate stats update with forceUpdateStats()');
+          await trackingProvider.forceUpdateStats();
+          debugPrint('✅ Stats updated successfully with forceUpdateStats()');
+        } else {
+          debugPrint('⚠️ TrackingProvider not available, stats refresh may be delayed');
+          // Trigger a notification to ensure UI updates
+          Future.microtask(() => notifyListeners());
         }
       } catch (statsError) {
         debugPrint('Error refreshing stats: $statsError');
+        // Fallback to ensure refresh
+        Future.microtask(() => notifyListeners());
       }
     } catch (e) {
       debugPrint('Error saving craving: $e');
@@ -137,7 +146,6 @@ class CravingProvider extends ChangeNotifier {
       debugPrint('Error getting tracking provider: $e');
       return null;
     }
-  }
   }
   
   // Retry failed cravings
@@ -200,7 +208,9 @@ class CravingProvider extends ChangeNotifier {
     final pendingItems = [...pendingCravings, ...failedCravings];
     
     for (final craving in pendingItems) {
-      await retrySyncCraving(craving.id!);
+      if (craving.id != null) {
+        await retrySyncCraving(craving.id!);
+      }
     }
   }
   

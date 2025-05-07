@@ -1,6 +1,4 @@
-import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:nicotinaai_flutter/core/constants/app_constants.dart';
 
 /// Serviço para gerenciar o armazenamento seguro de dados na aplicação
 /// Nota: A sessão de autenticação é gerenciada automaticamente pelo Supabase

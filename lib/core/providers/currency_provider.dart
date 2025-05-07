@@ -1,7 +1,6 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:nicotinaai_flutter/features/auth/models/user_model.dart';
 import 'package:nicotinaai_flutter/features/auth/providers/auth_provider.dart';
 import 'package:nicotinaai_flutter/utils/currency_utils.dart';
 import 'package:nicotinaai_flutter/utils/supported_currencies.dart';
@@ -36,9 +35,7 @@ class CurrencyProvider extends ChangeNotifier {
       }
       
       // Se não, tenta detectar a moeda do dispositivo
-      if (_currentCurrency == null) {
-        _currentCurrency = _detectDeviceCurrency();
-      }
+      _currentCurrency ??= _detectDeviceCurrency();
     } else {
       // Se não estiver autenticado, usa a moeda do dispositivo
       _currentCurrency = _detectDeviceCurrency();

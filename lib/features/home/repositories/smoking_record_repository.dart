@@ -5,13 +5,37 @@ class SmokingRecordRepository {
   static const String _tableName = 'smoking_records';
   
   Future<SmokingRecordModel> saveRecord(SmokingRecordModel record) async {
-    final response = await SupabaseConfig.client
-        .from(_tableName)
-        .insert(record.toJson())
-        .select()
-        .single();
+    // If we have an ID, we're updating an existing record
+    if (record.id != null && !record.id!.startsWith('temp_')) {
+      final response = await SupabaseConfig.client
+          .from(_tableName)
+          .update(record.toJson())
+          .eq('id', record.id!)
+          .select()
+          .single();
+      
+      return SmokingRecordModel.fromJson(response);
+    } 
+    // Otherwise, we're creating a new record
+    else {
+      final response = await SupabaseConfig.client
+          .from(_tableName)
+          .insert(record.toJson())
+          .select()
+          .single();
+      
+      return SmokingRecordModel.fromJson(response);
+    }
+  }
+  
+  Future<void> deleteRecord(String id) async {
+    // Don't try to delete temporary IDs from the server
+    if (id.startsWith('temp_')) return;
     
-    return SmokingRecordModel.fromJson(response);
+    await SupabaseConfig.client
+        .from(_tableName)
+        .delete()
+        .eq('id', id);
   }
   
   Future<List<SmokingRecordModel>> getRecordsForUser(String userId) async {

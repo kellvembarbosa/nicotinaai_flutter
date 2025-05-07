@@ -9,13 +9,15 @@ import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
 class RegisterCravingSheet extends StatefulWidget {
   const RegisterCravingSheet({super.key});
 
-  static Future<void> show(BuildContext context) {
-    return showModalBottomSheet(
+  static Future<bool> show(BuildContext context) async {
+    final result = await showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) => const RegisterCravingSheet(),
     );
+    // Retorna true se um craving foi registrado com sucesso
+    return result ?? false;
   }
 
   @override
@@ -684,6 +686,7 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
     
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final cravingProvider = Provider.of<CravingProvider>(context, listen: false);
+    final trackingProvider = Provider.of<TrackingProvider>(context, listen: false);
     final l10n = AppLocalizations.of(context);
     
     final userId = authProvider.currentUser?.id ?? '';
@@ -726,12 +729,15 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
     // Store current context's scaffold messenger
     final scaffoldMessenger = ScaffoldMessenger.of(context);
     
-    // Close the sheet immediately for better UX
-    Navigator.of(context).pop();
+    // Close the sheet immediately for better UX with success result
+    Navigator.of(context).pop(true);
     
     try {
       // Optimistically update the UI and save in the background
       await cravingProvider.saveCraving(craving);
+      
+      // Força a atualização das estatísticas no TrackingProvider
+      await trackingProvider.forceUpdateStats();
       
       // Show a success snackbar
       scaffoldMessenger.showSnackBar(
