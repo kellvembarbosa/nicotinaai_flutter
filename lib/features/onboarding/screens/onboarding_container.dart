@@ -230,39 +230,72 @@ class _OnboardingContainerState extends State<OnboardingContainer> {
   }
   
   Widget _buildNavigationRow(BuildContext context, OnboardingProvider onboardingProvider) {
+    // Se não tiver botão voltar, exibe apenas o botão próximo com largura completa
+    if (!widget.showBackButton) {
+      return SizedBox(
+        width: double.infinity,
+        child: ElevatedButton(
+          onPressed: widget.canProceed ? widget.onNext : null,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: context.primaryColor,
+            foregroundColor: Colors.white,
+            disabledBackgroundColor: context.primaryColor.withOpacity(0.4),
+            disabledForegroundColor: Colors.white.withOpacity(0.8),
+            elevation: 0,
+            padding: const EdgeInsets.symmetric(
+              horizontal: 24,
+              vertical: 14,
+            ),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                widget.nextButtonText ?? AppLocalizations.of(context).continueButton,
+                style: const TextStyle(fontWeight: FontWeight.w600),
+              ),
+              const SizedBox(width: 8),
+              const Icon(Icons.arrow_forward, size: 18),
+            ],
+          ),
+        ),
+      );
+    }
+    
+    // Layout padrão com dois botões
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         // Botão voltar
-        if (widget.showBackButton)
-          OutlinedButton(
-            onPressed: () {
-              onboardingProvider.previousStep();
-            },
-            style: OutlinedButton.styleFrom(
-              side: BorderSide(color: context.borderColor),
-              foregroundColor: context.contentColor,
-              padding: const EdgeInsets.symmetric(
-                horizontal: 20,
-                vertical: 14,
-              ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
+        OutlinedButton(
+          onPressed: () {
+            onboardingProvider.previousStep();
+          },
+          style: OutlinedButton.styleFrom(
+            side: BorderSide(color: context.borderColor),
+            foregroundColor: context.contentColor,
+            padding: const EdgeInsets.symmetric(
+              horizontal: 20,
+              vertical: 14,
             ),
-            child: Row(
-              children: [
-                const Icon(Icons.arrow_back, size: 18),
-                const SizedBox(width: 8),
-                Text(
-                  AppLocalizations.of(context).back,
-                  style: const TextStyle(fontWeight: FontWeight.w500),
-                ),
-              ],
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
             ),
-          )
-        else
-          const SizedBox(width: 100), // Espaço reservado quando não há botão voltar
+          ),
+          child: Row(
+            children: [
+              const Icon(Icons.arrow_back, size: 18),
+              const SizedBox(width: 8),
+              Text(
+                AppLocalizations.of(context).back,
+                style: const TextStyle(fontWeight: FontWeight.w500),
+              ),
+            ],
+          ),
+        ),
         
         // Botão próximo
         ElevatedButton(
