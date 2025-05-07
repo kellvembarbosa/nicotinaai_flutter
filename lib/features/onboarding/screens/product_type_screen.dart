@@ -41,6 +41,7 @@ class _ProductTypeScreenState extends State<ProductTypeScreen> {
     return OnboardingContainer(
       title: localizations.productTypeQuestion,
       subtitle: localizations.selectApplicable,
+      contentType: OnboardingContentType.regular,
       content: Column(
         children: [
           Padding(

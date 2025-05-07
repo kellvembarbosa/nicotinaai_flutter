@@ -46,6 +46,7 @@ class _PersonalizeScreenState extends State<PersonalizeScreen> {
     return OnboardingContainer(
       title: localizations.personalizeScreenTitle,
       subtitle: localizations.personalizeScreenSubtitle,
+      contentType: OnboardingContentType.scrollable,
       content: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

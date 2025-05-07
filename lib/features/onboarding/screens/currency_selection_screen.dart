@@ -1,0 +1,273 @@
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:nicotinaai_flutter/core/theme/app_theme.dart';
+import 'package:nicotinaai_flutter/features/onboarding/providers/onboarding_provider.dart';
+import 'package:nicotinaai_flutter/features/onboarding/screens/onboarding_container.dart';
+import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
+import 'package:nicotinaai_flutter/utils/supported_currencies.dart';
+import 'package:flutter/services.dart';
+
+class CurrencySelectionScreen extends StatefulWidget {
+  const CurrencySelectionScreen({Key? key}) : super(key: key);
+
+  @override
+  State<CurrencySelectionScreen> createState() => _CurrencySelectionScreenState();
+}
+
+class _CurrencySelectionScreenState extends State<CurrencySelectionScreen> {
+  String? _selectedCurrency;
+  final _searchController = TextEditingController();
+  String _searchQuery = '';
+  bool _isSearching = false;
+  
+  @override
+  void initState() {
+    super.initState();
+    final provider = Provider.of<OnboardingProvider>(context, listen: false);
+    final currentOnboarding = provider.state.onboarding;
+    
+    // Inicializa com a moeda já salva ou usa a moeda padrão
+    _selectedCurrency = currentOnboarding?.packPriceCurrency ?? SupportedCurrencies.defaultCurrency.code;
+  }
+  
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+  
+  void _toggleSearch() {
+    setState(() {
+      _isSearching = !_isSearching;
+      if (!_isSearching) {
+        _searchQuery = '';
+        _searchController.clear();
+      } else {
+        // Dar foco ao campo de busca quando ativar
+        Future.delayed(Duration.zero, () {
+          FocusScope.of(context).requestFocus(FocusNode());
+        });
+      }
+    });
+  }
+  
+  List<CurrencyInfo> _getFilteredCurrencies() {
+    if (_searchQuery.isEmpty) {
+      return SupportedCurrencies.all;
+    }
+    
+    return SupportedCurrencies.all.where((currency) {
+      return currency.name.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+             currency.code.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+             currency.symbol.toLowerCase().contains(_searchQuery.toLowerCase());
+    }).toList();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final provider = Provider.of<OnboardingProvider>(context);
+    final currentOnboarding = provider.state.onboarding;
+    final localizations = AppLocalizations.of(context);
+    
+    if (currentOnboarding == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    
+    final filteredCurrencies = _getFilteredCurrencies();
+    
+    return OnboardingContainer(
+      title: localizations.selectCurrency,
+      subtitle: localizations.selectCurrencySubtitle,
+      contentType: OnboardingContentType.list,
+      content: Column(
+        children: [
+          // Barra de busca
+          if (_isSearching)
+            Container(
+              margin: const EdgeInsets.symmetric(vertical: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              decoration: BoxDecoration(
+                color: context.cardColor,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: Colors.grey[300]!,
+                  width: 1.5,
+                ),
+              ),
+              child: TextField(
+                controller: _searchController,
+                onChanged: (value) {
+                  setState(() {
+                    _searchQuery = value;
+                  });
+                },
+                decoration: InputDecoration(
+                  hintText: localizations.search,
+                  border: InputBorder.none,
+                  prefixIcon: const Icon(Icons.search),
+                  suffixIcon: IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: _toggleSearch,
+                  ),
+                ),
+              ),
+            ),
+            
+          // Opção para pesquisar
+          if (!_isSearching)
+            Align(
+              alignment: Alignment.centerRight,
+              child: IconButton(
+                icon: const Icon(Icons.search),
+                onPressed: _toggleSearch,
+                tooltip: localizations.search,
+              ),
+            ),
+            
+          const SizedBox(height: 8),
+          
+          // Texto informativo
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Text(
+              localizations.preselectedCurrency,
+              style: const TextStyle(
+                fontSize: 14,
+                fontStyle: FontStyle.italic,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          
+          const SizedBox(height: 16),
+          
+          // Lista de moedas - Agora podemos usar Expanded sem problemas
+          if (filteredCurrencies.isEmpty)
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Text(
+                  localizations.noResults,
+                  style: context.textTheme.titleMedium,
+                ),
+              ),
+            )
+          else
+            Expanded(
+              child: ListView.builder(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                itemCount: filteredCurrencies.length,
+                itemBuilder: (context, index) {
+                  final currency = filteredCurrencies[index];
+                  final isSelected = currency.code == _selectedCurrency;
+                  
+                  return Card(
+                    elevation: isSelected ? 2 : 0,
+                    margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      side: BorderSide(
+                        color: isSelected 
+                            ? context.primaryColor 
+                            : Colors.grey.withOpacity(0.3),
+                        width: isSelected ? 2 : 1,
+                      ),
+                    ),
+                    child: InkWell(
+                      onTap: () {
+                        setState(() {
+                          _selectedCurrency = currency.code;
+                          // Dar feedback tátil ao selecionar
+                          HapticFeedback.selectionClick();
+                        });
+                      },
+                      borderRadius: BorderRadius.circular(12),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Row(
+                          children: [
+                            // Símbolo da moeda em destaque
+                            Container(
+                              width: 48,
+                              height: 48,
+                              decoration: BoxDecoration(
+                                color: context.primaryColor.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Center(
+                                child: Text(
+                                  currency.symbol,
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                    color: context.primaryColor,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            
+                            const SizedBox(width: 16),
+                            
+                            // Informações da moeda
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    currency.name,
+                                    style: context.textTheme.titleMedium?.copyWith(
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  Text(
+                                    currency.code,
+                                    style: context.textTheme.bodyMedium?.copyWith(
+                                      color: Colors.grey[600],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            
+                            // Ícone de selecionado
+                            if (isSelected)
+                              Icon(
+                                Icons.check_circle,
+                                color: context.primaryColor,
+                                size: 28,
+                              )
+                            else
+                              const SizedBox(width: 28),
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+        ],
+      ),
+      onNext: () {
+        if (_selectedCurrency != null) {
+          final currencyInfo = SupportedCurrencies.getByCurrencyCode(_selectedCurrency!);
+          if (currencyInfo != null) {
+            final updated = currentOnboarding.copyWith(
+              packPriceCurrency: currencyInfo.code,
+              additionalData: {
+                ...currentOnboarding.additionalData,
+                'currency_symbol': currencyInfo.symbol,
+                'currency_locale': currencyInfo.locale,
+              },
+            );
+            
+            provider.updateOnboarding(updated).then((_) {
+              provider.nextStep();
+            });
+          }
+        }
+      },
+      canProceed: _selectedCurrency != null,
+    );
+  }
+}

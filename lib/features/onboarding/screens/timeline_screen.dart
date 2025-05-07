@@ -46,6 +46,7 @@ class _TimelineScreenState extends State<TimelineScreen> {
     return OnboardingContainer(
       title: timelineQuestion,
       subtitle: localizations.establishDeadline,
+      contentType: OnboardingContentType.regular,
       content: Column(
         children: [
           Padding(
