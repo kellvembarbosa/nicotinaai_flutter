@@ -242,11 +242,10 @@ class _OnboardingContainerState extends State<OnboardingContainer> {
       );
     }
     
-    // Layout padrão com dois botões
+    // Layout com botão de voltar menor e botão de continuar expandido
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        // Botão voltar
+        // Botão voltar (compacto)
         OutlinedButton(
           onPressed: () {
             onboardingProvider.previousStep();
@@ -255,7 +254,7 @@ class _OnboardingContainerState extends State<OnboardingContainer> {
             side: BorderSide(color: context.borderColor),
             foregroundColor: context.contentColor,
             padding: const EdgeInsets.symmetric(
-              horizontal: 20,
+              horizontal: 16,
               vertical: 14,
             ),
             shape: RoundedRectangleBorder(
@@ -263,6 +262,7 @@ class _OnboardingContainerState extends State<OnboardingContainer> {
             ),
           ),
           child: Row(
+            mainAxisSize: MainAxisSize.min,
             children: [
               const Icon(Icons.arrow_back, size: 18),
               const SizedBox(width: 8),
@@ -274,32 +274,38 @@ class _OnboardingContainerState extends State<OnboardingContainer> {
           ),
         ),
         
-        // Botão próximo
-        ElevatedButton(
-          onPressed: widget.canProceed ? widget.onNext : null,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: context.primaryColor,
-            foregroundColor: Colors.white,
-            disabledBackgroundColor: context.primaryColor.withOpacity(0.4),
-            disabledForegroundColor: Colors.white.withOpacity(0.8),
-            elevation: 0,
-            padding: const EdgeInsets.symmetric(
-              horizontal: 24,
-              vertical: 14,
-            ),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-          ),
-          child: Row(
-            children: [
-              Text(
-                widget.nextButtonText ?? AppLocalizations.of(context).continueButton,
-                style: const TextStyle(fontWeight: FontWeight.w600),
+        // Espaçamento entre os botões
+        const SizedBox(width: 12),
+        
+        // Botão próximo (expandido)
+        Expanded(
+          child: ElevatedButton(
+            onPressed: widget.canProceed ? widget.onNext : null,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: context.primaryColor,
+              foregroundColor: Colors.white,
+              disabledBackgroundColor: context.primaryColor.withOpacity(0.4),
+              disabledForegroundColor: Colors.white.withOpacity(0.8),
+              elevation: 0,
+              padding: const EdgeInsets.symmetric(
+                horizontal: 24,
+                vertical: 14,
               ),
-              const SizedBox(width: 8),
-              const Icon(Icons.arrow_forward, size: 18),
-            ],
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  widget.nextButtonText ?? AppLocalizations.of(context).continueButton,
+                  style: const TextStyle(fontWeight: FontWeight.w600),
+                ),
+                const SizedBox(width: 8),
+                const Icon(Icons.arrow_forward, size: 18),
+              ],
+            ),
           ),
         ),
       ],

@@ -57,10 +57,10 @@ class NavigationButtons extends StatelessWidget {
       );
     }
     
-    // Layout padrão com dois botões
+    // Layout com botão de voltar menor e botão de continuar expandido
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
+        // Botão voltar (compacto)
         OutlinedButton(
           onPressed: onBack,
           style: OutlinedButton.styleFrom(
@@ -74,6 +74,7 @@ class NavigationButtons extends StatelessWidget {
             ),
           ),
           child: Row(
+            mainAxisSize: MainAxisSize.min,
             children: [
               const Icon(Icons.arrow_back, size: 18),
               const SizedBox(width: 8),
@@ -88,33 +89,40 @@ class NavigationButtons extends StatelessWidget {
           ),
         ),
         
-        ElevatedButton(
-          onPressed: disableNext ? null : onNext,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF2962FF), // Azul primário
-            foregroundColor: Colors.white,
-            disabledBackgroundColor: const Color(0xFF2962FF).withOpacity(0.4),
-            disabledForegroundColor: Colors.white.withOpacity(0.8),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            padding: const EdgeInsets.symmetric(
-              horizontal: 24,
-              vertical: 12,
-            ),
-          ),
-          child: Row(
-            children: [
-              Text(
-                nextText ?? AppLocalizations.of(context).continueButton,
-                style: GoogleFonts.poppins(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w600,
-                ),
+        // Espaçamento entre os botões
+        const SizedBox(width: 12),
+        
+        // Botão próximo (expandido)
+        Expanded(
+          child: ElevatedButton(
+            onPressed: disableNext ? null : onNext,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF2962FF), // Azul primário
+              foregroundColor: Colors.white,
+              disabledBackgroundColor: const Color(0xFF2962FF).withOpacity(0.4),
+              disabledForegroundColor: Colors.white.withOpacity(0.8),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
               ),
-              const SizedBox(width: 8),
-              const Icon(Icons.arrow_forward, size: 18),
-            ],
+              padding: const EdgeInsets.symmetric(
+                horizontal: 24,
+                vertical: 12,
+              ),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  nextText ?? AppLocalizations.of(context).continueButton,
+                  style: GoogleFonts.poppins(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                const Icon(Icons.arrow_forward, size: 18),
+              ],
+            ),
           ),
         ),
       ],
