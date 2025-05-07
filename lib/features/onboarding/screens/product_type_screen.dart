@@ -41,22 +41,29 @@ class _ProductTypeScreenState extends State<ProductTypeScreen> {
     return OnboardingContainer(
       title: localizations.productTypeQuestion,
       subtitle: localizations.selectApplicable,
-      contentType: OnboardingContentType.regular,
+      // Usando o tipo list é mais seguro para garantir que o conteúdo seja scrollável
+      contentType: OnboardingContentType.list,
       content: Column(
+        // Centralizando o conteúdo para melhor visualização em telas pequenas
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24),
+            padding: const EdgeInsets.symmetric(horizontal: 8),
             child: Text(
               localizations.helpPersonalizeStrategy,
               style: GoogleFonts.poppins(
-                fontSize: 16,
+                fontSize: 13, // Reduzido para 13
                 color: Colors.grey[700],
+                height: 1.2, // Linha mais compacta
               ),
               textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
           
-          const SizedBox(height: 32),
+          const SizedBox(height: 10), // Reduzido para 10
           
           // Opções de tipos de produto
           OptionCard(
@@ -73,7 +80,7 @@ class _ProductTypeScreenState extends State<ProductTypeScreen> {
                 : null,
           ),
           
-          const SizedBox(height: 16),
+          const SizedBox(height: 10), // Reduzido para 10
           
           OptionCard(
             selected: _selectedProductType == ProductType.vapeOnly,
@@ -89,7 +96,7 @@ class _ProductTypeScreenState extends State<ProductTypeScreen> {
                 : null,
           ),
           
-          const SizedBox(height: 16),
+          const SizedBox(height: 10), // Reduzido para 10
           
           OptionCard(
             selected: _selectedProductType == ProductType.both,
@@ -105,27 +112,33 @@ class _ProductTypeScreenState extends State<ProductTypeScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       _buildProductIcon(Icons.smoking_rooms),
-                      const SizedBox(width: 16),
+                      const SizedBox(width: 8), // Reduzido para 8
                       _buildProductIcon(Icons.air),
                     ],
                   ) 
                 : null,
           ),
           
-          const SizedBox(height: 24),
+          const SizedBox(height: 12), // Reduzido para 12
           
-          // Texto informativo
+          // Texto informativo - reduzido
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24),
+            padding: const EdgeInsets.symmetric(horizontal: 8), // Reduzido para 8
             child: Text(
               localizations.productTypeHelp,
               style: GoogleFonts.poppins(
-                fontSize: 14,
+                fontSize: 11, // Reduzido para 11
                 color: Colors.grey[600],
+                height: 1.1, // Linha super compacta
               ),
               textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
+          
+          // Espaço adicional no final para evitar sobreposição com os botões
+          const SizedBox(height: 20),
         ],
       ),
       onNext: () {
@@ -153,15 +166,15 @@ class _ProductTypeScreenState extends State<ProductTypeScreen> {
   
   Widget _buildProductIcon(IconData icon) {
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(8), // Reduzido para 8
       decoration: BoxDecoration(
         color: const Color(0xFF2962FF).withOpacity(0.1),
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(6), // Reduzido para 6
       ),
       child: Icon(
         icon,
         color: const Color(0xFF2962FF),
-        size: 24,
+        size: 20, // Reduzido para 20
       ),
     );
   }

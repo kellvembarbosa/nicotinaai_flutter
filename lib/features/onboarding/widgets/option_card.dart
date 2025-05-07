@@ -34,20 +34,20 @@ class OptionCard extends StatelessWidget {
   Widget _buildStandardCard(BuildContext context) {
     return Material(
       color: Colors.transparent,
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(8), // Reduzido para 8
       child: InkWell(
         onTap: onPress,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(8), // Reduzido para 8
         child: Ink(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8), // Ultra compacto
           decoration: BoxDecoration(
             color: selected 
                 ? context.primaryColor.withOpacity(0.1) 
                 : context.cardColor,
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(8), // Reduzido para 8
             border: Border.all(
               color: selected ? context.primaryColor : context.borderColor,
-              width: 1.5,
+              width: 1.0, // Reduzido para 1.0
             ),
           ),
           child: _buildCardContent(context),
@@ -59,26 +59,26 @@ class OptionCard extends StatelessWidget {
   Widget _buildGlassmorphicCard(BuildContext context) {
     return Material(
       color: Colors.transparent,
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(8), // Reduzido para 8
       child: InkWell(
         onTap: onPress,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(8), // Reduzido para 8
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(8), // Reduzido para 8
           child: BackdropFilter(
             filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
             child: Container(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8), // Ultra compacto
               decoration: BoxDecoration(
                 color: selected 
                     ? context.primaryColor.withOpacity(0.15) 
                     : Colors.white.withOpacity(0.05),
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(8), // Reduzido para 8
                 border: Border.all(
                   color: selected 
                       ? context.primaryColor.withOpacity(0.8) 
                       : Colors.white.withOpacity(0.2),
-                  width: 1.5,
+                  width: 1.0, // Reduzido para 1.0
                 ),
               ),
               child: _buildCardContent(context),
@@ -97,8 +97,8 @@ class OptionCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              width: 24,
-              height: 24,
+              width: 18, // Reduzido para 18
+              height: 18, // Reduzido para 18
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 border: Border.all(
@@ -107,14 +107,14 @@ class OptionCard extends StatelessWidget {
                       : context.isDarkMode
                           ? Colors.grey[400]! 
                           : Colors.grey[400]!,
-                  width: 1.5,
+                  width: 1.0, // Reduzido para 1.0
                 ),
                 color: selected ? context.primaryColor : Colors.transparent,
                 boxShadow: selected && context.isDarkMode
                     ? [
                         BoxShadow(
                           color: context.primaryColor.withOpacity(0.3),
-                          blurRadius: 8,
+                          blurRadius: 4, // Reduzido para 4
                           spreadRadius: 0,
                         ),
                       ]
@@ -123,12 +123,12 @@ class OptionCard extends StatelessWidget {
               child: selected
                   ? const Icon(
                       Icons.check,
-                      size: 16,
+                      size: 12, // Reduzido para 12
                       color: Colors.white,
                     )
                   : null,
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: 8), // Reduzido para 8
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -139,17 +139,25 @@ class OptionCard extends StatelessWidget {
                         ? context.textTheme.titleMedium!.copyWith(
                             color: Colors.white,
                             fontWeight: FontWeight.w500,
+                            fontSize: 14, // Reduzido para 14
                           )
                         : context.textTheme.titleMedium!.copyWith(
                             color: Colors.grey[900],
                             fontWeight: FontWeight.w500,
+                            fontSize: 14, // Reduzido para 14
                           ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                   if (description != null) ...[
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 2), // Reduzido para 2
                     Text(
                       description!,
-                      style: context.subtitleStyle,
+                      style: context.subtitleStyle?.copyWith(
+                        fontSize: 12, // Reduzido para 12
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ],
                 ],
@@ -158,7 +166,7 @@ class OptionCard extends StatelessWidget {
           ],
         ),
         if (child != null) ...[
-          const SizedBox(height: 12),
+          const SizedBox(height: 8), // Reduzido para 8
           child!,
         ],
       ],

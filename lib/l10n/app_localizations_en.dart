@@ -1025,5 +1025,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get preselectedCurrency => 'We\'ve preselected your local currency. You can change it if necessary.';
 
   @override
+  String get pleaseCompleteAllFields => 'Please complete all required fields to continue';
+
+  @override
+  String get understood => 'Understood';
+
+  @override
   String get commonPrices => 'Common pack prices';
 }

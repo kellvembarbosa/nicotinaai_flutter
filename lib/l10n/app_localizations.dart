@@ -2075,6 +2075,18 @@ abstract class AppLocalizations {
   /// **'We\'ve preselected your local currency. You can change it if necessary.'**
   String get preselectedCurrency;
 
+  /// Message shown when user tries to proceed without completing required fields
+  ///
+  /// In en, this message translates to:
+  /// **'Please complete all required fields to continue'**
+  String get pleaseCompleteAllFields;
+
+  /// Button text for dismissing alerts or notifications
+  ///
+  /// In en, this message translates to:
+  /// **'Understood'**
+  String get understood;
+
   /// Label for common cigarette pack prices section
   ///
   /// In en, this message translates to:

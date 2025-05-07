@@ -20,19 +20,36 @@ class CompletionScreen extends StatefulWidget {
 }
 
 class _CompletionScreenState extends State<CompletionScreen> {
-  bool _isGridView = false;
+  // Removendo opção de alternância, sempre usando grid
+  bool _isGridView = true;
   
   // Formata o valor para exibição de acordo com a moeda
-  String _formatCurrency(double value, String currencyCode) {
+  String _formatCurrency(double value, String? currencyCode) {
+    // Garantir que sempre temos um valor válido mesmo se for nulo
+    if (value.isNaN || value.isInfinite) {
+      value = 0;
+    }
+    
+    // Verificar se temos um código de moeda válido
+    if (currencyCode == null || currencyCode.isEmpty) {
+      // Se não tivermos, use a moeda padrão
+      currencyCode = SupportedCurrencies.defaultCurrency.code;
+    }
+    
     final currency = SupportedCurrencies.getByCurrencyCode(currencyCode);
     if (currency != null) {
       final valueInCents = (value * 100).round();
-      return CurrencyUtils().format(
-        valueInCents, 
-        user: null, // Não temos acesso ao usuário aqui, então passamos null
-        currencySymbol: currency.symbol,
-        currencyLocale: currency.locale
-      );
+      try {
+        return CurrencyUtils().format(
+          valueInCents, 
+          user: null, // Não temos acesso ao usuário aqui, então passamos null
+          currencySymbol: currency.symbol,
+          currencyLocale: currency.locale
+        );
+      } catch (e) {
+        // Em caso de erro, usar formatação de fallback
+        return "${currency.symbol} ${value.toStringAsFixed(2)}";
+      }
     }
     // Fallback para formatação padrão
     return "${SupportedCurrencies.defaultCurrency.symbol} ${value.toStringAsFixed(2)}";
@@ -81,94 +98,51 @@ class _CompletionScreenState extends State<CompletionScreen> {
       contentType: OnboardingContentType.scrollable,
       content: Column(
         children: [
-          const SizedBox(height: 24),
+          const SizedBox(height: 16), // Reduzido para 16
           
           // Imagem de sucesso com glassmorphism
           _buildSuccessIcon(context),
           
-          const SizedBox(height: 32),
+          const SizedBox(height: 20), // Reduzido para 20
           
-          // Layout switch
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                IconButton(
-                  onPressed: () {
-                    setState(() {
-                      _isGridView = false;
-                    });
-                  },
-                  icon: Icon(
-                    Icons.view_list,
-                    color: !_isGridView 
-                        ? context.primaryColor 
-                        : context.isDarkMode ? Colors.grey[400] : Colors.grey[600],
-                  ),
-                  tooltip: localizations.listView,
-                ),
-                IconButton(
-                  onPressed: () {
-                    setState(() {
-                      _isGridView = true;
-                    });
-                  },
-                  icon: Icon(
-                    Icons.grid_view,
-                    color: _isGridView 
-                        ? context.primaryColor 
-                        : context.isDarkMode ? Colors.grey[400] : Colors.grey[600],
-                  ),
-                  tooltip: localizations.gridView,
-                ),
-              ],
-            ),
-          ),
-          
-          const SizedBox(height: 16),
-          
-          // Texto explicativo
+          // Título centralizado sem alternância de layout
           Text(
             localizations.congratulations,
             style: GoogleFonts.poppins(
-              fontSize: 20,
+              fontSize: 17, // Reduzido para 17
               fontWeight: FontWeight.bold,
               color: context.primaryColor,
             ),
             textAlign: TextAlign.center,
           ),
           
-          const SizedBox(height: 16),
+          const SizedBox(height: 10), // Reduzido para 10
           
-          // Resumo personalizado
+          // Resumo personalizado - mais compacto
           Text(
             onboarding.goal == GoalType.reduce 
                 ? localizations.personalizedPlanReduce(timelineText)
                 : localizations.personalizedPlanQuit(timelineText),
-            style: context.textTheme.bodyLarge?.copyWith(
+            style: context.textTheme.bodyMedium?.copyWith(
               color: context.subtitleColor,
-              height: 1.5,
+              height: 1.3, // Reduzido para 1.3
+              fontSize: 14, // Tamanho reduzido
             ),
             textAlign: TextAlign.center,
           ),
           
-          const SizedBox(height: 24),
+          const SizedBox(height: 16), // Reduzido para 16
           
           // Painel de resumo
           _buildSummaryPanel(context, cigarettesPerDay, monthlyCost, goalText, onboarding),
           
-          const SizedBox(height: 32),
+          const SizedBox(height: 20), // Reduzido para 20
           
-          // Lista ou grade de benefícios
-          Expanded(
-            child: _isGridView
-                ? _buildBenefitsGrid(context)
-                : SingleChildScrollView(child: _buildBenefitsList(context)),
-          ),
+          // Sempre mostra benefícios em grid, sem opção de lista
+          _buildBenefitsGrid(context),
           
           // Ajustar para deixar espaço para o botão no bottom
-          const SizedBox(height: 40),
+          const SizedBox(height: 24), // Reduzido para 24
         ],
       ),
       onNext: () async {
@@ -214,31 +188,31 @@ class _CompletionScreenState extends State<CompletionScreen> {
     );
   }
   
-  // Widget para o ícone de sucesso com fundo blur
+  // Widget para o ícone de sucesso com fundo blur - super compacto
   Widget _buildSuccessIcon(BuildContext context) {
     return ClipRRect(
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(12), // Reduzido para 12
       child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+        filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8), // Reduzido para 8
         child: Container(
           width: double.infinity,
-          height: 200,
+          height: 120, // Reduzido para 120
           decoration: BoxDecoration(
             color: context.isDarkMode 
                 ? context.primaryColor.withOpacity(0.15) 
                 : context.primaryColor.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(12), // Reduzido para 12
             border: Border.all(
               color: context.isDarkMode 
                   ? context.primaryColor.withOpacity(0.3)
                   : context.primaryColor.withOpacity(0.2),
-              width: 1.5,
+              width: 1, // Reduzido para 1
             ),
           ),
           child: Center(
             child: Icon(
               Icons.check_circle_outline,
-              size: 100,
+              size: 80, // Reduzido para 80
               color: context.primaryColor,
             ),
           ),
@@ -247,31 +221,31 @@ class _CompletionScreenState extends State<CompletionScreen> {
     );
   }
   
-  // Painel de resumo com suporte a dark mode
+  // Painel de resumo com suporte a dark mode - otimizado para telas pequenas
   Widget _buildSummaryPanel(BuildContext context, int cigarettesPerDay, double monthlyCost, String goalText, OnboardingModel onboarding) {
     final localizations = AppLocalizations.of(context);
     
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(12), // Reduzido para 12
       decoration: BoxDecoration(
         color: context.isDarkMode 
             ? const Color(0xFF1A1A1A)
             : Colors.grey[50],
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(10), // Reduzido para 10
         border: Border.all(
           color: context.isDarkMode 
               ? const Color(0xFF333333)
               : Colors.grey[200]!,
-          width: 1,
+          width: 0.5, // Reduzido para 0.5
         ),
         boxShadow: context.isDarkMode 
             ? null
             : [
                 BoxShadow(
                   color: Colors.black.withOpacity(0.05),
-                  blurRadius: 10,
-                  offset: const Offset(0, 2),
+                  blurRadius: 8, // Reduzido para 8
+                  offset: const Offset(0, 1), // Reduzido para 1
                 ),
               ],
       ),
@@ -283,9 +257,10 @@ class _CompletionScreenState extends State<CompletionScreen> {
             style: context.textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.w600,
               color: context.contentColor,
+              fontSize: 14, // Tamanho reduzido
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 8), // Reduzido para 8
           
           // Consumo
           _buildInfoItem(
@@ -329,11 +304,12 @@ class _CompletionScreenState extends State<CompletionScreen> {
     );
   }
   
-  // Divider adaptado para dark mode
+  // Divider adaptado para dark mode - mais compacto
   Widget _buildDivider(BuildContext context) {
     return Divider(
       color: context.isDarkMode ? const Color(0xFF333333) : Colors.grey[200],
-      height: 24,
+      height: 16, // Reduzido para 16
+      thickness: 0.5, // Mais fino
     );
   }
   
@@ -342,6 +318,7 @@ class _CompletionScreenState extends State<CompletionScreen> {
     final localizations = AppLocalizations.of(context);
     
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildBenefitItem(
           context,
@@ -360,11 +337,17 @@ class _CompletionScreenState extends State<CompletionScreen> {
           localizations.supportWhenNeeded,
           localizations.supportDescription
         ),
+        
+        _buildBenefitItem(
+          context,
+          localizations.guaranteedResults,
+          localizations.resultsDescription
+        ),
       ],
     );
   }
   
-  // Grid de benefícios
+  // Grid de benefícios otimizado para telas pequenas
   Widget _buildBenefitsGrid(BuildContext context) {
     final localizations = AppLocalizations.of(context);
     
@@ -372,10 +355,10 @@ class _CompletionScreenState extends State<CompletionScreen> {
       crossAxisCount: 2,
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      childAspectRatio: 0.85,
-      crossAxisSpacing: 12,
-      mainAxisSpacing: 12,
-      padding: const EdgeInsets.symmetric(horizontal: 4),
+      childAspectRatio: 1.1, // Ligeiramente mais alto que largo para melhor visualização
+      crossAxisSpacing: 6, // Reduzido para 6
+      mainAxisSpacing: 6, // Reduzido para 6
+      padding: EdgeInsets.zero, // Sem padding extra
       children: [
         _buildBenefitCard(
           context,
@@ -405,24 +388,27 @@ class _CompletionScreenState extends State<CompletionScreen> {
     );
   }
   
-  // Card para o layout de grid
+  // Card para o layout de grid - super compacto para telas pequenas
   Widget _buildBenefitCard(BuildContext context, IconData icon, String title, String description) {
     return Card(
-      elevation: context.isDarkMode ? 0 : 2,
+      elevation: context.isDarkMode ? 0 : 1,
       color: context.cardColor,
+      margin: EdgeInsets.zero, // Sem margens extras
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(8), // Reduzido para 8
         side: BorderSide(
           color: context.isDarkMode ? const Color(0xFF333333) : Colors.transparent,
+          width: 0.5, // Mais fino
         ),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(8.0), // Reduzido para 8
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            // Ícone mais compacto
             Container(
-              padding: const EdgeInsets.all(10),
+              padding: const EdgeInsets.all(6), // Reduzido para 6
               decoration: BoxDecoration(
                 color: context.primaryColor.withOpacity(0.1),
                 shape: BoxShape.circle,
@@ -430,23 +416,28 @@ class _CompletionScreenState extends State<CompletionScreen> {
               child: Icon(
                 icon,
                 color: context.primaryColor,
-                size: 28,
+                size: 20, // Reduzido para 20
               ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 6), // Reduzido para 6
             Text(
               title,
               style: context.textTheme.titleSmall?.copyWith(
                 fontWeight: FontWeight.w600,
                 color: context.contentColor,
+                fontSize: 13, // Tamanho reduzido
               ),
               textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: 2), // Reduzido para 2
             Text(
               description,
               style: context.textTheme.bodySmall?.copyWith(
                 color: context.subtitleColor,
+                fontSize: 11, // Tamanho reduzido
+                height: 1.2, // Altura de linha reduzida
               ),
               textAlign: TextAlign.center,
               maxLines: 2,
@@ -492,22 +483,22 @@ class _CompletionScreenState extends State<CompletionScreen> {
   
   Widget _buildInfoItem(BuildContext context, IconData icon, String title, String value) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      padding: const EdgeInsets.symmetric(vertical: 6.0), // Reduzido para 6
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(8),
+            padding: const EdgeInsets.all(6), // Reduzido para 6
             decoration: BoxDecoration(
               color: context.primaryColor.withOpacity(0.15),
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(6), // Reduzido para 6
             ),
             child: Icon(
               icon,
               color: context.primaryColor,
-              size: 18,
+              size: 16, // Reduzido para 16
             ),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 8), // Reduzido para 8
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -516,6 +507,7 @@ class _CompletionScreenState extends State<CompletionScreen> {
                   title,
                   style: context.textTheme.bodyMedium?.copyWith(
                     color: context.subtitleColor,
+                    fontSize: 12, // Tamanho reduzido
                   ),
                 ),
                 Text(
@@ -523,7 +515,10 @@ class _CompletionScreenState extends State<CompletionScreen> {
                   style: context.textTheme.titleSmall?.copyWith(
                     fontWeight: FontWeight.w600,
                     color: context.contentColor,
+                    fontSize: 13, // Tamanho reduzido
                   ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),
@@ -535,12 +530,12 @@ class _CompletionScreenState extends State<CompletionScreen> {
   
   Widget _buildBenefitItem(BuildContext context, String title, String description) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 16.0),
+      padding: const EdgeInsets.only(bottom: 10.0), // Reduzido para 10
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            padding: const EdgeInsets.all(8),
+            padding: const EdgeInsets.all(6), // Reduzido para 6
             decoration: BoxDecoration(
               color: context.primaryColor.withOpacity(0.15),
               shape: BoxShape.circle,
@@ -548,10 +543,10 @@ class _CompletionScreenState extends State<CompletionScreen> {
             child: Icon(
               Icons.star,
               color: context.primaryColor,
-              size: 16,
+              size: 14, // Reduzido para 14
             ),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 8), // Reduzido para 8
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -561,14 +556,21 @@ class _CompletionScreenState extends State<CompletionScreen> {
                   style: context.textTheme.titleSmall?.copyWith(
                     fontWeight: FontWeight.w600,
                     color: context.contentColor,
+                    fontSize: 13, // Tamanho reduzido
                   ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 2), // Reduzido para 2
                 Text(
                   description,
                   style: context.textTheme.bodySmall?.copyWith(
                     color: context.subtitleColor,
+                    fontSize: 12, // Tamanho reduzido
+                    height: 1.2, // Altura de linha reduzida
                   ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),

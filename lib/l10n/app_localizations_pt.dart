@@ -1025,5 +1025,11 @@ class AppLocalizationsPt extends AppLocalizations {
   String get preselectedCurrency => 'Pré-selecionamos sua moeda local. Você pode alterá-la se necessário.';
 
   @override
+  String get pleaseCompleteAllFields => 'Por favor, preencha todos os campos obrigatórios para continuar';
+
+  @override
+  String get understood => 'Entendido';
+
+  @override
   String get commonPrices => 'Preços comuns de maço';
 }
