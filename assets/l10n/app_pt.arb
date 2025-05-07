@@ -1763,4 +1763,69 @@
   "@commonPrices": {
     "description": "Label for common cigarette pack prices section"
   }
+,
+  "refresh": "Atualizar",
+  "errorLoadingNotifications": "Erro ao carregar notificações",
+  "noNotificationsYet": "Nenhuma notificação ainda!",
+  "emptyNotificationsDescription": "Continue usando o app para receber mensagens motivacionais e conquistas.",
+  "motivationalMessage": "Mensagem Motivacional",
+  "achievementUnlocked": "Conquista Desbloqueada!",
+  "claimReward": "Ganhar {xp} XP",
+  "@claimReward": {
+    "placeholders": {
+      "xp": {
+        "type": "int"
+      }
+    }
+  },
+  "rewardClaimed": "Recompensa recebida: {xp} XP",
+  "@rewardClaimed": {
+    "placeholders": {
+      "xp": {
+        "type": "int"
+      }
+    }
+  },
+  "dailyMotivation": "Motivação Diária",
+  "dailyMotivationDescription": "Sua motivação personalizada diária chegou. Abra para ganhar sua recompensa em XP!",
+  
+  "retry": "Tentar novamente",
+  "@retry": {
+    "description": "Retry button text for failed operations"
+  },
+  
+  "cravingResistedRecorded": "Resistência à fissura registrada com sucesso!",
+  "@cravingResistedRecorded": {
+    "description": "Success message when a resisted craving is recorded"
+  },
+  
+  "cravingRecorded": "Fissura registrada com sucesso!",
+  "@cravingRecorded": {
+    "description": "Success message when a craving is recorded"
+  },
+  
+  "errorSavingCraving": "Erro ao salvar fissura. Toque para tentar novamente.",
+  "@errorSavingCraving": {
+    "description": "Error message when saving craving fails"
+  },
+  
+  "recordSaved": "Registro salvo com sucesso!",
+  "@recordSaved": {
+    "description": "Success message when a smoking record is saved"
+  },
+  
+  "tapToRetry": "Toque para tentar novamente",
+  "@tapToRetry": {
+    "description": "Tooltip text for retry button"
+  },
+  
+  "syncError": "Erro de sincronização",
+  "@syncError": {
+    "description": "Tooltip text for sync error status"
+  },
+
+  "loading": "Carregando...",
+  "@loading": {
+    "description": "Text shown while loading content"
+  }
 }

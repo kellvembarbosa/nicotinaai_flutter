@@ -3,6 +3,9 @@
 /// Usar este enum para manter consistência nas rotas em todo o aplicativo
 /// ao invés de usar strings hardcoded.
 enum AppRoutes {
+  // Rota de splash/loading - ponto de entrada inicial do app
+  splash('/splash'),
+  
   // Rotas de autenticação
   login('/login'),
   register('/register'),

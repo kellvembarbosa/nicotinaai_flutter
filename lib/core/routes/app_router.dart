@@ -5,6 +5,7 @@ import 'package:nicotinaai_flutter/features/auth/providers/auth_provider.dart';
 import 'package:nicotinaai_flutter/features/auth/screens/forgot_password_screen.dart';
 import 'package:nicotinaai_flutter/features/auth/screens/login_screen.dart';
 import 'package:nicotinaai_flutter/features/auth/screens/register_screen.dart';
+import 'package:nicotinaai_flutter/features/auth/screens/splash_screen.dart';
 import 'package:nicotinaai_flutter/features/main/screens/main_screen.dart';
 import 'package:nicotinaai_flutter/features/home/screens/home_screen.dart';
 import 'package:nicotinaai_flutter/features/achievements/screens/achievements_screen.dart';
@@ -31,9 +32,15 @@ class AppRouter {
   late final GoRouter router = GoRouter(
     debugLogDiagnostics: true,
     refreshListenable: authProvider,
-    initialLocation: LoginScreen.routeName,
+    initialLocation: SplashScreen.routeName,
     redirect: _handleRedirect,
     routes: [
+      // Rota de splash screen
+      GoRoute(
+        path: SplashScreen.routeName,
+        builder: (context, state) => const SplashScreen(),
+      ),
+      
       // Rotas de autenticação
       GoRoute(
         path: LoginScreen.routeName,
@@ -114,6 +121,7 @@ class AppRouter {
     
     // Página atual
     final currentLocation = state.uri.path;
+    final isGoingToSplash = currentLocation == SplashScreen.routeName;
     final isGoingToPublicPage = publicPages.contains(currentLocation);
     final isGoingToOnboarding = currentLocation == OnboardingScreen.routeName;
     
@@ -131,20 +139,36 @@ class AppRouter {
     // Log para depuração
     print('🧭 [AppRouter] Redirecionamento - Autenticado: $isAuthenticated, Onboarding completo: $hasCompletedOnboarding, Rota: $currentLocation');
     
-    // Se estiver inicializando ou autenticando, permite permanecer na página atual
-    if (isInitializing || isAuthenticating) {
+    // Se estiver inicializando ou autenticando, permite permanecer na tela de splash
+    if ((isInitializing || isAuthenticating) && isGoingToSplash) {
       return null;
     }
     
+    // Redirecionamento da tela de splash após verificação de autenticação
+    if (isGoingToSplash && !isInitializing && !isAuthenticating) {
+      if (isAuthenticated) {
+        // Se autenticado mas não completou onboarding, redireciona para onboarding
+        if (!hasCompletedOnboarding) {
+          print('🔄 [AppRouter] Redirecionando do splash para onboarding - usuário autenticado mas onboarding não concluído');
+          return OnboardingScreen.routeName;
+        }
+        // Se autenticado e completou onboarding, redireciona para tela principal
+        return MainScreen.routeName;
+      } else {
+        // Se não autenticado, redireciona para login
+        return LoginScreen.routeName;
+      }
+    }
+    
     // Se não estiver autenticado e tentando acessar página protegida
-    if (!isAuthenticated && !isGoingToPublicPage) {
+    if (!isAuthenticated && !isGoingToPublicPage && !isGoingToSplash) {
       return LoginScreen.routeName;
     }
     
     // Se estiver autenticado mas não completou onboarding
     // e não está indo para a página de onboarding
     // Dar alta prioridade para este redirecionamento
-    if (isAuthenticated && !onboardingProvider.state.isCompleted && !isGoingToOnboarding) {
+    if (isAuthenticated && !onboardingProvider.state.isCompleted && !isGoingToOnboarding && !isGoingToSplash) {
       print('🔄 [AppRouter] Redirecionando para onboarding - usuário autenticado mas onboarding não concluído');
       return OnboardingScreen.routeName;
     }
