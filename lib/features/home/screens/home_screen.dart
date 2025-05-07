@@ -381,18 +381,18 @@ class _HomeScreenState extends State<HomeScreen> {
                   bool hasRecoveries = trackingProvider.state.isLoaded && 
                     trackingProvider.state.userHealthRecoveries.isNotEmpty;
                     
-                  return SizedBox(
-                    height: 140,
-                    child: hasRecoveries
-                        // Mostrar conquistas reais do usuário quando disponíveis
-                        ? ListView(
+                  return hasRecoveries
+                      // Mostrar conquistas reais do usuário quando disponíveis
+                      ? SizedBox(
+                          height: 140,
+                          child: ListView(
                             scrollDirection: Axis.horizontal,
                             padding: const EdgeInsets.symmetric(horizontal: 16),
                             children: _buildRecentAchievements(context, l10n),
-                          )
-                        // Mostrar card motivacional quando não temos conquistas ou estamos carregando
-                        : _buildMotivationalCard(context, l10n),
-                  );
+                          ),
+                        )
+                      // Mostrar card motivacional quando não temos conquistas ou estamos carregando
+                      : _buildMotivationalCard(context, l10n);
                 },
               ),
               
@@ -869,77 +869,70 @@ class _HomeScreenState extends State<HomeScreen> {
   // Constrói um card motivacional quando não há conquistas
   Widget _buildMotivationalCard(BuildContext context, AppLocalizations l10n) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Container(
-        width: MediaQuery.of(context).size.width - 60,
-        padding: const EdgeInsets.all(16),
+        margin: EdgeInsets.zero,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              context.primaryColor.withOpacity(0.7),
-              context.primaryColor,
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+          color: context.primaryColor.withOpacity(0.08),
+          border: Border.all(
+            color: context.primaryColor.withOpacity(0.2),
+            width: 1.0,
           ),
           borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: context.primaryColor.withOpacity(0.3),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Icon(
-                    Icons.emoji_events,
-                    color: Colors.white,
-                    size: 24,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: context.primaryColor.withOpacity(0.12),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(
+                  Icons.emoji_events,
+                  color: context.primaryColor,
+                  size: 22,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  l10n.importantAchievements,
+                  style: context.textTheme.titleMedium!.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: context.primaryColor,
+                    fontSize: 20,
                   ),
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    l10n.importantAchievements,
-                    style: context.textTheme.titleMedium!.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                      fontSize: 18,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            Text(
-              l10n.achievementsDescription,
-              style: context.textTheme.bodyMedium!.copyWith(
-                color: Colors.white.withOpacity(0.9),
-                height: 1.3,
               ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Text(
+            l10n.achievementsDescription,
+            style: context.textTheme.bodyMedium!.copyWith(
+              color: context.contentColor,
+              height: 1.4,
+              fontSize: 15,
             ),
-            const SizedBox(height: 12),
-            Text(
-              l10n.congratulations,
-              style: context.textTheme.bodyMedium!.copyWith(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-              ),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            l10n.congratulations,
+            style: context.textTheme.bodyMedium!.copyWith(
+              color: context.primaryColor,
+              fontWeight: FontWeight.bold,
+              fontSize: 15,
             ),
-          ],
-        ),
+          ),
+        ],
+      ),
       ),
     );
   }
