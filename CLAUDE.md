@@ -53,6 +53,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - For method calls, position cursor at the method name
 - When editing widget properties, place cursor at the property being modified
 - For errors, place cursor at the exact error location
+- When explaining Optimistic State implementation:
+  - For state backup, place cursor at the backup variable declaration
+  - For state updates, place cursor at the setState call
+  - For API/DB operations, place cursor at the await expression
+  - For error handling, place cursor at the catch statement
+  - For state rollback, place cursor at the rollback setState call
 
 ## Navigation and Routing
 - Always use the AppRoutes enum for navigation instead of hardcoded strings
@@ -65,3 +71,45 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
   - Other routes: `profile`, `editProfile`, `notifications`, `about`
 - For navigation with parameters, use `AppRoutes.routeName.withParams({params})`
 - When adding new screens, always add the corresponding route to the AppRoutes enum
+
+## Optimistic State Pattern
+- The app uses the Optimistic State pattern for "Craving" and "New Record" sheets
+- Reference: [Flutter Optimistic State Design Pattern](https://docs.flutter.dev/app-architecture/design-patterns/optimistic-state)
+- Implementation principles:
+  - Immediately update UI assuming the operation will succeed
+  - Capture the current state before the operation for potential rollback
+  - Perform the actual operation (API call, DB update) in the background
+  - Handle errors by reverting to the previous state if needed
+  - Show appropriate feedback (success/error) after the operation completes
+- When implementing:
+  - Store a backup of the current state before modifying it
+  - Update the UI immediately for better user experience
+  - Use try/catch blocks to handle potential errors
+  - Provide clear visual indicators of success/failure
+  - Include undo functionality where appropriate
+- Example code structure:
+  ```dart
+  // 1. Store original state
+  final originalState = {..._currentState};
+  
+  // 2. Update state optimistically
+  setState(() {
+    _currentState = {..._currentState, ...newChanges};
+  });
+  
+  try {
+    // 3. Perform the actual operation
+    await repository.saveChanges(newChanges);
+    
+    // 4. Operation succeeded, show success feedback
+    showSuccessMessage('Changes saved successfully');
+  } catch (e) {
+    // 5. Operation failed, revert to original state
+    setState(() {
+      _currentState = originalState;
+    });
+    
+    // 6. Show error feedback
+    showErrorMessage('Failed to save changes: ${e.message}');
+  }
+  ```
