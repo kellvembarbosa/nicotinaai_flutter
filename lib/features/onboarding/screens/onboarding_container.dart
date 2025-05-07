@@ -212,12 +212,30 @@ class _OnboardingContainerState extends State<OnboardingContainer> {
       return SizedBox(
         width: double.infinity,
         child: ElevatedButton(
-          onPressed: widget.canProceed ? widget.onNext : null,
+          onPressed: widget.canProceed ? 
+            widget.onNext : 
+            () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(AppLocalizations.of(context).pleaseCompleteAllFields),
+                  behavior: SnackBarBehavior.floating,
+                  backgroundColor: Colors.redAccent,
+                  duration: const Duration(seconds: 2),
+                  action: SnackBarAction(
+                    label: AppLocalizations.of(context).understood,
+                    textColor: Colors.white,
+                    onPressed: () {
+                      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                    },
+                  ),
+                ),
+              );
+            },
           style: ElevatedButton.styleFrom(
             backgroundColor: context.primaryColor,
             foregroundColor: Colors.white,
-            disabledBackgroundColor: context.primaryColor.withOpacity(0.4),
-            disabledForegroundColor: Colors.white.withOpacity(0.8),
+            disabledBackgroundColor: null, // Removendo para evitar visual de desabilitado
+            disabledForegroundColor: null, // Removendo para evitar visual de desabilitado
             elevation: 0,
             padding: const EdgeInsets.symmetric(
               horizontal: 24,
@@ -280,12 +298,30 @@ class _OnboardingContainerState extends State<OnboardingContainer> {
         // Botão próximo (expandido)
         Expanded(
           child: ElevatedButton(
-            onPressed: widget.canProceed ? widget.onNext : null,
+            onPressed: widget.canProceed ? 
+              widget.onNext : 
+              () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(AppLocalizations.of(context).pleaseCompleteAllFields),
+                    behavior: SnackBarBehavior.floating,
+                    backgroundColor: Colors.redAccent,
+                    duration: const Duration(seconds: 2),
+                    action: SnackBarAction(
+                      label: AppLocalizations.of(context).understood,
+                      textColor: Colors.white,
+                      onPressed: () {
+                        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                      },
+                    ),
+                  ),
+                );
+              },
             style: ElevatedButton.styleFrom(
               backgroundColor: context.primaryColor,
               foregroundColor: Colors.white,
-              disabledBackgroundColor: context.primaryColor.withOpacity(0.4),
-              disabledForegroundColor: Colors.white.withOpacity(0.8),
+              disabledBackgroundColor: null, // Removendo para evitar visual de desabilitado
+              disabledForegroundColor: null, // Removendo para evitar visual de desabilitado
               elevation: 0,
               padding: const EdgeInsets.symmetric(
                 horizontal: 24,

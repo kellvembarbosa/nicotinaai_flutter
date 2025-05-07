@@ -1732,5 +1732,35 @@
   "pleaseSelectDuration": "Please select how long it lasted",
   "@pleaseSelectDuration": {
     "description": "Validation message for duration selection"
+  },
+  
+  "selectCurrency": "Select your currency",
+  "@selectCurrency": {
+    "description": "Title for currency selection screen"
+  },
+  
+  "selectCurrencySubtitle": "Choose the currency for financial calculations",
+  "@selectCurrencySubtitle": {
+    "description": "Subtitle for currency selection screen"
+  },
+  
+  "preselectedCurrency": "We've preselected your local currency. You can change it if necessary.",
+  "@preselectedCurrency": {
+    "description": "Text explaining currency preselection"
+  },
+  
+  "pleaseCompleteAllFields": "Please complete all required fields to continue",
+  "@pleaseCompleteAllFields": {
+    "description": "Message shown when user tries to proceed without completing required fields"
+  },
+  
+  "understood": "Understood",
+  "@understood": {
+    "description": "Button text for dismissing alerts or notifications"
+  },
+  
+  "commonPrices": "Common pack prices",
+  "@commonPrices": {
+    "description": "Label for common cigarette pack prices section"
   }
 }

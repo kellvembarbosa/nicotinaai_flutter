@@ -1732,5 +1732,35 @@
   "pleaseSelectDuration": "Por favor, selecione quanto tempo durou",
   "@pleaseSelectDuration": {
     "description": "Validation message for duration selection"
+  },
+  
+  "selectCurrency": "Selecione sua moeda",
+  "@selectCurrency": {
+    "description": "Title for currency selection screen"
+  },
+  
+  "selectCurrencySubtitle": "Escolha a moeda para os cálculos financeiros",
+  "@selectCurrencySubtitle": {
+    "description": "Subtitle for currency selection screen"
+  },
+  
+  "preselectedCurrency": "Pré-selecionamos sua moeda local. Você pode alterá-la se necessário.",
+  "@preselectedCurrency": {
+    "description": "Text explaining currency preselection"
+  },
+  
+  "pleaseCompleteAllFields": "Por favor, preencha todos os campos obrigatórios para continuar",
+  "@pleaseCompleteAllFields": {
+    "description": "Message shown when user tries to proceed without completing required fields"
+  },
+  
+  "understood": "Entendido",
+  "@understood": {
+    "description": "Button text for dismissing alerts or notifications"
+  },
+  
+  "commonPrices": "Preços comuns de maço",
+  "@commonPrices": {
+    "description": "Label for common cigarette pack prices section"
   }
 }

@@ -25,12 +25,29 @@ class NavigationButtons extends StatelessWidget {
       return SizedBox(
         width: double.infinity,
         child: ElevatedButton(
-          onPressed: disableNext ? null : onNext,
+          onPressed: disableNext ? 
+            () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(AppLocalizations.of(context).pleaseCompleteAllFields),
+                  behavior: SnackBarBehavior.floating,
+                  backgroundColor: Colors.redAccent,
+                  duration: const Duration(seconds: 2),
+                  action: SnackBarAction(
+                    label: AppLocalizations.of(context).understood,
+                    textColor: Colors.white,
+                    onPressed: () {
+                      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                    },
+                  ),
+                ),
+              );
+            } : onNext,
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFF2962FF), // Azul primário
             foregroundColor: Colors.white,
-            disabledBackgroundColor: const Color(0xFF2962FF).withOpacity(0.4),
-            disabledForegroundColor: Colors.white.withOpacity(0.8),
+            disabledBackgroundColor: null, // Removendo para evitar visual de desabilitado
+            disabledForegroundColor: null, // Removendo para evitar visual de desabilitado
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
             ),
@@ -95,12 +112,29 @@ class NavigationButtons extends StatelessWidget {
         // Botão próximo (expandido)
         Expanded(
           child: ElevatedButton(
-            onPressed: disableNext ? null : onNext,
+            onPressed: disableNext ? 
+              () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(AppLocalizations.of(context).pleaseCompleteAllFields),
+                    behavior: SnackBarBehavior.floating,
+                    backgroundColor: Colors.redAccent,
+                    duration: const Duration(seconds: 2),
+                    action: SnackBarAction(
+                      label: AppLocalizations.of(context).understood,
+                      textColor: Colors.white,
+                      onPressed: () {
+                        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                      },
+                    ),
+                  ),
+                );
+              } : onNext,
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF2962FF), // Azul primário
               foregroundColor: Colors.white,
-              disabledBackgroundColor: const Color(0xFF2962FF).withOpacity(0.4),
-              disabledForegroundColor: Colors.white.withOpacity(0.8),
+              disabledBackgroundColor: null, // Removendo para evitar visual de desabilitado
+              disabledForegroundColor: null, // Removendo para evitar visual de desabilitado
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
