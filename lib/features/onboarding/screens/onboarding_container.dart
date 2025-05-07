@@ -68,17 +68,26 @@ class _OnboardingContainerState extends State<OnboardingContainer> {
       body: SafeArea(
         child: Column(
           children: [
+            // Barra de progresso no topo com padding reduzido
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 12, 24, 0),
+              child: ProgressBar(
+                current: state.currentStep,
+                total: state.totalSteps,
+              ),
+            ),
+            
             // Conteúdo principal - ocupa toda a área disponível
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
+                padding: const EdgeInsets.fromLTRB(24, 12, 24, 0),
                 child: _buildContentArea(context, state, onboardingProvider),
               ),
             ),
             
-            // Botões de navegação - sempre visíveis na parte inferior
+            // Botões de navegação com padding reduzido
             Padding(
-              padding: const EdgeInsets.all(24),
+              padding: const EdgeInsets.fromLTRB(24, 12, 24, 12),
               child: _buildNavigationButtons(context, onboardingProvider),
             ),
           ],
@@ -155,31 +164,24 @@ class _OnboardingContainerState extends State<OnboardingContainer> {
     );
   }
   
-  /// Constrói o cabeçalho com barra de progresso, título e subtítulo
+  /// Constrói o cabeçalho com título e subtítulo (barra de progresso movida para o topo)
   Widget _buildHeader(OnboardingState state) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Progress bar
-        ProgressBar(
-          current: state.currentStep,
-          total: state.totalSteps,
+        
+        // Título e subtítulo com spacing reduzido
+        Text(
+          widget.title,
+          style: context.headlineStyle?.copyWith(fontSize: 28),
+        ),
+        const SizedBox(height: 6),
+        Text(
+          widget.subtitle,
+          style: context.subtitleStyle?.copyWith(fontSize: 15),
         ),
         
         const SizedBox(height: 24),
-        
-        // Título e subtítulo
-        Text(
-          widget.title,
-          style: context.headlineStyle,
-        ),
-        const SizedBox(height: 8),
-        Text(
-          widget.subtitle,
-          style: context.subtitleStyle,
-        ),
-        
-        const SizedBox(height: 32),
       ],
     );
   }

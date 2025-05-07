@@ -126,13 +126,13 @@ class _CurrencySelectionScreenState extends State<CurrencySelectionScreen> {
               ),
             ),
             
-          // Texto informativo
+          // Texto informativo com padding reduzido
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
             child: Text(
               localizations.preselectedCurrency,
               style: const TextStyle(
-                fontSize: 14,
+                fontSize: 13,
                 fontStyle: FontStyle.italic,
               ),
               textAlign: TextAlign.center,
@@ -149,7 +149,7 @@ class _CurrencySelectionScreenState extends State<CurrencySelectionScreen> {
                     ),
                   )
                 : ListView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
                     itemCount: filteredCurrencies.length,
                     itemBuilder: (context, index) {
                       final currency = filteredCurrencies[index];
@@ -157,9 +157,9 @@ class _CurrencySelectionScreenState extends State<CurrencySelectionScreen> {
                       
                       return Card(
                         elevation: isSelected ? 2 : 0,
-                        margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
+                        margin: const EdgeInsets.symmetric(vertical: 3, horizontal: 4),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(10),
                           side: BorderSide(
                             color: isSelected 
                                 ? context.primaryColor 
@@ -177,13 +177,13 @@ class _CurrencySelectionScreenState extends State<CurrencySelectionScreen> {
                           },
                           borderRadius: BorderRadius.circular(12),
                           child: Padding(
-                            padding: const EdgeInsets.all(16.0),
+                            padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
                             child: Row(
                               children: [
                                 // Símbolo da moeda em destaque
                                 Container(
-                                  width: 48,
-                                  height: 48,
+                                  width: 40,
+                                  height: 40,
                                   decoration: BoxDecoration(
                                     color: context.primaryColor.withOpacity(0.1),
                                     borderRadius: BorderRadius.circular(12),
@@ -192,7 +192,7 @@ class _CurrencySelectionScreenState extends State<CurrencySelectionScreen> {
                                     child: Text(
                                       currency.symbol,
                                       style: TextStyle(
-                                        fontSize: 20,
+                                        fontSize: 18,
                                         fontWeight: FontWeight.bold,
                                         color: context.primaryColor,
                                       ),
@@ -200,7 +200,7 @@ class _CurrencySelectionScreenState extends State<CurrencySelectionScreen> {
                                   ),
                                 ),
                                 
-                                const SizedBox(width: 16),
+                                const SizedBox(width: 12),
                                 
                                 // Informações da moeda
                                 Expanded(
@@ -209,13 +209,13 @@ class _CurrencySelectionScreenState extends State<CurrencySelectionScreen> {
                                     children: [
                                       Text(
                                         currency.name,
-                                        style: context.textTheme.titleMedium?.copyWith(
+                                        style: context.textTheme.titleSmall?.copyWith(
                                           fontWeight: FontWeight.w600,
                                         ),
                                       ),
                                       Text(
                                         currency.code,
-                                        style: context.textTheme.bodyMedium?.copyWith(
+                                        style: context.textTheme.bodySmall?.copyWith(
                                           color: Colors.grey[600],
                                         ),
                                       ),
@@ -228,10 +228,10 @@ class _CurrencySelectionScreenState extends State<CurrencySelectionScreen> {
                                   Icon(
                                     Icons.check_circle,
                                     color: context.primaryColor,
-                                    size: 28,
+                                    size: 24,
                                   )
                                 else
-                                  const SizedBox(width: 28),
+                                  const SizedBox(width: 24),
                               ],
                             ),
                           ),

@@ -22,15 +22,15 @@ class ProgressBar extends StatelessWidget {
           children: [
             Text(
               'Passo $current de $total',
-              style: context.captionStyle,
+              style: context.captionStyle?.copyWith(fontSize: 12),
             ),
             Text(
               '${progress.round()}%',
-              style: context.captionStyle,
+              style: context.captionStyle?.copyWith(fontSize: 12),
             ),
           ],
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 6),
         Container(
           height: 4,
           width: double.infinity,
