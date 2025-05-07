@@ -9,8 +9,8 @@ import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
 class NewRecordSheet extends StatefulWidget {
   const NewRecordSheet({super.key});
 
-  static void show(BuildContext context) {
-    showModalBottomSheet(
+  static Future<void> show(BuildContext context) {
+    return showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
@@ -484,6 +484,7 @@ class _NewRecordSheetState extends State<NewRecordSheet> {
     
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final recordProvider = Provider.of<SmokingRecordProvider>(context, listen: false);
+    final l10n = AppLocalizations.of(context);
     
     final userId = authProvider.currentUser?.id ?? '';
     if (userId.isEmpty) {
@@ -501,11 +502,38 @@ class _NewRecordSheetState extends State<NewRecordSheet> {
       userId: userId,
     );
     
-    final success = await recordProvider.saveRecord(record);
+    // Prepare snackbar content before dismissing the sheet
+    final successMessage = l10n.recordSaved;
+    final retryLabel = l10n.retry;
     
-    // Close the sheet after saving
-    if (!context.mounted) return;
+    // Store current context's scaffold messenger
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+    
+    // Close the sheet immediately for better UX
     Navigator.of(context).pop();
+    
+    // Optimistically update the UI and save in the background
+    await recordProvider.saveRecord(record);
+    
+    // Show a success snackbar using the stored scaffold messenger
+    // This avoids the mounted check which can cause issues
+    scaffoldMessenger.showSnackBar(
+      SnackBar(
+        content: Text(successMessage),
+        backgroundColor: Colors.blue,
+        duration: const Duration(seconds: 3),
+        action: recordProvider.error != null ? SnackBarAction(
+          label: retryLabel,
+          onPressed: () {
+            // Find the failed record and retry
+            final failedRecord = recordProvider.failedRecords.firstOrNull;
+            if (failedRecord != null) {
+              recordProvider.retrySyncRecord(failedRecord.id!);
+            }
+          },
+        ) : null,
+      ),
+    );
   }
 }
 

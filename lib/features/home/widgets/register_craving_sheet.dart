@@ -9,8 +9,8 @@ import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
 class RegisterCravingSheet extends StatefulWidget {
   const RegisterCravingSheet({super.key});
 
-  static void show(BuildContext context) {
-    showModalBottomSheet(
+  static Future<void> show(BuildContext context) {
+    return showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
@@ -163,7 +163,7 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
                   color: context.backgroundColor,
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
+                      color: Colors.black.withAlpha(13),
                       offset: const Offset(0, -4),
                       blurRadius: 8,
                     ),
@@ -177,14 +177,21 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
                     if (!_isFormValid())
                       Padding(
                         padding: const EdgeInsets.only(bottom: 8),
-                        child: Text(
-                          _getValidationMessage(l10n),
-                          style: TextStyle(
-                            color: Colors.redAccent,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
+                        child: Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: Colors.red.withAlpha(26),
+                            borderRadius: BorderRadius.circular(8),
                           ),
-                          textAlign: TextAlign.center,
+                          child: Text(
+                            _getValidationMessage(l10n),
+                            style: TextStyle(
+                              color: Colors.redAccent,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
                         ),
                       ),
                     // Full-width save button
@@ -193,11 +200,34 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
                       child: ElevatedButton(
                         onPressed: _isFormValid() ? _saveCraving : () {
                           // Show bottom message when button is pressed but form is invalid
+                          final message = _getValidationMessage(l10n);
+                          
+                          // Verificar campos específicos e destacá-los
+                          String tipMessage = "";
+                          if (_selectedLocation == null) {
+                            tipMessage = "Por favor, selecione uma localização";
+                          } else if (_selectedTrigger == null) {
+                            tipMessage = "Por favor, selecione o que desencadeou o desejo";
+                          } else if (_selectedIntensity == null) {
+                            tipMessage = "Por favor, indique a intensidade do desejo";
+                          } else if (_didResist == null) {
+                            tipMessage = "Por favor, informe se resistiu ao desejo";
+                          }
+                          
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
-                              content: Text(_getValidationMessage(l10n)),
+                              content: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(message, style: const TextStyle(fontWeight: FontWeight.bold)),
+                                  if (tipMessage.isNotEmpty)
+                                    Text(tipMessage, style: const TextStyle(fontSize: 12)),
+                                ],
+                              ),
                               backgroundColor: Colors.redAccent,
                               behavior: SnackBarBehavior.floating,
+                              duration: const Duration(seconds: 3),
                             ),
                           );
                         },
@@ -257,7 +287,7 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
           width: 40,
           height: 4,
           decoration: BoxDecoration(
-            color: Colors.grey.withOpacity(0.3),
+            color: Colors.grey.withAlpha(77), // Equivalent to 0.3 opacity
             borderRadius: BorderRadius.circular(2),
           ),
         ),
@@ -361,11 +391,12 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
   }
   
   Widget _buildIntensityOptions(BuildContext context, AppLocalizations l10n) {
+    // Mapeando para os valores do enum do banco de dados: ["LOW", "MODERATE", "HIGH", "VERY_HIGH"]
     final intensities = [
-      _IntensityOption(label: l10n.mild, value: 'mild'),
-      _IntensityOption(label: l10n.moderate, value: 'moderate'),
-      _IntensityOption(label: l10n.intense, value: 'intense'),
-      _IntensityOption(label: l10n.veryIntense, value: 'very_intense'),
+      _IntensityOption(label: l10n.mild, value: 'low'), // "LOW" no banco de dados
+      _IntensityOption(label: l10n.moderate, value: 'moderate'), // "MODERATE" no banco de dados
+      _IntensityOption(label: l10n.intense, value: 'high'), // "HIGH" no banco de dados
+      _IntensityOption(label: l10n.veryIntense, value: 'very_high'), // "VERY_HIGH" no banco de dados
     ];
     
     return Row(
@@ -406,10 +437,10 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: isSelected 
-                ? color.withOpacity(0.2) 
+                ? color.withAlpha(51) 
                 : context.isDarkMode 
-                  ? Colors.grey.withOpacity(0.1) 
-                  : Colors.grey.withOpacity(0.05),
+                  ? Colors.grey.withAlpha(26) 
+                  : Colors.grey.withAlpha(13),
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
                 color: isSelected 
@@ -457,9 +488,9 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
       selected: isSelected,
       onSelected: onSelected,
       backgroundColor: context.isDarkMode 
-        ? Colors.grey.withOpacity(0.1) 
-        : Colors.grey.withOpacity(0.05),
-      selectedColor: context.primaryColor.withOpacity(0.2),
+        ? Colors.grey.withAlpha(26) 
+        : Colors.grey.withAlpha(13),
+      selectedColor: context.primaryColor.withAlpha(51),
       checkmarkColor: context.primaryColor,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
@@ -488,13 +519,13 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
     
     Color getColor() {
       switch (value) {
-        case 'mild':
+        case 'low':
           return Colors.green;
         case 'moderate':
           return Colors.orange;
-        case 'intense':
+        case 'high':
           return Colors.deepOrange;
-        case 'very_intense':
+        case 'very_high':
           return Colors.red;
         default:
           return color;
@@ -514,10 +545,10 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
         decoration: BoxDecoration(
           color: isSelected 
-            ? itemColor.withOpacity(0.2) 
+            ? itemColor.withAlpha(51) 
             : context.isDarkMode 
-              ? Colors.grey.withOpacity(0.1) 
-              : Colors.grey.withOpacity(0.05),
+              ? Colors.grey.withAlpha(26) 
+              : Colors.grey.withAlpha(13),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: isSelected 
@@ -531,7 +562,7 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
           children: [
             Icon(
               Icons.circle,
-              color: isSelected ? itemColor : Colors.grey.withOpacity(0.3),
+              color: isSelected ? itemColor : Colors.grey.withAlpha(77),
               size: 24,
             ),
             const SizedBox(height: 8),
@@ -554,13 +585,13 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
     return Container(
       decoration: BoxDecoration(
         color: context.isDarkMode 
-            ? Colors.grey.withOpacity(0.1) 
-            : Colors.grey.withOpacity(0.05),
+            ? Colors.grey.withAlpha(26) 
+            : Colors.grey.withAlpha(13),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: context.isDarkMode 
-              ? Colors.grey.withOpacity(0.3) 
-              : Colors.grey.withOpacity(0.2),
+              ? Colors.grey.withAlpha(77) 
+              : Colors.grey.withAlpha(51),
         ),
       ),
       child: TextField(
@@ -623,10 +654,10 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
         decoration: BoxDecoration(
           color: isSelected 
-            ? color.withOpacity(0.2) 
+            ? color.withAlpha(51) 
             : context.isDarkMode 
-              ? Colors.grey.withOpacity(0.1) 
-              : Colors.grey.withOpacity(0.05),
+              ? Colors.grey.withAlpha(26) 
+              : Colors.grey.withAlpha(13),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: isSelected 
@@ -653,6 +684,7 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
     
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final cravingProvider = Provider.of<CravingProvider>(context, listen: false);
+    final l10n = AppLocalizations.of(context);
     
     final userId = authProvider.currentUser?.id ?? '';
     if (userId.isEmpty) {
@@ -660,6 +692,20 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
       Navigator.of(context).pop();
       return;
     }
+    
+    // Verificar se todos os campos estão preenchidos corretamente
+    assert(_selectedLocation != null, "Location is not selected");
+    assert(_selectedTrigger != null, "Trigger is not selected");
+    assert(_selectedIntensity != null, "Intensity is not selected");
+    assert(_didResist != null, "Resist option is not selected");
+    
+    // Logs para debug (serão removidos na produção)
+    debugPrint('Saving craving with:');
+    debugPrint('- Location: $_selectedLocation');
+    debugPrint('- Trigger: $_selectedTrigger');
+    debugPrint('- Intensity: $_selectedIntensity');
+    debugPrint('- Resisted: $_didResist');
+    debugPrint('- Notes: ${_notesController.text}');
     
     final craving = CravingModel(
       location: _selectedLocation!,
@@ -671,11 +717,60 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
       userId: userId,
     );
     
-    final success = await cravingProvider.saveCraving(craving);
+    // Prepare snackbar messages before dismissing the sheet
+    final bool didResist = _didResist!;
+    final successMessage = didResist ? l10n.cravingResistedRecorded : l10n.cravingRecorded;
+    final backgroundColor = didResist ? Colors.green : Colors.blue;
+    final retryLabel = l10n.retry;
     
-    // Close the sheet after saving
-    if (!context.mounted) return;
+    // Store current context's scaffold messenger
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+    
+    // Close the sheet immediately for better UX
     Navigator.of(context).pop();
+    
+    try {
+      // Optimistically update the UI and save in the background
+      await cravingProvider.saveCraving(craving);
+      
+      // Show a success snackbar
+      scaffoldMessenger.showSnackBar(
+        SnackBar(
+          content: Text(successMessage),
+          backgroundColor: backgroundColor,
+          duration: const Duration(seconds: 3),
+          action: cravingProvider.error != null ? SnackBarAction(
+            label: retryLabel,
+            onPressed: () {
+              // Find the failed craving and retry
+              final failedCraving = cravingProvider.failedCravings.firstOrNull;
+              if (failedCraving != null) {
+                cravingProvider.retrySyncCraving(failedCraving.id!);
+              }
+            },
+          ) : null,
+        ),
+      );
+    } catch (e) {
+      // Em caso de erro, mostrar mensagem de erro
+      scaffoldMessenger.showSnackBar(
+        SnackBar(
+          content: Text('${l10n.errorSavingCraving}: $e'),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 4),
+          action: SnackBarAction(
+            label: retryLabel,
+            onPressed: () {
+              // Find the failed craving and retry
+              final failedCraving = cravingProvider.failedCravings.firstOrNull;
+              if (failedCraving != null) {
+                cravingProvider.retrySyncCraving(failedCraving.id!);
+              }
+            },
+          ),
+        ),
+      );
+    }
   }
 }
 

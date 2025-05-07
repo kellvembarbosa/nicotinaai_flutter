@@ -478,6 +478,28 @@ class TrackingProvider extends ChangeNotifier {
     }
   }
   
+  /// Force update stats immediately after a craving or record is added
+  /// This can be called from other providers to ensure stats are updated
+  Future<void> forceUpdateStats() async {
+    debugPrint('🔄 [TrackingProvider] Forcing stats update...');
+    try {
+      // Update stats on the server without UI changes
+      await _repository.updateUserStats();
+      
+      // Load updated stats
+      await _loadUserStats();
+      
+      // Also refresh cravings since that's often what changed
+      await _loadCravings();
+      
+      debugPrint('✅ [TrackingProvider] Stats updated successfully');
+    } catch (e) {
+      debugPrint('❌ [TrackingProvider] Error forcing stats update: $e');
+    } finally {
+      notifyListeners();
+    }
+  }
+  
   // Health Recoveries Methods
   Future<void> _loadHealthRecoveries() async {
     try {

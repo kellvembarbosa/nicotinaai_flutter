@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -8,6 +9,7 @@ import 'package:nicotinaai_flutter/core/theme/theme_provider.dart';
 import 'package:nicotinaai_flutter/core/theme/theme_switch.dart';
 import 'package:nicotinaai_flutter/core/routes/app_routes.dart';
 import 'package:nicotinaai_flutter/features/auth/providers/auth_provider.dart';
+import 'package:nicotinaai_flutter/features/home/providers/craving_provider.dart';
 import 'package:nicotinaai_flutter/features/home/widgets/new_record_sheet.dart';
 import 'package:nicotinaai_flutter/features/home/widgets/register_craving_sheet.dart';
 import 'package:nicotinaai_flutter/features/tracking/models/user_stats.dart';
@@ -44,6 +46,8 @@ class _HomeScreenState extends State<HomeScreen> {
     'lungs': false,
     'heart': false,
   };
+  // Flag para evitar múltiplas chamadas de atualização simultâneas
+  bool _isUpdating = false;
   // Currency formatter
   final CurrencyUtils _currencyUtils = CurrencyUtils();
   
@@ -58,6 +62,13 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _loadData() {
     if (!mounted) return;
+    
+    // Evitar múltiplas chamadas simultâneas
+    if (_isUpdating) return;
+    
+    setState(() {
+      _isUpdating = true;
+    });
     
     final trackingProvider = Provider.of<TrackingProvider>(context, listen: false);
     
@@ -119,7 +130,10 @@ class _HomeScreenState extends State<HomeScreen> {
         _cravingsResisted = _stats?.cravingsResisted ?? 0;
         _dailyMinutesGained = _daysWithoutSmoking == 0 ? 0 : _minutesLifeGained ~/ _daysWithoutSmoking;
         _moneySavedInCents = _stats?.moneySaved ?? 0; // Money saved in cents
+        _isUpdating = false; // Marca como não mais atualizando
       });
+    } else {
+      _isUpdating = false; // Caso não esteja montado, também precisamos resetar o flag
     }
   }
   
@@ -139,12 +153,18 @@ class _HomeScreenState extends State<HomeScreen> {
     // sem causar problemas durante o build
     return Consumer<TrackingProvider>(
       builder: (_, trackingProvider, child) {
-        // Só acione o recarregamento quando os dados mudam e não está no buildando inicial
+        // Só acione o recarregamento uma vez quando os dados são carregados inicialmente
+        // ou quando há uma mudança real no número de conquistas para evitar chamadas em excesso
         if (trackingProvider.state.isLoaded && 
-            (_userRecoveryIds.isEmpty || trackingProvider.state.userHealthRecoveries.length != _userRecoveryIds.length)) {
+            (_userRecoveryIds.isEmpty || 
+             (trackingProvider.state.userHealthRecoveries.length != _userRecoveryIds.length && 
+              trackingProvider.state.userHealthRecoveries.isNotEmpty))) {
           // Usar addPostFrameCallback para evitar mudanças durante o build
+          // e adicionar uma verificação para evitar múltiplas chamadas
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            _loadData();
+            if (mounted && !_isUpdating) {
+              _loadData();
+            }
           });
         }
         
@@ -218,7 +238,11 @@ class _HomeScreenState extends State<HomeScreen> {
                         Colors.redAccent,
                         Icons.air,
                         () {
-                          RegisterCravingSheet.show(context);
+                          RegisterCravingSheet.show(context).then((_) {
+                            // Force refresh after registering a craving
+                            debugPrint("🔄 Refreshing home data after craving registration");
+                            _loadData();
+                          });
                         },
                       ),
                     ),
@@ -231,7 +255,11 @@ class _HomeScreenState extends State<HomeScreen> {
                         Colors.blueAccent,
                         Icons.smoking_rooms,
                         () {
-                          NewRecordSheet.show(context);
+                          NewRecordSheet.show(context).then((_) {
+                            // Force refresh after registering a smoking record
+                            debugPrint("🔄 Refreshing home data after smoking record registration");
+                            _loadData();
+                          });
                         },
                       ),
                     ),
