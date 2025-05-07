@@ -186,43 +186,20 @@ class _OnboardingContainerState extends State<OnboardingContainer> {
     );
   }
   
-  /// Constrói os botões de navegação com estilo fixo na parte inferior
+  /// Constrói os botões de navegação diretamente, sem container adicional
   Widget _buildNavigationButtons(BuildContext context, OnboardingProvider onboardingProvider) {
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: context.isDarkMode ? context.backgroundColor : Colors.white,
-        boxShadow: [
-          if (!context.isDarkMode)
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 8,
-              offset: const Offset(0, -2),
-            ),
-        ],
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: context.isDarkMode
-          ? _buildBlurredNavigationRow(context, onboardingProvider)
-          : _buildNavigationRow(context, onboardingProvider),
-    );
+    return context.isDarkMode
+        ? _buildBlurredNavigationRow(context, onboardingProvider)
+        : _buildNavigationRow(context, onboardingProvider);
   }
   
   Widget _buildBlurredNavigationRow(BuildContext context, OnboardingProvider onboardingProvider) {
     return ClipRRect(
-      borderRadius: BorderRadius.circular(16),
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
         child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-          decoration: BoxDecoration(
-            color: Colors.black.withOpacity(0.2),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: Colors.white.withOpacity(0.1),
-              width: 1.5,
-            ),
-          ),
+          padding: EdgeInsets.zero,
+          color: Colors.transparent,
           child: _buildNavigationRow(context, onboardingProvider),
         ),
       ),
