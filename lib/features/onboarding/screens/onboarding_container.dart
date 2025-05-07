@@ -66,70 +66,73 @@ class _OnboardingContainerState extends State<OnboardingContainer> {
     return Scaffold(
       backgroundColor: context.backgroundColor,
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: _buildByContentType(context, state, onboardingProvider),
+        child: Column(
+          children: [
+            // Conteúdo principal - ocupa toda a área disponível
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
+                child: _buildContentArea(context, state, onboardingProvider),
+              ),
+            ),
+            
+            // Botões de navegação - sempre visíveis na parte inferior
+            Padding(
+              padding: const EdgeInsets.all(24),
+              child: _buildNavigationButtons(context, onboardingProvider),
+            ),
+          ],
         ),
       ),
     );
   }
   
-  /// Constrói o layout adequado com base no tipo de conteúdo
-  Widget _buildByContentType(BuildContext context, OnboardingState state, OnboardingProvider onboardingProvider) {
+  /// Constrói a área de conteúdo com base no tipo selecionado
+  Widget _buildContentArea(BuildContext context, OnboardingState state, OnboardingProvider onboardingProvider) {
     switch (widget.contentType) {
       case OnboardingContentType.regular:
-        return _buildRegularLayout(context, state, onboardingProvider);
+        return _buildRegularContent(context, state);
       case OnboardingContentType.list:
-        return _buildListLayout(context, state, onboardingProvider);
+        return _buildListContent(context, state);
       case OnboardingContentType.scrollable:
-        return _buildScrollableLayout(context, state, onboardingProvider);
+        return _buildScrollableContent(context, state);
     }
   }
   
   /// Layout padrão para conteúdo regular
-  Widget _buildRegularLayout(BuildContext context, OnboardingState state, OnboardingProvider onboardingProvider) {
+  Widget _buildRegularContent(BuildContext context, OnboardingState state) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Cabeçalho fixo
         _buildHeader(state),
         
-        // Conteúdo principal
+        // Conteúdo principal com expansão máxima
         Expanded(
           child: widget.content,
         ),
-        
-        const SizedBox(height: 24),
-        
-        // Botões de navegação
-        _buildNavigationButtons(context, onboardingProvider),
       ],
     );
   }
   
   /// Layout otimizado para conteúdo com listas ou grids
-  Widget _buildListLayout(BuildContext context, OnboardingState state, OnboardingProvider onboardingProvider) {
+  Widget _buildListContent(BuildContext context, OnboardingState state) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Cabeçalho fixo
         _buildHeader(state),
         
-        // Conteúdo principal (com lista ou grid) usando Expanded
+        // Conteúdo principal (com lista ou grid) usando o máximo de espaço
         Expanded(
           child: widget.content,
         ),
-        
-        const SizedBox(height: 24),
-        
-        // Botões de navegação
-        _buildNavigationButtons(context, onboardingProvider),
       ],
     );
   }
   
   /// Layout que permite conteúdo com rolagem independente
-  Widget _buildScrollableLayout(BuildContext context, OnboardingState state, OnboardingProvider onboardingProvider) {
+  Widget _buildScrollableContent(BuildContext context, OnboardingState state) {
     return CustomScrollView(
       controller: _scrollController,
       physics: const BouncingScrollPhysics(),
@@ -144,14 +147,9 @@ class _OnboardingContainerState extends State<OnboardingContainer> {
           child: widget.content,
         ),
         
-        // Espaçamento
+        // Espaçamento adicional para melhor visualização ao fazer scroll
         const SliverToBoxAdapter(
-          child: SizedBox(height: 24),
-        ),
-        
-        // Botões de navegação
-        SliverToBoxAdapter(
-          child: _buildNavigationButtons(context, onboardingProvider),
+          child: SizedBox(height: 16),
         ),
       ],
     );
@@ -186,85 +184,113 @@ class _OnboardingContainerState extends State<OnboardingContainer> {
     );
   }
   
-  /// Constrói os botões de navegação com suporte a glassmorphism no tema escuro
+  /// Constrói os botões de navegação com estilo fixo na parte inferior
   Widget _buildNavigationButtons(BuildContext context, OnboardingProvider onboardingProvider) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(16),
-      child: context.isDarkMode 
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: context.isDarkMode ? context.backgroundColor : Colors.white,
+        boxShadow: [
+          if (!context.isDarkMode)
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 8,
+              offset: const Offset(0, -2),
+            ),
+        ],
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: context.isDarkMode
           ? _buildBlurredNavigationRow(context, onboardingProvider)
           : _buildNavigationRow(context, onboardingProvider),
     );
   }
   
   Widget _buildBlurredNavigationRow(BuildContext context, OnboardingProvider onboardingProvider) {
-    return BackdropFilter(
-      filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-        decoration: BoxDecoration(
-          color: Colors.black.withOpacity(0.5),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: Colors.white.withOpacity(0.1),
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(16),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+          decoration: BoxDecoration(
+            color: Colors.black.withOpacity(0.2),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: Colors.white.withOpacity(0.1),
+              width: 1.5,
+            ),
           ),
+          child: _buildNavigationRow(context, onboardingProvider),
         ),
-        child: _buildNavigationRow(context, onboardingProvider),
       ),
     );
   }
   
   Widget _buildNavigationRow(BuildContext context, OnboardingProvider onboardingProvider) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          if (widget.showBackButton)
-            OutlinedButton(
-              onPressed: () {
-                onboardingProvider.previousStep();
-              },
-              style: OutlinedButton.styleFrom(
-                side: BorderSide(color: context.borderColor),
-                foregroundColor: context.contentColor,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 12,
-                ),
-              ),
-              child: Row(
-                children: [
-                  const Icon(Icons.arrow_back, size: 18),
-                  const SizedBox(width: 8),
-                  Text(AppLocalizations.of(context).back),
-                ],
-              ),
-            )
-          else
-            const SizedBox(width: 85),
-          
-          ElevatedButton(
-            onPressed: widget.canProceed ? widget.onNext : null,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: context.primaryColor,
-              foregroundColor: Colors.white,
-              disabledBackgroundColor: context.primaryColor.withOpacity(0.4),
-              disabledForegroundColor: Colors.white.withOpacity(0.8),
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        // Botão voltar
+        if (widget.showBackButton)
+          OutlinedButton(
+            onPressed: () {
+              onboardingProvider.previousStep();
+            },
+            style: OutlinedButton.styleFrom(
+              side: BorderSide(color: context.borderColor),
+              foregroundColor: context.contentColor,
               padding: const EdgeInsets.symmetric(
-                horizontal: 24,
-                vertical: 12,
+                horizontal: 20,
+                vertical: 14,
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
               ),
             ),
             child: Row(
               children: [
-                Text(widget.nextButtonText ?? AppLocalizations.of(context).continueButton),
+                const Icon(Icons.arrow_back, size: 18),
                 const SizedBox(width: 8),
-                const Icon(Icons.arrow_forward, size: 18),
+                Text(
+                  AppLocalizations.of(context).back,
+                  style: const TextStyle(fontWeight: FontWeight.w500),
+                ),
               ],
             ),
+          )
+        else
+          const SizedBox(width: 100), // Espaço reservado quando não há botão voltar
+        
+        // Botão próximo
+        ElevatedButton(
+          onPressed: widget.canProceed ? widget.onNext : null,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: context.primaryColor,
+            foregroundColor: Colors.white,
+            disabledBackgroundColor: context.primaryColor.withOpacity(0.4),
+            disabledForegroundColor: Colors.white.withOpacity(0.8),
+            elevation: 0,
+            padding: const EdgeInsets.symmetric(
+              horizontal: 24,
+              vertical: 14,
+            ),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
           ),
-        ],
-      ),
+          child: Row(
+            children: [
+              Text(
+                widget.nextButtonText ?? AppLocalizations.of(context).continueButton,
+                style: const TextStyle(fontWeight: FontWeight.w600),
+              ),
+              const SizedBox(width: 8),
+              const Icon(Icons.arrow_forward, size: 18),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }
