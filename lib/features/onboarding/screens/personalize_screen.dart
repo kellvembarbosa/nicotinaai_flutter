@@ -47,10 +47,12 @@ class _PersonalizeScreenState extends State<PersonalizeScreen> {
       title: localizations.personalizeScreenTitle,
       subtitle: localizations.personalizeScreenSubtitle,
       contentType: OnboardingContentType.scrollable,
-      content: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SizedBox(height: 16),
+      content: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 8),
           
           // Smoking time options
           _buildOptionCard(
@@ -93,8 +95,10 @@ class _PersonalizeScreenState extends State<PersonalizeScreen> {
             "boredom",
           ),
           
-          const SizedBox(height: 40),
+          // Espaço extra para evitar que o conteúdo fique atrás dos botões
+          const SizedBox(height: 20),
         ],
+      ),
       ),
       canProceed: _selectedTimes.isNotEmpty,
       onNext: () {

@@ -46,22 +46,24 @@ class _TimelineScreenState extends State<TimelineScreen> {
     return OnboardingContainer(
       title: timelineQuestion,
       subtitle: localizations.establishDeadline,
-      contentType: OnboardingContentType.regular,
-      content: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24),
-            child: Text(
-              localizations.timelineExplanation,
-              style: GoogleFonts.poppins(
-                fontSize: 16,
-                color: Colors.grey[700],
+      contentType: OnboardingContentType.scrollable,
+      content: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              child: Text(
+                localizations.timelineExplanation,
+                style: GoogleFonts.poppins(
+                  fontSize: 15,
+                  color: Colors.grey[700],
+                ),
+                textAlign: TextAlign.center,
               ),
-              textAlign: TextAlign.center,
             ),
-          ),
-          
-          const SizedBox(height: 32),
+            
+            const SizedBox(height: 20),
           
           // Opções de prazo
           OptionCard(
@@ -118,17 +120,21 @@ class _TimelineScreenState extends State<TimelineScreen> {
           
           // Texto informativo
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24),
+            padding: const EdgeInsets.symmetric(horizontal: 4),
             child: Text(
               localizations.timelineHelp,
               style: GoogleFonts.poppins(
-                fontSize: 14,
+                fontSize: 13,
                 color: Colors.grey[600],
               ),
               textAlign: TextAlign.center,
             ),
           ),
+          
+          // Espaço extra para evitar que o conteúdo fique atrás dos botões
+          const SizedBox(height: 20),
         ],
+      ),
       ),
       onNext: () {
         if (_selectedTimeline != null) {
