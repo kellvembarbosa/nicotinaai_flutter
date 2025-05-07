@@ -113,3 +113,116 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
     showErrorMessage('Failed to save changes: ${e.message}');
   }
   ```
+
+## Expert Context
+You are an expert in Flutter, Dart, Signals (state manager), Freezed, Flutter Hooks, and Supabase.
+
+### Princípios-chave
+
+* Escreva código Dart técnico e conciso com exemplos precisos.
+* Use padrões funcionais e declarativos quando apropriado.
+* Prefira composição ao invés de herança.
+* Use nomes de variáveis descritivos com verbos auxiliares (ex.: `isLoading`, `hasError`).
+* Estruture arquivos em camadas: widgets exportados, subwidgets, helpers, conteúdo estático, tipos.
+
+### Arquitetura e Estado
+
+* **MVC**: Separe camadas de Model, View e Controller. Controllers orquestram lógica e interagem com o Model. Views (Widgets) ficam puras.
+* **Signals**: Utilize o gerenciador Signals para reatividade leve.
+
+  * Crie `Signal<T>` para propriedades mutáveis e use `SignalBuilder` ou `useSignal` em Hooks para reconstruir Widgets.
+  * Consulte a documentação completa de cada módulo do Signals:
+
+    * Signal Core: [https://dartsignals.dev/core/signal/](https://dartsignals.dev/core/signal/)
+    * Computed Core: [https://dartsignals.dev/core/computed/](https://dartsignals.dev/core/computed/)
+    * Effect Core: [https://dartsignals.dev/core/effect/](https://dartsignals.dev/core/effect/)
+    * Untracked Core: [https://dartsignals.dev/core/untracked/](https://dartsignals.dev/core/untracked/)
+    * Batch Core: [https://dartsignals.dev/core/batch/](https://dartsignals.dev/core/batch/)
+  * Minimize listeners manuais; deixe Signals notificar automaticamente.
+* **Singletons & GetIt**: Registre controllers e serviços via GetIt:
+
+  ```dart
+  final getIt = GetIt.instance;
+  getIt.registerLazySingleton<MyController>(() => MyController());
+  ```
+
+  * Recupere instâncias com `getIt<MyController>()` dentro de Views e Controllers.
+
+### Dart/Flutter
+
+* Utilize `const` constructors para Widgets imutáveis.
+* Aproveite Freezed para classes de estado imutáveis e unions.
+* Use sintaxe arrow (`=>`) para funções e métodos simples.
+* Prefira corpos de expressão para getters/setters de uma linha.
+* Use vírgulas finais para melhor formatação e diffs.
+
+### Tratamento de Erros e Validação
+
+* Trate erros em Views usando `SelectableText.rich` ao invés de SnackBars.
+* Exiba mensagens de erro em vermelho para melhor visibilidade.
+* Gerencie estados vazios com telas dedicadas de empty state.
+* Com Signals: use `AsyncSignal<T>` ou combine `Signal<AsyncValue<T>>` para loading e error states.
+
+### Signals-Specific Guidelines
+
+* Crie providers de Signals no Controller, não na View.
+* Use `dispose()` no Controller para liberar subscriptions de Streams ou timers.
+* Injeção de dependências: Signals podem receber outras signals, mas evite dependências circulares.
+* Forçar update: chame `signal.notifyListeners()` somente quando necessário.
+
+### Otimizações de Performance
+
+* Utilize `const` Widgets para reduzir rebuilds.
+* Otimize listas com `ListView.builder`.
+* Carregue imagens estáticas com `AssetImage` e remotas com `CachedNetworkImage`.
+* Trate erros de Supabase (rede, autenticação) com captura nas requests e exiba feedback no Controller.
+
+### Convenções Principais
+
+1. Use `go_router` ou `auto_route` para navegação e deep linking.
+2. Foque em métricas de performance: primeira pintura significativa, time-to-interactive.
+3. Prefira Widgets sem estado:
+
+   * `HookConsumerWidget` para Hooks + Signals.
+   * `ConsumerWidget` apenas para dependência de Signals simples.
+
+### UI e Estilo
+
+* Use Widgets nativos e componha custom widgets pequenos.
+* Design responsivo via `LayoutBuilder` ou `MediaQuery`.
+* Utilize `Theme.of(context).textTheme.titleLarge` em vez de `headline6`.
+* Separe estilos no tema do App (`ThemeData`).
+
+### Modelagem e Banco de Dados
+
+* Inclua `createdAt`, `updatedAt`, `isDeleted` nas tabelas.
+* Use `@JsonSerializable(fieldRename: FieldRename.snake)`.
+* Marque campos somente leitura com `@JsonKey(includeFromJson: true, includeToJson: false)`.
+
+### Widgets e Componentes
+
+* Crie pequenas classes privadas ao invés de métodos `_build...`.
+* Implemente `RefreshIndicator` para pull-to-refresh.
+* Configure `textCapitalization`, `keyboardType`, `textInputAction` em `TextField`.
+* Sempre use `errorBuilder` em `Image.network`.
+
+### Miscellaneous
+
+* Use `log()` ao invés de `print()`.
+* Use Flutter Hooks e Signals Hooks onde fizer sentido.
+* Limite linhas a 80 caracteres; vírgula antes do `)` em multi-parâmetros.
+* Enum para banco: `@JsonValue(int)`.
+
+### Geração de Código
+
+* Utilize `build_runner` para gerar código (Freezed, Signals, JSON).
+* Após alterações, rode:
+
+  ```bash
+  flutter pub run build_runner build --delete-conflicting-outputs
+  ```
+
+### Documentação
+
+* Documente lógica complexa e decisões não óbvias.
+* Siga guias oficiais do Flutter, Signals e Supabase para melhores práticas.
