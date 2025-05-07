@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:nicotinaai_flutter/features/auth/models/user_model.dart';
+import 'package:nicotinaai_flutter/utils/supported_currencies.dart';
 
 /// Classe utilitária para formatação e manipulação de valores monetários
 class CurrencyUtils {
@@ -19,14 +20,14 @@ class CurrencyUtils {
   /// Formata um valor monetário de acordo com as preferências do usuário
   /// [valueInCents] - O valor em centavos (formato de armazenamento)
   /// [user] - O usuário com informações de moeda
-  String format(int valueInCents, {UserModel? user}) {
+  String format(int valueInCents, {UserModel? user, String? currencySymbol, String? currencyLocale}) {
     final double valueInCurrency = valueInCents / 100.0;
     
     // Usar NumberFormat da biblioteca intl para formatação de números
     final formatter = NumberFormat.currency(
-      symbol: user?.currencySymbol ?? defaultCurrencySymbol,
+      symbol: currencySymbol ?? user?.currencySymbol ?? defaultCurrencySymbol,
       decimalDigits: 2,
-      locale: user?.currencyLocale ?? defaultCurrencyLocale,
+      locale: currencyLocale ?? user?.currencyLocale ?? defaultCurrencyLocale,
     );
     
     // Formatar o valor

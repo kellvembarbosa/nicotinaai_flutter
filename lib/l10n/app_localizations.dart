@@ -2056,6 +2056,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Please select how long it lasted'**
   String get pleaseSelectDuration;
+
+  /// Title for currency selection screen
+  ///
+  /// In en, this message translates to:
+  /// **'Select your currency'**
+  String get selectCurrency;
+
+  /// Subtitle for currency selection screen
+  ///
+  /// In en, this message translates to:
+  /// **'Choose the currency for financial calculations'**
+  String get selectCurrencySubtitle;
+
+  /// Text explaining currency preselection
+  ///
+  /// In en, this message translates to:
+  /// **'We\'ve preselected your local currency. You can change it if necessary.'**
+  String get preselectedCurrency;
+
+  /// Label for common cigarette pack prices section
+  ///
+  /// In en, this message translates to:
+  /// **'Common pack prices'**
+  String get commonPrices;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

@@ -44,6 +44,7 @@ class _CigarettesPerDayScreenState extends State<CigarettesPerDayScreen> {
     return OnboardingContainer(
       title: localizations.cigarettesPerDayQuestion,
       subtitle: localizations.cigarettesPerDaySubtitle,
+      contentType: OnboardingContentType.scrollable,
       content: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [

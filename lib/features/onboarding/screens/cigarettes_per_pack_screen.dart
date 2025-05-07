@@ -43,6 +43,7 @@ class _CigarettesPerPackScreenState extends State<CigarettesPerPackScreen> {
     return OnboardingContainer(
       title: localizations.cigarettesPerPackQuestion,
       subtitle: localizations.selectStandardAmount,
+      contentType: OnboardingContentType.scrollable,
       content: Column(
         children: [
           Padding(

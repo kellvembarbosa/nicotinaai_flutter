@@ -8,6 +8,8 @@ import 'package:go_router/go_router.dart';
 import 'package:nicotinaai_flutter/core/routes/app_routes.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
+import 'package:nicotinaai_flutter/utils/supported_currencies.dart';
+import 'package:nicotinaai_flutter/utils/currency_utils.dart';
 import 'dart:ui';
 
 class CompletionScreen extends StatefulWidget {
@@ -19,6 +21,22 @@ class CompletionScreen extends StatefulWidget {
 
 class _CompletionScreenState extends State<CompletionScreen> {
   bool _isGridView = false;
+  
+  // Formata o valor para exibição de acordo com a moeda
+  String _formatCurrency(double value, String currencyCode) {
+    final currency = SupportedCurrencies.getByCurrencyCode(currencyCode);
+    if (currency != null) {
+      final valueInCents = (value * 100).round();
+      return CurrencyUtils().format(
+        valueInCents, 
+        user: null, // Não temos acesso ao usuário aqui, então passamos null
+        currencySymbol: currency.symbol,
+        currencyLocale: currency.locale
+      );
+    }
+    // Fallback para formatação padrão
+    return "${SupportedCurrencies.defaultCurrency.symbol} ${value.toStringAsFixed(2)}";
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -60,6 +78,7 @@ class _CompletionScreenState extends State<CompletionScreen> {
       subtitle: localizations.personalizedJourney,
       showBackButton: false,
       nextButtonText: localizations.startMyJourney,
+      contentType: OnboardingContentType.scrollable,
       content: Column(
         children: [
           const SizedBox(height: 24),
@@ -142,9 +161,11 @@ class _CompletionScreenState extends State<CompletionScreen> {
           const SizedBox(height: 32),
           
           // Lista ou grade de benefícios
-          _isGridView
-              ? _buildBenefitsGrid(context)
-              : _buildBenefitsList(context),
+          Expanded(
+            child: _isGridView
+                ? _buildBenefitsGrid(context)
+                : SingleChildScrollView(child: _buildBenefitsList(context)),
+          ),
           
           // Ajustar para deixar espaço para o botão no bottom
           const SizedBox(height: 40),
@@ -281,7 +302,7 @@ class _CompletionScreenState extends State<CompletionScreen> {
             context,
             Icons.savings,
             localizations.potentialMonthlySavings,
-            "R\$ ${monthlyCost.toStringAsFixed(2)}",
+            _formatCurrency(monthlyCost, onboarding.packPriceCurrency),
           ),
           
           _buildDivider(context),

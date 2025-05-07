@@ -41,6 +41,7 @@ class _GoalScreenState extends State<GoalScreen> {
     return OnboardingContainer(
       title: localizations.goalQuestion,
       subtitle: localizations.selectGoal,
+      contentType: OnboardingContentType.regular,
       content: Column(
         children: [
           Padding(

@@ -1014,4 +1014,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pleaseSelectDuration => 'Please select how long it lasted';
+
+  @override
+  String get selectCurrency => 'Select your currency';
+
+  @override
+  String get selectCurrencySubtitle => 'Choose the currency for financial calculations';
+
+  @override
+  String get preselectedCurrency => 'We\'ve preselected your local currency. You can change it if necessary.';
+
+  @override
+  String get commonPrices => 'Common pack prices';
 }

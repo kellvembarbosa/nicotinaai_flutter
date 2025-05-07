@@ -14,6 +14,7 @@ import 'package:nicotinaai_flutter/features/onboarding/screens/completion_screen
 import 'package:nicotinaai_flutter/features/onboarding/screens/personalize_screen.dart';
 import 'package:nicotinaai_flutter/features/onboarding/screens/interests_screen.dart';
 import 'package:nicotinaai_flutter/features/onboarding/screens/locations_screen.dart';
+import 'package:nicotinaai_flutter/features/onboarding/screens/currency_selection_screen.dart';
 
 class OnboardingScreen extends StatefulWidget {
   static const String routeName = '/onboarding';
@@ -86,28 +87,30 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       case 1:
         return const IntroductionScreen();
       case 2:
-        return const PersonalizeScreen();
+        return const CurrencySelectionScreen(); // Movida para ser a primeira após introdução
       case 3:
-        return const InterestsScreen();
+        return const PersonalizeScreen();
       case 4:
-        return const LocationsScreen();
+        return const InterestsScreen();
       case 5:
-        return const HelpScreen();
+        return const LocationsScreen();
       case 6:
-        return const CigarettesPerDayScreen();
+        return const HelpScreen();
       case 7:
-        return const PackPriceScreen();
+        return const CigarettesPerDayScreen();
       case 8:
-        return const CigarettesPerPackScreen();
+        return const PackPriceScreen();
       case 9:
-        return const GoalScreen();
+        return const CigarettesPerPackScreen();
       case 10:
-        return const TimelineScreen();
+        return const GoalScreen();
       case 11:
-        return const ChallengeScreen();
+        return const TimelineScreen();
       case 12:
-        return const ProductTypeScreen();
+        return const ChallengeScreen();
       case 13:
+        return const ProductTypeScreen();
+      case 14:
         return const CompletionScreen();
       default:
         return const IntroductionScreen();

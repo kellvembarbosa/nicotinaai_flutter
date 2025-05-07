@@ -15,7 +15,7 @@ class OnboardingModel {
   final ConsumptionLevel? cigarettesPerDay;
   final int? cigarettesPerDayCount;
   final int? packPrice; // em centavos
-  final String packPriceCurrency;
+  final String packPriceCurrency; // código ISO da moeda (ex: BRL, USD, EUR)
   final int? cigarettesPerPack;
   
   // Goals

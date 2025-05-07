@@ -22,7 +22,7 @@ class OnboardingState {
     this.onboarding,
     this.errorMessage,
     this.currentStep = 1,
-    this.totalSteps = 13, // total de telas
+    this.totalSteps = 14, // total de telas (atualizado com tela de seleção de moeda)
     this.isNew = true,
   });
 
@@ -55,7 +55,7 @@ class OnboardingState {
     return OnboardingState(
       status: OnboardingStatus.completed,
       onboarding: onboarding,
-      currentStep: 13, // última tela
+      currentStep: 14, // última tela
     );
   }
 

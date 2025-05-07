@@ -46,6 +46,7 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
     return OnboardingContainer(
       title: challengeQuestion,
       subtitle: localizations.identifyChallenge,
+      contentType: OnboardingContentType.scrollable,
       content: Column(
         children: [
           Padding(

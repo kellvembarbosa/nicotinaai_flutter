@@ -18,6 +18,7 @@ class IntroductionScreen extends StatelessWidget {
       subtitle: localizations.personalAssistant,
       showBackButton: false,
       nextButtonText: localizations.start,
+      contentType: OnboardingContentType.regular,
       content: Column(
         children: [
           const SizedBox(height: 24),

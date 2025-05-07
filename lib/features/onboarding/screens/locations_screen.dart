@@ -47,6 +47,7 @@ class _LocationsScreenState extends State<LocationsScreen> {
     return OnboardingContainer(
       title: localizations.locationsQuestion,
       subtitle: localizations.selectCommonPlaces,
+      contentType: OnboardingContentType.scrollable,
       content: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

@@ -66,6 +66,7 @@ class _InterestsScreenState extends State<InterestsScreen> {
     return OnboardingContainer(
       title: localizations.challengeQuestion(goalText),
       subtitle: localizations.identifyChallenge,
+      contentType: OnboardingContentType.scrollable,
       content: Column(
         children: [
           const SizedBox(height: 16),

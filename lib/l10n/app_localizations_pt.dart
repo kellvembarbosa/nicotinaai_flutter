@@ -1014,4 +1014,16 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get pleaseSelectDuration => 'Por favor, selecione quanto tempo durou';
+
+  @override
+  String get selectCurrency => 'Selecione sua moeda';
+
+  @override
+  String get selectCurrencySubtitle => 'Escolha a moeda para os cálculos financeiros';
+
+  @override
+  String get preselectedCurrency => 'Pré-selecionamos sua moeda local. Você pode alterá-la se necessário.';
+
+  @override
+  String get commonPrices => 'Preços comuns de maço';
 }

@@ -52,6 +52,7 @@ class _HelpScreenState extends State<HelpScreen> {
     return OnboardingContainer(
       title: localizations.helpScreenTitle,
       subtitle: localizations.selectAllInterests,
+      contentType: OnboardingContentType.scrollable,
       content: Column(
         children: [
           Padding(
