@@ -80,11 +80,23 @@ class _CurrencySelectionScreenState extends State<CurrencySelectionScreen> {
       subtitle: localizations.selectCurrencySubtitle,
       contentType: OnboardingContentType.list,
       content: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          // Opção para pesquisar
+          if (!_isSearching)
+            Align(
+              alignment: Alignment.centerRight,
+              child: IconButton(
+                icon: const Icon(Icons.search),
+                onPressed: _toggleSearch,
+                tooltip: localizations.search,
+              ),
+            ),
+          
           // Barra de busca
           if (_isSearching)
             Container(
-              margin: const EdgeInsets.symmetric(vertical: 16),
+              margin: const EdgeInsets.only(bottom: 16),
               padding: const EdgeInsets.symmetric(horizontal: 16),
               decoration: BoxDecoration(
                 color: context.cardColor,
@@ -110,22 +122,10 @@ class _CurrencySelectionScreenState extends State<CurrencySelectionScreen> {
                     onPressed: _toggleSearch,
                   ),
                 ),
+                autofocus: true,
               ),
             ),
             
-          // Opção para pesquisar
-          if (!_isSearching)
-            Align(
-              alignment: Alignment.centerRight,
-              child: IconButton(
-                icon: const Icon(Icons.search),
-                onPressed: _toggleSearch,
-                tooltip: localizations.search,
-              ),
-            ),
-            
-          const SizedBox(height: 8),
-          
           // Texto informativo
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -139,113 +139,107 @@ class _CurrencySelectionScreenState extends State<CurrencySelectionScreen> {
             ),
           ),
           
-          const SizedBox(height: 16),
-          
-          // Lista de moedas - Agora podemos usar Expanded sem problemas
-          if (filteredCurrencies.isEmpty)
-            Center(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Text(
-                  localizations.noResults,
-                  style: context.textTheme.titleMedium,
-                ),
-              ),
-            )
-          else
-            Expanded(
-              child: ListView.builder(
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-                itemCount: filteredCurrencies.length,
-                itemBuilder: (context, index) {
-                  final currency = filteredCurrencies[index];
-                  final isSelected = currency.code == _selectedCurrency;
-                  
-                  return Card(
-                    elevation: isSelected ? 2 : 0,
-                    margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      side: BorderSide(
-                        color: isSelected 
-                            ? context.primaryColor 
-                            : Colors.grey.withOpacity(0.3),
-                        width: isSelected ? 2 : 1,
-                      ),
+          // Área de lista - preenche o espaço disponível restante
+          Expanded(
+            child: filteredCurrencies.isEmpty
+                ? Center(
+                    child: Text(
+                      localizations.noResults,
+                      style: context.textTheme.titleMedium,
                     ),
-                    child: InkWell(
-                      onTap: () {
-                        setState(() {
-                          _selectedCurrency = currency.code;
-                          // Dar feedback tátil ao selecionar
-                          HapticFeedback.selectionClick();
-                        });
-                      },
-                      borderRadius: BorderRadius.circular(12),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Row(
-                          children: [
-                            // Símbolo da moeda em destaque
-                            Container(
-                              width: 48,
-                              height: 48,
-                              decoration: BoxDecoration(
-                                color: context.primaryColor.withOpacity(0.1),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Center(
-                                child: Text(
-                                  currency.symbol,
-                                  style: TextStyle(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold,
-                                    color: context.primaryColor,
+                  )
+                : ListView.builder(
+                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+                    itemCount: filteredCurrencies.length,
+                    itemBuilder: (context, index) {
+                      final currency = filteredCurrencies[index];
+                      final isSelected = currency.code == _selectedCurrency;
+                      
+                      return Card(
+                        elevation: isSelected ? 2 : 0,
+                        margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          side: BorderSide(
+                            color: isSelected 
+                                ? context.primaryColor 
+                                : Colors.grey.withOpacity(0.3),
+                            width: isSelected ? 2 : 1,
+                          ),
+                        ),
+                        child: InkWell(
+                          onTap: () {
+                            setState(() {
+                              _selectedCurrency = currency.code;
+                              // Dar feedback tátil ao selecionar
+                              HapticFeedback.selectionClick();
+                            });
+                          },
+                          borderRadius: BorderRadius.circular(12),
+                          child: Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Row(
+                              children: [
+                                // Símbolo da moeda em destaque
+                                Container(
+                                  width: 48,
+                                  height: 48,
+                                  decoration: BoxDecoration(
+                                    color: context.primaryColor.withOpacity(0.1),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      currency.symbol,
+                                      style: TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold,
+                                        color: context.primaryColor,
+                                      ),
+                                    ),
                                   ),
                                 ),
-                              ),
-                            ),
-                            
-                            const SizedBox(width: 16),
-                            
-                            // Informações da moeda
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    currency.name,
-                                    style: context.textTheme.titleMedium?.copyWith(
-                                      fontWeight: FontWeight.w600,
-                                    ),
+                                
+                                const SizedBox(width: 16),
+                                
+                                // Informações da moeda
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        currency.name,
+                                        style: context.textTheme.titleMedium?.copyWith(
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                      Text(
+                                        currency.code,
+                                        style: context.textTheme.bodyMedium?.copyWith(
+                                          color: Colors.grey[600],
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                  Text(
-                                    currency.code,
-                                    style: context.textTheme.bodyMedium?.copyWith(
-                                      color: Colors.grey[600],
-                                    ),
-                                  ),
-                                ],
-                              ),
+                                ),
+                                
+                                // Ícone de selecionado
+                                if (isSelected)
+                                  Icon(
+                                    Icons.check_circle,
+                                    color: context.primaryColor,
+                                    size: 28,
+                                  )
+                                else
+                                  const SizedBox(width: 28),
+                              ],
                             ),
-                            
-                            // Ícone de selecionado
-                            if (isSelected)
-                              Icon(
-                                Icons.check_circle,
-                                color: context.primaryColor,
-                                size: 28,
-                              )
-                            else
-                              const SizedBox(width: 28),
-                          ],
+                          ),
                         ),
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
+                      );
+                    },
+                  ),
+          ),
         ],
       ),
       onNext: () {
