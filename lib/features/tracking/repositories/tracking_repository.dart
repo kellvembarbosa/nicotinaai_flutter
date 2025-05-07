@@ -1,5 +1,6 @@
 import 'package:nicotinaai_flutter/config/supabase_config.dart';
 import 'package:nicotinaai_flutter/features/tracking/models/craving.dart';
+import 'package:nicotinaai_flutter/features/tracking/models/health_recovery.dart';
 import 'package:nicotinaai_flutter/features/tracking/models/smoking_log.dart';
 import 'package:nicotinaai_flutter/features/tracking/models/user_stats.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -217,6 +218,40 @@ class TrackingRepository {
       await _client.functions.invoke('checkHealthRecoveries', 
         body: {'userId': user.id},
       );
+    } catch (e) {
+      rethrow;
+    }
+  }
+  
+  // Health Recoveries Methods
+  Future<List<HealthRecovery>> getHealthRecoveries() async {
+    try {
+      final response = await _client
+          .from('health_recoveries')
+          .select()
+          .order('days_to_achieve', ascending: true);
+      
+      return response.map((recovery) => HealthRecovery.fromJson(recovery)).toList();
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<List<UserHealthRecovery>> getUserHealthRecoveries() async {
+    try {
+      final user = _client.auth.currentUser;
+      
+      if (user == null) {
+        throw Exception('User not authenticated');
+      }
+      
+      final response = await _client
+          .from('user_health_recoveries')
+          .select()
+          .eq('user_id', user.id)
+          .order('achieved_at', ascending: false);
+      
+      return response.map((recovery) => UserHealthRecovery.fromJson(recovery)).toList();
     } catch (e) {
       rethrow;
     }

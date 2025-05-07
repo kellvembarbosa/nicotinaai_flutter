@@ -24,7 +24,6 @@ class _MainScreenState extends State<MainScreen> {
   // List of screens for the tabs
   final List<Widget> _screens = [
     const HomeScreen(),
-    const DashboardScreen(),
     const AchievementsScreen(),
     const SettingsScreen(),
   ];
@@ -76,11 +75,6 @@ class _MainScreenState extends State<MainScreen> {
             icon: const Icon(Icons.home_outlined),
             activeIcon: const Icon(Icons.home),
             label: localizations.home,
-          ),
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.dashboard_outlined),
-            activeIcon: const Icon(Icons.dashboard),
-            label: 'Dashboard',
           ),
           BottomNavigationBarItem(
             icon: const Icon(Icons.emoji_events_outlined),

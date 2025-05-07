@@ -9,6 +9,9 @@ class AppLocalizationsPt extends AppLocalizations {
   AppLocalizationsPt([String locale = 'pt']) : super(locale);
 
   @override
+  String get days => 'dias';
+
+  @override
   String get helpScreenTitle => 'Como podemos ajudar você?';
 
   @override
@@ -819,6 +822,36 @@ class AppLocalizationsPt extends AppLocalizations {
   String loadingError(String error) {
     return 'Erro ao finalizar: $error';
   }
+
+  @override
+  String get developer => 'Desenvolvedor';
+
+  @override
+  String get developerMode => 'Modo Desenvolvedor';
+
+  @override
+  String get enableDebugging => 'Ativar depuração e rastreamento detalhados';
+
+  @override
+  String get dashboard => 'Painel';
+
+  @override
+  String get viewDetailedTracking => 'Ver painel de rastreamento detalhado';
+
+  @override
+  String get currency => 'Moeda';
+
+  @override
+  String get changeCurrency => 'Alterar moeda';
+
+  @override
+  String get setCurrencyForCalculations => 'Definir a moeda para cálculos de economia';
+
+  @override
+  String get search => 'Pesquisar';
+
+  @override
+  String get noResults => 'Nenhum resultado encontrado';
 
   @override
   String get listView => 'Visualização em lista';

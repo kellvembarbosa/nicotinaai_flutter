@@ -95,6 +95,12 @@ abstract class AppLocalizations {
     Locale('pt')
   ];
 
+  /// Text representing the plural of day
+  ///
+  /// In en, this message translates to:
+  /// **'days'**
+  String get days;
+
   /// Title for help screen
   ///
   /// In en, this message translates to:
@@ -1666,6 +1672,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Error completing: {error}'**
   String loadingError(String error);
+
+  /// Developer section title
+  ///
+  /// In en, this message translates to:
+  /// **'Developer'**
+  String get developer;
+
+  /// Toggle option for developer mode
+  ///
+  /// In en, this message translates to:
+  /// **'Developer Mode'**
+  String get developerMode;
+
+  /// Description of developer mode
+  ///
+  /// In en, this message translates to:
+  /// **'Enable detailed debugging and tracking'**
+  String get enableDebugging;
+
+  /// Dashboard screen title
+  ///
+  /// In en, this message translates to:
+  /// **'Dashboard'**
+  String get dashboard;
+
+  /// Description of dashboard option
+  ///
+  /// In en, this message translates to:
+  /// **'View detailed tracking dashboard'**
+  String get viewDetailedTracking;
+
+  /// Currency section title
+  ///
+  /// In en, this message translates to:
+  /// **'Currency'**
+  String get currency;
+
+  /// Option to change currency
+  ///
+  /// In en, this message translates to:
+  /// **'Change currency'**
+  String get changeCurrency;
+
+  /// Description for currency option
+  ///
+  /// In en, this message translates to:
+  /// **'Set the currency for savings calculations'**
+  String get setCurrencyForCalculations;
+
+  /// Search field placeholder
+  ///
+  /// In en, this message translates to:
+  /// **'Search'**
+  String get search;
+
+  /// Message shown when search returns no results
+  ///
+  /// In en, this message translates to:
+  /// **'No results found'**
+  String get noResults;
 
   /// Toggle for list view display
   ///

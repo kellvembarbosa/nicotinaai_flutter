@@ -1,6 +1,11 @@
 {
   "@@locale": "pt",
   
+  "days": "dias",
+  "@days": {
+    "description": "Text representing the plural of day"
+  },
+  
   "helpScreenTitle": "Como podemos ajudar você?",
   "@helpScreenTitle": {
     "description": "Title for help screen"
@@ -1387,6 +1392,56 @@
         "example": "Falha na conexão"
       }
     }
+  },
+  
+  "developer": "Desenvolvedor",
+  "@developer": {
+    "description": "Developer section title"
+  },
+  
+  "developerMode": "Modo Desenvolvedor",
+  "@developerMode": {
+    "description": "Toggle option for developer mode"
+  },
+  
+  "enableDebugging": "Ativar depuração e rastreamento detalhados",
+  "@enableDebugging": {
+    "description": "Description of developer mode"
+  },
+  
+  "dashboard": "Painel",
+  "@dashboard": {
+    "description": "Dashboard screen title"
+  },
+  
+  "viewDetailedTracking": "Ver painel de rastreamento detalhado",
+  "@viewDetailedTracking": {
+    "description": "Description of dashboard option"
+  },
+  
+  "currency": "Moeda",
+  "@currency": {
+    "description": "Currency section title"
+  },
+  
+  "changeCurrency": "Alterar moeda",
+  "@changeCurrency": {
+    "description": "Option to change currency"
+  },
+  
+  "setCurrencyForCalculations": "Definir a moeda para cálculos de economia",
+  "@setCurrencyForCalculations": {
+    "description": "Description for currency option"
+  },
+  
+  "search": "Pesquisar",
+  "@search": {
+    "description": "Search field placeholder"
+  },
+  
+  "noResults": "Nenhum resultado encontrado",
+  "@noResults": {
+    "description": "Message shown when search returns no results"
   },
   
   "listView": "Visualização em lista",

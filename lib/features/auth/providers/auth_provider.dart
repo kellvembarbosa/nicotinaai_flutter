@@ -190,6 +190,9 @@ class AuthProvider extends ChangeNotifier {
   Future<void> updateUserData({
     String? name,
     String? avatarUrl,
+    String? currencyCode,
+    String? currencySymbol,
+    String? currencyLocale,
   }) async {
     try {
       print('🔄 [AuthProvider] Atualizando dados do usuário');
@@ -199,6 +202,9 @@ class AuthProvider extends ChangeNotifier {
       final updatedUser = await _authRepository.updateUserData(
         name: name,
         avatarUrl: avatarUrl,
+        currencyCode: currencyCode,
+        currencySymbol: currencySymbol,
+        currencyLocale: currencyLocale,
       );
       
       print('✅ [AuthProvider] Dados atualizados com sucesso');
@@ -209,6 +215,29 @@ class AuthProvider extends ChangeNotifier {
           : app_exceptions.AuthException.fromSupabaseError(e);
           
       print('❌ [AuthProvider] Erro ao atualizar dados: ${error.message}');
+      _state = AuthState.error(error.message);
+    } finally {
+      notifyListeners();
+    }
+  }
+  
+  /// Atualiza o perfil completo do usuário
+  Future<void> updateUserProfile(UserModel user) async {
+    try {
+      print('🔄 [AuthProvider] Atualizando perfil do usuário');
+      _state = _state.copyWith(isLoading: true);
+      notifyListeners();
+      
+      final updatedUser = await _authRepository.updateUserProfile(user);
+      
+      print('✅ [AuthProvider] Perfil atualizado com sucesso');
+      _state = AuthState.authenticated(updatedUser);
+    } catch (e) {
+      final error = e is app_exceptions.AuthException
+          ? e
+          : app_exceptions.AuthException.fromSupabaseError(e);
+          
+      print('❌ [AuthProvider] Erro ao atualizar perfil: ${error.message}');
       _state = AuthState.error(error.message);
     } finally {
       notifyListeners();

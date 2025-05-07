@@ -6,7 +6,10 @@ import 'package:nicotinaai_flutter/core/theme/app_theme.dart';
 import 'package:nicotinaai_flutter/core/theme/theme_provider.dart';
 import 'package:nicotinaai_flutter/core/theme/theme_settings.dart';
 import 'package:nicotinaai_flutter/core/localization/locale_provider.dart';
+import 'package:nicotinaai_flutter/core/providers/developer_mode_provider.dart';
+import 'package:nicotinaai_flutter/core/providers/currency_provider.dart';
 import 'package:nicotinaai_flutter/features/auth/providers/auth_provider.dart';
+import 'package:nicotinaai_flutter/features/tracking/screens/dashboard_screen.dart';
 import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
 
 class SettingsScreen extends StatelessWidget {
@@ -19,6 +22,7 @@ class SettingsScreen extends StatelessWidget {
     final authProvider = Provider.of<AuthProvider>(context);
     final themeProvider = Provider.of<ThemeProvider>(context);
     final localeProvider = Provider.of<LocaleProvider>(context);
+    final developerModeProvider = Provider.of<DeveloperModeProvider>(context);
     final localizations = AppLocalizations.of(context);
     final user = authProvider.currentUser;
 
@@ -163,6 +167,23 @@ class SettingsScreen extends StatelessWidget {
             ),
             _buildSettingItem(
               context,
+              localizations.currency,
+              localizations.setCurrencyForCalculations,
+              Icons.currency_exchange,
+              onTap: () {
+                context.push(AppRoutes.currency.path);
+              },
+              trailing: Consumer<CurrencyProvider>(
+                builder: (context, provider, child) => Text(
+                  provider.currencyCode,
+                  style: context.textTheme.bodySmall!.copyWith(
+                    color: context.subtitleColor,
+                  ),
+                ),
+              ),
+            ),
+            _buildSettingItem(
+              context,
               localizations.startDate,
               localizations.whenYouQuitSmoking,
               Icons.calendar_today_outlined,
@@ -253,6 +274,41 @@ class SettingsScreen extends StatelessWidget {
             ),
 
             const SizedBox(height: 24),
+            
+            // Seção de desenvolvedor (aparece apenas em modo de desenvolvimento)
+            if (developerModeProvider.isInDevelopmentMode) ...[
+              _buildSectionHeader(context, localizations.developer),
+              _buildSettingItem(
+                context,
+                localizations.developerMode,
+                localizations.enableDebugging,
+                Icons.developer_mode,
+                onTap: () async {
+                  await developerModeProvider.toggleDeveloperMode();
+                },
+                trailing: Switch(
+                  value: developerModeProvider.isDeveloperModeEnabled,
+                  onChanged: (_) async {
+                    await developerModeProvider.toggleDeveloperMode();
+                  },
+                ),
+              ),
+              if (developerModeProvider.isDeveloperModeEnabled)
+                _buildSettingItem(
+                  context,
+                  localizations.dashboard,
+                  localizations.viewDetailedTracking,
+                  Icons.dashboard_outlined,
+                  onTap: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => const DashboardScreen(),
+                      ),
+                    );
+                  },
+                ),
+              const SizedBox(height: 24),
+            ],
 
             // Seção de sobre
             _buildSectionHeader(context, localizations.about),

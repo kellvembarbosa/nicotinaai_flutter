@@ -9,23 +9,27 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:nicotinaai_flutter/features/auth/repositories/auth_repository.dart';
 import 'package:nicotinaai_flutter/features/onboarding/repositories/onboarding_repository.dart';
+import 'package:nicotinaai_flutter/features/tracking/repositories/tracking_repository.dart';
 
 import 'package:nicotinaai_flutter/main.dart';
 
 // Mock das classes necessárias
 class MockAuthRepository extends Mock implements AuthRepository {}
 class MockOnboardingRepository extends Mock implements OnboardingRepository {}
+class MockTrackingRepository extends Mock implements TrackingRepository {}
 
 void main() {
   testWidgets('Teste de integração básico', (WidgetTester tester) async {
     // Cria os mocks necessários
     final authRepository = MockAuthRepository();
     final onboardingRepository = MockOnboardingRepository();
+    final trackingRepository = MockTrackingRepository();
     
     // Build our app and trigger a frame.
     await tester.pumpWidget(MyApp(
       authRepository: authRepository,
       onboardingRepository: onboardingRepository,
+      trackingRepository: trackingRepository,
     ));
 
     // Verifica se a tela de login é exibida inicialmente

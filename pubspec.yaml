@@ -60,6 +60,7 @@ dependencies:
   # UI components
   flutter_svg: ^2.0.10+1
   google_fonts: ^6.2.1
+  currency_formatter: ^2.2.3
 
 dev_dependencies:
   flutter_test:
@@ -94,7 +95,6 @@ flutter:
   assets:
     - .env
     - assets/images/
-    - assets/icons/
     - assets/l10n/
 
   # An image asset can refer to one or more resolution-specific "variants", see

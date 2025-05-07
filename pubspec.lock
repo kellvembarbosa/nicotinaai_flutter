@@ -201,6 +201,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.8"
+  currency_formatter:
+    dependency: "direct main"
+    description:
+      name: currency_formatter
+      sha256: e729ec60518b424abb748cf99315b6368e78ae5015ba2c9dae055502a70f3825
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.2.3"
   dart_style:
     dependency: transitive
     description:

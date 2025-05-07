@@ -10,6 +10,7 @@ import 'package:nicotinaai_flutter/features/home/screens/home_screen.dart';
 import 'package:nicotinaai_flutter/features/achievements/screens/achievements_screen.dart';
 import 'package:nicotinaai_flutter/features/settings/screens/settings_screen.dart';
 import 'package:nicotinaai_flutter/features/settings/screens/language_selection_screen.dart';
+import 'package:nicotinaai_flutter/features/settings/screens/currency_selection_screen.dart';
 import 'package:nicotinaai_flutter/features/onboarding/screens/onboarding_screen.dart';
 import 'package:nicotinaai_flutter/features/onboarding/providers/onboarding_provider.dart';
 import 'package:nicotinaai_flutter/features/tracking/screens/dashboard_screen.dart';
@@ -89,6 +90,10 @@ class AppRouter {
       GoRoute(
         path: AppRoutes.addCraving.path,
         builder: (context, state) => const AddCravingScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.currency.path,
+        builder: (context, state) => const CurrencySelectionScreen(),
       ),
     ],
     errorBuilder: (context, state) => Scaffold(

@@ -9,6 +9,9 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
+  String get days => 'days';
+
+  @override
   String get helpScreenTitle => 'How can we help you?';
 
   @override
@@ -819,6 +822,36 @@ class AppLocalizationsEn extends AppLocalizations {
   String loadingError(String error) {
     return 'Error completing: $error';
   }
+
+  @override
+  String get developer => 'Developer';
+
+  @override
+  String get developerMode => 'Developer Mode';
+
+  @override
+  String get enableDebugging => 'Enable detailed debugging and tracking';
+
+  @override
+  String get dashboard => 'Dashboard';
+
+  @override
+  String get viewDetailedTracking => 'View detailed tracking dashboard';
+
+  @override
+  String get currency => 'Currency';
+
+  @override
+  String get changeCurrency => 'Change currency';
+
+  @override
+  String get setCurrencyForCalculations => 'Set the currency for savings calculations';
+
+  @override
+  String get search => 'Search';
+
+  @override
+  String get noResults => 'No results found';
 
   @override
   String get listView => 'List View';

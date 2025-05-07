@@ -31,9 +31,13 @@ enum AppRoutes {
   editProfile('/profile/edit'),
   notifications('/notifications'),
   language('/settings/language'),
+  currency('/settings/currency'),
   privacyPolicy('/privacy-policy'),
   termsOfService('/terms-of-service'),
-  about('/about');
+  about('/about'),
+  
+  // Health recovery route
+  healthRecovery('/health-recovery');
 
   /// Caminho da rota
   final String path;

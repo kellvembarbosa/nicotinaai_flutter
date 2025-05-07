@@ -8,6 +8,8 @@ import 'package:nicotinaai_flutter/config/supabase_config.dart';
 import 'package:nicotinaai_flutter/core/routes/app_router.dart';
 import 'package:nicotinaai_flutter/core/theme/theme_provider.dart';
 import 'package:nicotinaai_flutter/core/localization/locale_provider.dart';
+import 'package:nicotinaai_flutter/core/providers/developer_mode_provider.dart';
+import 'package:nicotinaai_flutter/core/providers/currency_provider.dart';
 import 'package:nicotinaai_flutter/features/auth/providers/auth_provider.dart';
 import 'package:nicotinaai_flutter/features/auth/repositories/auth_repository.dart';
 import 'package:nicotinaai_flutter/features/home/providers/craving_provider.dart';
@@ -78,6 +80,15 @@ class MyApp extends StatelessWidget {
         // Provider de localização
         ChangeNotifierProvider(
           create: (_) => LocaleProvider(),
+        ),
+        
+        // Provider de modo desenvolvedor
+        ChangeNotifierProvider(
+          create: (_) {
+            final developerModeProvider = DeveloperModeProvider();
+            developerModeProvider.initialize();
+            return developerModeProvider;
+          },
         ),
         
         // Provider de autenticação
@@ -156,6 +167,24 @@ class MyApp extends StatelessWidget {
                 provider.initialize();
               });
             }
+            
+            return provider;
+          },
+        ),
+        
+        // Provider para o sistema de moedas
+        ChangeNotifierProxyProvider<AuthProvider, CurrencyProvider>(
+          create: (context) => CurrencyProvider(
+            authProvider: Provider.of<AuthProvider>(context, listen: false),
+          ),
+          update: (_, authProvider, previousProvider) {
+            final provider = previousProvider ?? 
+                CurrencyProvider(authProvider: authProvider);
+                
+            // Inicializa o provider
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              provider.initialize();
+            });
             
             return provider;
           },

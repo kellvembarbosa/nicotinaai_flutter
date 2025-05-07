@@ -1,6 +1,11 @@
 {
   "@@locale": "en",
   
+  "days": "days",
+  "@days": {
+    "description": "Text representing the plural of day"
+  },
+  
   "helpScreenTitle": "How can we help you?",
   "@helpScreenTitle": {
     "description": "Title for help screen"
@@ -1387,6 +1392,56 @@
         "example": "Connection failed"
       }
     }
+  },
+  
+  "developer": "Developer",
+  "@developer": {
+    "description": "Developer section title"
+  },
+  
+  "developerMode": "Developer Mode",
+  "@developerMode": {
+    "description": "Toggle option for developer mode"
+  },
+  
+  "enableDebugging": "Enable detailed debugging and tracking",
+  "@enableDebugging": {
+    "description": "Description of developer mode"
+  },
+  
+  "dashboard": "Dashboard",
+  "@dashboard": {
+    "description": "Dashboard screen title"
+  },
+  
+  "viewDetailedTracking": "View detailed tracking dashboard",
+  "@viewDetailedTracking": {
+    "description": "Description of dashboard option"
+  },
+  
+  "currency": "Currency",
+  "@currency": {
+    "description": "Currency section title"
+  },
+  
+  "changeCurrency": "Change currency",
+  "@changeCurrency": {
+    "description": "Option to change currency"
+  },
+  
+  "setCurrencyForCalculations": "Set the currency for savings calculations",
+  "@setCurrencyForCalculations": {
+    "description": "Description for currency option"
+  },
+  
+  "search": "Search",
+  "@search": {
+    "description": "Search field placeholder"
+  },
+  
+  "noResults": "No results found",
+  "@noResults": {
+    "description": "Message shown when search returns no results"
   },
 
   "listView": "List View",

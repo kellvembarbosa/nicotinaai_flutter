@@ -16,6 +16,24 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Run analyzer: `flutter analyze`
 - Fix formatting: `dart format lib`
 
+## Currency Handling System
+- All monetary values in the database are stored in cents (integer values)
+- Use `currency_formatter` package for displaying monetary values to users
+- Use existing `CurrencyUtils` class in `/lib/utils/currency_utils.dart` for conversions
+- The app detects the user's device currency by default
+- Users can change their preferred currency in Settings
+- When displaying monetary values:
+  - Always use the user's preferred currency for display
+  - Use `CurrencyFormatter` for input fields
+  - Use `CurrencyUtils.format()` for output display
+  - Use `CurrencyUtils.parseToCents()` before saving to database
+- Key functions:
+  - `format(int valueInCents)` - Display formatted currency with symbol
+  - `formatCompact(int valueInCents)` - Display without decimal places
+  - `parseToCents(String value)` - Convert string to cents for storage
+  - `detectDeviceCurrencySymbol()` - Get device currency symbol
+  - `detectDeviceCurrencyCode()` - Get device currency code
+
 ## Code Style Guidelines
 - Follow Flutter's official style guide and linting rules
 - Use named parameters for widgets with required annotation
