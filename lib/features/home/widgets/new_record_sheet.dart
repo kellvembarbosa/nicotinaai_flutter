@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 import 'package:nicotinaai_flutter/core/theme/app_theme.dart';
 import 'package:nicotinaai_flutter/features/auth/providers/auth_provider.dart';
 import 'package:nicotinaai_flutter/features/home/models/smoking_record_model.dart';
 import 'package:nicotinaai_flutter/features/home/providers/smoking_record_provider.dart';
+import 'package:nicotinaai_flutter/features/tracking/providers/tracking_provider.dart';
 import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
 
 class NewRecordSheet extends StatefulWidget {
