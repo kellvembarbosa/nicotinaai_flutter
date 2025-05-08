@@ -111,6 +111,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       TextFormField(
                         controller: _nameController,
                         keyboardType: TextInputType.name,
+                        autofillHints: const [AutofillHints.name],
+                        textCapitalization: TextCapitalization.words,
+                        textInputAction: TextInputAction.next,
                         decoration: InputDecoration(
                           labelText: 'Nome',
                           hintText: 'Seu nome completo',
@@ -132,6 +135,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       TextFormField(
                         controller: _emailController,
                         keyboardType: TextInputType.emailAddress,
+                        autocorrect: false,
+                        autofillHints: const [AutofillHints.email],
+                        textInputAction: TextInputAction.next,
                         decoration: InputDecoration(
                           labelText: 'E-mail',
                           hintText: 'exemplo@email.com',
@@ -156,6 +162,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       TextFormField(
                         controller: _passwordController,
                         obscureText: _obscurePassword,
+                        keyboardType: TextInputType.visiblePassword,
+                        autocorrect: false,
+                        autofillHints: const [AutofillHints.newPassword],
+                        textInputAction: TextInputAction.next,
                         decoration: InputDecoration(
                           labelText: 'Senha',
                           prefixIcon: const Icon(Icons.lock_outline),
@@ -191,6 +201,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       TextFormField(
                         controller: _confirmPasswordController,
                         obscureText: _obscureConfirmPassword,
+                        keyboardType: TextInputType.visiblePassword,
+                        autocorrect: false,
+                        autofillHints: const [AutofillHints.newPassword],
+                        textInputAction: TextInputAction.done,
+                        onFieldSubmitted: (_) => _register(),
                         decoration: InputDecoration(
                           labelText: 'Confirmar senha',
                           prefixIcon: const Icon(Icons.lock_outline),
