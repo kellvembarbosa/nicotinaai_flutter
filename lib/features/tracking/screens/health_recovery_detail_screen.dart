@@ -32,6 +32,8 @@ class _HealthRecoveryDetailScreenState extends State<HealthRecoveryDetailScreen>
   }
 
   Future<void> _loadRecoveryDetails() async {
+    if (!mounted) return;
+    
     setState(() {
       _isLoading = true;
       _errorMessage = null;
@@ -54,10 +56,15 @@ class _HealthRecoveryDetailScreenState extends State<HealthRecoveryDetailScreen>
       
       // Check if the recovery has been achieved
       final achievedRecoveries = status['achieved_recoveries'] as List;
-      final achievedRecovery = achievedRecoveries.firstWhere(
-        (r) => r['recovery_id'] == widget.recoveryId,
-        orElse: () => null,
-      );
+      Map<String, dynamic>? achievedRecovery;
+      try {
+        achievedRecovery = achievedRecoveries.firstWhere(
+          (r) => r['recovery_id'] == widget.recoveryId,
+        ) as Map<String, dynamic>;
+      } catch (e) {
+        // Recovery not found in achieved list, leave achievedRecovery as null
+        achievedRecovery = null;
+      }
       
       final achievedAt = achievedRecovery != null
           ? DateTime.parse(achievedRecovery['achieved_at'])
@@ -71,6 +78,8 @@ class _HealthRecoveryDetailScreenState extends State<HealthRecoveryDetailScreen>
             .eq('id', achievedRecovery['id']);
       }
       
+      if (!mounted) return;
+      
       setState(() {
         _recovery = recovery;
         _recoveryStatus = status;
@@ -79,6 +88,8 @@ class _HealthRecoveryDetailScreenState extends State<HealthRecoveryDetailScreen>
         _isLoading = false;
       });
     } catch (e) {
+      if (!mounted) return;
+      
       setState(() {
         _errorMessage = e.toString();
         _isLoading = false;
