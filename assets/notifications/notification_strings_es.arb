@@ -1,0 +1,17 @@
+{
+  "@@locale": "es",
+  
+  "dailyMotivation": "Motivación Diaria",
+  "dailyMotivationDescription": "¡Tu motivación diaria personalizada está aquí. Ábrela para obtener tu recompensa de XP!",
+  
+  "motivationalMessage": "Mensaje Motivacional",
+  "achievementUnlocked": "¡Logro Desbloqueado!",
+  
+  "claimReward": "Reclamar {xp} XP",
+  "rewardClaimed": "Recompensa reclamada: {xp} XP",
+  
+  "noNotificationsYet": "¡Aún no hay notificaciones!",
+  "emptyNotificationsDescription": "Continúa usando la aplicación para recibir mensajes motivacionales y logros.",
+  "errorLoadingNotifications": "Error al cargar notificaciones",
+  "refresh": "Actualizar"
+}

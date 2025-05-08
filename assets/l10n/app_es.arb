@@ -1,0 +1,2015 @@
+{
+  "@@locale": "es",
+  
+  "days": "días",
+  "@days": {
+    "description": "Text representing the plural of day"
+  },
+  
+  "helpScreenTitle": "¿Cómo podemos ayudarte?",
+  "@helpScreenTitle": {
+    "description": "Title for help screen"
+  },
+  
+  "selectAllInterests": "Selecciona todas las opciones que te interesen",
+  "@selectAllInterests": {
+    "description": "Subtitle for help screen"
+  },
+  
+  "helpScreenExplanation": "Ofrecemos diferentes recursos para apoyar tu camino. Selecciona todo lo que creas que puede ayudar.",
+  "@helpScreenExplanation": {
+    "description": "Explanation text on help screen"
+  },
+  
+  "dailyTips": "Consejos diarios",
+  "@dailyTips": {
+    "description": "Option for daily tips"
+  },
+  
+  "dailyTipsDescription": "Recibe consejos prácticos todos los días para apoyar tu camino",
+  "@dailyTipsDescription": {
+    "description": "Description for daily tips"
+  },
+  
+  "customReminders": "Recordatorios personalizados",
+  "@customReminders": {
+    "description": "Option for custom reminders"
+  },
+  
+  "customRemindersDescription": "Notificaciones para mantenerte motivado y en el camino correcto",
+  "@customRemindersDescription": {
+    "description": "Description for custom reminders"
+  },
+  
+  "progressMonitoring": "Monitoreo de progreso",
+  "@progressMonitoring": {
+    "description": "Option for progress monitoring"
+  },
+  
+  "progressMonitoringDescription": "Sigue visualmente tu progreso a lo largo del tiempo",
+  "@progressMonitoringDescription": {
+    "description": "Description for progress monitoring"
+  },
+  
+  "supportCommunity": "Comunidad de apoyo",
+  "@supportCommunity": {
+    "description": "Option for support community"
+  },
+  
+  "supportCommunityDescription": "Conéctate con otros en un camino similar",
+  "@supportCommunityDescription": {
+    "description": "Description for support community"
+  },
+  
+  "cigaretteAlternatives": "Alternativas al cigarrillo",
+  "@cigaretteAlternatives": {
+    "description": "Option for cigarette alternatives"
+  },
+  
+  "cigaretteAlternativesDescription": "Sugerencias de actividades y productos para reemplazar el hábito",
+  "@cigaretteAlternativesDescription": {
+    "description": "Description for cigarette alternatives"
+  },
+  
+  "savingsCalculator": "Calculadora de ahorro",
+  "@savingsCalculator": {
+    "description": "Option for savings calculator"
+  },
+  
+  "savingsCalculatorDescription": "Ve cuánto dinero estás ahorrando al reducir o dejar de fumar",
+  "@savingsCalculatorDescription": {
+    "description": "Description for savings calculator"
+  },
+  
+  "modifyPreferencesAnytime": "Puedes modificar estas preferencias en cualquier momento en la configuración de la aplicación.",
+  "@modifyPreferencesAnytime": {
+    "description": "Text explaining that preferences can be modified later"
+  },
+  
+  "personalizeScreenTitle": "¿Cuándo sueles fumar más?",
+  "@personalizeScreenTitle": {
+    "description": "Title for personalize screen"
+  },
+  
+  "personalizeScreenSubtitle": "Selecciona los momentos en que sientes más deseos de fumar",
+  "@personalizeScreenSubtitle": {
+    "description": "Subtitle for personalize screen"
+  },
+  
+  "afterMeals": "Después de las comidas",
+  "@afterMeals": {
+    "description": "Option for smoking after meals"
+  },
+  
+  "duringWorkBreaks": "Durante descansos laborales",
+  "@duringWorkBreaks": {
+    "description": "Option for smoking during work breaks"
+  },
+  
+  "inSocialEvents": "En eventos sociales",
+  "@inSocialEvents": {
+    "description": "Option for smoking at social events"
+  },
+  
+  "whenStressed": "Cuando estoy estresado",
+  "@whenStressed": {
+    "description": "Option for smoking when stressed"
+  },
+  
+  "withCoffeeOrAlcohol": "Cuando bebo café o alcohol",
+  "@withCoffeeOrAlcohol": {
+    "description": "Option for smoking with coffee or alcohol"
+  },
+  
+  "whenBored": "Cuando estoy aburrido",
+  "@whenBored": {
+    "description": "Option for smoking when bored"
+  },
+  
+  "homeDaysWithoutSmoking": "{days} días sin fumar",
+  "@homeDaysWithoutSmoking": {
+    "description": "Days without smoking counter",
+    "placeholders": {
+      "days": {
+        "type": "int",
+        "example": "7"
+      }
+    }
+  },
+  
+  "homeGreeting": "¡Hola, {name}! 👋",
+  "@homeGreeting": {
+    "description": "Greeting with user name",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Juan"
+      }
+    }
+  },
+  
+  "homeHealthRecovery": "Recuperación de Salud",
+  "@homeHealthRecovery": {
+    "description": "Health recovery section title"
+  },
+  
+  "homeTaste": "Gusto",
+  "@homeTaste": {
+    "description": "Taste health indicator"
+  },
+  
+  "homeSmell": "Olfato",
+  "@homeSmell": {
+    "description": "Smell health indicator"
+  },
+  
+  "homeCirculation": "Circulación",
+  "@homeCirculation": {
+    "description": "Circulation health indicator"
+  },
+  
+  "homeLungs": "Pulmones",
+  "@homeLungs": {
+    "description": "Lungs health indicator"
+  },
+  
+  "homeHeart": "Corazón",
+  "@homeHeart": {
+    "description": "Heart health indicator"
+  },
+  
+  "homeMinutesLifeGained": "minutos de vida\nganados",
+  "@homeMinutesLifeGained": {
+    "description": "Minutes of life gained label"
+  },
+  
+  "homeLungCapacity": "capacidad\npulmonar",
+  "@homeLungCapacity": {
+    "description": "Lung capacity label"
+  },
+  
+  "homeNextMilestone": "Próximo Hito",
+  "@homeNextMilestone": {
+    "description": "Next milestone title"
+  },
+  
+  "homeNextMilestoneDescription": "En {days} días: Mejora el flujo sanguíneo",
+  "@homeNextMilestoneDescription": {
+    "description": "Next milestone description",
+    "placeholders": {
+      "days": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  
+  "homeRecentAchievements": "Logros Recientes",
+  "@homeRecentAchievements": {
+    "description": "Recent achievements section title"
+  },
+  
+  "homeSeeAll": "Ver todos",
+  "@homeSeeAll": {
+    "description": "See all button"
+  },
+  
+  "homeFirstDay": "Primer Día",
+  "@homeFirstDay": {
+    "description": "First day achievement title"
+  },
+  
+  "homeFirstDayDescription": "¡Has pasado 24 horas sin fumar!",
+  "@homeFirstDayDescription": {
+    "description": "First day achievement description"
+  },
+  
+  "homeOvercoming": "Superación",
+  "@homeOvercoming": {
+    "description": "Overcoming achievement title"
+  },
+  
+  "homeOvercomingDescription": "Niveles de nicotina eliminados del cuerpo",
+  "@homeOvercomingDescription": {
+    "description": "Overcoming achievement description"
+  },
+  
+  "homePersistence": "Persistencia",
+  "@homePersistence": {
+    "description": "Persistence achievement title"
+  },
+  
+  "homePersistenceDescription": "¡Una semana entera sin cigarrillos!",
+  "@homePersistenceDescription": {
+    "description": "Persistence achievement description"
+  },
+  
+  "homeTodayStats": "Estadísticas de Hoy",
+  "@homeTodayStats": {
+    "description": "Today's statistics section title"
+  },
+  
+  "homeCravingsResisted": "Antojos\nResistidos",
+  "@homeCravingsResisted": {
+    "description": "Cravings resisted label"
+  },
+  
+  "homeMinutesGainedToday": "Minutos de Vida\nGanados Hoy",
+  "@homeMinutesGainedToday": {
+    "description": "Minutes gained today label"
+  },
+  
+  "achievementCategoryAll": "Todos",
+  "@achievementCategoryAll": {
+    "description": "All achievements category"
+  },
+  
+  "achievementCategoryHealth": "Salud",
+  "@achievementCategoryHealth": {
+    "description": "Health achievements category"
+  },
+  
+  "achievementCategoryTime": "Tiempo",
+  "@achievementCategoryTime": {
+    "description": "Time achievements category"
+  },
+  
+  "achievementCategorySavings": "Ahorro",
+  "@achievementCategorySavings": {
+    "description": "Savings achievements category"
+  },
+  
+  "achievementCategoryHabits": "Hábitos",
+  "@achievementCategoryHabits": {
+    "description": "Habits achievements category"
+  },
+  
+  "achievementUnlocked": "Desbloqueado",
+  "@achievementUnlocked": {
+    "description": "Unlocked achievements label"
+  },
+  
+  "achievementInProgress": "En progreso",
+  "@achievementInProgress": {
+    "description": "In progress achievements label"
+  },
+  
+  "achievementCompleted": "Completado",
+  "@achievementCompleted": {
+    "description": "Completed achievements percentage"
+  },
+  
+  "achievementCurrentProgress": "Tu Progreso Actual",
+  "@achievementCurrentProgress": {
+    "description": "Current progress section title"
+  },
+  
+  "achievementLevel": "Nivel {level}",
+  "@achievementLevel": {
+    "description": "Achievement level",
+    "placeholders": {
+      "level": {
+        "type": "int",
+        "example": "2"
+      }
+    }
+  },
+  
+  "achievementDaysWithoutSmoking": "{days} días sin fumar",
+  "@achievementDaysWithoutSmoking": {
+    "description": "Days without smoking on achievements screen",
+    "placeholders": {
+      "days": {
+        "type": "int",
+        "example": "7"
+      }
+    }
+  },
+  
+  "achievementNextLevel": "Próximo nivel: {time}",
+  "@achievementNextLevel": {
+    "description": "Next achievement level",
+    "placeholders": {
+      "time": {
+        "type": "String",
+        "example": "2 semanas"
+      }
+    }
+  },
+  
+  "achievementBenefitCO2": "CO2 Normal",
+  "@achievementBenefitCO2": {
+    "description": "CO2 benefit label"
+  },
+  
+  "achievementBenefitTaste": "Gusto Mejorado",
+  "@achievementBenefitTaste": {
+    "description": "Taste benefit label"
+  },
+  
+  "achievementBenefitCirculation": "Circulación +15%",
+  "@achievementBenefitCirculation": {
+    "description": "Circulation benefit label"
+  },
+  
+  "achievementFirstDay": "Primer Día",
+  "@achievementFirstDay": {
+    "description": "First day achievement"
+  },
+  
+  "achievementFirstDayDescription": "Completa 24 horas sin fumar",
+  "@achievementFirstDayDescription": {
+    "description": "First day achievement description"
+  },
+  
+  "achievementOneWeek": "Una Semana",
+  "@achievementOneWeek": {
+    "description": "One week achievement"
+  },
+  
+  "achievementOneWeekDescription": "¡Una semana sin fumar!",
+  "@achievementOneWeekDescription": {
+    "description": "One week achievement description"
+  },
+  
+  "achievementImprovedCirculation": "Circulación Mejorada",
+  "@achievementImprovedCirculation": {
+    "description": "Improved circulation achievement"
+  },
+  
+  "achievementImprovedCirculationDescription": "Niveles de oxígeno normalizados",
+  "@achievementImprovedCirculationDescription": {
+    "description": "Improved circulation achievement description"
+  },
+  
+  "achievementInitialSavings": "Ahorro Inicial",
+  "@achievementInitialSavings": {
+    "description": "Initial savings achievement"
+  },
+  
+  "achievementInitialSavingsDescription": "Ahorra el equivalente a 1 paquete de cigarrillos",
+  "@achievementInitialSavingsDescription": {
+    "description": "Initial savings achievement description"
+  },
+  
+  "achievementTwoWeeks": "Dos Semanas",
+  "@achievementTwoWeeks": {
+    "description": "Two weeks achievement"
+  },
+  
+  "achievementTwoWeeksDescription": "¡Dos semanas completas sin fumar!",
+  "@achievementTwoWeeksDescription": {
+    "description": "Two weeks achievement description"
+  },
+  
+  "achievementSubstantialSavings": "Ahorro Sustancial",
+  "@achievementSubstantialSavings": {
+    "description": "Substantial savings achievement"
+  },
+  
+  "achievementSubstantialSavingsDescription": "Ahorra el equivalente a 10 paquetes de cigarrillos",
+  "@achievementSubstantialSavingsDescription": {
+    "description": "Substantial savings achievement description"
+  },
+  
+  "achievementCleanBreathing": "Respiración Limpia",
+  "@achievementCleanBreathing": {
+    "description": "Clean breathing achievement"
+  },
+  
+  "achievementCleanBreathingDescription": "Capacidad pulmonar aumentada en un 30%",
+  "@achievementCleanBreathingDescription": {
+    "description": "Clean breathing achievement description"
+  },
+  
+  "achievementOneMonth": "Un Mes",
+  "@achievementOneMonth": {
+    "description": "One month achievement"
+  },
+  
+  "achievementOneMonthDescription": "¡Un mes entero sin fumar!",
+  "@achievementOneMonthDescription": {
+    "description": "One month achievement description"
+  },
+  
+  "achievementNewHabitExercise": "Nuevo Hábito: Ejercicio",
+  "@achievementNewHabitExercise": {
+    "description": "New exercise habit achievement"
+  },
+  
+  "achievementNewHabitExerciseDescription": "Registra 5 días de ejercicio",
+  "@achievementNewHabitExerciseDescription": {
+    "description": "New exercise habit achievement description"
+  },
+  
+  "percentCompleted": "{percent}% completado",
+  "@percentCompleted": {
+    "description": "Percentage completed",
+    "placeholders": {
+      "percent": {
+        "type": "int",
+        "example": "33"
+      }
+    }
+  },
+  
+  "appName": "NicotinaAI",
+  "@appName": {
+    "description": "Name of the application"
+  },
+  
+  "welcomeBack": "Bienvenido de Nuevo",
+  "@welcomeBack": {
+    "description": "Login screen title"
+  },
+  
+  "loginToContinue": "Inicia sesión para continuar",
+  "@loginToContinue": {
+    "description": "Login screen subtitle"
+  },
+  
+  "email": "Correo electrónico",
+  "@email": {
+    "description": "Email field label"
+  },
+  
+  "emailHint": "ejemplo@correo.com",
+  "@emailHint": {
+    "description": "Example text for email field"
+  },
+  
+  "password": "Contraseña",
+  "@password": {
+    "description": "Password field label"
+  },
+  
+  "rememberMe": "Recordarme",
+  "@rememberMe": {
+    "description": "Remember user option"
+  },
+  
+  "forgotPassword": "Olvidé mi contraseña",
+  "@forgotPassword": {
+    "description": "Link for password recovery"
+  },
+  
+  "login": "Iniciar sesión",
+  "@login": {
+    "description": "Login button"
+  },
+  
+  "noAccount": "¿No tienes una cuenta?",
+  "@noAccount": {
+    "description": "Text for users without account"
+  },
+  
+  "register": "Registrarse",
+  "@register": {
+    "description": "Link for account registration"
+  },
+  
+  "emailRequired": "Por favor, introduce tu correo electrónico",
+  "@emailRequired": {
+    "description": "Error message when email is empty"
+  },
+  
+  "emailInvalid": "Por favor, introduce un correo electrónico válido",
+  "@emailInvalid": {
+    "description": "Error message when email is invalid"
+  },
+  
+  "passwordRequired": "Por favor, introduce tu contraseña",
+  "@passwordRequired": {
+    "description": "Error message when password is empty"
+  },
+
+  "settings": "Configuración",
+  "@settings": {
+    "description": "Settings screen title"
+  },
+
+  "home": "Inicio",
+  "@home": {
+    "description": "Home screen title"
+  },
+
+  "achievements": "Logros",
+  "@achievements": {
+    "description": "Achievements screen title"
+  },
+
+  "profile": "Perfil",
+  "@profile": {
+    "description": "User profile section title"
+  },
+
+  "editProfile": "Editar Perfil",
+  "@editProfile": {
+    "description": "Button to edit profile"
+  },
+
+  "appSettings": "Configuración de la Aplicación",
+  "@appSettings": {
+    "description": "App settings section title"
+  },
+
+  "notifications": "Notificaciones",
+  "@notifications": {
+    "description": "Item to manage notifications"
+  },
+
+  "manageNotifications": "Gestionar notificaciones",
+  "@manageNotifications": {
+    "description": "Description of notifications item"
+  },
+
+  "language": "Idioma",
+  "@language": {
+    "description": "Item to change language"
+  },
+
+  "changeLanguage": "Cambiar el idioma de la aplicación",
+  "@changeLanguage": {
+    "description": "Description of language item"
+  },
+
+  "theme": "Tema",
+  "@theme": {
+    "description": "Item to change theme"
+  },
+
+  "dark": "Oscuro",
+  "@dark": {
+    "description": "Dark theme option"
+  },
+
+  "light": "Claro",
+  "@light": {
+    "description": "Light theme option"
+  },
+
+  "system": "Sistema",
+  "@system": {
+    "description": "System theme option"
+  },
+
+  "habitTracking": "Seguimiento de Hábitos",
+  "@habitTracking": {
+    "description": "Habit tracking section title"
+  },
+
+  "cigarettesPerDay": "Cigarrillos por día antes de dejar",
+  "@cigarettesPerDay": {
+    "description": "Item to configure cigarettes per day"
+  },
+
+  "configureHabits": "Configura tus hábitos anteriores",
+  "@configureHabits": {
+    "description": "Description of cigarettes per day item"
+  },
+
+  "packPrice": "Precio del paquete",
+  "@packPrice": {
+    "description": "Item to configure pack price"
+  },
+
+  "setPriceForCalculations": "Establecer el precio para cálculos de ahorro",
+  "@setPriceForCalculations": {
+    "description": "Description of pack price item"
+  },
+
+  "startDate": "Fecha de inicio",
+  "@startDate": {
+    "description": "Item to configure start date"
+  },
+
+  "whenYouQuitSmoking": "Cuando dejaste de fumar",
+  "@whenYouQuitSmoking": {
+    "description": "Description of start date item"
+  },
+
+  "account": "Cuenta",
+  "@account": {
+    "description": "Account section title"
+  },
+
+  "resetPassword": "Restablecer contraseña",
+  "@resetPassword": {
+    "description": "Item to reset password"
+  },
+
+  "changePassword": "Cambiar tu contraseña de acceso",
+  "@changePassword": {
+    "description": "Description of reset password item"
+  },
+
+  "deleteAccount": "Eliminar cuenta",
+  "@deleteAccount": {
+    "description": "Item to delete account"
+  },
+
+  "permanentlyRemoveAccount": "Eliminar permanentemente tu cuenta",
+  "@permanentlyRemoveAccount": {
+    "description": "Description of delete account item"
+  },
+
+  "deleteAccountTitle": "Eliminar Cuenta",
+  "@deleteAccountTitle": {
+    "description": "Title of delete account dialog"
+  },
+
+  "deleteAccountConfirmation": "¿Estás seguro de que deseas eliminar tu cuenta? Esta acción es irreversible y todos tus datos se perderán.",
+  "@deleteAccountConfirmation": {
+    "description": "Delete account confirmation message"
+  },
+
+  "logout": "Cerrar sesión",
+  "@logout": {
+    "description": "Item to logout"
+  },
+
+  "logoutFromAccount": "Desconectar de tu cuenta",
+  "@logoutFromAccount": {
+    "description": "Description of logout item"
+  },
+
+  "logoutTitle": "Cerrar sesión",
+  "@logoutTitle": {
+    "description": "Title of logout dialog"
+  },
+
+  "logoutConfirmation": "¿Estás seguro de que deseas cerrar sesión de tu cuenta?",
+  "@logoutConfirmation": {
+    "description": "Logout confirmation message"
+  },
+
+  "about": "Acerca de",
+  "@about": {
+    "description": "About section title"
+  },
+
+  "privacyPolicy": "Política de Privacidad",
+  "@privacyPolicy": {
+    "description": "Item for privacy policy"
+  },
+
+  "readPrivacyPolicy": "Lee nuestra política de privacidad",
+  "@readPrivacyPolicy": {
+    "description": "Description of privacy policy item"
+  },
+
+  "termsOfUse": "Términos de Uso",
+  "@termsOfUse": {
+    "description": "Item for terms of use"
+  },
+
+  "viewTermsOfUse": "Ver los términos de uso de la aplicación",
+  "@viewTermsOfUse": {
+    "description": "Description of terms of use item"
+  },
+
+  "aboutApp": "Sobre la Aplicación",
+  "@aboutApp": {
+    "description": "Item for about the app"
+  },
+
+  "appInfo": "Versión e información de la aplicación",
+  "@appInfo": {
+    "description": "Description of about the app item"
+  },
+
+  "version": "Versión {version}",
+  "@version": {
+    "description": "App version",
+    "placeholders": {
+      "version": {
+        "type": "String",
+        "example": "1.0.0"
+      }
+    }
+  },
+
+  "cancel": "Cancelar",
+  "@cancel": {
+    "description": "Cancel button"
+  },
+
+  "confirm": "Confirmar",
+  "@confirm": {
+    "description": "Confirm button"
+  },
+
+  "save": "Guardar",
+  "@save": {
+    "description": "Save button"
+  },
+
+  "delete": "Eliminar",
+  "@delete": {
+    "description": "Delete button"
+  },
+
+  "next": "Siguiente",
+  "@next": {
+    "description": "Next button"
+  },
+
+  "back": "Atrás",
+  "@back": {
+    "description": "Back button"
+  },
+
+  "finish": "Finalizar",
+  "@finish": {
+    "description": "Finish button"
+  },
+
+  "cigarettesPerDayQuestion": "¿Cuántos cigarrillos fumas al día?",
+  "@cigarettesPerDayQuestion": {
+    "description": "Question about number of cigarettes per day"
+  },
+
+  "cigarettesPerDaySubtitle": "Esto nos ayuda a entender tu nivel de consumo",
+  "@cigarettesPerDaySubtitle": {
+    "description": "Subtitle for cigarettes per day question"
+  },
+
+  "exactNumber": "Número exacto: ",
+  "@exactNumber": {
+    "description": "Label for exact number of cigarettes"
+  },
+
+  "selectConsumptionLevel": "O selecciona tu nivel de consumo:",
+  "@selectConsumptionLevel": {
+    "description": "Instruction to select consumption level"
+  },
+
+  "low": "Bajo",
+  "@low": {
+    "description": "Low consumption level"
+  },
+
+  "moderate": "Moderado",
+  "@moderate": {
+    "description": "Moderate consumption level"
+  },
+
+  "high": "Alto",
+  "@high": {
+    "description": "High consumption level"
+  },
+
+  "veryHigh": "Muy Alto",
+  "@veryHigh": {
+    "description": "Very high consumption level"
+  },
+
+  "upTo5": "Hasta 5 cigarrillos por día",
+  "@upTo5": {
+    "description": "Low consumption description"
+  },
+
+  "sixTo15": "6 a 15 cigarrillos por día",
+  "@sixTo15": {
+    "description": "Moderate consumption description"
+  },
+
+  "sixteenTo25": "16 a 25 cigarrillos por día",
+  "@sixteenTo25": {
+    "description": "High consumption description"
+  },
+
+  "moreThan25": "Más de 25 cigarrillos por día",
+  "@moreThan25": {
+    "description": "Very high consumption description"
+  },
+
+  "selectConsumptionLevelError": "Por favor, selecciona tu nivel de consumo",
+  "@selectConsumptionLevelError": {
+    "description": "Error message for consumption level selection"
+  },
+
+  "welcomeToNicotinaAI": "Bienvenido a NicotinaAI",
+  "@welcomeToNicotinaAI": {
+    "description": "Title of the introduction screen"
+  },
+
+  "personalAssistant": "Tu asistente personal para dejar de fumar",
+  "@personalAssistant": {
+    "description": "Subtitle of the introduction screen"
+  },
+
+  "start": "Comenzar",
+  "@start": {
+    "description": "Start button text"
+  },
+
+  "breatheFreedom": "RESPIRA LIBERTAD. TU NUEVA VIDA COMIENZA AHORA.",
+  "@breatheFreedom": {
+    "description": "Main slogan on introduction screen"
+  },
+
+  "personalizeExperience": "Vamos a personalizar tu experiencia para ayudarte a alcanzar tus objetivos de dejar de fumar. Responde algunas preguntas para comenzar.",
+  "@personalizeExperience": {
+    "description": "Explanation text on introduction screen"
+  },
+
+  "cigarettesPerPackQuestion": "¿Cuántos cigarrillos vienen en un paquete?",
+  "@cigarettesPerPackQuestion": {
+    "description": "Question about number of cigarettes per pack"
+  },
+
+  "selectStandardAmount": "Selecciona la cantidad estándar para tus paquetes de cigarrillos",
+  "@selectStandardAmount": {
+    "description": "Subtitle for cigarettes per pack question"
+  },
+
+  "packSizesInfo": "Los paquetes de cigarrillos generalmente vienen con 10 o 20 unidades. Selecciona la cantidad que corresponde a los paquetes que compras.",
+  "@packSizesInfo": {
+    "description": "Information about standard cigarette pack sizes"
+  },
+
+  "tenCigarettes": "10 cigarrillos",
+  "@tenCigarettes": {
+    "description": "Option for 10 cigarettes pack"
+  },
+
+  "twentyCigarettes": "20 cigarrillos",
+  "@twentyCigarettes": {
+    "description": "Option for 20 cigarettes pack"
+  },
+
+  "smallPack": "Paquete pequeño/compacto",
+  "@smallPack": {
+    "description": "Description for small pack"
+  },
+
+  "standardPack": "Paquete estándar/tradicional",
+  "@standardPack": {
+    "description": "Description for standard pack"
+  },
+
+  "otherQuantity": "Otra cantidad",
+  "@otherQuantity": {
+    "description": "Option for other pack size"
+  },
+
+  "selectCustomValue": "Selecciona un valor personalizado",
+  "@selectCustomValue": {
+    "description": "Description for custom pack size"
+  },
+
+  "quantity": "Cantidad: ",
+  "@quantity": {
+    "description": "Label for quantity selector"
+  },
+
+  "packSizeHelp": "Esta información nos ayuda a calcular con precisión tu consumo y los beneficios de reducir o dejar de fumar.",
+  "@packSizeHelp": {
+    "description": "Help text for pack size selection"
+  },
+
+  "packPriceQuestion": "¿Cuánto cuesta un paquete de cigarrillos?",
+  "@packPriceQuestion": {
+    "description": "Question about cigarette pack price"
+  },
+
+  "helpCalculateFinancial": "Esto nos ayuda a calcular tu ahorro financiero",
+  "@helpCalculateFinancial": {
+    "description": "Subtitle for pack price question"
+  },
+
+  "enterAveragePrice": "Introduce el precio promedio que pagas por un paquete de cigarrillos.",
+  "@enterAveragePrice": {
+    "description": "Instruction for entering pack price"
+  },
+
+  "priceHelp": "Esta información nos ayuda a mostrarte cuánto ahorrarás al reducir o dejar de fumar.",
+  "@priceHelp": {
+    "description": "Help text for price input"
+  },
+
+  "productTypeQuestion": "¿Qué tipo de producto consumes?",
+  "@productTypeQuestion": {
+    "description": "Question about product type"
+  },
+
+  "selectApplicable": "Selecciona lo que se aplica a ti",
+  "@selectApplicable": {
+    "description": "Subtitle for product type question"
+  },
+
+  "helpPersonalizeStrategy": "Esto nos ayuda a personalizar estrategias y recomendaciones para tu caso específico.",
+  "@helpPersonalizeStrategy": {
+    "description": "Help text for product type selection"
+  },
+
+  "cigaretteOnly": "Solo cigarrillos tradicionales",
+  "@cigaretteOnly": {
+    "description": "Option for traditional cigarettes only"
+  },
+
+  "traditionalCigarettes": "Cigarrillos de tabaco convencionales",
+  "@traditionalCigarettes": {
+    "description": "Description for traditional cigarettes"
+  },
+
+  "vapeOnly": "Solo vaporizador/cigarrillos electrónicos",
+  "@vapeOnly": {
+    "description": "Option for vape/e-cigarettes only"
+  },
+
+  "electronicDevices": "Dispositivos electrónicos de vapeo",
+  "@electronicDevices": {
+    "description": "Description for electronic vaping devices"
+  },
+
+  "both": "Ambos",
+  "@both": {
+    "description": "Option for both traditional and electronic cigarettes"
+  },
+
+  "useBoth": "Uso tanto cigarrillos tradicionales como electrónicos",
+  "@useBoth": {
+    "description": "Description for using both types of products"
+  },
+
+  "productTypeHelp": "Diferentes productos contienen diferentes cantidades de nicotina y pueden requerir distintas estrategias para reducción o cese.",
+  "@productTypeHelp": {
+    "description": "Help text explaining importance of product type"
+  },
+
+  "pleaseSelectProductType": "Por favor, selecciona un tipo de producto",
+  "@pleaseSelectProductType": {
+    "description": "Error message when no product type is selected"
+  },
+
+  "goalQuestion": "¿Cuál es tu objetivo?",
+  "@goalQuestion": {
+    "description": "Question about user's goal"
+  },
+
+  "selectGoal": "Selecciona lo que quieres lograr",
+  "@selectGoal": {
+    "description": "Subtitle for goal question"
+  },
+
+  "goalExplanation": "Establecer un objetivo claro es esencial para tu éxito. Queremos ayudarte a lograr lo que deseas.",
+  "@goalExplanation": {
+    "description": "Explanation about importance of setting a goal"
+  },
+
+  "reduceConsumption": "Reducir el consumo",
+  "@reduceConsumption": {
+    "description": "Option to reduce smoking"
+  },
+
+  "reduceDescription": "Quiero fumar menos cigarrillos y tener más control sobre el hábito",
+  "@reduceDescription": {
+    "description": "Description for reducing consumption"
+  },
+
+  "reduce": "Reducir",
+  "@reduce": {
+    "description": "Label for reduce icon"
+  },
+
+  "quitSmoking": "Dejar de fumar",
+  "@quitSmoking": {
+    "description": "Option to quit smoking"
+  },
+
+  "quitDescription": "Quiero dejar completamente los cigarrillos y vivir libre de tabaco",
+  "@quitDescription": {
+    "description": "Description for quitting smoking"
+  },
+
+  "quit": "Dejar",
+  "@quit": {
+    "description": "Label for quit icon"
+  },
+
+  "goalHelp": "Adaptaremos nuestros recursos y recomendaciones según tu objetivo. Puedes modificarlo más tarde si cambias de opinión.",
+  "@goalHelp": {
+    "description": "Help text for goal selection"
+  },
+
+  "pleaseSelectGoal": "Por favor, selecciona un objetivo",
+  "@pleaseSelectGoal": {
+    "description": "Error message when no goal is selected"
+  },
+
+  "timelineQuestionReduce": "¿Cuándo quieres reducir el consumo?",
+  "@timelineQuestionReduce": {
+    "description": "Question about timeline for reducing consumption"
+  },
+
+  "timelineQuestionQuit": "¿Cuándo quieres dejar de fumar?",
+  "@timelineQuestionQuit": {
+    "description": "Question about timeline for quitting smoking"
+  },
+
+  "establishDeadline": "Establece un plazo que te parezca alcanzable",
+  "@establishDeadline": {
+    "description": "Subtitle for timeline question"
+  },
+
+  "timelineExplanation": "Un cronograma realista aumenta tus posibilidades de éxito. Elige un plazo con el que te sientas cómodo.",
+  "@timelineExplanation": {
+    "description": "Explanation about setting a realistic timeline"
+  },
+
+  "sevenDays": "7 días",
+  "@sevenDays": {
+    "description": "Option for 7-day timeline"
+  },
+
+  "sevenDaysDescription": "Quiero resultados rápidos y estoy comprometido",
+  "@sevenDaysDescription": {
+    "description": "Description for 7-day timeline"
+  },
+
+  "fourteenDays": "14 días",
+  "@fourteenDays": {
+    "description": "Option for 14-day timeline"
+  },
+
+  "fourteenDaysDescription": "Un plazo equilibrado para cambiar hábitos",
+  "@fourteenDaysDescription": {
+    "description": "Description for 14-day timeline"
+  },
+
+  "thirtyDays": "30 días",
+  "@thirtyDays": {
+    "description": "Option for 30-day timeline"
+  },
+
+  "thirtyDaysDescription": "Un mes para un cambio gradual y sostenible",
+  "@thirtyDaysDescription": {
+    "description": "Description for 30-day timeline"
+  },
+
+  "noDeadline": "Sin plazo definido",
+  "@noDeadline": {
+    "description": "Option for no deadline"
+  },
+
+  "noDeadlineDescription": "Prefiero ir a mi propio ritmo",
+  "@noDeadlineDescription": {
+    "description": "Description for no deadline"
+  },
+
+  "timelineHelp": "No te preocupes si no logras tu objetivo exactamente en el plazo. Lo importante es el progreso continuo.",
+  "@timelineHelp": {
+    "description": "Help text for timeline selection"
+  },
+
+  "pleaseSelectTimeline": "Por favor, selecciona un plazo",
+  "@pleaseSelectTimeline": {
+    "description": "Error message when no timeline is selected"
+  },
+
+  "challengeQuestion": "¿Qué hace difícil {goalText} para ti?",
+  "@challengeQuestion": {
+    "description": "Question about quitting challenge with goal text placeholder",
+    "placeholders": {
+      "goalText": {
+        "type": "String",
+        "example": "dejar de fumar"
+      }
+    }
+  },
+
+  "identifyChallenge": "Identificar tu principal desafío nos ayuda a proporcionar mejor apoyo",
+  "@identifyChallenge": {
+    "description": "Subtitle for challenge question"
+  },
+
+  "challengeExplanation": "Entender lo que hace difícil dejar el cigarrillo es el primer paso para superar ese obstáculo.",
+  "@challengeExplanation": {
+    "description": "Explanation about importance of identifying challenges"
+  },
+
+  "stressAnxiety": "Estrés y ansiedad",
+  "@stressAnxiety": {
+    "description": "Option for stress/anxiety challenge"
+  },
+
+  "stressDescription": "Fumo para lidiar con situaciones estresantes y ansiedad",
+  "@stressDescription": {
+    "description": "Description for stress/anxiety challenge"
+  },
+
+  "habitStrength": "Fuerza del hábito",
+  "@habitStrength": {
+    "description": "Option for habit strength challenge"
+  },
+
+  "habitDescription": "Fumar ya es parte de mi rutina diaria",
+  "@habitDescription": {
+    "description": "Description for habit strength challenge"
+  },
+
+  "socialInfluence": "Influencia social",
+  "@socialInfluence": {
+    "description": "Option for social influence challenge"
+  },
+
+  "socialDescription": "Personas a mi alrededor fuman o me animan a fumar",
+  "@socialDescription": {
+    "description": "Description for social influence challenge"
+  },
+
+  "physicalDependence": "Dependencia física",
+  "@physicalDependence": {
+    "description": "Option for physical dependence challenge"
+  },
+
+  "dependenceDescription": "Experimento síntomas físicos cuando estoy sin fumar",
+  "@dependenceDescription": {
+    "description": "Description for physical dependence challenge"
+  },
+
+  "challengeHelp": "Tus respuestas nos ayudan a personalizar consejos y estrategias más efectivas para tu caso específico.",
+  "@challengeHelp": {
+    "description": "Help text for challenge selection"
+  },
+
+  "pleaseSelectChallenge": "Por favor, selecciona un desafío",
+  "@pleaseSelectChallenge": {
+    "description": "Error message when no challenge is selected"
+  },
+
+  "locationsQuestion": "¿Dónde sueles fumar?",
+  "@locationsQuestion": {
+    "description": "Question about smoking locations"
+  },
+
+  "selectCommonPlaces": "Selecciona los lugares donde más a menudo fumas",
+  "@selectCommonPlaces": {
+    "description": "Subtitle for locations question"
+  },
+
+  "locationsExplanation": "Conocer tus lugares habituales nos ayuda a identificar patrones y crear estrategias específicas.",
+  "@locationsExplanation": {
+    "description": "Explanation about importance of identifying locations"
+  },
+
+  "atHome": "En casa",
+  "@atHome": {
+    "description": "Option for smoking at home"
+  },
+
+  "homeDetails": "Balcón, sala, oficina",
+  "@homeDetails": {
+    "description": "Details for home location"
+  },
+
+  "atWork": "En el trabajo/escuela",
+  "@atWork": {
+    "description": "Option for smoking at work/school"
+  },
+
+  "workDetails": "Durante descansos o pausas",
+  "@workDetails": {
+    "description": "Details for work location"
+  },
+
+  "inCar": "En el coche/transporte",
+  "@inCar": {
+    "description": "Option for smoking in car/transport"
+  },
+
+  "carDetails": "Durante viajes",
+  "@carDetails": {
+    "description": "Details for car location"
+  },
+
+  "socialEvents": "En eventos sociales",
+  "@socialEvents": {
+    "description": "Option for smoking at social events"
+  },
+
+  "socialDetails": "Bares, fiestas, restaurantes",
+  "@socialDetails": {
+    "description": "Details for social events location"
+  },
+
+  "outdoors": "Al aire libre",
+  "@outdoors": {
+    "description": "Option for smoking outdoors"
+  },
+
+  "outdoorsDetails": "Parques, aceras, áreas exteriores",
+  "@outdoorsDetails": {
+    "description": "Details for outdoor location"
+  },
+
+  "otherPlaces": "Otros lugares",
+  "@otherPlaces": {
+    "description": "Option for other smoking locations"
+  },
+
+  "otherPlacesDetails": "Cuando estoy ansioso, independientemente del lugar",
+  "@otherPlacesDetails": {
+    "description": "Details for other locations"
+  },
+
+  "locationsHelp": "Identificar los lugares más comunes ayuda a evitar desencadenantes y crear estrategias para cambiar hábitos.",
+  "@locationsHelp": {
+    "description": "Help text for locations selection"
+  },
+
+  "continueButton": "Continuar",
+  "@continueButton": {
+    "description": "Continue button text"
+  },
+
+  "allDone": "¡Todo listo!",
+  "@allDone": {
+    "description": "Title for completion screen"
+  },
+
+  "personalizedJourney": "Tu viaje personalizado comienza ahora",
+  "@personalizedJourney": {
+    "description": "Subtitle for completion screen"
+  },
+
+  "startMyJourney": "Comenzar Mi Viaje",
+  "@startMyJourney": {
+    "description": "Button text to start journey"
+  },
+
+  "congratulations": "¡Felicitaciones por dar el primer paso!",
+  "@congratulations": {
+    "description": "Congratulatory text on completion screen"
+  },
+
+  "personalizedPlanReduce": "Hemos creado un plan personalizado basado en tus respuestas para ayudarte a reducir el consumo {timelineText}.",
+  "@personalizedPlanReduce": {
+    "description": "Text explaining personalized plan for reducing consumption",
+    "placeholders": {
+      "timelineText": {
+        "type": "String",
+        "example": "en los próximos 7 días"
+      }
+    }
+  },
+
+  "personalizedPlanQuit": "Hemos creado un plan personalizado basado en tus respuestas para ayudarte a dejar de fumar {timelineText}.",
+  "@personalizedPlanQuit": {
+    "description": "Text explaining personalized plan for quitting smoking",
+    "placeholders": {
+      "timelineText": {
+        "type": "String",
+        "example": "en los próximos 7 días"
+      }
+    }
+  },
+
+  "yourPersonalizedSummary": "Tu resumen personalizado",
+  "@yourPersonalizedSummary": {
+    "description": "Title for personalized summary section"
+  },
+
+  "dailyConsumption": "Consumo diario",
+  "@dailyConsumption": {
+    "description": "Label for daily consumption in summary"
+  },
+
+  "cigarettesPerDayValue": "{count} cigarrillos por día",
+  "@cigarettesPerDayValue": {
+    "description": "Value for cigarettes per day",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "10"
+      }
+    }
+  },
+
+  "potentialMonthlySavings": "Ahorro mensual potencial",
+  "@potentialMonthlySavings": {
+    "description": "Label for potential monthly savings"
+  },
+
+  "yourGoal": "Tu objetivo",
+  "@yourGoal": {
+    "description": "Label for user's goal in summary"
+  },
+
+  "mainChallenge": "Tu principal desafío",
+  "@mainChallenge": {
+    "description": "Label for main challenge in summary"
+  },
+
+  "personalized": "Monitoreo personalizado",
+  "@personalized": {
+    "description": "Title for personalized monitoring benefit"
+  },
+
+  "personalizedDescription": "Sigue tu progreso basado en tus hábitos",
+  "@personalizedDescription": {
+    "description": "Description for personalized monitoring"
+  },
+
+  "importantAchievements": "Logros importantes",
+  "@importantAchievements": {
+    "description": "Title for important achievements benefit"
+  },
+
+  "achievementsDescription": "Celebra cada hito en tu viaje",
+  "@achievementsDescription": {
+    "description": "Description for achievements benefit"
+  },
+
+  "supportWhenNeeded": "Apoyo cuando lo necesitas",
+  "@supportWhenNeeded": {
+    "description": "Title for support benefit"
+  },
+
+  "supportDescription": "Consejos y estrategias para momentos difíciles",
+  "@supportDescription": {
+    "description": "Description for support benefit"
+  },
+
+  "guaranteedResults": "Resultados garantizados",
+  "@guaranteedResults": {
+    "description": "Title for guaranteed results benefit"
+  },
+
+  "resultsDescription": "Con nuestra tecnología basada en ciencia",
+  "@resultsDescription": {
+    "description": "Description for guaranteed results"
+  },
+
+  "loadingError": "Error al completar: {error}",
+  "@loadingError": {
+    "description": "Error message during completion",
+    "placeholders": {
+      "error": {
+        "type": "String",
+        "example": "Conexión fallida"
+      }
+    }
+  },
+  
+  "developer": "Desarrollador",
+  "@developer": {
+    "description": "Developer section title"
+  },
+  
+  "developerMode": "Modo Desarrollador",
+  "@developerMode": {
+    "description": "Toggle option for developer mode"
+  },
+  
+  "enableDebugging": "Habilitar depuración detallada y seguimiento",
+  "@enableDebugging": {
+    "description": "Description of developer mode"
+  },
+  
+  "dashboard": "Panel",
+  "@dashboard": {
+    "description": "Dashboard screen title"
+  },
+  
+  "viewDetailedTracking": "Ver panel de seguimiento detallado",
+  "@viewDetailedTracking": {
+    "description": "Description of dashboard option"
+  },
+  
+  "currency": "Moneda",
+  "@currency": {
+    "description": "Currency section title"
+  },
+  
+  "changeCurrency": "Cambiar moneda",
+  "@changeCurrency": {
+    "description": "Option to change currency"
+  },
+  
+  "setCurrencyForCalculations": "Establecer la moneda para cálculos de ahorro",
+  "@setCurrencyForCalculations": {
+    "description": "Description for currency option"
+  },
+  
+  "search": "Buscar",
+  "@search": {
+    "description": "Search field placeholder"
+  },
+  
+  "noResults": "No se encontraron resultados",
+  "@noResults": {
+    "description": "Message shown when search returns no results"
+  },
+  
+  "listView": "Vista de lista",
+  "@listView": {
+    "description": "Toggle for list view display"
+  },
+
+  "gridView": "Vista de cuadrícula",
+  "@gridView": {
+    "description": "Toggle for grid view display"
+  },
+
+  "atYourOwnPace": "a tu propio ritmo",
+  "@atYourOwnPace": {
+    "description": "Text for timeline at user's own pace"
+  },
+
+  "nextSevenDays": "en los próximos 7 días",
+  "@nextSevenDays": {
+    "description": "Text for timeline of next 7 days"
+  },
+
+  "nextTwoWeeks": "en las próximas 2 semanas",
+  "@nextTwoWeeks": {
+    "description": "Text for timeline of next 2 weeks"
+  },
+
+  "nextMonth": "en el próximo mes",
+  "@nextMonth": {
+    "description": "Text for timeline of next month"
+  },
+
+  "notSpecified": "No especificado",
+  "@notSpecified": {
+    "description": "Text for unspecified or default value"
+  },
+  
+  "registerCraving": "Registrar Antojo",
+  "@registerCraving": {
+    "description": "Button to register a new craving"
+  },
+  
+  "registerCravingSubtitle": "Cuando sientas ganas",
+  "@registerCravingSubtitle": {
+    "description": "Subtitle for craving button"
+  },
+  
+  "newRecord": "Nuevo Registro",
+  "@newRecord": {
+    "description": "Button to register a new smoking record"
+  },
+  
+  "newRecordSubtitle": "Cuando fumes",
+  "@newRecordSubtitle": {
+    "description": "Subtitle for smoking record button"
+  },
+  
+  "whereAreYou": "¿Dónde estás?",
+  "@whereAreYou": {
+    "description": "Question asking user's location when registering a craving"
+  },
+  
+  "home": "Casa",
+  "@home": {
+    "description": "Location option: Home"
+  },
+  
+  "work": "Trabajo",
+  "@work": {
+    "description": "Location option: Work"
+  },
+  
+  "car": "Coche",
+  "@car": {
+    "description": "Location option: Car"
+  },
+  
+  "restaurant": "Restaurante",
+  "@restaurant": {
+    "description": "Location option: Restaurant"
+  },
+  
+  "bar": "Bar",
+  "@bar": {
+    "description": "Location option: Bar"
+  },
+  
+  "street": "Calle",
+  "@street": {
+    "description": "Location option: Street"
+  },
+  
+  "park": "Parque",
+  "@park": {
+    "description": "Location option: Park"
+  },
+  
+  "others": "Otros",
+  "@others": {
+    "description": "Location option: Others"
+  },
+  
+  "notes": "Notas (opcional)",
+  "@notes": {
+    "description": "Label for optional notes field"
+  },
+  
+  "howAreYouFeeling": "¿Cómo te sientes?",
+  "@howAreYouFeeling": {
+    "description": "Placeholder text for notes field in craving registration"
+  },
+  
+  "whatTriggeredCraving": "¿Qué desencadenó tu antojo?",
+  "@whatTriggeredCraving": {
+    "description": "Question about what triggered the craving"
+  },
+  
+  "stress": "Estrés",
+  "@stress": {
+    "description": "Trigger option: Stress"
+  },
+  
+  "boredom": "Aburrimiento",
+  "@boredom": {
+    "description": "Trigger option: Boredom"
+  },
+  
+  "socialSituation": "Situación social",
+  "@socialSituation": {
+    "description": "Trigger option: Social situation"
+  },
+  
+  "afterMeal": "Después de comer",
+  "@afterMeal": {
+    "description": "Trigger option: After meal"
+  },
+  
+  "coffee": "Café",
+  "@coffee": {
+    "description": "Trigger option: Coffee"
+  },
+  
+  "alcohol": "Alcohol",
+  "@alcohol": {
+    "description": "Trigger option: Alcohol"
+  },
+  
+  "craving": "Antojo",
+  "@craving": {
+    "description": "Trigger option: Craving"
+  },
+  
+  "other": "Otro",
+  "@other": {
+    "description": "Trigger option: Other"
+  },
+  
+  "intensityLevel": "Nivel de intensidad",
+  "@intensityLevel": {
+    "description": "Label for craving intensity level selection"
+  },
+  
+  "mild": "Suave",
+  "@mild": {
+    "description": "Intensity level: Mild"
+  },
+  
+  "moderate": "Moderado",
+  "@moderate": {
+    "description": "Intensity level: Moderate"
+  },
+  
+  "intense": "Intenso",
+  "@intense": {
+    "description": "Intensity level: Intense"
+  },
+  
+  "veryIntense": "Muy intenso",
+  "@veryIntense": {
+    "description": "Intensity level: Very intense"
+  },
+  
+  "save": "Guardar",
+  "@save": {
+    "description": "Save button text"
+  },
+  
+  "pleaseSelectLocation": "Por favor, selecciona tu ubicación",
+  "@pleaseSelectLocation": {
+    "description": "Validation message for location selection"
+  },
+  
+  "pleaseSelectTrigger": "Por favor, selecciona qué desencadenó tu antojo",
+  "@pleaseSelectTrigger": {
+    "description": "Validation message for trigger selection"
+  },
+  
+  "pleaseSelectIntensity": "Por favor, selecciona el nivel de intensidad",
+  "@pleaseSelectIntensity": {
+    "description": "Validation message for intensity selection"
+  },
+  
+  "whatsTheReason": "¿Cuál es el motivo?",
+  "@whatsTheReason": {
+    "description": "Question asking for the reason for smoking"
+  },
+  
+  "register": "Registrar",
+  "@register": {
+    "description": "Register button text"
+  },
+  
+  "anxiety": "Ansiedad",
+  "@anxiety": {
+    "description": "Reason option: Anxiety"
+  },
+  
+  "pleaseSelectReason": "Por favor, selecciona un motivo",
+  "@pleaseSelectReason": {
+    "description": "Validation message for reason selection"
+  },
+  
+  "howDoYouFeel": "¿Cómo te sientes? ¿Qué podrías haber hecho diferente?",
+  "@howDoYouFeel": {
+    "description": "Placeholder for notes field in smoking record"
+  },
+  
+  "didYouResist": "¿Resististe?",
+  "@didYouResist": {
+    "description": "Question about whether user resisted the craving"
+  },
+  
+  "yes": "Sí",
+  "@yes": {
+    "description": "Yes option"
+  },
+  
+  "no": "No",
+  "@no": {
+    "description": "No option"
+  },
+  
+  "howMuchDidYouSmoke": "¿Cuánto fumaste?",
+  "@howMuchDidYouSmoke": {
+    "description": "Question about amount smoked"
+  },
+  
+  "oneOrLess": "1 o menos",
+  "@oneOrLess": {
+    "description": "Smoking amount option: 1 or less"
+  },
+  
+  "twoToFive": "2-5",
+  "@twoToFive": {
+    "description": "Smoking amount option: 2-5 cigarettes"
+  },
+  
+  "moreThanFive": "Más de 5",
+  "@moreThanFive": {
+    "description": "Smoking amount option: More than 5 cigarettes"
+  },
+  
+  "pleaseSelectAmount": "Por favor, selecciona cuánto fumaste",
+  "@pleaseSelectAmount": {
+    "description": "Validation message for smoking amount selection"
+  },
+  
+  "howLongDidItLast": "¿Cuánto duró?",
+  "@howLongDidItLast": {
+    "description": "Question about duration of smoking session"
+  },
+  
+  "lessThan5min": "Menos de 5 min",
+  "@lessThan5min": {
+    "description": "Duration option: Less than 5 minutes"
+  },
+  
+  "fiveToFifteenMin": "5-15 min",
+  "@fiveToFifteenMin": {
+    "description": "Duration option: 5-15 minutes"
+  },
+  
+  "moreThan15min": "Más de 15 min",
+  "@moreThan15min": {
+    "description": "Duration option: More than 15 minutes"
+  },
+  
+  "pleaseSelectDuration": "Por favor, selecciona cuánto duró",
+  "@pleaseSelectDuration": {
+    "description": "Validation message for duration selection"
+  },
+  
+  "selectCurrency": "Selecciona tu moneda",
+  "@selectCurrency": {
+    "description": "Title for currency selection screen"
+  },
+  
+  "selectCurrencySubtitle": "Elige la moneda para los cálculos financieros",
+  "@selectCurrencySubtitle": {
+    "description": "Subtitle for currency selection screen"
+  },
+  
+  "preselectedCurrency": "Hemos preseleccionado tu moneda local. Puedes cambiarla si es necesario.",
+  "@preselectedCurrency": {
+    "description": "Text explaining currency preselection"
+  },
+  
+  "pleaseCompleteAllFields": "Por favor, completa todos los campos requeridos para continuar",
+  "@pleaseCompleteAllFields": {
+    "description": "Message shown when user tries to proceed without completing required fields"
+  },
+  
+  "understood": "Entendido",
+  "@understood": {
+    "description": "Button text for dismissing alerts or notifications"
+  },
+  
+  "commonPrices": "Precios comunes de paquetes",
+  "@commonPrices": {
+    "description": "Label for common cigarette pack prices section"
+  },
+
+  "refresh": "Actualizar",
+  "errorLoadingNotifications": "Error al cargar notificaciones",
+  "noNotificationsYet": "¡Aún no hay notificaciones!",
+  "emptyNotificationsDescription": "Continúa usando la aplicación para recibir mensajes motivacionales y logros.",
+  "motivationalMessage": "Mensaje Motivacional",
+  "achievementUnlocked": "¡Logro Desbloqueado!",
+  "claimReward": "Reclamar {xp} XP",
+  "@claimReward": {
+    "placeholders": {
+      "xp": {
+        "type": "int"
+      }
+    }
+  },
+  "rewardClaimed": "Recompensa reclamada: {xp} XP",
+  "@rewardClaimed": {
+    "placeholders": {
+      "xp": {
+        "type": "int"
+      }
+    }
+  },
+  "dailyMotivation": "Motivación Diaria",
+  "dailyMotivationDescription": "Tu motivación diaria personalizada está aquí. ¡Ábrela para obtener tu recompensa de XP!",
+  
+  "retry": "Reintentar",
+  "@retry": {
+    "description": "Retry button text for failed operations"
+  },
+  
+  "cravingResistedRecorded": "¡Resistencia al antojo registrada exitosamente!",
+  "@cravingResistedRecorded": {
+    "description": "Success message when a resisted craving is recorded"
+  },
+  
+  "cravingRecorded": "¡Antojo registrado exitosamente!",
+  "@cravingRecorded": {
+    "description": "Success message when a craving is recorded"
+  },
+  
+  "errorSavingCraving": "Error al guardar antojo. Toca para reintentar.",
+  "@errorSavingCraving": {
+    "description": "Error message when saving craving fails"
+  },
+  
+  "recordSaved": "¡Registro guardado exitosamente!",
+  "@recordSaved": {
+    "description": "Success message when a smoking record is saved"
+  },
+  
+  "tapToRetry": "Toca para reintentar",
+  "@tapToRetry": {
+    "description": "Tooltip text for retry button"
+  },
+  
+  "syncError": "Error de sincronización",
+  "@syncError": {
+    "description": "Tooltip text for sync error status"
+  },
+
+  "loading": "Cargando...",
+  "@loading": {
+    "description": "Text shown while loading content"
+  },
+
+  "tryAgain": "Intentar de nuevo",
+  "@tryAgain": {
+    "description": "Button text to try an operation again"
+  },
+
+  "errorLoadingData": "Error al cargar datos",
+  "@errorLoadingData": {
+    "description": "Message shown when data loading fails"
+  },
+
+  "noRecoveriesFound": "No se encontraron recuperaciones de salud",
+  "@noRecoveriesFound": {
+    "description": "Message shown when no health recoveries are found"
+  },
+
+  "noRecentRecoveries": "No hay recuperaciones de salud recientes para mostrar",
+  "@noRecentRecoveries": {
+    "description": "Message shown when no recent health recoveries are available"
+  },
+
+  "viewAllRecoveries": "Ver Todas las Recuperaciones de Salud",
+  "@viewAllRecoveries": {
+    "description": "Button text to view all health recoveries"
+  },
+
+  "healthRecovery": "Recuperación de Salud",
+  "@healthRecovery": {
+    "description": "Title for health recovery section"
+  },
+
+  "seeAll": "Ver todo",
+  "@seeAll": {
+    "description": "Button text to see all items"
+  },
+
+  "achieved": "Logrado",
+  "@achieved": {
+    "description": "Label for achieved status"
+  },
+
+  "progress": "Progreso",
+  "@progress": {
+    "description": "Label for progress status"
+  },
+
+  "daysToAchieve": "{days} días para lograr",
+  "@daysToAchieve": {
+    "description": "Text showing days required to achieve a recovery",
+    "placeholders": {
+      "days": {
+        "type": "int",
+        "example": "7"
+      }
+    }
+  },
+
+  "daysRemaining": "{days} días restantes",
+  "@daysRemaining": {
+    "description": "Text showing days remaining to achieve a recovery",
+    "placeholders": {
+      "days": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+
+  "achievedOn": "Logrado el {date}",
+  "@achievedOn": {
+    "description": "Text showing when a recovery was achieved",
+    "placeholders": {
+      "date": {
+        "type": "DateTime",
+        "format": "yMMMd"
+      }
+    }
+  },
+
+  "daysSmokeFree": "{days} días sin fumar",
+  "@daysSmokeFree": {
+    "description": "Text showing days without smoking",
+    "placeholders": {
+      "days": {
+        "type": "int",
+        "example": "10"
+      }
+    }
+  },
+
+  "keepGoing": "¡Sigue así!",
+  "@keepGoing": {
+    "description": "Encouragement message"
+  },
+
+  "encouragementMessage": "Estás haciendo un gran progreso. Cada día sin fumar te acerca más a alcanzar este hito de salud.",
+  "@encouragementMessage": {
+    "description": "Detailed encouragement message"
+  },
+
+  "recoveryAchievedMessage": "Tu cuerpo ya se ha recuperado en esta área. Sigue con el buen trabajo para mantener y mejorar aún más tu salud.",
+  "@recoveryAchievedMessage": {
+    "description": "Message shown when a health recovery is achieved"
+  },
+
+  "scienceBehindIt": "La Ciencia Detrás",
+  "@scienceBehindIt": {
+    "description": "Title for science information section"
+  },
+
+  "generalHealthScienceInfo": "Cuando dejas de fumar, tu cuerpo comienza una serie de procesos de curación. Estos comienzan minutos después de tu último cigarrillo y continúan durante años, restaurando gradualmente tu salud a la de un no fumador.",
+  "@generalHealthScienceInfo": {
+    "description": "General scientific information about health recovery"
+  },
+
+  "tasteScienceInfo": "Cuando fumas, los químicos del tabaco dañan las papilas gustativas y reducen tu capacidad de saborear. Después de solo unos días sin fumar, estos receptores de sabor comienzan a sanar, permitiéndote experimentar más sabores y disfrutar más de la comida.",
+  "@tasteScienceInfo": {
+    "description": "Scientific information about taste recovery"
+  },
+
+  "smellScienceInfo": "Fumar daña los nervios olfativos que transmiten información de olor al cerebro. En pocos días después de dejar de fumar, estos nervios comienzan a recuperarse, mejorando gradualmente tu sentido del olfato y permitiéndote detectar olores más sutiles.",
+  "@smellScienceInfo": {
+    "description": "Scientific information about smell recovery"
+  },
+
+  "bloodOxygenScienceInfo": "El monóxido de carbono de los cigarrillos se une a la hemoglobina en tu sangre, reduciendo su capacidad para transportar oxígeno. En 12-24 horas después de dejar de fumar, los niveles de monóxido de carbono caen dramáticamente, permitiendo que tu sangre transporte oxígeno más eficazmente.",
+  "@bloodOxygenScienceInfo": {
+    "description": "Scientific information about blood oxygen recovery"
+  },
+
+  "carbonMonoxideScienceInfo": "El humo del cigarrillo contiene monóxido de carbono, que desplaza el oxígeno en tu sangre. Dentro de 12 horas después de dejar de fumar, los niveles de monóxido de carbono vuelven a la normalidad, y los niveles de oxígeno en tu cuerpo aumentan significativamente.",
+  "@carbonMonoxideScienceInfo": {
+    "description": "Scientific information about carbon monoxide elimination"
+  },
+
+  "nicotineScienceInfo": "La nicotina tiene una vida media de aproximadamente 2 horas, lo que significa que toma aproximadamente 72 horas (3 días) para que toda la nicotina sea eliminada de tu cuerpo. Una vez que la nicotina desaparece, los síntomas físicos de abstinencia comienzan a disminuir.",
+  "@nicotineScienceInfo": {
+    "description": "Scientific information about nicotine expulsion"
+  },
+
+  "improvedBreathingScienceInfo": "Después de 7 días sin fumar, la función pulmonar comienza a mejorar a medida que disminuye la inflamación y los pulmones comienzan a limpiar la mucosidad acumulada. Notarás menos tos y respiración más fácil, especialmente durante la actividad física.",
+  "@improvedBreathingScienceInfo": {
+    "description": "Scientific information about improved breathing"
+  },
+
+  "improvedCirculationScienceInfo": "Después de dos semanas sin fumar, tu circulación mejora significativamente. Los vasos sanguíneos se dilatan, la presión arterial se normaliza, y más oxígeno llega a tus músculos y órganos, haciendo que la actividad física sea más fácil y menos extenuante.",
+  "@improvedCirculationScienceInfo": {
+    "description": "Scientific information about improved circulation"
+  },
+
+  "decreasedCoughingScienceInfo": "Un mes después de dejar de fumar, los cilios (pequeñas estructuras similares a pelos) en tus pulmones comienzan a crecer de nuevo. Estos ayudan a limpiar tus pulmones y reducir infecciones. Tu tos y falta de aliento continúan disminuyendo.",
+  "@decreasedCoughingScienceInfo": {
+    "description": "Scientific information about decreased coughing"
+  },
+
+  "lungCiliaScienceInfo": "Después de 3 meses sin fumar, tu función pulmonar puede mejorar hasta un 30%. Los cilios en tus pulmones han crecido en gran medida, mejorando la capacidad de tus pulmones para limpiarse, combatir infecciones y reducir la mucosidad.",
+  "@lungCiliaScienceInfo": {
+    "description": "Scientific information about lung cilia recovery"
+  },
+
+  "reducedHeartDiseaseRiskScienceInfo": "Después de un año sin fumar, tu riesgo de enfermedad coronaria disminuye aproximadamente a la mitad del de un fumador. Tu función cardíaca continúa mejorando a medida que los vasos sanguíneos sanan y la circulación mejora.",
+  "@reducedHeartDiseaseRiskScienceInfo": {
+    "description": "Scientific information about reduced heart disease risk"
+  },
+  
+  "viewHealthRecoveries": "Ver Recuperaciones de Salud",
+  "@viewHealthRecoveries": {
+    "description": "Button text to view health recoveries screen"
+  },
+  
+  "recoveryNotFound": "Recuperación de salud no encontrada",
+  "@recoveryNotFound": {
+    "description": "Message shown when a health recovery is not found"
+  },
+  
+  "trackYourHealthJourney": "Sigue Tu Camino de Salud",
+  "@trackYourHealthJourney": {
+    "description": "Title for health recovery tracking feature"
+  },
+  
+  "healthRecoveryDescription": "Ve cómo tu cuerpo se recupera después de dejar de fumar",
+  "@healthRecoveryDescription": {
+    "description": "Description for health recovery tracking feature"
+  }
+}

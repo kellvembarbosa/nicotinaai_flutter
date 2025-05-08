@@ -19,9 +19,12 @@ merge_json() {
 }
 
 # Merge English strings
-merge_json "assets/l10n/notification_strings_en.arb" "assets/l10n/app_en.arb"
+merge_json "assets/notifications/notification_strings_en.arb" "assets/l10n/app_en.arb"
 
 # Merge Portuguese strings
-merge_json "assets/l10n/notification_strings_pt.arb" "assets/l10n/app_pt.arb"
+merge_json "assets/notifications/notification_strings_pt.arb" "assets/l10n/app_pt.arb"
+
+# Merge Spanish strings
+merge_json "assets/notifications/notification_strings_es.arb" "assets/l10n/app_es.arb"
 
 echo "Localization strings merged successfully!"

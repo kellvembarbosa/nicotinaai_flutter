@@ -15,6 +15,7 @@ class LocaleProvider extends ChangeNotifier {
   List<Locale> get supportedLocales => const [
         Locale('en', 'US'), // Inglês (EUA) - primeiro por ser o idioma padrão
         Locale('pt', 'BR'), // Português (Brasil)
+        Locale('es', 'ES'), // Espanhol (Espanha)
       ];
 
   // Carrega o idioma salvo das preferências
@@ -62,6 +63,8 @@ class LocaleProvider extends ChangeNotifier {
         return 'Português (Brasil)';
       case 'en_US':
         return 'English (US)';
+      case 'es_ES':
+        return 'Español';
       default:
         return 'Unknown';
     }
