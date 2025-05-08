@@ -17,6 +17,7 @@ import 'package:nicotinaai_flutter/features/tracking/models/user_stats.dart';
 import 'package:nicotinaai_flutter/features/tracking/models/health_recovery.dart';
 import 'package:nicotinaai_flutter/features/tracking/providers/tracking_provider.dart';
 import 'package:nicotinaai_flutter/features/tracking/screens/dashboard_screen.dart';
+import 'package:nicotinaai_flutter/features/tracking/widgets/health_recovery_widget.dart';
 import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
 import 'package:nicotinaai_flutter/utils/currency_utils.dart';
 
@@ -354,51 +355,52 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               
-              // Indicadores de recuperação de saúde
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      l10n.homeHealthRecovery,
-                      style: context.titleStyle,
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        // Navigate to health recovery screen
-                        context.go(AppRoutes.healthRecovery.path);
-                      },
-                      style: TextButton.styleFrom(
-                        foregroundColor: context.primaryColor,
-                      ),
-                      child: Text(
-                        l10n.homeSeeAll,
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600,
+              // Health Recovery Section
+              Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          l10n.healthRecovery,
+                          style: context.titleStyle,
                         ),
-                      ),
+                        TextButton(
+                          onPressed: () {
+                            // Navigate to health recovery screen
+                            context.push(AppRoutes.healthRecovery.path);
+                          },
+                          child: Text(
+                            l10n.seeAll,
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              color: context.primaryColor,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-              ),
-              
-              const SizedBox(height: 12),
-              
-              // Indicadores de saúde em linha horizontal com scroll
-              SizedBox(
-                height: 100,
-                child: ListView(
-                  scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  children: [
-                    _buildHealthIndicator(context, l10n.homeTaste, _healthRecoveryStatus['taste'] ?? false),
-                    _buildHealthIndicator(context, l10n.homeSmell, _healthRecoveryStatus['smell'] ?? false),
-                    _buildHealthIndicator(context, l10n.homeCirculation, _healthRecoveryStatus['circulation'] ?? false),
-                    _buildHealthIndicator(context, l10n.homeLungs, _healthRecoveryStatus['lungs'] ?? false),
-                    _buildHealthIndicator(context, l10n.homeHeart, _healthRecoveryStatus['heart'] ?? false),
-                  ],
-                ),
+                  ),
+                  // Health Recovery Widget
+                  HealthRecoveryWidget(
+                    showAllRecoveries: false,
+                    autoRefresh: true,
+                    showHeader: false,
+                    onRecoveryTap: (recovery, isAchieved) {
+                      if (recovery.id == 'all') {
+                        // Navigate to all health recoveries screen
+                        context.push(AppRoutes.healthRecovery.path);
+                      } else {
+                        // Navigate to specific health recovery detail
+                        context.push(AppRoutes.healthRecoveryDetail.withParams(
+                          params: {'recoveryId': recovery.id},
+                        ));
+                      }
+                    },
+                  ),
+                ],
               ),
               
               const SizedBox(height: 24),
