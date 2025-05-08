@@ -56,7 +56,7 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen> w
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            context.go(AppRoutes.home.path);
+            context.go(AppRoutes.main.path);
           },
         ),
         actions: [
