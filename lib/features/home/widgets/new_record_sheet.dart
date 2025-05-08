@@ -33,11 +33,44 @@ class _NewRecordSheetState extends State<NewRecordSheet> {
   String? _selectedReason;
   String? _selectedAmount;
   String? _selectedDuration;
-
+  
+  // Controles para as seções minimizáveis
+  bool _isReasonSectionExpanded = true;
+  bool _isAmountDurationSectionExpanded = true;
+  bool _isNotesSectionExpanded = true;
+  
+  @override
+  void initState() {
+    super.initState();
+    // Adiciona listener para o controller de notas
+    _notesController.addListener(() {
+      setState(() {
+        // Força reconstrução quando o texto muda para atualizar o resumo
+      });
+    });
+  }
+  
   @override
   void dispose() {
     _notesController.dispose();
     super.dispose();
+  }
+  
+  // Método para atualizar o estado de expansão das seções
+  void _updateSectionStates() {
+    setState(() {
+      // Quando o usuário seleciona um motivo, minimiza essa seção e expande a próxima
+      if (_selectedReason != null && _isReasonSectionExpanded) {
+        _isReasonSectionExpanded = false;
+        _isAmountDurationSectionExpanded = true;
+      }
+      
+      // Quando o usuário completa quantidade e duração, minimiza essa seção e expande a de notas
+      if (_selectedAmount != null && _selectedDuration != null && _isAmountDurationSectionExpanded) {
+        _isAmountDurationSectionExpanded = false;
+        _isNotesSectionExpanded = true;
+      }
+    });
   }
 
   @override
@@ -112,7 +145,7 @@ class _NewRecordSheetState extends State<NewRecordSheet> {
                     
                     const SizedBox(height: 12),
                     
-                    // Razão - Card principal
+                    // Seção de Razão - Minimizável
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: Card(
@@ -124,167 +157,88 @@ class _NewRecordSheetState extends State<NewRecordSheet> {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                           side: BorderSide(
-                            color: context.isDarkMode 
-                              ? Colors.grey[800]! 
-                              : Colors.grey[300]!,
-                            width: 0.5,
+                            color: _selectedReason != null 
+                              ? Colors.blue
+                              : context.isDarkMode 
+                                ? Colors.grey[800]! 
+                                : Colors.grey[300]!,
+                            width: _selectedReason != null ? 1.5 : 0.5,
                           ),
                         ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(12.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // Label para a seção
-                              Row(
-                                children: [
-                                  Icon(
-                                    Icons.help_outline, 
-                                    size: 16, 
-                                    color: Colors.blue,
-                                  ),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    l10n.whatsTheReason,
-                                    style: TextStyle(
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.bold,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Cabeçalho clicável para expandir/colapsar
+                            InkWell(
+                              onTap: () {
+                                setState(() {
+                                  _isReasonSectionExpanded = !_isReasonSectionExpanded;
+                                });
+                              },
+                              borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+                              child: Padding(
+                                padding: const EdgeInsets.all(12.0),
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.help_outline, 
+                                      size: 20, 
                                       color: Colors.blue,
                                     ),
-                                  ),
-                                ],
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text(
+                                        l10n.whatsTheReason,
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.blue,
+                                        ),
+                                      ),
+                                    ),
+                                    if (_selectedReason != null)
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                        decoration: BoxDecoration(
+                                          color: Colors.blue.withOpacity(0.1),
+                                          borderRadius: BorderRadius.circular(12),
+                                          border: Border.all(color: Colors.blue.withOpacity(0.3)),
+                                        ),
+                                        child: Text(
+                                          _getReasonLabel(_selectedReason!),
+                                          style: const TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.blue,
+                                          ),
+                                        ),
+                                      ),
+                                    const SizedBox(width: 4),
+                                    Icon(
+                                      _isReasonSectionExpanded ? Icons.expand_less : Icons.expand_more,
+                                      color: Colors.grey,
+                                    ),
+                                  ],
+                                ),
                               ),
-                              const SizedBox(height: 12),
-                              // Reason grid
-                              _buildReasonGrid(context, l10n),
-                            ],
-                          ),
+                            ),
+                            
+                            // Conteúdo expansível
+                            if (_isReasonSectionExpanded)
+                              Padding(
+                                padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+                                child: _buildReasonGrid(context, l10n),
+                              ),
+                          ],
                         ),
                       ),
                     ),
                     
                     const SizedBox(height: 12),
                     
-                    // Layout em duas colunas para opções de quantidade e duração
+                    // Seção de Quantidade e Duração - Minimizável
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Coluna de quantidade
-                          Expanded(
-                            child: Card(
-                              margin: const EdgeInsets.all(4),
-                              elevation: 0,
-                              color: context.isDarkMode 
-                                ? Colors.grey[850] 
-                                : Colors.grey[50],
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                side: BorderSide(
-                                  color: context.isDarkMode 
-                                    ? Colors.grey[800]! 
-                                    : Colors.grey[300]!,
-                                  width: 0.5,
-                                ),
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.all(12.0),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    // Label para a seção
-                                    Row(
-                                      children: [
-                                        Icon(
-                                          Icons.smoking_rooms_outlined, 
-                                          size: 16, 
-                                          color: Colors.blue,
-                                        ),
-                                        const SizedBox(width: 4),
-                                        Expanded(
-                                          child: Text(
-                                            l10n.howMuchDidYouSmoke,
-                                            style: TextStyle(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.blue,
-                                            ),
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    const SizedBox(height: 8),
-                                    // Amount options
-                                    _buildAmountOptions(context, l10n),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                          
-                          // Coluna de duração
-                          Expanded(
-                            child: Card(
-                              margin: const EdgeInsets.all(4),
-                              elevation: 0,
-                              color: context.isDarkMode 
-                                ? Colors.grey[850] 
-                                : Colors.grey[50],
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                side: BorderSide(
-                                  color: context.isDarkMode 
-                                    ? Colors.grey[800]! 
-                                    : Colors.grey[300]!,
-                                  width: 0.5,
-                                ),
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.all(12.0),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    // Label para a seção
-                                    Row(
-                                      children: [
-                                        Icon(
-                                          Icons.timer_outlined, 
-                                          size: 16, 
-                                          color: Colors.blue,
-                                        ),
-                                        const SizedBox(width: 4),
-                                        Expanded(
-                                          child: Text(
-                                            l10n.howLongDidItLast,
-                                            style: TextStyle(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.blue,
-                                            ),
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    const SizedBox(height: 8),
-                                    // Duration options
-                                    _buildDurationOptions(context, l10n),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    
-                    const SizedBox(height: 12),
-                    
-                    // Notas
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
                       child: Card(
                         margin: EdgeInsets.zero,
                         elevation: 0,
@@ -294,40 +248,244 @@ class _NewRecordSheetState extends State<NewRecordSheet> {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                           side: BorderSide(
-                            color: context.isDarkMode 
-                              ? Colors.grey[800]! 
-                              : Colors.grey[300]!,
-                            width: 0.5,
+                            color: (_selectedAmount != null && _selectedDuration != null)
+                              ? Colors.blue
+                              : context.isDarkMode 
+                                ? Colors.grey[800]! 
+                                : Colors.grey[300]!,
+                            width: (_selectedAmount != null && _selectedDuration != null) ? 1.5 : 0.5,
                           ),
                         ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(12.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // Label para a seção
-                              Row(
-                                children: [
-                                  Icon(
-                                    Icons.note_outlined, 
-                                    size: 16, 
-                                    color: Colors.blue,
-                                  ),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    l10n.notes,
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Cabeçalho clicável para expandir/colapsar
+                            InkWell(
+                              onTap: () {
+                                setState(() {
+                                  _isAmountDurationSectionExpanded = !_isAmountDurationSectionExpanded;
+                                });
+                              },
+                              borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+                              child: Padding(
+                                padding: const EdgeInsets.all(12.0),
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.smoking_rooms_outlined, 
+                                      size: 20, 
                                       color: Colors.blue,
                                     ),
-                                  ),
-                                ],
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text(
+                                        "${l10n.howMuchDidYouSmoke} & ${l10n.howLongDidItLast}",
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.blue,
+                                        ),
+                                      ),
+                                    ),
+                                    if (_selectedAmount != null && _selectedDuration != null)
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                        decoration: BoxDecoration(
+                                          color: Colors.blue.withOpacity(0.1),
+                                          borderRadius: BorderRadius.circular(12),
+                                          border: Border.all(color: Colors.blue.withOpacity(0.3)),
+                                        ),
+                                        child: Row(
+                                          children: [
+                                            Text(
+                                              "${_getAmountLabel(_selectedAmount!)} • ${_getDurationLabel(_selectedDuration!)}",
+                                              style: const TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.blue,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    const SizedBox(width: 4),
+                                    Icon(
+                                      _isAmountDurationSectionExpanded ? Icons.expand_less : Icons.expand_more,
+                                      color: Colors.grey,
+                                    ),
+                                  ],
+                                ),
                               ),
-                              const SizedBox(height: 8),
-                              _buildNotesField(context, l10n),
-                            ],
+                            ),
+                            
+                            // Conteúdo expansível
+                            if (_isAmountDurationSectionExpanded)
+                              Padding(
+                                padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    // Quantidade
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: 8, bottom: 16),
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          // Label para quantidade
+                                          Row(
+                                            children: [
+                                              Icon(
+                                                Icons.smoking_rooms_outlined, 
+                                                size: 18, 
+                                                color: Colors.blue,
+                                              ),
+                                              const SizedBox(width: 8),
+                                              Expanded(
+                                                child: Text(
+                                                  l10n.howMuchDidYouSmoke,
+                                                  style: TextStyle(
+                                                    fontSize: 16,
+                                                    fontWeight: FontWeight.bold,
+                                                    color: Colors.blue,
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          const SizedBox(height: 12),
+                                          _buildAmountOptions(context, l10n),
+                                        ],
+                                      ),
+                                    ),
+                                    
+                                    // Duração
+                                    Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        // Label para duração
+                                        Row(
+                                          children: [
+                                            Icon(
+                                              Icons.timer_outlined, 
+                                              size: 18, 
+                                              color: Colors.blue,
+                                            ),
+                                            const SizedBox(width: 8),
+                                            Expanded(
+                                              child: Text(
+                                                l10n.howLongDidItLast,
+                                                style: TextStyle(
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Colors.blue,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 12),
+                                        _buildDurationOptions(context, l10n),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    
+                    const SizedBox(height: 12),
+                    
+                    // Seção de Notas - Minimizável
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Card(
+                        margin: EdgeInsets.zero,
+                        elevation: 0,
+                        color: context.isDarkMode 
+                          ? Colors.grey[850] 
+                          : Colors.grey[50],
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          side: BorderSide(
+                            color: _notesController.text.isNotEmpty
+                              ? Colors.blue
+                              : context.isDarkMode 
+                                ? Colors.grey[800]! 
+                                : Colors.grey[300]!,
+                            width: _notesController.text.isNotEmpty ? 1.5 : 0.5,
                           ),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Cabeçalho clicável para expandir/colapsar
+                            InkWell(
+                              onTap: () {
+                                setState(() {
+                                  _isNotesSectionExpanded = !_isNotesSectionExpanded;
+                                });
+                              },
+                              borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+                              child: Padding(
+                                padding: const EdgeInsets.all(12.0),
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.note_outlined, 
+                                      size: 20, 
+                                      color: Colors.blue,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text(
+                                        l10n.notes,
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.blue,
+                                        ),
+                                      ),
+                                    ),
+                                    if (_notesController.text.isNotEmpty)
+                                      Container(
+                                        constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.3),
+                                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                        decoration: BoxDecoration(
+                                          color: Colors.blue.withOpacity(0.1),
+                                          borderRadius: BorderRadius.circular(12),
+                                          border: Border.all(color: Colors.blue.withOpacity(0.3)),
+                                        ),
+                                        child: Text(
+                                          _notesController.text.length > 15 
+                                              ? "${_notesController.text.substring(0, 15)}..." 
+                                              : _notesController.text,
+                                          style: const TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.blue,
+                                          ),
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                    const SizedBox(width: 4),
+                                    Icon(
+                                      _isNotesSectionExpanded ? Icons.expand_less : Icons.expand_more,
+                                      color: Colors.grey,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            
+                            // Conteúdo expansível
+                            if (_isNotesSectionExpanded)
+                              Padding(
+                                padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+                                child: _buildNotesField(context, l10n),
+                              ),
+                          ],
                         ),
                       ),
                     ),
@@ -477,6 +635,53 @@ class _NewRecordSheetState extends State<NewRecordSheet> {
            _selectedDuration != null;
   }
   
+  // Método para obter o rótulo legível para um valor de razão selecionado
+  String _getReasonLabel(String value) {
+    final l10n = AppLocalizations.of(context);
+    switch (value) {
+      case 'stress':
+        return l10n.stress;
+      case 'anxiety':
+        return l10n.anxiety;
+      case 'coffee':
+        return l10n.coffee;
+      case 'alcohol':
+        return l10n.alcohol;
+      default:
+        return value;
+    }
+  }
+  
+  // Método para obter o rótulo legível para um valor de quantidade
+  String _getAmountLabel(String value) {
+    final l10n = AppLocalizations.of(context);
+    switch (value) {
+      case 'one_or_less':
+        return l10n.oneOrLess;
+      case 'two_to_five':
+        return l10n.twoToFive;
+      case 'more_than_five':
+        return l10n.moreThanFive;
+      default:
+        return value;
+    }
+  }
+  
+  // Método para obter o rótulo legível para um valor de duração
+  String _getDurationLabel(String value) {
+    final l10n = AppLocalizations.of(context);
+    switch (value) {
+      case 'less_than_5min':
+        return l10n.lessThan5min;
+      case '5_to_15min':
+        return l10n.fiveToFifteenMin;
+      case 'more_than_15min':
+        return l10n.moreThan15min;
+      default:
+        return value;
+    }
+  }
+  
   String _getValidationMessage(AppLocalizations l10n) {
     if (_selectedReason == null) {
       return l10n.pleaseSelectReason;
@@ -600,6 +805,8 @@ class _NewRecordSheetState extends State<NewRecordSheet> {
       onTap: () {
         setState(() {
           _selectedReason = value;
+          // Atualiza o estado das seções quando o usuário seleciona um motivo
+          _updateSectionStates();
         });
       },
       borderRadius: BorderRadius.circular(12), // Reduzido de 16 para 12
@@ -751,12 +958,16 @@ class _NewRecordSheetState extends State<NewRecordSheet> {
     final isSmallScreen = screenHeight < 700;
     
     // Ajustes para telas pequenas
-    final double fontSize = isSmallScreen ? 13 : 14;
-    final double vertPadding = isSmallScreen ? 8 : 12;
-    final double horzPadding = isSmallScreen ? 6 : 8;
+    final double fontSize = isSmallScreen ? 13 : 16; // Aumentamos o tamanho da fonte para melhor legibilidade
+    final double vertPadding = isSmallScreen ? 10 : 14; // Aumentamos o padding para toques mais fáceis
+    final double horzPadding = isSmallScreen ? 8 : 10; // Aumentamos o padding horizontal
     
     return InkWell(
-      onTap: () => onSelected(!isSelected),
+      onTap: () {
+        onSelected(!isSelected);
+        // Atualiza as seções quando o usuário faz uma seleção
+        _updateSectionStates();
+      },
       borderRadius: BorderRadius.circular(12), // Reduzido para 12
       child: Container(
         padding: EdgeInsets.symmetric(vertical: vertPadding, horizontal: horzPadding),
