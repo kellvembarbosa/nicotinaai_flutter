@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:nicotinaai_flutter/features/tracking/models/health_recovery.dart';
 import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
 import 'package:nicotinaai_flutter/utils/health_recovery_utils.dart';
+import 'package:nicotinaai_flutter/widgets/skeleton_loading.dart';
 
 class HealthRecoveryWidget extends StatefulWidget {
   /// Optional callback when a recovery is tapped
@@ -128,9 +129,7 @@ class _HealthRecoveryWidgetState extends State<HealthRecoveryWidget> {
     final l10n = AppLocalizations.of(context);
     
     if (_isLoading) {
-      return Center(
-        child: CircularProgressIndicator(),
-      );
+      return _buildSkeletonLoading(l10n);
     }
 
     if (_errorMessage != null) {
@@ -325,6 +324,44 @@ class _HealthRecoveryWidgetState extends State<HealthRecoveryWidget> {
                   ),
                 ),
               );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+  
+  /// Build skeleton loading UI for health recovery widget
+  Widget _buildSkeletonLoading(AppLocalizations l10n) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (widget.showHeader)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  l10n.healthRecovery,
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+                if (!widget.showAllRecoveries)
+                  TextButton(
+                    onPressed: null, // Disabled during loading
+                    child: Text(l10n.seeAll),
+                  ),
+              ],
+            ),
+          ),
+        SizedBox(
+          height: 140,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            itemCount: 5, // Show 5 skeleton items
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            itemBuilder: (context, index) {
+              return RecoveryItemSkeleton();
             },
           ),
         ),

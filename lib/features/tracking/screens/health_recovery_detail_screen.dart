@@ -4,6 +4,7 @@ import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:nicotinaai_flutter/config/supabase_config.dart';
 import 'package:nicotinaai_flutter/utils/health_recovery_utils.dart';
+import 'package:nicotinaai_flutter/widgets/skeleton_loading.dart';
 
 class HealthRecoveryDetailScreen extends StatefulWidget {
   final String recoveryId;
@@ -224,7 +225,7 @@ class _HealthRecoveryDetailScreenState extends State<HealthRecoveryDetailScreen>
         ),
       ),
       body: _isLoading
-          ? Center(child: CircularProgressIndicator())
+          ? RecoveryDetailSkeleton()
           : _errorMessage != null
               ? Center(
                   child: Column(

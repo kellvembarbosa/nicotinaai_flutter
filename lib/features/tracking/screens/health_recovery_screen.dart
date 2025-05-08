@@ -8,6 +8,7 @@ import 'package:nicotinaai_flutter/features/tracking/providers/tracking_provider
 import 'package:nicotinaai_flutter/features/tracking/widgets/health_recovery_widget.dart';
 import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
 import 'package:nicotinaai_flutter/utils/health_recovery_utils.dart';
+import 'package:nicotinaai_flutter/widgets/skeleton_loading.dart';
 
 class HealthRecoveryScreen extends StatefulWidget {
   static const String routeName = '/health-recovery';
@@ -114,7 +115,7 @@ class _HealthRecoveryScreenState extends State<HealthRecoveryScreen> with Single
         ),
       ),
       body: _isLoading
-          ? Center(child: CircularProgressIndicator())
+          ? _buildSkeletonLoading()
           : _errorMessage != null
               ? Center(
                   child: Column(
@@ -322,6 +323,98 @@ class _HealthRecoveryScreenState extends State<HealthRecoveryScreen> with Single
         color: color,
         size: 24,
       ),
+    );
+  }
+  
+  /// Build skeleton loading UI for health recovery screen
+  Widget _buildSkeletonLoading() {
+    return TabBarView(
+      controller: _tabController,
+      children: [
+        // All Recoveries Tab Skeleton
+        _buildRecoveriesListSkeleton(),
+        
+        // Achieved Recoveries Tab Skeleton
+        _buildRecoveriesListSkeleton(),
+        
+        // In Progress Recoveries Tab Skeleton
+        _buildRecoveriesListSkeleton(),
+      ],
+    );
+  }
+  
+  /// Build skeleton list for recoveries
+  Widget _buildRecoveriesListSkeleton() {
+    return ListView.builder(
+      itemCount: 8, // Show 8 skeleton items
+      padding: const EdgeInsets.all(16),
+      itemBuilder: (context, index) {
+        return Card(
+          margin: const EdgeInsets.only(bottom: 16),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    SkeletonLoading(height: 48, isCircle: true),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SkeletonLoading(
+                            width: 120,
+                            height: 18,
+                            borderRadius: 4,
+                          ),
+                          const SizedBox(height: 6),
+                          SkeletonLoading(
+                            width: 80,
+                            height: 14,
+                            borderRadius: 4,
+                          ),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: SkeletonLoading(
+                        width: 40,
+                        height: 14,
+                        borderRadius: 4,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                SkeletonLoading(
+                  width: double.infinity,
+                  height: 6,
+                  borderRadius: 3,
+                ),
+                const SizedBox(height: 16),
+                SkeletonLoading(
+                  width: double.infinity,
+                  height: 16,
+                  borderRadius: 4,
+                ),
+                const SizedBox(height: 8),
+                SkeletonLoading(
+                  width: double.infinity * 0.7,
+                  height: 16,
+                  borderRadius: 4,
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }
