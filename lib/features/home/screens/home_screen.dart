@@ -599,65 +599,6 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               
               const SizedBox(height: 24),
-              
-              // Estatísticas diárias
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      l10n.homeTodayStats,
-                      style: context.titleStyle,
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        // Navigate to statistics dashboard
-                        context.go(AppRoutes.statisticsDashboard.path);
-                      },
-                      style: TextButton.styleFrom(
-                        foregroundColor: context.primaryColor,
-                      ),
-                      child: Text(
-                        'View All',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              
-              const SizedBox(height: 16),
-              
-              // Cards de estatísticas diárias
-              Padding(
-                padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: _buildDailyStatCard(
-                        context,
-                        '$_cravingsResisted',
-                        l10n.homeCravingsResisted,
-                        Colors.orange,
-                        Icons.smoke_free,
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: _buildDailyStatCard(
-                        context,
-                        _dailyMinutesGained > 0 ? '$_dailyMinutesGained min' : '0',
-                        l10n.homeMinutesGainedToday,
-                        Colors.teal,
-                        Icons.favorite,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
             ],
           ),
         ),
