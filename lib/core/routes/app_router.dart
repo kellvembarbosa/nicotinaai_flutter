@@ -8,7 +8,8 @@ import 'package:nicotinaai_flutter/features/auth/screens/register_screen.dart';
 import 'package:nicotinaai_flutter/features/auth/screens/splash_screen.dart';
 import 'package:nicotinaai_flutter/features/main/screens/main_screen.dart';
 import 'package:nicotinaai_flutter/features/home/screens/home_screen.dart';
-import 'package:nicotinaai_flutter/features/achievements/screens/achievements_screen.dart';
+import 'package:nicotinaai_flutter/features/achievements/screens/updated_achievements_screen.dart' as updated;
+import 'package:nicotinaai_flutter/features/achievements/screens/achievement_detail_screen.dart';
 import 'package:nicotinaai_flutter/features/settings/screens/settings_screen.dart';
 import 'package:nicotinaai_flutter/features/settings/screens/language_selection_screen.dart';
 import 'package:nicotinaai_flutter/features/settings/screens/currency_selection_screen.dart';
@@ -77,8 +78,8 @@ class AppRouter {
         builder: (context, state) => const HomeScreen(),
       ),
       GoRoute(
-        path: AchievementsScreen.routeName,
-        builder: (context, state) => const AchievementsScreen(),
+        path: updated.AchievementsScreen.routeName,
+        builder: (context, state) => const updated.AchievementsScreen(),
       ),
       GoRoute(
         path: SettingsScreen.routeName,
@@ -126,6 +127,15 @@ class AppRouter {
       GoRoute(
         path: AppRoutes.healthRecoveryTest.path,
         builder: (context, state) => const HealthRecoveryTest(),
+      ),
+      
+      // Achievement routes
+      GoRoute(
+        path: AppRoutes.achievementDetail.path,
+        builder: (context, state) {
+          final achievementId = state.pathParameters['achievementId'] ?? '';
+          return AchievementDetailScreen(achievementId: achievementId);
+        },
       ),
     ],
     errorBuilder: (context, state) => Scaffold(

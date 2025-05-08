@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:nicotinaai_flutter/core/theme/app_theme.dart';
-import 'package:nicotinaai_flutter/features/achievements/screens/achievements_screen.dart';
+import 'package:nicotinaai_flutter/features/achievements/screens/updated_achievements_screen.dart';
+import 'package:nicotinaai_flutter/features/achievements/helpers/achievement_helper.dart';
 import 'package:nicotinaai_flutter/features/home/screens/home_screen.dart';
 import 'package:nicotinaai_flutter/features/settings/screens/settings_screen.dart';
 import 'package:nicotinaai_flutter/features/tracking/screens/dashboard_screen.dart';
@@ -20,6 +21,7 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
+  bool _hasInitializedAchievements = false;
   
   // List of screens for the tabs
   final List<Widget> _screens = [
@@ -27,6 +29,23 @@ class _MainScreenState extends State<MainScreen> {
     const AchievementsScreen(),
     const SettingsScreen(),
   ];
+  
+  @override
+  void initState() {
+    super.initState();
+    // Schedule achievement initialization for after the first frame
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeAchievementsOnce();
+    });
+  }
+  
+  // Initialize achievements only once
+  void _initializeAchievementsOnce() {
+    if (!_hasInitializedAchievements && mounted) {
+      _hasInitializedAchievements = true;
+      AchievementHelper.initializeAchievements(context);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
