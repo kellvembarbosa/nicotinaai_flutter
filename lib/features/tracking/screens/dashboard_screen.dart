@@ -172,6 +172,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           stats.formattedMoneySaved,
           Icons.account_balance_wallet,
           Colors.blue,
+          subtitle: 'Based on ${stats.cravingsResisted} cravings resisted',
         ),
         _statCard(
           context,
@@ -179,13 +180,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
           stats.cravingsResisted.toString(),
           Icons.fitness_center,
           Colors.purple,
+          subtitle: '+${stats.cravingsResisted * 5} XP earned',
         ),
       ],
     );
   }
 
   Widget _statCard(BuildContext context, String title, String value, 
-      IconData icon, Color color) {
+      IconData icon, Color color, {String? subtitle}) {
     return Card(
       elevation: 4,
       child: Padding(
@@ -213,6 +215,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
               textAlign: TextAlign.center,
             ),
+            if (subtitle != null) ...[
+              const SizedBox(height: 2),
+              Text(
+                subtitle,
+                style: TextStyle(
+                  fontSize: 11,
+                  fontStyle: FontStyle.italic,
+                  color: color.withOpacity(0.7),
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
           ],
         ),
       ),

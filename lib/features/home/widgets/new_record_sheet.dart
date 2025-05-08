@@ -7,6 +7,8 @@ import 'package:nicotinaai_flutter/features/home/models/smoking_record_model.dar
 import 'package:nicotinaai_flutter/features/home/providers/smoking_record_provider.dart';
 import 'package:nicotinaai_flutter/features/tracking/providers/tracking_provider.dart';
 import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
+import 'package:nicotinaai_flutter/services/supabase_diagnostic.dart';
+import 'package:nicotinaai_flutter/services/migration_service.dart';
 
 class NewRecordSheet extends StatefulWidget {
   const NewRecordSheet({super.key});
@@ -41,11 +43,19 @@ class _NewRecordSheetState extends State<NewRecordSheet> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final screenHeight = MediaQuery.of(context).size.height;
+    final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
+    
+    // Tamanho ideal para mobile, equilibrando visibilidade e contexto da tela
+    const initialSize = 0.80; // Valor ideal para visualizar conteúdo mantendo contexto da tela
     
     return DraggableScrollableSheet(
-      initialChildSize: 0.7,
+      initialChildSize: initialSize,
       minChildSize: 0.5,
-      maxChildSize: 0.9,
+      maxChildSize: 0.95,
+      expand: false, // Permite que o conteúdo determine o tamanho natural
+      snap: true, // Facilita o ajuste para posições específicas
+      snapSizes: const [0.65, 0.8, 0.95], // Manter as opções de snap para dar flexibilidade ao usuário
       builder: (context, scrollController) {
         return Container(
           decoration: BoxDecoration(
@@ -54,103 +64,295 @@ class _NewRecordSheetState extends State<NewRecordSheet> {
           ),
           child: Column(
             children: [
-              // Scrollable content
+              // Scrollable content com layout otimizado
               Expanded(
                 child: ListView(
                   controller: scrollController,
-                  padding: const EdgeInsets.only(bottom: 24),
+                  padding: const EdgeInsets.only(bottom: 16),
                   children: [
                     _buildHandle(context),
                     
-                    // "What's the reason?" section
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(24, 8, 24, 16),
-                      child: Text(
-                        l10n.whatsTheReason,
-                        style: context.titleStyle.copyWith(fontSize: 24),
-                        textAlign: TextAlign.center,
+                    // Título principal otimizado
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
+                      decoration: BoxDecoration(
+                        color: context.isDarkMode 
+                            ? Colors.blue.withOpacity(0.15) 
+                            : Colors.blue.withOpacity(0.08),
+                        borderRadius: const BorderRadius.only(
+                          bottomLeft: Radius.circular(16),
+                          bottomRight: Radius.circular(16),
+                        ),
                       ),
-                    ),
-                    
-                    // Reason options in grid
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: _buildReasonGrid(context, l10n),
-                    ),
-                    
-                    const SizedBox(height: 24),
-                    
-                    // How much did you smoke section
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
-                      child: Text(
-                        l10n.howMuchDidYouSmoke,
-                        style: context.titleStyle.copyWith(fontSize: 20),
-                      ),
-                    ),
-                    
-                    // Amount options
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24),
-                      child: _buildAmountOptions(context, l10n),
-                    ),
-                    
-                    const SizedBox(height: 24),
-                    
-                    // How long did it last section
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
-                      child: Text(
-                        l10n.howLongDidItLast,
-                        style: context.titleStyle.copyWith(fontSize: 20),
-                      ),
-                    ),
-                    
-                    // Duration options
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24),
-                      child: _buildDurationOptions(context, l10n),
-                    ),
-                    
-                    const SizedBox(height: 24),
-                    
-                    // Notes field
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24),
                       child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            l10n.notes,
-                            style: context.titleStyle.copyWith(fontSize: 16),
+                            l10n.newRecord,
+                            style: context.titleStyle.copyWith(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.blue,
+                            ),
+                            textAlign: TextAlign.center,
                           ),
-                          const SizedBox(height: 8),
-                          _buildNotesField(context, l10n),
+                          Text(
+                            l10n.newRecordSubtitle,
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: context.isDarkMode 
+                                  ? Colors.white70 
+                                  : Colors.black54,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
                         ],
                       ),
                     ),
                     
-                    // Extra space at the bottom for content to scroll above the fixed button
-                    const SizedBox(height: 90),
+                    const SizedBox(height: 12),
+                    
+                    // Razão - Card principal
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Card(
+                        margin: EdgeInsets.zero,
+                        elevation: 0,
+                        color: context.isDarkMode 
+                          ? Colors.grey[850] 
+                          : Colors.grey[50],
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          side: BorderSide(
+                            color: context.isDarkMode 
+                              ? Colors.grey[800]! 
+                              : Colors.grey[300]!,
+                            width: 0.5,
+                          ),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(12.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Label para a seção
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.help_outline, 
+                                    size: 16, 
+                                    color: Colors.blue,
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    l10n.whatsTheReason,
+                                    style: TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.blue,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 12),
+                              // Reason grid
+                              _buildReasonGrid(context, l10n),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    
+                    const SizedBox(height: 12),
+                    
+                    // Layout em duas colunas para opções de quantidade e duração
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Coluna de quantidade
+                          Expanded(
+                            child: Card(
+                              margin: const EdgeInsets.all(4),
+                              elevation: 0,
+                              color: context.isDarkMode 
+                                ? Colors.grey[850] 
+                                : Colors.grey[50],
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                side: BorderSide(
+                                  color: context.isDarkMode 
+                                    ? Colors.grey[800]! 
+                                    : Colors.grey[300]!,
+                                  width: 0.5,
+                                ),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.all(12.0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    // Label para a seção
+                                    Row(
+                                      children: [
+                                        Icon(
+                                          Icons.smoking_rooms_outlined, 
+                                          size: 16, 
+                                          color: Colors.blue,
+                                        ),
+                                        const SizedBox(width: 4),
+                                        Expanded(
+                                          child: Text(
+                                            l10n.howMuchDidYouSmoke,
+                                            style: TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.blue,
+                                            ),
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 8),
+                                    // Amount options
+                                    _buildAmountOptions(context, l10n),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                          
+                          // Coluna de duração
+                          Expanded(
+                            child: Card(
+                              margin: const EdgeInsets.all(4),
+                              elevation: 0,
+                              color: context.isDarkMode 
+                                ? Colors.grey[850] 
+                                : Colors.grey[50],
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                side: BorderSide(
+                                  color: context.isDarkMode 
+                                    ? Colors.grey[800]! 
+                                    : Colors.grey[300]!,
+                                  width: 0.5,
+                                ),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.all(12.0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    // Label para a seção
+                                    Row(
+                                      children: [
+                                        Icon(
+                                          Icons.timer_outlined, 
+                                          size: 16, 
+                                          color: Colors.blue,
+                                        ),
+                                        const SizedBox(width: 4),
+                                        Expanded(
+                                          child: Text(
+                                            l10n.howLongDidItLast,
+                                            style: TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.blue,
+                                            ),
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 8),
+                                    // Duration options
+                                    _buildDurationOptions(context, l10n),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    
+                    const SizedBox(height: 12),
+                    
+                    // Notas
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: Card(
+                        margin: EdgeInsets.zero,
+                        elevation: 0,
+                        color: context.isDarkMode 
+                          ? Colors.grey[850] 
+                          : Colors.grey[50],
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          side: BorderSide(
+                            color: context.isDarkMode 
+                              ? Colors.grey[800]! 
+                              : Colors.grey[300]!,
+                            width: 0.5,
+                          ),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(12.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Label para a seção
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.note_outlined, 
+                                    size: 16, 
+                                    color: Colors.blue,
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    l10n.notes,
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.blue,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 8),
+                              _buildNotesField(context, l10n),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    
+                    // Extra space at the bottom
+                    const SizedBox(height: 70), // Reduzido de 90 para 70
                   ],
                 ),
               ),
               
-              // Fixed register button at the bottom
+              // Botão de registro otimizado
               Container(
                 width: double.infinity,
                 padding: EdgeInsets.only(
-                  left: 24, 
-                  right: 24, 
-                  bottom: 24 + MediaQuery.of(context).viewInsets.bottom / 2,
-                  top: 12,
+                  left: 20,
+                  right: 20,
+                  bottom: 16 + MediaQuery.of(context).padding.bottom,
+                  top: 8,
                 ),
                 decoration: BoxDecoration(
                   color: context.backgroundColor,
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
-                      offset: const Offset(0, -4),
+                      color: Colors.black.withOpacity(0.07),
+                      offset: const Offset(0, -3),
                       blurRadius: 8,
                     ),
                   ],
@@ -159,48 +361,102 @@ class _NewRecordSheetState extends State<NewRecordSheet> {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    // Error message for invalid form
+                    // Mensagem de erro compacta
                     if (!_isFormValid())
                       Padding(
                         padding: const EdgeInsets.only(bottom: 8),
-                        child: Text(
-                          _getValidationMessage(l10n),
-                          style: TextStyle(
-                            color: Colors.redAccent,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                          decoration: BoxDecoration(
+                            color: Colors.red.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                              color: Colors.red.withOpacity(0.3),
+                              width: 1,
+                            ),
                           ),
-                          textAlign: TextAlign.center,
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.error_outline,
+                                color: Colors.red,
+                                size: 16,
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  _getValidationMessage(l10n),
+                                  style: TextStyle(
+                                    color: Colors.red,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                    // Full-width register button
+                    
+                    // Botão de registro com elevation e gradiente
                     SizedBox(
                       width: double.infinity,
+                      height: 52,
                       child: ElevatedButton(
                         onPressed: _isFormValid() ? _saveRecord : () {
-                          // Show message when button is pressed but form is invalid
+                          // Mensagem de erro em caso de formulário inválido
+                          final message = _getValidationMessage(l10n);
+                          
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
-                              content: Text(_getValidationMessage(l10n)),
+                              content: Text(message),
                               backgroundColor: Colors.redAccent,
                               behavior: SnackBarBehavior.floating,
+                              duration: const Duration(seconds: 3),
                             ),
                           );
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: context.primaryColor,
-                          disabledBackgroundColor: null, // Let the button be tappable even if invalid
+                          backgroundColor: Colors.blue,
+                          disabledBackgroundColor: Colors.grey[300],
                           foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          padding: EdgeInsets.zero,
+                          elevation: 4,
+                          shadowColor: Colors.blue.withOpacity(0.4),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(16),
                           ),
                         ),
-                        child: Text(
-                          l10n.register,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
+                        child: Ink(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [
+                                Colors.blue,
+                                Colors.blue.shade800,
+                              ],
+                              begin: Alignment.centerLeft,
+                              end: Alignment.centerRight,
+                            ),
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: Container(
+                            width: double.infinity,
+                            height: 52,
+                            alignment: Alignment.center,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Icon(Icons.smoking_rooms_outlined, size: 20),
+                                const SizedBox(width: 8),
+                                Text(
+                                  l10n.register,
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ),
@@ -233,22 +489,50 @@ class _NewRecordSheetState extends State<NewRecordSheet> {
   }
 
   Widget _buildHandle(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12),
-      child: Center(
-        child: Container(
-          width: 40,
-          height: 4,
-          decoration: BoxDecoration(
-            color: Colors.grey.withOpacity(0.3),
-            borderRadius: BorderRadius.circular(2),
+    return Container(
+      height: 24,
+      width: double.infinity,
+      child: Stack(
+        alignment: Alignment.topCenter,
+        children: [
+          // Handle bar
+          Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey.withAlpha(77),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
           ),
-        ),
+          
+          // Botão de fechar no canto direito
+          Positioned(
+            top: 0,
+            right: 8,
+            child: IconButton(
+              icon: Icon(
+                Icons.close,
+                size: 18,
+                color: Colors.grey[600],
+              ),
+              padding: EdgeInsets.zero,
+              constraints: BoxConstraints(),
+              splashRadius: 20,
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+          ),
+        ],
       ),
     );
   }
 
   Widget _buildReasonGrid(BuildContext context, AppLocalizations l10n) {
+    final screenHeight = MediaQuery.of(context).size.height;
+    final isSmallScreen = screenHeight < 700;
+    
     final reasons = [
       _ReasonOption(
         icon: Icons.psychology,
@@ -275,11 +559,11 @@ class _NewRecordSheetState extends State<NewRecordSheet> {
     return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
-        childAspectRatio: 2,
-        crossAxisSpacing: 16,
-        mainAxisSpacing: 16,
+        childAspectRatio: isSmallScreen ? 2.5 : 2.2, // Mais compacto para telas pequenas
+        crossAxisSpacing: isSmallScreen ? 10 : 12,
+        mainAxisSpacing: isSmallScreen ? 10 : 12,
       ),
       itemCount: reasons.length,
       itemBuilder: (context, index) {
@@ -302,6 +586,15 @@ class _NewRecordSheetState extends State<NewRecordSheet> {
   ) {
     final isSelected = _selectedReason == value;
     final color = context.primaryColor;
+    final screenHeight = MediaQuery.of(context).size.height;
+    
+    // Ajustes adaptativos baseados na altura da tela
+    final bool isSmallScreen = screenHeight < 700;
+    final double iconSize = isSmallScreen ? 20 : 24;
+    final double fontSize = isSmallScreen ? 14 : 16;
+    final double vertPadding = isSmallScreen ? 8 : 12;
+    final double horzPadding = isSmallScreen ? 10 : 12;
+    final double spacing = isSmallScreen ? 8 : 12;
     
     return InkWell(
       onTap: () {
@@ -309,16 +602,16 @@ class _NewRecordSheetState extends State<NewRecordSheet> {
           _selectedReason = value;
         });
       },
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(12), // Reduzido de 16 para 12
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+        padding: EdgeInsets.symmetric(vertical: vertPadding, horizontal: horzPadding),
         decoration: BoxDecoration(
           color: isSelected 
             ? color.withOpacity(0.1) 
             : context.isDarkMode 
               ? Colors.grey.withOpacity(0.1) 
               : Colors.grey.withOpacity(0.05),
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(12), // Reduzido de 16 para 12
           border: Border.all(
             color: isSelected 
               ? color 
@@ -336,14 +629,14 @@ class _NewRecordSheetState extends State<NewRecordSheet> {
                 : context.isDarkMode 
                   ? Colors.white 
                   : Colors.grey[800],
-              size: 24,
+              size: iconSize,
             ),
-            const SizedBox(width: 12),
+            SizedBox(width: spacing),
             Flexible(
               child: Text(
                 label,
                 style: TextStyle(
-                  fontSize: 16,
+                  fontSize: fontSize,
                   fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                   color: isSelected 
                     ? color 
@@ -358,12 +651,15 @@ class _NewRecordSheetState extends State<NewRecordSheet> {
   }
   
   Widget _buildNotesField(BuildContext context, AppLocalizations l10n) {
+    final screenHeight = MediaQuery.of(context).size.height;
+    final isSmallScreen = screenHeight < 700;
+    
     return Container(
       decoration: BoxDecoration(
         color: context.isDarkMode 
             ? Colors.grey.withOpacity(0.1) 
             : Colors.grey.withOpacity(0.05),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: context.isDarkMode 
               ? Colors.grey.withOpacity(0.3) 
@@ -372,14 +668,15 @@ class _NewRecordSheetState extends State<NewRecordSheet> {
       ),
       child: TextField(
         controller: _notesController,
-        maxLines: 5,
+        maxLines: isSmallScreen ? 2 : 3, // Ajustado para telas pequenas
+        minLines: 1,
         decoration: InputDecoration(
           hintText: l10n.howDoYouFeel,
           hintStyle: TextStyle(
             color: context.subtitleColor,
-            fontSize: 14,
+            fontSize: isSmallScreen ? 12 : 13,
           ),
-          contentPadding: const EdgeInsets.all(16),
+          contentPadding: EdgeInsets.all(isSmallScreen ? 10 : 12),
           border: InputBorder.none,
         ),
       ),
@@ -450,19 +747,26 @@ class _NewRecordSheetState extends State<NewRecordSheet> {
     Function(bool) onSelected,
   ) {
     final color = context.primaryColor;
+    final screenHeight = MediaQuery.of(context).size.height;
+    final isSmallScreen = screenHeight < 700;
+    
+    // Ajustes para telas pequenas
+    final double fontSize = isSmallScreen ? 13 : 14;
+    final double vertPadding = isSmallScreen ? 8 : 12;
+    final double horzPadding = isSmallScreen ? 6 : 8;
     
     return InkWell(
       onTap: () => onSelected(!isSelected),
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(12), // Reduzido para 12
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+        padding: EdgeInsets.symmetric(vertical: vertPadding, horizontal: horzPadding),
         decoration: BoxDecoration(
           color: isSelected 
             ? color.withOpacity(0.2) 
             : context.isDarkMode 
               ? Colors.grey.withOpacity(0.1) 
               : Colors.grey.withOpacity(0.05),
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(12), // Reduzido para 12
           border: Border.all(
             color: isSelected 
               ? color 
@@ -470,14 +774,17 @@ class _NewRecordSheetState extends State<NewRecordSheet> {
             width: 1.5,
           ),
         ),
-        child: Text(
-          label,
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-            color: isSelected ? color : context.contentColor,
+        child: FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text(
+            label,
+            style: TextStyle(
+              fontSize: fontSize,
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+              color: isSelected ? color : context.contentColor,
+            ),
+            textAlign: TextAlign.center,
           ),
-          textAlign: TextAlign.center,
         ),
       ),
     );
@@ -498,6 +805,26 @@ class _NewRecordSheetState extends State<NewRecordSheet> {
       return;
     }
     
+    // Verificar se a tabela existe antes de tentar salvar
+    final isTableAccessible = await SupabaseDiagnostic.isTableAccessible('smoking_logs');
+    if (!isTableAccessible) {
+      // Execute o diagnóstico completo em caso de problemas
+      if (kDebugMode) {
+        print('🔍 Tabela não acessível. Executando diagnóstico completo...');
+        await SupabaseDiagnostic.logDiagnosticReport();
+      }
+      
+      // Mostre mensagem e não continue se a tabela não for acessível
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Erro: Tabela smoking_logs não encontrada. Verifique as migrações.'),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 5),
+        ),
+      );
+      return;
+    }
+    
     final record = SmokingRecordModel(
       reason: _selectedReason!,
       amount: _selectedAmount!,
@@ -514,15 +841,44 @@ class _NewRecordSheetState extends State<NewRecordSheet> {
     // Store current context's scaffold messenger
     final scaffoldMessenger = ScaffoldMessenger.of(context);
     
+    // Tenta verificar se a tabela existe e criá-la em caso de necessidade
+    if (!isTableAccessible) {
+      final tableFixed = await MigrationService.ensureTableExists('smoking_logs');
+      if (tableFixed) {
+        if (kDebugMode) {
+          print('✅ Tabela smoking_logs criada e agora está acessível');
+        }
+      } else {
+        if (kDebugMode) {
+          print('❌ Não foi possível criar a tabela smoking_logs');
+        }
+        
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erro: Não foi possível criar a tabela necessária. Entre em contato com o suporte.'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 5),
+          ),
+        );
+        return;
+      }
+    }
+    
+    // Configurar a referência ao TrackingProvider no SmokingRecordProvider
+    // para permitir a atualização da última data de fumo
+    recordProvider.trackingProvider = trackingProvider;
+    
     // Close the sheet immediately for better UX with success result
     Navigator.of(context).pop(true);
     
     try {
-      // Optimistically update the UI and save in the background
-      await recordProvider.saveRecord(record);
+      if (kDebugMode) {
+        print('🔍 Tentando salvar registro...');
+      }
       
-      // Força a atualização das estatísticas no TrackingProvider
-      await trackingProvider.forceUpdateStats();
+      // Optimistically update the UI and save in the background
+      // O recordProvider agora irá atualizar a última data de fumo internamente
+      await recordProvider.saveRecord(record);
       
       // Show a success snackbar using the stored scaffold messenger
       // This avoids the mounted check which can cause issues
@@ -547,12 +903,28 @@ class _NewRecordSheetState extends State<NewRecordSheet> {
       if (kDebugMode) {
         print('❌ Error saving record: $e');
       }
+      
+      // Tenta identificar o tipo de erro
+      String errorMsg = 'Error: ${e.toString()}';
+      
+      // Caso especial para erro 404
+      if (e.toString().contains('404') && e.toString().contains('Not Found')) {
+        errorMsg = 'Erro 404: Tabela não encontrada. Verifique se o banco de dados está configurado corretamente.';
+        print('👀 Detalhes completos do erro: $e');
+        
+        // Executar diagnóstico para ajudar a identificar o problema
+        if (kDebugMode) {
+          print('🔍 Executando diagnóstico após erro 404...');
+          SupabaseDiagnostic.logDiagnosticReport();
+        }
+      }
+      
       // Show error message
       scaffoldMessenger.showSnackBar(
         SnackBar(
-          content: Text('Error: ${e.toString()}'),
+          content: Text(errorMsg),
           backgroundColor: Colors.red,
-          duration: const Duration(seconds: 3),
+          duration: const Duration(seconds: 5),
         ),
       );
     }

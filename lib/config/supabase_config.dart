@@ -16,7 +16,7 @@ class SupabaseConfig {
     await Supabase.initialize(
       url: supabaseUrl,
       anonKey: supabaseAnonKey,
-      debug: false, // Defina como true para depuração
+      debug: true, // Ativando modo de depuração para identificar o erro 404
     );
   }
   

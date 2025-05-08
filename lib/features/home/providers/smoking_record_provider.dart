@@ -13,6 +13,14 @@ class SmokingRecordProvider extends ChangeNotifier {
   bool _isLoading = false;
   String? _error;
   
+  // Referência ao TrackingProvider (será injetada externamente)
+  TrackingProvider? _trackingProvider;
+  
+  // Setter para permitir a injeção do TrackingProvider
+  set trackingProvider(TrackingProvider provider) {
+    _trackingProvider = provider;
+  }
+  
   List<SmokingRecordModel> get records => _records;
   bool get isLoading => _isLoading;
   String? get error => _error;
@@ -75,6 +83,9 @@ class SmokingRecordProvider extends ChangeNotifier {
       
       _error = null;
       
+      // Update last smoke date in TrackingProvider
+      await _updateLastSmokeDate();
+      
       // Only emit one notification - multiple notifications will be triggered by the TrackingProvider
       // from the method that calls this one
       notifyListeners();
@@ -91,6 +102,24 @@ class SmokingRecordProvider extends ChangeNotifier {
       
       // Re-throw to allow caller to handle the error
       rethrow;
+    }
+  }
+  
+  // Método para atualizar a última data de fumo no TrackingProvider
+  Future<void> _updateLastSmokeDate() async {
+    // Verificar se o TrackingProvider está disponível
+    if (_trackingProvider == null) {
+      debugPrint('⚠️ TrackingProvider não está disponível para atualizar última data de fumo');
+      return;
+    }
+    
+    try {
+      // Força a atualização das estatísticas no TrackingProvider
+      // Isso atualizará a lastSmokeDate e outros dados relevantes
+      await _trackingProvider!.forceUpdateStats();
+      debugPrint('✅ Última data de fumo atualizada com sucesso no TrackingProvider');
+    } catch (e) {
+      debugPrint('❌ Erro ao atualizar última data de fumo: $e');
     }
   }
   
@@ -117,6 +146,10 @@ class SmokingRecordProvider extends ChangeNotifier {
       // Replace with the synced version
       _records[recordIndex] = syncedRecord;
       _error = null;
+      
+      // Update the last smoke date since a new record was successfully saved
+      await _updateLastSmokeDate();
+      
       notifyListeners();
     } catch (e) {
       // Mark as failed again

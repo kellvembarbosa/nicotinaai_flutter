@@ -8,7 +8,7 @@ import 'package:nicotinaai_flutter/utils/supported_currencies.dart';
 import 'package:flutter/services.dart';
 
 class CurrencySelectionScreen extends StatefulWidget {
-  const CurrencySelectionScreen({Key? key}) : super(key: key);
+  const CurrencySelectionScreen({super.key});
 
   @override
   State<CurrencySelectionScreen> createState() => _CurrencySelectionScreenState();
@@ -44,7 +44,8 @@ class _CurrencySelectionScreenState extends State<CurrencySelectionScreen> {
         _searchController.clear();
       } else {
         // Dar foco ao campo de busca quando ativar
-        Future.delayed(Duration.zero, () {
+        // Usando um FocusNode em vez de acessar context em um Future
+        WidgetsBinding.instance.addPostFrameCallback((_) {
           FocusScope.of(context).requestFocus(FocusNode());
         });
       }
@@ -163,7 +164,7 @@ class _CurrencySelectionScreenState extends State<CurrencySelectionScreen> {
                           side: BorderSide(
                             color: isSelected 
                                 ? context.primaryColor 
-                                : Colors.grey.withOpacity(0.3),
+                                : Colors.grey.withAlpha(77), // 0.3 alpha ~= 77/255
                             width: isSelected ? 2 : 1,
                           ),
                         ),
@@ -185,7 +186,7 @@ class _CurrencySelectionScreenState extends State<CurrencySelectionScreen> {
                                   width: 40,
                                   height: 40,
                                   decoration: BoxDecoration(
-                                    color: context.primaryColor.withOpacity(0.1),
+                                    color: context.primaryColor.withAlpha(26), // 0.1 alpha ~= 26/255
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                   child: Center(
@@ -242,7 +243,7 @@ class _CurrencySelectionScreenState extends State<CurrencySelectionScreen> {
           ),
         ],
       ),
-      onNext: () {
+      onNext: () async {
         if (_selectedCurrency != null) {
           final currencyInfo = SupportedCurrencies.getByCurrencyCode(_selectedCurrency!);
           if (currencyInfo != null) {
@@ -255,9 +256,8 @@ class _CurrencySelectionScreenState extends State<CurrencySelectionScreen> {
               },
             );
             
-            provider.updateOnboarding(updated).then((_) {
-              provider.nextStep();
-            });
+            await provider.updateOnboarding(updated);
+            provider.nextStep();
           }
         }
       },

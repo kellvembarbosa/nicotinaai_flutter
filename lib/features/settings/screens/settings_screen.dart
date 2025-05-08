@@ -11,12 +11,33 @@ import 'package:nicotinaai_flutter/core/providers/currency_provider.dart';
 import 'package:nicotinaai_flutter/features/auth/providers/auth_provider.dart';
 import 'package:nicotinaai_flutter/features/tracking/screens/dashboard_screen.dart';
 import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
+import 'package:nicotinaai_flutter/services/notification_service.dart';
 
-class SettingsScreen extends StatelessWidget {
+class SettingsScreen extends StatefulWidget {
   static const String routeName = '/settings';
 
   const SettingsScreen({super.key});
 
+  @override
+  State<SettingsScreen> createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends State<SettingsScreen> {
+  // Notification service and state
+  final NotificationService _notificationService = NotificationService();
+  bool _areNotificationsEnabled = true;
+  
+  @override
+  void initState() {
+    super.initState();
+    _loadNotificationSettings();
+  }
+  
+  Future<void> _loadNotificationSettings() async {
+    _areNotificationsEnabled = await _notificationService.areNotificationsEnabled();
+    if (mounted) setState(() {});
+  }
+  
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
@@ -106,10 +127,24 @@ class SettingsScreen extends StatelessWidget {
               localizations.notifications,
               localizations.manageNotifications,
               Icons.notifications_outlined,
-              onTap: () {
-                // Navegação para configurações de notificações
+              onTap: () async {
+                final newValue = !_areNotificationsEnabled;
+                await _notificationService.setNotificationsEnabled(newValue);
+                setState(() {
+                  _areNotificationsEnabled = newValue;
+                });
               },
+              trailing: Switch(
+                value: _areNotificationsEnabled,
+                onChanged: (value) async {
+                  await _notificationService.setNotificationsEnabled(value);
+                  setState(() {
+                    _areNotificationsEnabled = value;
+                  });
+                },
+              ),
             ),
+            
             
             // Configuração de tema com ThemeSettings
             Card(

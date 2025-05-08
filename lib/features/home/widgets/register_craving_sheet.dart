@@ -41,11 +41,19 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final screenHeight = MediaQuery.of(context).size.height;
+    final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
+    
+    // Tamanho ideal para mobile, equilibrando visibilidade e contexto da tela
+    const initialSize = 0.80; // Valor ideal para visualizar conteúdo mantendo contexto da tela
     
     return DraggableScrollableSheet(
-      initialChildSize: 0.9,
+      initialChildSize: initialSize,
       minChildSize: 0.5,
       maxChildSize: 0.95,
+      expand: false, // Permite que o conteúdo determine o tamanho natural
+      snap: true, // Facilita o ajuste para posições específicas
+      snapSizes: const [0.7, 0.85, 0.95], // Manter as opções de snap para dar flexibilidade ao usuário
       builder: (context, scrollController) {
         return Container(
           decoration: BoxDecoration(
@@ -54,120 +62,366 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
           ),
           child: Column(
             children: [
-              // Scrollable content
+              // Scrollable content com layout otimizado
               Expanded(
                 child: ListView(
                   controller: scrollController,
-                  padding: const EdgeInsets.only(bottom: 24),
+                  padding: const EdgeInsets.only(bottom: 16),
                   children: [
                     _buildHandle(context),
                     
-                    // "Where are you?" section
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(24, 8, 24, 16),
-                      child: Text(
-                        l10n.whereAreYou,
-                        style: context.titleStyle.copyWith(fontSize: 22),
-                        textAlign: TextAlign.center,
+                    // Título principal otimizado
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
+                      decoration: BoxDecoration(
+                        color: context.isDarkMode 
+                            ? context.primaryColor.withOpacity(0.15) 
+                            : context.primaryColor.withOpacity(0.08),
+                        borderRadius: const BorderRadius.only(
+                          bottomLeft: Radius.circular(16),
+                          bottomRight: Radius.circular(16),
+                        ),
                       ),
-                    ),
-                    
-                    // Location grid
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: _buildLocationGrid(context, l10n),
-                    ),
-                    
-                    const SizedBox(height: 24),
-                    
-                    // Trigger section
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
-                      child: Text(
-                        l10n.whatTriggeredCraving,
-                        style: context.titleStyle.copyWith(fontSize: 20),
-                      ),
-                    ),
-                    
-                    // Trigger options
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24),
-                      child: _buildTriggerOptions(context, l10n),
-                    ),
-                    
-                    const SizedBox(height: 24),
-                    
-                    // Intensity section
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
-                      child: Text(
-                        l10n.intensityLevel,
-                        style: context.titleStyle.copyWith(fontSize: 20),
-                      ),
-                    ),
-                    
-                    // Intensity options
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24),
-                      child: _buildIntensityOptions(context, l10n),
-                    ),
-                    
-                    const SizedBox(height: 24),
-                    
-                    // Did you resist section
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
-                      child: Text(
-                        l10n.didYouResist,
-                        style: context.titleStyle.copyWith(fontSize: 20),
-                      ),
-                    ),
-                    
-                    // Yes/No options
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24),
-                      child: _buildResistOptions(context, l10n),
-                    ),
-                    
-                    const SizedBox(height: 24),
-                    
-                    // Notes field
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24),
                       child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            l10n.notes,
-                            style: context.titleStyle.copyWith(fontSize: 16),
+                            l10n.registerCraving,
+                            style: context.titleStyle.copyWith(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: context.primaryColor,
+                            ),
+                            textAlign: TextAlign.center,
                           ),
-                          const SizedBox(height: 8),
-                          _buildNotesField(context, l10n),
+                          Text(
+                            l10n.registerCravingSubtitle,
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: context.isDarkMode 
+                                  ? Colors.white70 
+                                  : Colors.black54,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
                         ],
                       ),
                     ),
                     
-                    // Extra space at the bottom for content to scroll above the fixed button
-                    const SizedBox(height: 90),
+                    const SizedBox(height: 8),
+                    
+                    // Seções reorganizadas para layout otimizado para mobile
+                    // Seção 1: Localização
+                    Container(
+                      margin: const EdgeInsets.fromLTRB(16, 4, 16, 12),
+                      decoration: BoxDecoration(
+                        color: context.isDarkMode 
+                            ? Colors.grey[850]!.withOpacity(0.8) 
+                            : Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.03),
+                            blurRadius: 10,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Cabeçalho da seção
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                            decoration: BoxDecoration(
+                              color: context.primaryColor.withOpacity(0.08),
+                              borderRadius: const BorderRadius.vertical(
+                                top: Radius.circular(16),
+                              ),
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.place_outlined, 
+                                  size: 18, 
+                                  color: context.primaryColor,
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  l10n.whereAreYou,
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.bold,
+                                    color: context.primaryColor,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          
+                          // Conteúdo da seção
+                          Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: _buildLocationGrid(context, l10n),
+                          ),
+                        ],
+                      ),
+                    ),
+                    
+                    // Seção 2: Triggers
+                    Container(
+                      margin: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                      decoration: BoxDecoration(
+                        color: context.isDarkMode 
+                            ? Colors.grey[850]!.withOpacity(0.8) 
+                            : Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.03),
+                            blurRadius: 10,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Cabeçalho da seção
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                            decoration: BoxDecoration(
+                              color: context.primaryColor.withOpacity(0.08),
+                              borderRadius: const BorderRadius.vertical(
+                                top: Radius.circular(16),
+                              ),
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.psychology_outlined, 
+                                  size: 18, 
+                                  color: context.primaryColor,
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    l10n.whatTriggeredCraving,
+                                    style: TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.bold,
+                                      color: context.primaryColor,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          
+                          // Conteúdo da seção
+                          Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: _buildTriggerOptions(context, l10n),
+                          ),
+                        ],
+                      ),
+                    ),
+                    
+                    const SizedBox(height: 8),
+                    
+                    // Seção 3: Intensidade - Redesenhada como card completo
+                    Container(
+                      margin: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                      decoration: BoxDecoration(
+                        color: context.isDarkMode 
+                            ? Colors.grey[850]!.withOpacity(0.8) 
+                            : Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.03),
+                            blurRadius: 10,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Cabeçalho da seção
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                            decoration: BoxDecoration(
+                              color: context.primaryColor.withOpacity(0.08),
+                              borderRadius: const BorderRadius.vertical(
+                                top: Radius.circular(16),
+                              ),
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.speed_outlined, 
+                                  size: 18, 
+                                  color: context.primaryColor,
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  l10n.intensityLevel,
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.bold,
+                                    color: context.primaryColor,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          
+                          // Conteúdo da seção
+                          Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: _buildIntensityOptions(context, l10n),
+                          ),
+                        ],
+                      ),
+                    ),
+                    
+                    // Seção 4: Resistência - Redesenhada como card completo
+                    Container(
+                      margin: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                      decoration: BoxDecoration(
+                        color: context.isDarkMode 
+                            ? Colors.grey[850]!.withOpacity(0.8) 
+                            : Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.03),
+                            blurRadius: 10,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Cabeçalho da seção
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                            decoration: BoxDecoration(
+                              color: context.primaryColor.withOpacity(0.08),
+                              borderRadius: const BorderRadius.vertical(
+                                top: Radius.circular(16),
+                              ),
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.fitness_center_outlined, 
+                                  size: 18, 
+                                  color: context.primaryColor,
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  l10n.didYouResist,
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.bold,
+                                    color: context.primaryColor,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          
+                          // Conteúdo da seção
+                          Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: _buildResistOptions(context, l10n),
+                          ),
+                        ],
+                      ),
+                    ),
+                    
+                    // Seção 5: Notas - Redesenhada como card completo
+                    Container(
+                      margin: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                      decoration: BoxDecoration(
+                        color: context.isDarkMode 
+                            ? Colors.grey[850]!.withOpacity(0.8) 
+                            : Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.03),
+                            blurRadius: 10,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Cabeçalho da seção
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                            decoration: BoxDecoration(
+                              color: context.primaryColor.withOpacity(0.08),
+                              borderRadius: const BorderRadius.vertical(
+                                top: Radius.circular(16),
+                              ),
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.note_outlined, 
+                                  size: 18, 
+                                  color: context.primaryColor,
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  l10n.notes,
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.bold,
+                                    color: context.primaryColor,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          
+                          // Conteúdo da seção
+                          Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: _buildNotesField(context, l10n),
+                          ),
+                        ],
+                      ),
+                    ),
+                    
+                    // Extra space at the bottom
+                    const SizedBox(height: 70),
                   ],
                 ),
               ),
               
-              // Fixed save button at the bottom
+              // Botão de salvar otimizado
               Container(
                 width: double.infinity,
                 padding: EdgeInsets.only(
-                  left: 24, 
-                  right: 24, 
-                  bottom: 24 + MediaQuery.of(context).viewInsets.bottom / 2,
-                  top: 12,
+                  left: 20,
+                  right: 20,
+                  bottom: 16 + MediaQuery.of(context).padding.bottom,
+                  top: 8,
                 ),
                 decoration: BoxDecoration(
                   color: context.backgroundColor,
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withAlpha(13),
-                      offset: const Offset(0, -4),
+                      color: Colors.black.withOpacity(0.07),
+                      offset: const Offset(0, -3),
                       blurRadius: 8,
                     ),
                   ],
@@ -176,36 +430,53 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    // Error message for invalid form
+                    // Mensagem de erro compacta
                     if (!_isFormValid())
                       Padding(
                         padding: const EdgeInsets.only(bottom: 8),
                         child: Container(
-                          padding: const EdgeInsets.all(8),
+                          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
                           decoration: BoxDecoration(
-                            color: Colors.red.withAlpha(26),
+                            color: Colors.red.withOpacity(0.1),
                             borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Text(
-                            _getValidationMessage(l10n),
-                            style: TextStyle(
-                              color: Colors.redAccent,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
+                            border: Border.all(
+                              color: Colors.red.withOpacity(0.3),
+                              width: 1,
                             ),
-                            textAlign: TextAlign.center,
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.error_outline,
+                                color: Colors.red,
+                                size: 16,
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  _getValidationMessage(l10n),
+                                  style: TextStyle(
+                                    color: Colors.red,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ),
-                    // Full-width save button
+                    
+                    // Botão de salvar com elevation
                     SizedBox(
                       width: double.infinity,
+                      height: 52,
                       child: ElevatedButton(
                         onPressed: _isFormValid() ? _saveCraving : () {
-                          // Show bottom message when button is pressed but form is invalid
+                          // Mensagem de erro em caso de formulário inválido
                           final message = _getValidationMessage(l10n);
                           
-                          // Verificar campos específicos e destacá-los
+                          // Verificar campos específicos
                           String tipMessage = "";
                           if (_selectedLocation == null) {
                             tipMessage = "Por favor, selecione uma localização";
@@ -236,18 +507,45 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: context.primaryColor,
-                          disabledBackgroundColor: null, // Let the button be tappable even if invalid
+                          disabledBackgroundColor: Colors.grey[300],
                           foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          padding: EdgeInsets.zero,
+                          elevation: 4,
+                          shadowColor: context.primaryColor.withOpacity(0.4),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(16),
                           ),
                         ),
-                        child: Text(
-                          l10n.save,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
+                        child: Ink(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [
+                                context.primaryColor,
+                                context.primaryColor.withRed((context.primaryColor.red + 25).clamp(0, 255)),
+                              ],
+                              begin: Alignment.centerLeft,
+                              end: Alignment.centerRight,
+                            ),
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: Container(
+                            width: double.infinity,
+                            height: 52,
+                            alignment: Alignment.center,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Icon(Icons.save_outlined, size: 20),
+                                const SizedBox(width: 8),
+                                Text(
+                                  l10n.save,
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ),
@@ -283,17 +581,42 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
   }
 
   Widget _buildHandle(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12),
-      child: Center(
-        child: Container(
-          width: 40,
-          height: 4,
-          decoration: BoxDecoration(
-            color: Colors.grey.withAlpha(77), // Equivalent to 0.3 opacity
-            borderRadius: BorderRadius.circular(2),
+    return Container(
+      height: 24,
+      width: double.infinity,
+      child: Stack(
+        alignment: Alignment.topCenter,
+        children: [
+          // Handle bar
+          Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey.withAlpha(77),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
           ),
-        ),
+          
+          // Botão de fechar no canto direito
+          Positioned(
+            top: 0,
+            right: 8,
+            child: IconButton(
+              icon: Icon(
+                Icons.close,
+                size: 18,
+                color: Colors.grey[600],
+              ),
+              padding: EdgeInsets.zero,
+              constraints: BoxConstraints(),
+              splashRadius: 20,
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -345,11 +668,11 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
     return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 4,
-        childAspectRatio: 0.9,
-        crossAxisSpacing: 8,
-        mainAxisSpacing: 12,
+        childAspectRatio: MediaQuery.of(context).size.height < 700 ? 0.85 : 0.8, // Ajustado para telas menores
+        crossAxisSpacing: 6,
+        mainAxisSpacing: 8,
       ),
       itemCount: locations.length,
       itemBuilder: (context, index) {
@@ -402,18 +725,25 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
       _IntensityOption(label: l10n.veryIntense, value: 'very_high'), // "VERY_HIGH" no banco de dados
     ];
     
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: intensities.map((intensity) => Expanded(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 4),
-          child: _buildIntensityOption(
-            context,
-            intensity.label,
-            intensity.value,
-          ),
-        ),
-      )).toList(),
+    // Layout otimizado para mobile que adapta melhor para telas diferentes
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 4,
+        childAspectRatio: 1.0,
+        crossAxisSpacing: 10,
+        mainAxisSpacing: 0,
+      ),
+      itemCount: intensities.length,
+      itemBuilder: (context, index) {
+        final intensity = intensities[index];
+        return _buildIntensityOption(
+          context,
+          intensity.label,
+          intensity.value,
+        );
+      },
     );
   }
   
@@ -425,6 +755,13 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
   ) {
     final isSelected = _selectedLocation == value;
     final color = context.primaryColor;
+    final screenHeight = MediaQuery.of(context).size.height;
+    
+    // Ajustes adaptativos baseados na altura da tela
+    final bool isSmallScreen = screenHeight < 700;
+    final double iconSize = isSmallScreen ? 22 : 24;
+    final double fontSize = isSmallScreen ? 10 : 11;
+    final double padding = isSmallScreen ? 6 : 8;
     
     return InkWell(
       onTap: () {
@@ -432,19 +769,19 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
           _selectedLocation = value;
         });
       },
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(10),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
-            padding: const EdgeInsets.all(12),
+            padding: EdgeInsets.all(padding),
             decoration: BoxDecoration(
               color: isSelected 
                 ? color.withAlpha(51) 
                 : context.isDarkMode 
                   ? Colors.grey.withAlpha(26) 
                   : Colors.grey.withAlpha(13),
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(12),
               border: Border.all(
                 color: isSelected 
                   ? color 
@@ -459,14 +796,14 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
                 : context.isDarkMode 
                   ? Colors.white 
                   : Colors.grey[800],
-              size: 28,
+              size: iconSize,
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 4),
           Text(
             label,
             style: TextStyle(
-              fontSize: 12,
+              fontSize: fontSize,
               fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
               color: isSelected 
                 ? color 
@@ -518,8 +855,10 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
     String value,
   ) {
     final isSelected = _selectedIntensity == value;
-    final color = context.primaryColor;
+    final screenHeight = MediaQuery.of(context).size.height;
+    final isSmallScreen = screenHeight < 700;
     
+    // Colors para cada nível de intensidade
     Color getColor() {
       switch (value) {
         case 'low':
@@ -531,12 +870,33 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
         case 'very_high':
           return Colors.red;
         default:
-          return color;
+          return context.primaryColor;
       }
     }
     
     final itemColor = getColor();
     
+    // Ícones para cada nível de intensidade
+    IconData getIcon() {
+      switch (value) {
+        case 'low':
+          return Icons.sentiment_satisfied_outlined;
+        case 'moderate':
+          return Icons.sentiment_neutral_outlined;
+        case 'high':
+          return Icons.sentiment_dissatisfied_outlined;
+        case 'very_high':
+          return Icons.sentiment_very_dissatisfied_outlined;
+        default:
+          return Icons.circle;
+      }
+    }
+    
+    final iconData = getIcon();
+    final double iconSize = 24;
+    final double fontSize = 12;
+    
+    // Design moderno para seleção de intensidade
     return InkWell(
       onTap: () {
         setState(() {
@@ -545,14 +905,13 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
       },
       borderRadius: BorderRadius.circular(12),
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
         decoration: BoxDecoration(
           color: isSelected 
-            ? itemColor.withAlpha(51) 
+            ? itemColor.withOpacity(0.1) 
             : context.isDarkMode 
-              ? Colors.grey.withAlpha(26) 
-              : Colors.grey.withAlpha(13),
-          borderRadius: BorderRadius.circular(16),
+              ? Colors.grey.withOpacity(0.05) 
+              : Colors.grey.withOpacity(0.05),
+          borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: isSelected 
               ? itemColor 
@@ -561,22 +920,37 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
           ),
         ),
         child: Column(
-          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.circle,
-              color: isSelected ? itemColor : Colors.grey.withAlpha(77),
-              size: 24,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                color: isSelected ? itemColor : context.contentColor,
+            // Ícone com fundo circular
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: isSelected ? itemColor.withOpacity(0.2) : Colors.transparent,
               ),
-              textAlign: TextAlign.center,
+              child: Icon(
+                iconData,
+                color: isSelected ? itemColor : Colors.grey,
+                size: iconSize,
+              ),
+            ),
+            const SizedBox(height: 4),
+            // Texto descritivo
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                child: Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: fontSize,
+                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                    color: isSelected ? itemColor : context.contentColor,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
             ),
           ],
         ),
@@ -585,39 +959,67 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
   }
   
   Widget _buildNotesField(BuildContext context, AppLocalizations l10n) {
+    final screenHeight = MediaQuery.of(context).size.height;
+    final isSmallScreen = screenHeight < 700;
+    
     return Container(
       decoration: BoxDecoration(
         color: context.isDarkMode 
-            ? Colors.grey.withAlpha(26) 
-            : Colors.grey.withAlpha(13),
+            ? Colors.grey.withOpacity(0.1) 
+            : Colors.grey.withOpacity(0.05),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: context.isDarkMode 
-              ? Colors.grey.withAlpha(77) 
-              : Colors.grey.withAlpha(51),
+              ? Colors.grey.withOpacity(0.2) 
+              : Colors.grey.withOpacity(0.15),
+          width: 1.0,
         ),
       ),
       child: TextField(
         controller: _notesController,
-        maxLines: 3,
+        maxLines: isSmallScreen ? 2 : 3,
+        minLines: isSmallScreen ? 1 : 2,
+        style: TextStyle(
+          fontSize: 15,
+          color: context.contentColor,
+        ),
         decoration: InputDecoration(
           hintText: l10n.howAreYouFeeling,
           hintStyle: TextStyle(
             color: context.subtitleColor,
             fontSize: 14,
+            fontStyle: FontStyle.italic,
+          ),
+          prefixIcon: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12.0),
+            child: Icon(
+              Icons.edit_note_outlined,
+              color: context.primaryColor.withOpacity(0.5),
+              size: 20,
+            ),
           ),
           contentPadding: const EdgeInsets.all(16),
           border: InputBorder.none,
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16),
+            borderSide: BorderSide(
+              color: context.primaryColor.withOpacity(0.5),
+              width: 1.5,
+            ),
+          ),
         ),
       ),
     );
   }
   
   Widget _buildResistOptions(BuildContext context, AppLocalizations l10n) {
+    // Botões maiores e mais espaçados para melhor experiência tátil
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Expanded(
+        SizedBox(
+          width: MediaQuery.of(context).size.width * 0.38, // 38% da largura da tela
+          height: 60, // Altura fixa para melhor toque
           child: _buildResistOption(
             context, 
             l10n.yes, 
@@ -625,8 +1027,10 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
             Colors.green,
           ),
         ),
-        const SizedBox(width: 16),
-        Expanded(
+        const SizedBox(width: 16), // Espaçamento entre os botões
+        SizedBox(
+          width: MediaQuery.of(context).size.width * 0.38, // 38% da largura da tela
+          height: 60, // Altura fixa para melhor toque
           child: _buildResistOption(
             context, 
             l10n.no, 
@@ -645,7 +1049,18 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
     Color color,
   ) {
     final isSelected = _didResist == value;
+    final screenHeight = MediaQuery.of(context).size.height;
+    final isSmallScreen = screenHeight < 700;
     
+    // Ícone baseado na opção (sim/não)
+    IconData getIcon() {
+      return value ? Icons.check_circle_outline : Icons.cancel_outlined;
+    }
+    
+    final double fontSize = 16;
+    final double iconSize = 22;
+    
+    // Design moderno para botões de resistência
     return InkWell(
       onTap: () {
         setState(() {
@@ -654,29 +1069,49 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
       },
       borderRadius: BorderRadius.circular(16),
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
         decoration: BoxDecoration(
+          gradient: isSelected ? LinearGradient(
+            colors: [
+              color.withOpacity(0.8),
+              color.withOpacity(0.6),
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ) : null,
           color: isSelected 
-            ? color.withAlpha(51) 
+            ? null // Usamos gradiente quando selecionado
             : context.isDarkMode 
-              ? Colors.grey.withAlpha(26) 
-              : Colors.grey.withAlpha(13),
+              ? Colors.grey.withOpacity(0.1) 
+              : Colors.grey.withOpacity(0.05),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: isSelected 
-              ? color 
-              : Colors.transparent,
-            width: 1.5,
-          ),
+          boxShadow: isSelected ? [
+            BoxShadow(
+              color: color.withOpacity(0.3),
+              blurRadius: 10,
+              offset: const Offset(0, 3),
+            ),
+          ] : null,
         ),
-        child: Text(
-          label,
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-            color: isSelected ? color : context.contentColor,
-          ),
-          textAlign: TextAlign.center,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              getIcon(),
+              color: isSelected ? Colors.white : color.withOpacity(0.7),
+              size: iconSize,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: fontSize,
+                fontWeight: FontWeight.bold,
+                color: isSelected ? Colors.white : context.contentColor,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
         ),
       ),
     );
@@ -740,6 +1175,9 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
       // Força a atualização das estatísticas no TrackingProvider
       await trackingProvider.forceUpdateStats();
       
+      // Se resistiu ao craving, vamos exibir uma notificação motivacional
+      // Envio de notificação é feito no TrackingProvider
+      
       // Show a success snackbar
       scaffoldMessenger.showSnackBar(
         SnackBar(
@@ -750,9 +1188,12 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
             label: retryLabel,
             onPressed: () {
               // Find the failed craving and retry
-              final failedCraving = cravingProvider.failedCravings.firstOrNull;
-              if (failedCraving != null) {
-                cravingProvider.retrySyncCraving(failedCraving.id!);
+              final failedCravings = cravingProvider.failedCravings;
+              if (failedCravings.isNotEmpty) {
+                final failedCraving = failedCravings.first;
+                if (failedCraving.id != null) {
+                  cravingProvider.retrySyncCraving(failedCraving.id!);
+                }
               }
             },
           ) : null,
@@ -769,9 +1210,12 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
             label: retryLabel,
             onPressed: () {
               // Find the failed craving and retry
-              final failedCraving = cravingProvider.failedCravings.firstOrNull;
-              if (failedCraving != null) {
-                cravingProvider.retrySyncCraving(failedCraving.id!);
+              final failedCravings = cravingProvider.failedCravings;
+              if (failedCravings.isNotEmpty) {
+                final failedCraving = failedCravings.first;
+                if (failedCraving.id != null) {
+                  cravingProvider.retrySyncCraving(failedCraving.id!);
+                }
               }
             },
           ),

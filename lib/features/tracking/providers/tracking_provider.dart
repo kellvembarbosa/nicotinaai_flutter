@@ -5,6 +5,8 @@ import 'package:nicotinaai_flutter/features/tracking/models/health_recovery.dart
 import 'package:nicotinaai_flutter/features/tracking/models/smoking_log.dart';
 import 'package:nicotinaai_flutter/features/tracking/models/user_stats.dart';
 import 'package:nicotinaai_flutter/features/tracking/repositories/tracking_repository.dart';
+import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
+import 'package:nicotinaai_flutter/services/notification_service.dart';
 
 enum TrackingStatus {
   initial,
@@ -80,12 +82,25 @@ class TrackingState {
 
 class TrackingProvider extends ChangeNotifier {
   final TrackingRepository _repository;
+  final NotificationService _notificationService = NotificationService();
   
   TrackingState _state = const TrackingState();
   
+  // Cache system
+  DateTime? _lastStatsUpdateTime;
+  DateTime? _lastLogsUpdateTime;
+  DateTime? _lastCravingsUpdateTime;
+  DateTime? _lastRecoveriesUpdateTime;
+  
+  // Cache expiration time (5 minutes)
+  static const Duration cacheExpiration = Duration(minutes: 5);
+  
   TrackingProvider({
     required TrackingRepository repository,
-  }) : _repository = repository;
+  }) : _repository = repository {
+    // Initialize notification service
+    _notificationService.init();
+  }
   
   // Getter for the state
   TrackingState get state => _state;
@@ -188,8 +203,15 @@ class TrackingProvider extends ChangeNotifier {
     }
   }
 
+  // Verifica se o cache expirou
+  bool _isCacheExpired(DateTime? lastUpdate) {
+    if (lastUpdate == null) return true;
+    final now = DateTime.now();
+    return now.difference(lastUpdate) > cacheExpiration;
+  }
+
   // Refresh all data
-  Future<void> refreshAll() async {
+  Future<void> refreshAll({bool forceRefresh = false}) async {
     try {
       _state = _state.copyWith(
         isStatsLoading: true,
@@ -206,8 +228,16 @@ class TrackingProvider extends ChangeNotifier {
       // Update stats on the server
       await _repository.updateUserStats();
       
+      // Limpa o cache para forçar a recarga de todos os dados
+      if (forceRefresh) {
+        _lastStatsUpdateTime = null;
+        _lastLogsUpdateTime = null;
+        _lastCravingsUpdateTime = null;
+        _lastRecoveriesUpdateTime = null;
+      }
+      
       // Primeiro carrega as estatísticas do usuário
-      await _loadUserStats();
+      await _loadUserStats(forceRefresh: forceRefresh);
       
       // Check for new achievements
       try {
@@ -232,16 +262,16 @@ class TrackingProvider extends ChangeNotifier {
       
       // Reload user stats once more to get the most updated data
       try {
-        await _loadUserStats();
+        await _loadUserStats(forceRefresh: true);
       } catch (e) {
         print('Error refreshing user stats: $e');
       }
       
       // Load remaining data in parallel
       await Future.wait([
-        _loadSmokingLogs(),
-        _loadCravings(),
-        _loadHealthRecoveries(),
+        _loadSmokingLogs(forceRefresh: forceRefresh),
+        _loadCravings(forceRefresh: forceRefresh),
+        _loadHealthRecoveries(forceRefresh: forceRefresh),
       ]);
       
       _state = _state.copyWith(
@@ -268,9 +298,20 @@ class TrackingProvider extends ChangeNotifier {
   }
 
   // Smoking Logs Methods
-  Future<void> _loadSmokingLogs() async {
+  Future<void> _loadSmokingLogs({bool forceRefresh = false}) async {
+    // Usa cache se disponível e não expirado
+    if (!forceRefresh && !_isCacheExpired(_lastLogsUpdateTime) && _state.smokingLogs.isNotEmpty) {
+      if (kDebugMode) {
+        print('Using cached smoking logs from $_lastLogsUpdateTime');
+      }
+      _state = _state.copyWith(isLogsLoading: false);
+      return;
+    }
+    
     try {
       final logs = await _repository.getSmokingLogs();
+      _lastLogsUpdateTime = DateTime.now();
+      
       _state = _state.copyWith(
         smokingLogs: logs,
         isLogsLoading: false,
@@ -288,7 +329,7 @@ class TrackingProvider extends ChangeNotifier {
       _state = _state.copyWith(isLogsLoading: true);
       notifyListeners();
       
-      await _loadSmokingLogs();
+      await _loadSmokingLogs(forceRefresh: true);
     } finally {
       notifyListeners();
     }
@@ -313,7 +354,10 @@ class TrackingProvider extends ChangeNotifier {
       await _repository.updateUserStats();
       
       // Refresh stats locally
-      await _loadUserStats();
+      await _loadUserStats(forceRefresh: true);
+      
+      // Reset the cache para garantir dados atualizados
+      _lastLogsUpdateTime = DateTime.now();
     } catch (e) {
       _state = _state.copyWith(
         status: TrackingStatus.error,
@@ -345,7 +389,10 @@ class TrackingProvider extends ChangeNotifier {
       await _repository.updateUserStats();
       
       // Refresh stats locally
-      await _loadUserStats();
+      await _loadUserStats(forceRefresh: true);
+      
+      // Reset the cache para garantir dados atualizados
+      _lastLogsUpdateTime = DateTime.now();
     } catch (e) {
       _state = _state.copyWith(
         status: TrackingStatus.error,
@@ -357,9 +404,20 @@ class TrackingProvider extends ChangeNotifier {
   }
 
   // Cravings Methods
-  Future<void> _loadCravings() async {
+  Future<void> _loadCravings({bool forceRefresh = false}) async {
+    // Usa cache se disponível e não expirado
+    if (!forceRefresh && !_isCacheExpired(_lastCravingsUpdateTime) && _state.cravings.isNotEmpty) {
+      if (kDebugMode) {
+        print('Using cached cravings from $_lastCravingsUpdateTime');
+      }
+      _state = _state.copyWith(isCravingsLoading: false);
+      return;
+    }
+    
     try {
       final cravings = await _repository.getCravings();
+      _lastCravingsUpdateTime = DateTime.now();
+      
       _state = _state.copyWith(
         cravings: cravings,
         isCravingsLoading: false,
@@ -377,13 +435,13 @@ class TrackingProvider extends ChangeNotifier {
       _state = _state.copyWith(isCravingsLoading: true);
       notifyListeners();
       
-      await _loadCravings();
+      await _loadCravings(forceRefresh: true);
     } finally {
       notifyListeners();
     }
   }
 
-  Future<void> addCraving(Craving craving) async {
+  Future<void> addCraving(Craving craving, {BuildContext? context}) async {
     try {
       _state = _state.copyWith(status: TrackingStatus.saving);
       notifyListeners();
@@ -405,7 +463,18 @@ class TrackingProvider extends ChangeNotifier {
       await _repository.checkAchievements();
       
       // Refresh stats locally
-      await _loadUserStats();
+      await _loadUserStats(forceRefresh: true);
+      
+      // Reset the cache para garantir dados atualizados
+      _lastCravingsUpdateTime = DateTime.now();
+      
+      // Show notification when user resisted a craving
+      if (craving.outcome == CravingOutcome.resisted && context != null) {
+        final l10n = AppLocalizations.of(context);
+        if (l10n != null) {
+          await _notificationService.showCravingResistedNotification(l10n);
+        }
+      }
     } catch (e) {
       _state = _state.copyWith(
         status: TrackingStatus.error,
@@ -437,7 +506,10 @@ class TrackingProvider extends ChangeNotifier {
       await _repository.updateUserStats();
       
       // Refresh stats locally
-      await _loadUserStats();
+      await _loadUserStats(forceRefresh: true);
+      
+      // Reset the cache para garantir dados atualizados
+      _lastCravingsUpdateTime = DateTime.now();
     } catch (e) {
       _state = _state.copyWith(
         status: TrackingStatus.error,
@@ -449,9 +521,20 @@ class TrackingProvider extends ChangeNotifier {
   }
 
   // User Stats Methods
-  Future<void> _loadUserStats() async {
+  Future<void> _loadUserStats({bool forceRefresh = false}) async {
+    // Usa cache se disponível e não expirado
+    if (!forceRefresh && !_isCacheExpired(_lastStatsUpdateTime) && _state.userStats != null) {
+      if (kDebugMode) {
+        print('Using cached user stats from $_lastStatsUpdateTime');
+      }
+      _state = _state.copyWith(isStatsLoading: false);
+      return;
+    }
+    
     try {
       final stats = await _repository.getUserStats();
+      _lastStatsUpdateTime = DateTime.now();
+      
       _state = _state.copyWith(
         userStats: stats,
         isStatsLoading: false,
@@ -473,7 +556,7 @@ class TrackingProvider extends ChangeNotifier {
       await _repository.updateUserStats();
       
       // Load updated stats
-      await _loadUserStats();
+      await _loadUserStats(forceRefresh: true);
     } finally {
       notifyListeners();
     }
@@ -491,10 +574,10 @@ class TrackingProvider extends ChangeNotifier {
       await _repository.updateUserStats();
       
       // Carrega as estatísticas atualizadas
-      await _loadUserStats();
+      await _loadUserStats(forceRefresh: true);
       
       // Também atualiza os cravings, que geralmente mudaram
-      await _loadCravings();
+      await _loadCravings(forceRefresh: true);
       
       if (kDebugMode) {
         print('✅ [TrackingProvider] Stats updated successfully');
@@ -512,7 +595,17 @@ class TrackingProvider extends ChangeNotifier {
   }
   
   // Health Recoveries Methods
-  Future<void> _loadHealthRecoveries() async {
+  Future<void> _loadHealthRecoveries({bool forceRefresh = false}) async {
+    // Usa cache se disponível e não expirado
+    if (!forceRefresh && !_isCacheExpired(_lastRecoveriesUpdateTime) && 
+        _state.healthRecoveries.isNotEmpty && _state.userHealthRecoveries.isNotEmpty) {
+      if (kDebugMode) {
+        print('Using cached health recoveries from $_lastRecoveriesUpdateTime');
+      }
+      _state = _state.copyWith(isRecoveriesLoading: false);
+      return;
+    }
+    
     try {
       List<HealthRecovery> recoveries = [];
       List<UserHealthRecovery> userRecoveries = [];
@@ -532,6 +625,8 @@ class TrackingProvider extends ChangeNotifier {
         // Continue with empty user recoveries list
         userRecoveries = [];
       }
+      
+      _lastRecoveriesUpdateTime = DateTime.now();
       
       _state = _state.copyWith(
         healthRecoveries: recoveries,
@@ -582,7 +677,7 @@ class TrackingProvider extends ChangeNotifier {
       }
       
       try {
-        await _loadHealthRecoveries();
+        await _loadHealthRecoveries(forceRefresh: true);
       } catch (e) {
         print('Error loading health recoveries: $e');
         // Ensure we have at least empty lists

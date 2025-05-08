@@ -5,6 +5,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:nicotinaai_flutter/config/firebase_options.dart';
 import 'package:nicotinaai_flutter/config/supabase_config.dart';
 import 'package:nicotinaai_flutter/core/routes/app_router.dart';
 import 'package:nicotinaai_flutter/core/theme/theme_provider.dart';
@@ -41,7 +42,15 @@ void main() async {
   await SupabaseConfig.initialize();
   
   // Inicializa o Firebase
-  await Firebase.initializeApp();
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+    debugPrint('✅ Firebase initialized successfully');
+  } catch (e) {
+    debugPrint('⚠️ Firebase initialization error: $e');
+    // Continue without Firebase if it fails
+  }
   
   // Inicializa o serviço de notificações após Supabase e Firebase
   await NotificationService().initialize();
