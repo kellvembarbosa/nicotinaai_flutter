@@ -353,7 +353,7 @@ class _NewRecordSheetState extends State<NewRecordSheet> {
                                             ],
                                           ),
                                           const SizedBox(height: 12),
-                                          _buildAmountOptions(context, l10n),
+                                          _buildAmountOptionsVertical(context, l10n),
                                         ],
                                       ),
                                     ),
@@ -384,7 +384,7 @@ class _NewRecordSheetState extends State<NewRecordSheet> {
                                           ],
                                         ),
                                         const SizedBox(height: 12),
-                                        _buildDurationOptions(context, l10n),
+                                        _buildDurationOptionsVertical(context, l10n),
                                       ],
                                     ),
                                   ],
@@ -890,6 +890,7 @@ class _NewRecordSheetState extends State<NewRecordSheet> {
     );
   }
   
+  // Manter o método antigo para backward compatibility
   Widget _buildAmountOptions(BuildContext context, AppLocalizations l10n) {
     final amounts = [
       _AmountOption(label: l10n.oneOrLess, value: 'one_or_less'),
@@ -918,6 +919,35 @@ class _NewRecordSheetState extends State<NewRecordSheet> {
     );
   }
   
+  // Novo método para layout vertical
+  Widget _buildAmountOptionsVertical(BuildContext context, AppLocalizations l10n) {
+    final amounts = [
+      _AmountOption(label: l10n.oneOrLess, value: 'one_or_less'),
+      _AmountOption(label: l10n.twoToFive, value: 'two_to_five'),
+      _AmountOption(label: l10n.moreThanFive, value: 'more_than_five'),
+    ];
+    
+    return Column(
+      children: amounts.map((amount) => Padding(
+        padding: const EdgeInsets.only(bottom: 8),
+        child: _buildOptionButtonVertical(
+          context,
+          amount.label,
+          amount.value,
+          _selectedAmount == amount.value,
+          (value) {
+            setState(() {
+              _selectedAmount = value ? amount.value : null;
+              // Atualiza as seções quando o usuário faz uma seleção
+              _updateSectionStates();
+            });
+          },
+        ),
+      )).toList(),
+    );
+  }
+  
+  // Manter o método antigo para backward compatibility
   Widget _buildDurationOptions(BuildContext context, AppLocalizations l10n) {
     final durations = [
       _DurationOption(label: l10n.lessThan5min, value: 'less_than_5min'),
@@ -943,6 +973,108 @@ class _NewRecordSheetState extends State<NewRecordSheet> {
           ),
         ),
       )).toList(),
+    );
+  }
+  
+  // Novo método para layout vertical
+  Widget _buildDurationOptionsVertical(BuildContext context, AppLocalizations l10n) {
+    final durations = [
+      _DurationOption(label: l10n.lessThan5min, value: 'less_than_5min'),
+      _DurationOption(label: l10n.fiveToFifteenMin, value: '5_to_15min'),
+      _DurationOption(label: l10n.moreThan15min, value: 'more_than_15min'),
+    ];
+    
+    return Column(
+      children: durations.map((duration) => Padding(
+        padding: const EdgeInsets.only(bottom: 8),
+        child: _buildOptionButtonVertical(
+          context,
+          duration.label,
+          duration.value,
+          _selectedDuration == duration.value,
+          (value) {
+            setState(() {
+              _selectedDuration = value ? duration.value : null;
+              // Atualiza as seções quando o usuário faz uma seleção
+              _updateSectionStates();
+            });
+          },
+        ),
+      )).toList(),
+    );
+  }
+  
+  // Botão de opção vertical de largura total
+  Widget _buildOptionButtonVertical(
+    BuildContext context,
+    String label,
+    String value,
+    bool isSelected,
+    Function(bool) onSelected,
+  ) {
+    final color = context.primaryColor;
+    
+    return InkWell(
+      onTap: () {
+        onSelected(!isSelected);
+      },
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+        decoration: BoxDecoration(
+          color: isSelected 
+            ? color.withOpacity(0.2) 
+            : context.isDarkMode 
+              ? Colors.grey.withOpacity(0.1) 
+              : Colors.grey.withOpacity(0.05),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isSelected 
+              ? color 
+              : Colors.transparent,
+            width: 1.5,
+          ),
+        ),
+        child: Row(
+          children: [
+            // Indicador de seleção
+            Container(
+              width: 20,
+              height: 20,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: isSelected ? color : Colors.transparent,
+                border: Border.all(
+                  color: isSelected ? color : Colors.grey.withOpacity(0.5),
+                  width: 1.5,
+                ),
+              ),
+              child: isSelected 
+                ? const Center(
+                    child: Icon(
+                      Icons.check,
+                      size: 14,
+                      color: Colors.white,
+                    ),
+                  )
+                : null,
+            ),
+            const SizedBox(width: 12),
+            // Texto da opção
+            Expanded(
+              child: Text(
+                label,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                  color: isSelected ? color : context.contentColor,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
   
