@@ -20,6 +20,7 @@ import 'package:nicotinaai_flutter/features/tracking/screens/dashboard_screen.da
 import 'package:nicotinaai_flutter/features/tracking/widgets/health_recovery_widget.dart';
 import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
 import 'package:nicotinaai_flutter/utils/currency_utils.dart';
+import 'package:nicotinaai_flutter/utils/health_recovery_utils.dart';
 
 class HomeScreen extends StatefulWidget {
   static const String routeName = '/home';
@@ -48,6 +49,8 @@ class _HomeScreenState extends State<HomeScreen> {
     'lungs': false,
     'heart': false,
   };
+  // Next health recovery milestone
+  Map<String, dynamic>? _nextHealthMilestone;
   // Flag para evitar múltiplas chamadas de atualização simultâneas
   bool _isUpdating = false;
   // Currency formatter
@@ -158,6 +161,10 @@ class _HomeScreenState extends State<HomeScreen> {
           _cravingsResisted = updatedCravingsResisted;
           _dailyMinutesGained = _daysWithoutSmoking == 0 ? 0 : _minutesLifeGained ~/ _daysWithoutSmoking;
           _moneySavedInCents = updatedMoneySaved; // Money saved in cents
+          
+          // Load the next health milestone
+          _loadNextHealthMilestone();
+          
           _isUpdating = false;
         });
       } else {
@@ -174,6 +181,25 @@ class _HomeScreenState extends State<HomeScreen> {
       } else {
         _isUpdating = false;
       }
+    }
+  }
+  
+  /// Load the next health milestone from the server
+  Future<void> _loadNextHealthMilestone() async {
+    if (!mounted) return;
+    
+    try {
+      // Get the next health milestone
+      final nextMilestone = await HealthRecoveryUtils.getNextHealthRecoveryMilestone(_daysWithoutSmoking);
+      
+      if (mounted) {
+        setState(() {
+          _nextHealthMilestone = nextMilestone;
+        });
+      }
+    } catch (e) {
+      print('Error loading next health milestone: $e');
+      // Don't update state on error, keep previous milestone if any
     }
   }
   
@@ -691,45 +717,67 @@ class _HomeScreenState extends State<HomeScreen> {
   }
   
   Widget _buildNextMilestone(BuildContext context, AppLocalizations l10n) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            context.primaryColor.withOpacity(0.7), 
-            context.primaryColor
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+    return GestureDetector(
+      onTap: _onNextMilestoneTap,
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              context.primaryColor.withOpacity(0.7), 
+              context.primaryColor
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(16),
         ),
-        borderRadius: BorderRadius.circular(16),
+        child: _buildMilestoneContent(context, Colors.white, l10n),
       ),
-      child: _buildMilestoneContent(context, Colors.white, l10n),
     );
   }
   
   Widget _buildGlassMorphicNextMilestone(BuildContext context, AppLocalizations l10n) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(16),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-        child: Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: context.primaryColor.withOpacity(0.2),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: context.primaryColor.withOpacity(0.3),
-              width: 1.5,
+    return GestureDetector(
+      onTap: _onNextMilestoneTap,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: context.primaryColor.withOpacity(0.2),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: context.primaryColor.withOpacity(0.3),
+                width: 1.5,
+              ),
             ),
+            child: _buildMilestoneContent(context, Colors.white, l10n),
           ),
-          child: _buildMilestoneContent(context, Colors.white, l10n),
         ),
       ),
     );
   }
   
+  /// Handle tap on the next milestone card
+  void _onNextMilestoneTap() {
+    if (_nextHealthMilestone != null) {
+      // Navigate to the health recovery detail screen for this milestone
+      context.push(AppRoutes.healthRecoveryDetail.withParams(
+        params: {'recoveryId': _nextHealthMilestone!['id']},
+      ));
+    } else {
+      // Navigate to the health recovery list screen if we don't have a specific milestone
+      context.push(AppRoutes.healthRecovery.path);
+    }
+  }
+  
   Widget _buildMilestoneContent(BuildContext context, Color textColor, AppLocalizations l10n) {
+    // If we have a next milestone, display it, otherwise use the default static content
+    final hasMilestone = _nextHealthMilestone != null;
+    
     return Row(
       children: [
         Container(
@@ -739,7 +787,9 @@ class _HomeScreenState extends State<HomeScreen> {
             borderRadius: BorderRadius.circular(12),
           ),
           child: Icon(
-            Icons.flag_rounded,
+            hasMilestone 
+                ? _nextHealthMilestone!['icon'] as IconData 
+                : Icons.flag_rounded,
             color: textColor,
             size: 24,
           ),
@@ -750,21 +800,31 @@ class _HomeScreenState extends State<HomeScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                l10n.homeNextMilestone,
+                hasMilestone 
+                    ? '${_nextHealthMilestone!['name']}' 
+                    : l10n.homeNextMilestone,
                 style: context.textTheme.titleMedium!.copyWith(
                   fontWeight: FontWeight.w600,
                   color: textColor,
                 ),
               ),
               const SizedBox(height: 4),
-              Text(
-                l10n.homeNextMilestoneDescription(_daysWithoutSmoking < 7 ? (7 - _daysWithoutSmoking).toInt() : 
-                                           _daysWithoutSmoking < 14 ? (14 - _daysWithoutSmoking).toInt() : 
-                                           _daysWithoutSmoking < 30 ? (30 - _daysWithoutSmoking).toInt() : 1),
-                style: context.textTheme.bodyMedium!.copyWith(
-                  color: textColor.withOpacity(0.85),
+              if (hasMilestone)
+                Text(
+                  'In ${_nextHealthMilestone!['daysRemaining']} days: ${_nextHealthMilestone!['description']}',
+                  style: context.textTheme.bodyMedium!.copyWith(
+                    color: textColor.withOpacity(0.85),
+                  ),
+                )
+              else
+                Text(
+                  l10n.homeNextMilestoneDescription(_daysWithoutSmoking < 7 ? (7 - _daysWithoutSmoking).toInt() : 
+                                             _daysWithoutSmoking < 14 ? (14 - _daysWithoutSmoking).toInt() : 
+                                             _daysWithoutSmoking < 30 ? (30 - _daysWithoutSmoking).toInt() : 1),
+                  style: context.textTheme.bodyMedium!.copyWith(
+                    color: textColor.withOpacity(0.85),
+                  ),
                 ),
-              ),
             ],
           ),
         ),
