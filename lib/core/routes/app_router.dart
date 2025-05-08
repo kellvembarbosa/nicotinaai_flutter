@@ -15,6 +15,7 @@ import 'package:nicotinaai_flutter/features/settings/screens/currency_selection_
 import 'package:nicotinaai_flutter/features/onboarding/screens/onboarding_screen.dart';
 import 'package:nicotinaai_flutter/features/onboarding/providers/onboarding_provider.dart';
 import 'package:nicotinaai_flutter/features/tracking/screens/dashboard_screen.dart';
+import 'package:nicotinaai_flutter/features/tracking/screens/statistics_dashboard_screen.dart';
 import 'package:nicotinaai_flutter/features/tracking/screens/add_smoking_log_screen.dart';
 import 'package:nicotinaai_flutter/features/tracking/screens/add_craving_screen.dart';
 import 'package:nicotinaai_flutter/features/tracking/screens/health_recovery_screen.dart';
@@ -88,10 +89,14 @@ class AppRouter {
         builder: (context, state) => const LanguageSelectionScreen(),
       ),
       
-      // Rotas de tracking
+      // Rotas de tracking e estatísticas
       GoRoute(
-        path: AppRoutes.dashboard.path,
+        path: AppRoutes.developerDashboard.path,
         builder: (context, state) => const DashboardScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.statisticsDashboard.path,
+        builder: (context, state) => const StatisticsDashboardScreen(),
       ),
       GoRoute(
         path: AppRoutes.addSmokingLog.path,

@@ -331,15 +331,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
               if (developerModeProvider.isDeveloperModeEnabled)
                 _buildSettingItem(
                   context,
-                  localizations.dashboard,
+                  localizations.developer,
                   localizations.viewDetailedTracking,
-                  Icons.dashboard_outlined,
+                  Icons.developer_board_outlined,
                   onTap: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => const DashboardScreen(),
-                      ),
-                    );
+                    context.go(AppRoutes.developerDashboard.path);
                   },
                 ),
               const SizedBox(height: 24),

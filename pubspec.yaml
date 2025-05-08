@@ -74,6 +74,7 @@ dependencies:
   device_info_plus: ^11.4.0
   facebook_app_events: ^0.19.7
   app_tracking_transparency: ^2.0.6+1
+  fl_chart: ^0.71.0
 
 dev_dependencies:
   flutter_test:

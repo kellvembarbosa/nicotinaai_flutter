@@ -23,7 +23,8 @@ enum AppRoutes {
   settings('/settings'),
   
   // Rotas de tracking
-  dashboard('/dashboard'),
+  developerDashboard('/developer-dashboard'),
+  statisticsDashboard('/statistics-dashboard'),
   addSmokingLog('/tracking/add-smoking'),
   addCraving('/tracking/add-craving'),
   smokingLogs('/tracking/smoking-logs'),
@@ -39,8 +40,10 @@ enum AppRoutes {
   termsOfService('/terms-of-service'),
   about('/about'),
   
-  // Health recovery route
-  healthRecovery('/health-recovery');
+  // Health recovery routes
+  healthRecovery('/health-recovery'),
+  healthRecoveryDetail('/health-recovery/:recoveryId'),
+  healthRecoveryTest('/health-recovery-test');
 
   /// Caminho da rota
   final String path;
