@@ -3,6 +3,7 @@ import 'package:nicotinaai_flutter/core/exceptions/auth_exception.dart' as app_e
 import 'package:nicotinaai_flutter/features/auth/models/auth_state.dart';
 import 'package:nicotinaai_flutter/features/auth/models/user_model.dart';
 import 'package:nicotinaai_flutter/features/auth/repositories/auth_repository.dart';
+import 'package:nicotinaai_flutter/services/notification_service.dart';
 
 /// Provider para gerenciamento do estado de autenticação
 /// Implementa ChangeNotifier para ser usado como refreshListenable no GoRouter
@@ -83,6 +84,10 @@ class AuthProvider extends ChangeNotifier {
       _state = AuthState.authenticated(user);
       print('📊 [AuthProvider] Estado atualizado para autenticado: ${DateTime.now()}');
       
+      // Salvar o token FCM para o usuário que acabou de logar
+      await NotificationService().saveFcmTokenAfterLogin();
+      print('🔔 [AuthProvider] Token FCM salvo após login');
+      
       // Forçar redirecionamento imediato para garantir navegação adequada
       WidgetsBinding.instance.addPostFrameCallback((_) {
         // Esta chamada é vazia, mas força um rebuild que ativa o sistema de rotas
@@ -120,6 +125,10 @@ class AuthProvider extends ChangeNotifier {
       
       print('✅ [AuthProvider] Usuário registrado com sucesso: ${user.email}');
       _state = AuthState.authenticated(user);
+      
+      // Salvar o token FCM para o usuário recém-registrado
+      await NotificationService().saveFcmTokenAfterLogin();
+      print('🔔 [AuthProvider] Token FCM salvo após registro');
       
       // Forçar redirecionamento imediato para garantir navegação adequada
       WidgetsBinding.instance.addPostFrameCallback((_) {

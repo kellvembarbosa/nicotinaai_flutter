@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>API_KEY</key>
+    <string>AIzaSyC1pn6ADCydmkiMYaGA9wdmRQa2DgXImkM</string>
+    <key>GCM_SENDER_ID</key>
+    <string>583479321628</string>
+    <key>PLIST_VERSION</key>
+    <string>1</string>
+    <key>BUNDLE_ID</key>
+    <string>ai.nicotina</string>
+    <key>PROJECT_ID</key>
+    <string>nicotinaai</string>
+    <key>STORAGE_BUCKET</key>
+    <string>nicotinaai.firebasestorage.app</string>
+    <key>IS_ADS_ENABLED</key>
+    <false></false>
+    <key>IS_ANALYTICS_ENABLED</key>
+    <false></false>
+    <key>IS_APPINVITE_ENABLED</key>
+    <true></true>
+    <key>IS_GCM_ENABLED</key>
+    <true></true>
+    <key>IS_SIGNIN_ENABLED</key>
+    <true></true>
+    <key>GOOGLE_APP_ID</key>
+    <string>1:583479321628:ios:cc372828056bdcbe9aabd9</string>
+</dict>
+</plist>

@@ -4,12 +4,14 @@ import 'package:provider/provider.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:nicotinaai_flutter/config/supabase_config.dart';
 import 'package:nicotinaai_flutter/core/routes/app_router.dart';
 import 'package:nicotinaai_flutter/core/theme/theme_provider.dart';
 import 'package:nicotinaai_flutter/core/localization/locale_provider.dart';
 import 'package:nicotinaai_flutter/core/providers/developer_mode_provider.dart';
 import 'package:nicotinaai_flutter/core/providers/currency_provider.dart';
+import 'package:nicotinaai_flutter/core/services/db_check_service.dart';
 import 'package:nicotinaai_flutter/features/auth/providers/auth_provider.dart';
 import 'package:nicotinaai_flutter/features/auth/repositories/auth_repository.dart';
 import 'package:nicotinaai_flutter/features/home/providers/craving_provider.dart';
@@ -19,6 +21,9 @@ import 'package:nicotinaai_flutter/features/onboarding/repositories/onboarding_r
 import 'package:nicotinaai_flutter/features/tracking/providers/tracking_provider.dart';
 import 'package:nicotinaai_flutter/features/tracking/repositories/tracking_repository.dart';
 import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
+import 'package:nicotinaai_flutter/services/notification_service.dart';
+import 'package:nicotinaai_flutter/services/supabase_diagnostic.dart';
+import 'package:nicotinaai_flutter/services/migration_service.dart';
 
 void main() async {
   // Garante que os widgets estão iniciados antes de chamar código nativo
@@ -29,6 +34,12 @@ void main() async {
     statusBarColor: Colors.transparent,
   ));
   
+  // Inicializa o Firebase
+  await Firebase.initializeApp();
+  
+  // Inicializa o serviço de notificações
+  await NotificationService().initialize();
+  
   // Carrega as variáveis de ambiente
   await dotenv.load();
   
@@ -38,6 +49,30 @@ void main() async {
   // Garante que a preferência de idioma está definida para inglês
   final prefs = await SharedPreferences.getInstance();
   await prefs.setString('app_locale', 'en_US');
+  
+  // Verificar a disponibilidade das tabelas do banco de dados
+  final dbCheckService = DbCheckService();
+  final allTablesAvailable = await dbCheckService.checkAllEssentialTables();
+  
+  if (!allTablesAvailable) {
+    // Exibe logs detalhados em caso de problema com as tabelas
+    debugPrint('⚠️ Nem todas as tabelas essenciais estão disponíveis');
+    debugPrint(await dbCheckService.getDiagnosticReport());
+    
+    // Tenta criar a tabela smoking_logs caso não exista
+    final tableFixed = await MigrationService.ensureTableExists('smoking_logs');
+    
+    if (tableFixed) {
+      debugPrint('✅ Tabela smoking_logs criada com sucesso');
+    } else {
+      debugPrint('❌ Não foi possível criar a tabela smoking_logs');
+      
+      // Executa o diagnóstico completo do Supabase para ajudar a identificar o problema
+      await SupabaseDiagnostic.logDiagnosticReport(tableName: 'smoking_logs');
+    }
+  } else {
+    debugPrint('✅ Todas as tabelas essenciais estão disponíveis');
+  }
   
   // Cria os repositórios
   final authRepository = AuthRepository();
@@ -142,15 +177,6 @@ class MyApp extends StatelessWidget {
           },
         ),
         
-        // Provider para registro de cigarros fumados
-        ChangeNotifierProxyProvider<AuthProvider, SmokingRecordProvider>(
-          create: (_) => SmokingRecordProvider(),
-          update: (_, authProvider, previousProvider) {
-            final provider = previousProvider ?? SmokingRecordProvider();
-            return provider;
-          },
-        ),
-        
         // Provider para o sistema de tracking
         ChangeNotifierProxyProvider<AuthProvider, TrackingProvider>(
           create: (_) => TrackingProvider(
@@ -166,6 +192,21 @@ class MyApp extends StatelessWidget {
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 provider.initialize();
               });
+            }
+            
+            return provider;
+          },
+        ),
+        
+        // Provider para registro de cigarros fumados
+        ChangeNotifierProxyProvider2<AuthProvider, TrackingProvider, SmokingRecordProvider>(
+          create: (_) => SmokingRecordProvider(),
+          update: (_, authProvider, trackingProvider, previousProvider) {
+            final provider = previousProvider ?? SmokingRecordProvider();
+            
+            // Configura a referência ao TrackingProvider para permitir atualizações de última data de fumo
+            if (trackingProvider != null) {
+              provider.trackingProvider = trackingProvider;
             }
             
             return provider;

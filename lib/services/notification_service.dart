@@ -1,297 +1,250 @@
-import 'dart:convert';
-import 'package:flutter/material.dart';
+import 'dart:math';
+import 'dart:io';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:nicotinaai_flutter/config/supabase_config.dart';
 import 'package:device_info_plus/device_info_plus.dart';
-import 'dart:io';
-import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:go_router/go_router.dart';
+
+/// Background message handler for Firebase Cloud Messaging
+@pragma('vm:entry-point')
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  // Ensure Flutter notifications are set up
+  await NotificationService().setupFlutterNotifications();
+  
+  // Show the notification
+  await NotificationService().showNotificationFromMessage(message);
+}
 
 class NotificationService {
   static final NotificationService _instance = NotificationService._internal();
   factory NotificationService() => _instance;
   NotificationService._internal();
 
-  final FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin = 
+  final FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
-  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
+      
+  // Firebase Messaging instance
+  final FirebaseMessaging _messaging = FirebaseMessaging.instance;
+  
+  // Supabase client
   final SupabaseClient _supabaseClient = SupabaseConfig.client;
   
-  final DeviceInfoPlugin _deviceInfoPlugin = DeviceInfoPlugin();
+  // Device info
+  final DeviceInfoPlugin _deviceInfo = DeviceInfoPlugin();
   
-  // Retorna o número de notificações não lidas do usuário
-  Future<int> getUnreadNotificationsCount() async {
-    try {
-      final response = await _supabaseClient
-          .from('user_notifications')
-          .select('id')
-          .eq('is_read', false)
-          .count();
-          
-      return response.count;
-    } catch (e) {
-      debugPrint('Erro ao contar notificações não lidas: $e');
-      return 0;
-    }
-  }
+  bool _isInitialized = false;
+  bool _areNotificationsEnabled = true;
+  bool _isFlutterLocalNotificationsInitialized = false;
+  final String _notificationsEnabledKey = 'notifications_enabled';
+  final String _fcmTokenKey = 'fcm_token_cache';
   
-  // Busca todas as notificações do usuário
-  Future<List<Map<String, dynamic>>> getUserNotifications() async {
-    try {
-      final response = await _supabaseClient
-          .from('user_notifications')
-          .select('*')
-          .order('created_at', ascending: false);
-          
-      return List<Map<String, dynamic>>.from(response);
-    } catch (e) {
-      debugPrint('Erro ao buscar notificações: $e');
-      return [];
-    }
-  }
+  // Armazena o último token FCM obtido
+  String? _cachedFcmToken;
   
-  // Marcar notificação como lida
-  Future<void> markNotificationAsRead(String notificationId) async {
-    try {
-      await _supabaseClient
-          .from('user_notifications')
-          .update({
-            'is_read': true,
-          })
-          .eq('id', notificationId);
-    } catch (e) {
-      debugPrint('Erro ao marcar notificação como lida: $e');
-    }
-  }
-  
-  // Claim da recompensa de notificação
-  Future<Map<String, dynamic>?> claimMotivationReward(String notificationId) async {
-    try {
-      final response = await _supabaseClient.functions.invoke(
-        'claim-motivation-reward',
-        body: {'notification_id': notificationId},
-      );
-      
-      if (response.status != 200) {
-        throw Exception(response.data['error'] ?? 'Erro ao reivindicar recompensa');
-      }
-      
-      return Map<String, dynamic>.from(response.data);
-    } catch (e) {
-      debugPrint('Erro ao reivindicar recompensa: $e');
-      rethrow;
-    }
-  }
-  
-  // Inicializar o serviço de notificações
-  Future<void> initialize(BuildContext context) async {
-    // Store context-related information
-    final Color primaryColor = Theme.of(context).primaryColor;
+  // Android notification channel ID for FCM messages
+  static const _androidFcmChannel = 'nicotinaai_high_importance_channel';
+
+  /// Initialize notification settings and FCM
+  Future<void> initialize() async {
+    // Initialize local notifications
+    await init();
     
-    // Configurar permissões
-    await _requestPermissions();
+    // Set up background message handler
+    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
     
-    // Configurar notificações locais
-    const AndroidInitializationSettings initializationSettingsAndroid = 
+    // Request notification permissions
+    await _requestPermission();
+    
+    // Setup FCM message handlers
+    await _setupMessageHandlers();
+    
+    // Get and cache the FCM token
+    final token = await _messaging.getToken();
+    if (token != null) {
+      _cachedFcmToken = token;
+      
+      // Salvar em SharedPreferences para uso posterior
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_fcmTokenKey, token);
+      
+      debugPrint('FCM Token obtido e armazenado: $token');
+      
+      // Tentar salvar o token se o usuário já estiver logado
+      await saveTokenToDatabase(token);
+    }
+  }
+
+  /// Initialize local notification settings
+  Future<void> init() async {
+    if (_isInitialized) return;
+    
+    const AndroidInitializationSettings initializationSettingsAndroid =
         AndroidInitializationSettings('@mipmap/ic_launcher');
-    
-    final DarwinInitializationSettings initializationSettingsIOS = 
+        
+    const DarwinInitializationSettings initializationSettingsIOS =
         DarwinInitializationSettings(
       requestAlertPermission: true,
       requestBadgePermission: true,
       requestSoundPermission: true,
     );
     
-    final InitializationSettings initializationSettings = InitializationSettings(
+    const InitializationSettings initializationSettings = InitializationSettings(
       android: initializationSettingsAndroid,
       iOS: initializationSettingsIOS,
     );
     
-    // Define a notification handler that doesn't rely on the context
-    void handleNotificationResponse(NotificationResponse details) {
-      // Use a closure that captures the context at initialization time
-      _handleNotificationClick(details.payload, context);
-    }
-    
     await _flutterLocalNotificationsPlugin.initialize(
       initializationSettings,
-      onDidReceiveNotificationResponse: handleNotificationResponse,
+      onDidReceiveNotificationResponse: (NotificationResponse response) {
+        // Handle notification when app is in foreground
+        if (response.payload != null) {
+          debugPrint('Notification payload: ${response.payload}');
+          // Further handling can be implemented based on payload
+        }
+      },
     );
     
-    // Define message handlers as function declarations, so they capture the current context
-    void onMessageHandler(RemoteMessage message) {
-      _handleForegroundMessage(message, context, primaryColor);
-    }
+    // Load user preferences
+    final prefs = await SharedPreferences.getInstance();
+    _areNotificationsEnabled = prefs.getBool(_notificationsEnabledKey) ?? true;
     
-    void onMessageOpenedAppHandler(RemoteMessage message) {
-      _handleNotificationClick(jsonEncode(message.data), context);
-    }
+    _isInitialized = true;
+  }
+  
+  /// Check if notifications are enabled
+  Future<bool> areNotificationsEnabled() async {
+    if (!_isInitialized) await init();
+    return _areNotificationsEnabled;
+  }
+  
+  /// Enable or disable notifications
+  Future<void> setNotificationsEnabled(bool enabled) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_notificationsEnabledKey, enabled);
+    _areNotificationsEnabled = enabled;
+  }
+
+  /// Request FCM permission
+  Future<void> _requestPermission() async {
+    final settings = await _messaging.requestPermission(
+      alert: true,
+      badge: true,
+      sound: true,
+      provisional: false,
+    );
+    debugPrint('Permission status: ${settings.authorizationStatus}');
+  }
+
+  /// Set up FCM message handlers for different app states
+  Future<void> _setupMessageHandlers() async {
+    // Handler for foreground messages
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      showNotificationFromMessage(message);
+    });
     
-    // Configurar handlers de mensagens FCM
-    FirebaseMessaging.onMessage.listen(onMessageHandler);
-    FirebaseMessaging.onMessageOpenedApp.listen(onMessageOpenedAppHandler);
+    // Handler for when app is opened from a background notification
+    FirebaseMessaging.onMessageOpenedApp.listen(_handleBackgroundMessage);
     
-    // Store the click handler for the initial message
-    void handleInitialMessage(RemoteMessage message) {
-      _handleNotificationClick(jsonEncode(message.data), context);
-    }
-    
-    // Verificar notificação inicial
-    final RemoteMessage? initialMessage = await FirebaseMessaging.instance.getInitialMessage();
+    // Check if app was opened from a notification when terminated
+    final initialMessage = await _messaging.getInitialMessage();
     if (initialMessage != null) {
-      // Use the stored handler which captured the original context
-      handleInitialMessage(initialMessage);
+      _handleBackgroundMessage(initialMessage);
+    }
+  }
+
+  /// Handle a background message
+  void _handleBackgroundMessage(RemoteMessage message) {
+    // You can implement custom logic based on the message type
+    // For example, navigate to specific screens
+    if (message.data['type'] == 'chat') {
+      // Navigate to chat screen
+      debugPrint('Should navigate to chat screen');
+    } else if (message.data['type'] == 'achievement') {
+      // Navigate to achievements screen
+      debugPrint('Should navigate to achievements screen');
     }
     
-    // Obter e registrar token FCM
-    await _getAndRegisterFcmToken();
+    // Log message for debugging
+    debugPrint('Background message: ${message.data}');
   }
-  
-  // Solicitar permissões para enviar notificações
-  Future<void> _requestPermissions() async {
-    if (Platform.isIOS) {
-      await _firebaseMessaging.requestPermission(
-        alert: true,
-        badge: true,
-        sound: true,
-      );
-    } else if (Platform.isAndroid) {
-      // Em Android 13+ (API 33+), é necessário solicitar permissão explícita
-      final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-          FlutterLocalNotificationsPlugin();
-      
-      // In Flutter Local Notifications v16+, we need to use requestNotificationsPermission
-      await flutterLocalNotificationsPlugin
-          .resolvePlatformSpecificImplementation<
-              AndroidFlutterLocalNotificationsPlugin>()
-          ?.requestNotificationsPermission();
-    }
-  }
-  
-  // Obter token FCM e registrá-lo no Supabase
-  Future<void> _getAndRegisterFcmToken() async {
-    final fcmToken = await _firebaseMessaging.getToken();
-    if (fcmToken != null) {
-      final deviceInfo = await _getDeviceInfo();
-      
-      // Verificar se o token já existe
-      final existing = await _supabaseClient
-          .from('user_fcm_tokens')
-          .select('id')
-          .eq('fcm_token', fcmToken)
-          .maybeSingle();
-      
-      if (existing != null) {
-        // Atualizar o token existente
-        await _supabaseClient
-          .from('user_fcm_tokens')
-          .update({
-            'last_used_at': DateTime.now().toIso8601String(),
-            'device_info': deviceInfo,
-          })
-          .eq('fcm_token', fcmToken);
-      } else {
-        // Inserir novo token
-        await _supabaseClient
-          .from('user_fcm_tokens')
-          .insert({
-            'fcm_token': fcmToken,
-            'device_info': deviceInfo,
-          });
-      }
-      
-      // Configurar listener para refreshes de token
-      _firebaseMessaging.onTokenRefresh.listen((newToken) {
-        _registerFcmToken(newToken);
-      });
-    }
-  }
-  
-  // Registrar token FCM no Supabase
-  Future<void> _registerFcmToken(String token) async {
-    try {
-      final deviceInfo = await _getDeviceInfo();
-      
-      // Verificar se o token já existe
-      final existing = await _supabaseClient
-          .from('user_fcm_tokens')
-          .select('id')
-          .eq('fcm_token', token)
-          .maybeSingle();
-      
-      if (existing != null) {
-        // Atualizar o token existente
-        await _supabaseClient
-          .from('user_fcm_tokens')
-          .update({
-            'last_used_at': DateTime.now().toIso8601String(),
-            'device_info': deviceInfo,
-          })
-          .eq('fcm_token', token);
-      } else {
-        // Inserir novo token
-        await _supabaseClient
-          .from('user_fcm_tokens')
-          .insert({
-            'fcm_token': token,
-            'device_info': deviceInfo,
-          });
-      }
-    } catch (e) {
-      debugPrint('Erro ao registrar token FCM: $e');
-    }
-  }
-  
-  // Obter informações do dispositivo
-  Future<Map<String, dynamic>> _getDeviceInfo() async {
-    final Map<String, dynamic> deviceData = <String, dynamic>{};
+
+  /// Setup Flutter local notifications for FCM (called from background handler)
+  Future<void> setupFlutterNotifications() async {
+    // Skip if already initialized
+    if (_isFlutterLocalNotificationsInitialized) return;
     
-    try {
-      if (Platform.isAndroid) {
-        final androidInfo = await _deviceInfoPlugin.androidInfo;
-        deviceData['platform'] = 'android';
-        deviceData['version'] = androidInfo.version.release;
-        deviceData['model'] = androidInfo.model;
-        deviceData['brand'] = androidInfo.brand;
-      } else if (Platform.isIOS) {
-        final iosInfo = await _deviceInfoPlugin.iosInfo;
-        deviceData['platform'] = 'ios';
-        deviceData['version'] = iosInfo.systemVersion;
-        deviceData['model'] = iosInfo.model;
-        deviceData['name'] = iosInfo.name;
-      }
-    } catch (e) {
-      deviceData['error'] = e.toString();
-    }
+    // Android initialization settings
+    const AndroidInitializationSettings androidInitSettings = 
+        AndroidInitializationSettings('@mipmap/ic_launcher');
     
-    return deviceData;
+    // iOS initialization settings
+    const DarwinInitializationSettings iosInitSettings = DarwinInitializationSettings(
+      requestAlertPermission: true,
+      requestBadgePermission: true,
+      requestSoundPermission: true,
+    );
+    
+    // Combined initialization settings
+    const InitializationSettings initSettings = InitializationSettings(
+      android: androidInitSettings,
+      iOS: iosInitSettings,
+    );
+    
+    // Initialize local notifications
+    await _flutterLocalNotificationsPlugin.initialize(
+      initSettings,
+      onDidReceiveNotificationResponse: (NotificationResponse response) {
+        // Handle notification when app is in foreground
+        if (response.payload != null) {
+          debugPrint('Notification payload: ${response.payload}');
+          // Further handling can be implemented based on payload
+        }
+      },
+    );
+    
+    // Create Android notification channel
+    const AndroidNotificationChannel channel = AndroidNotificationChannel(
+      _androidFcmChannel,
+      'High Importance Notifications',
+      description: 'This channel is used for important notifications.',
+      importance: Importance.max,
+    );
+    
+    // Create the Android notification channel
+    await _flutterLocalNotificationsPlugin
+        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
+        ?.createNotificationChannel(channel);
+    
+    // Mark as initialized
+    _isFlutterLocalNotificationsInitialized = true;
   }
-  
-  // Tratar mensagens recebidas quando o app está em primeiro plano
-  Future<void> _handleForegroundMessage(
-    RemoteMessage message, 
-    BuildContext context,
-    Color primaryColor,
-  ) async {
-    final notification = message.notification;
-    final android = message.notification?.android;
-    final data = message.data;
+
+  /// Show a notification from a FCM message
+  Future<void> showNotificationFromMessage(RemoteMessage message) async {
+    if (!_areNotificationsEnabled) return;
     
-    if (notification != null) {
+    RemoteNotification? notification = message.notification;
+    AndroidNotification? android = message.notification?.android;
+    
+    // If notification exists and we're on Android
+    if (notification != null && android != null) {
       await _flutterLocalNotificationsPlugin.show(
         notification.hashCode,
         notification.title,
         notification.body,
         NotificationDetails(
           android: AndroidNotificationDetails(
-            'motivation_channel',
-            'Motivação Diária',
-            channelDescription: 'Notificações de motivação diária',
-            importance: Importance.high,
+            _androidFcmChannel,
+            'High Importance Notifications',
+            channelDescription: 'This channel is used for important notifications.',
+            icon: '@mipmap/ic_launcher',
+            importance: Importance.max,
             priority: Priority.high,
-            color: primaryColor, // Use the cached primaryColor instead of context
-            icon: android?.smallIcon ?? 'notification_icon',
           ),
           iOS: const DarwinNotificationDetails(
             presentAlert: true,
@@ -299,35 +252,274 @@ class NotificationService {
             presentSound: true,
           ),
         ),
-        payload: jsonEncode(data),
+        payload: message.data.toString(),
+      );
+    }
+    
+    // For iOS notifications
+    if (notification != null && defaultTargetPlatform == TargetPlatform.iOS) {
+      await _flutterLocalNotificationsPlugin.show(
+        notification.hashCode,
+        notification.title,
+        notification.body,
+        const NotificationDetails(
+          iOS: DarwinNotificationDetails(
+            presentAlert: true,
+            presentBadge: true,
+            presentSound: true,
+          ),
+        ),
+        payload: message.data.toString(),
       );
     }
   }
-  
-  // Tratar quando o usuário toca em uma notificação
-  void _handleNotificationClick(String? payload, BuildContext context) {
-    if (payload == null) return;
+
+  /// Show a motivational notification when user resisted a craving
+  Future<void> showCravingResistedNotification(AppLocalizations l10n) async {
+    if (!_isInitialized) await init();
+    if (!_areNotificationsEnabled) return;
     
+    // Select a random motivational message based on the user's language
+    final message = _getRandomMotivationalMessage(l10n);
+    
+    const AndroidNotificationDetails androidPlatformChannelSpecifics =
+        AndroidNotificationDetails(
+      'craving_resisted_channel',
+      'Craving Resisted',
+      channelDescription: 'Notifications shown when you resist a craving',
+      importance: Importance.high,
+      priority: Priority.high,
+      ticker: 'ticker',
+      icon: '@mipmap/ic_launcher',
+    );
+    
+    const DarwinNotificationDetails iOSPlatformChannelSpecifics =
+        DarwinNotificationDetails(
+      presentAlert: true,
+      presentBadge: true,
+      presentSound: true,
+    );
+    
+    const NotificationDetails platformChannelSpecifics = NotificationDetails(
+      android: androidPlatformChannelSpecifics,
+      iOS: iOSPlatformChannelSpecifics,
+    );
+    
+    await _flutterLocalNotificationsPlugin.show(
+      0,
+      l10n.motivationalMessage,
+      message,
+      platformChannelSpecifics,
+    );
+  }
+  
+  /// Get a random motivational message based on the user's language
+  String _getRandomMotivationalMessage(AppLocalizations l10n) {
+    // Messages in English
+    final List<String> enMessages = [
+      "Amazing job resisting that craving! Every time you say no, you get stronger.",
+      "Impressive willpower! You just saved money and improved your health.",
+      "Way to go! Each resisted craving adds 5 minutes to your life expectancy.",
+      "Victory! Your lungs are thanking you for that decision.",
+      "You're a champion! That's one more step toward freedom from smoking.",
+      "Outstanding effort! Your future self will thank you for this moment of strength.",
+      "Brilliant choice! You're breaking the addiction cycle one craving at a time.",
+      "Success! Each time you resist, the cravings get easier to manage.",
+      "Perfect decision! You're proving how strong you really are.",
+      "Excellent job! Your willpower is stronger than any craving."
+    ];
+    
+    // Messages in Portuguese (assuming pt is Portuguese)
+    final List<String> ptMessages = [
+      "Excelente trabalho resistindo a essa fissura! Cada vez que você diz não, fica mais forte.",
+      "Força de vontade impressionante! Você acabou de economizar dinheiro e melhorar sua saúde.",
+      "Muito bem! Cada fissura resistida adiciona 5 minutos à sua expectativa de vida.",
+      "Vitória! Seus pulmões estão agradecendo por essa decisão.",
+      "Você é um campeão! Esse é mais um passo em direção à liberdade do cigarro.",
+      "Esforço incrível! Seu futuro eu agradecerá por este momento de força.",
+      "Escolha brilhante! Você está quebrando o ciclo de dependência uma fissura de cada vez.",
+      "Sucesso! Cada vez que você resiste, as fissuras ficam mais fáceis de administrar.",
+      "Decisão perfeita! Você está provando o quão forte realmente é.",
+      "Ótimo trabalho! Sua força de vontade é mais forte que qualquer fissura."
+    ];
+    
+    // Select language based on current locale
+    final currentLocale = l10n.localeName;
+    final messages = currentLocale.startsWith('pt') ? ptMessages : enMessages;
+    
+    // Return a random message
+    final random = Random();
+    return messages[random.nextInt(messages.length)];
+  }
+  
+  /// Save FCM token to the Supabase database.
+  /// Returns true if token was saved successfully, false otherwise.
+  Future<bool> saveTokenToDatabase(String token) async {
     try {
-      final data = jsonDecode(payload);
-      final type = data['type'];
+      // Armazenar o token recebido na cache da memória
+      _cachedFcmToken = token;
       
-      // Navegar conforme o tipo da notificação
-      switch (type) {
-        case 'motivation':
-          // Navegar para a tela de notificações
-          context.go('/notifications');
-          break;
-        case 'achievement':
-          // Navegar para a tela de conquistas
-          context.go('/achievements');
-          break;
-        default:
-          // Navegar para a tela principal
-          context.go('/main');
+      // Também armazená-lo em SharedPreferences para permanência
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_fcmTokenKey, token);
+      
+      // Verificar se o usuário está autenticado
+      final session = _supabaseClient.auth.currentSession;
+      
+      // Se o usuário não estiver autenticado, apenas armazena localmente para uso futuro
+      if (session == null) {
+        debugPrint('Usuário não autenticado. Token FCM armazenado localmente: $token');
+        return false;
+      }
+      
+      final userId = session.user.id;
+      debugPrint('Salvando token FCM para usuário autenticado: $userId');
+      
+      // Obter informações do dispositivo
+      final deviceInfoJson = await _getDeviceInfo();
+      
+      // Verificar se o token já existe no banco de dados
+      final existingTokens = await _supabaseClient
+          .from('user_fcm_tokens')
+          .select()
+          .eq('fcm_token', token)
+          .limit(1);
+      
+      if (existingTokens.isNotEmpty) {
+        // Atualizar o token existente
+        await _supabaseClient
+            .from('user_fcm_tokens')
+            .update({
+              'user_id': userId,
+              'last_used_at': DateTime.now().toIso8601String(),
+              'device_info': deviceInfoJson
+            })
+            .eq('fcm_token', token);
+        
+        debugPrint('Token FCM atualizado para o usuário: $userId');
+      } else {
+        // Inserir um novo token
+        await _supabaseClient
+            .from('user_fcm_tokens')
+            .insert({
+              'user_id': userId,
+              'fcm_token': token,
+              'device_info': deviceInfoJson,
+              'created_at': DateTime.now().toIso8601String(),
+              'last_used_at': DateTime.now().toIso8601String()
+            });
+        
+        debugPrint('Novo token FCM inserido para o usuário: $userId');
+      }
+      
+      return true;
+    } catch (e) {
+      debugPrint('Erro ao salvar token FCM no banco de dados: $e');
+      return false;
+    }
+  }
+  
+  /// Recupera o token FCM armazenado em cache ou SharedPreferences
+  Future<String?> getCachedToken() async {
+    // Se já tiver em memória, retornar diretamente
+    if (_cachedFcmToken != null) {
+      return _cachedFcmToken;
+    }
+    
+    // Caso contrário, tentar recuperar do SharedPreferences
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString(_fcmTokenKey);
+      
+      if (token != null && token.isNotEmpty) {
+        _cachedFcmToken = token;
+        return token;
       }
     } catch (e) {
-      debugPrint('Erro ao processar payload da notificação: $e');
+      debugPrint('Erro ao recuperar token FCM do armazenamento: $e');
     }
+    
+    // Se não encontrou, retornar null
+    return null;
+  }
+  
+  /// Tenta salvar o token FCM no banco de dados quando o usuário faz login
+  Future<void> saveFcmTokenAfterLogin() async {
+    try {
+      // Verifica se o usuário está logado
+      final session = _supabaseClient.auth.currentSession;
+      if (session == null) {
+        debugPrint('Não foi possível salvar o token FCM: usuário não está logado');
+        return;
+      }
+      
+      // Recupera o token armazenado
+      final token = await getCachedToken();
+      
+      // Se não tiver token armazenado, tenta obter um novo
+      if (token == null || token.isEmpty) {
+        final newToken = await _messaging.getToken();
+        if (newToken != null) {
+          await saveTokenToDatabase(newToken);
+        }
+      } else {
+        // Usa o token armazenado
+        await saveTokenToDatabase(token);
+      }
+    } catch (e) {
+      debugPrint('Erro ao salvar token FCM após login: $e');
+    }
+  }
+  
+  /// Obtém informações do dispositivo para armazenar junto com o token FCM
+  Future<Map<String, dynamic>> _getDeviceInfo() async {
+    try {
+      final deviceData = <String, dynamic>{};
+      
+      if (kIsWeb) {
+        deviceData['platform'] = 'web';
+        deviceData['userAgent'] = 'web browser';
+      } else if (Platform.isAndroid) {
+        final androidInfo = await _deviceInfo.androidInfo;
+        deviceData['platform'] = 'android';
+        deviceData['model'] = androidInfo.model;
+        deviceData['brand'] = androidInfo.brand;
+        deviceData['version'] = androidInfo.version.release;
+        deviceData['id'] = androidInfo.id;
+      } else if (Platform.isIOS) {
+        final iosInfo = await _deviceInfo.iosInfo;
+        deviceData['platform'] = 'ios';
+        deviceData['model'] = iosInfo.model;
+        deviceData['name'] = iosInfo.name;
+        deviceData['systemName'] = iosInfo.systemName;
+        deviceData['systemVersion'] = iosInfo.systemVersion;
+        deviceData['id'] = iosInfo.identifierForVendor;
+      }
+      
+      return deviceData;
+    } catch (e) {
+      debugPrint('Erro ao obter informações do dispositivo: $e');
+      return {
+        'platform': defaultTargetPlatform.toString(),
+        'error': 'Não foi possível obter informações detalhadas'
+      };
+    }
+  }
+  
+  /// Get the FCM token
+  Future<String?> getToken() async {
+    return await _messaging.getToken();
+  }
+  
+  /// Subscribe to a topic
+  Future<void> subscribeToTopic(String topic) async {
+    await _messaging.subscribeToTopic(topic);
+    debugPrint('Subscribed to topic: $topic');
+  }
+  
+  /// Unsubscribe from a topic
+  Future<void> unsubscribeFromTopic(String topic) async {
+    await _messaging.unsubscribeFromTopic(topic);
+    debugPrint('Unsubscribed from topic: $topic');
   }
 }

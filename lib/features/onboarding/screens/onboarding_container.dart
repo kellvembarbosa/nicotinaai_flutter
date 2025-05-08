@@ -28,6 +28,9 @@ class OnboardingContainer extends StatefulWidget {
   final String? nextButtonText;
   final VoidCallback onNext;
   
+  /// Indica se o botão de avançar está em estado de carregamento
+  final bool isLoading;
+  
   /// Tipo de conteúdo que será exibido
   final OnboardingContentType contentType;
   
@@ -40,6 +43,7 @@ class OnboardingContainer extends StatefulWidget {
     this.canProceed = true,
     this.nextButtonText,
     required this.onNext,
+    this.isLoading = false,
     this.contentType = OnboardingContentType.regular,
   }) : super(key: key);
   
@@ -245,17 +249,28 @@ class _OnboardingContainerState extends State<OnboardingContainer> {
               borderRadius: BorderRadius.circular(12),
             ),
           ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                widget.nextButtonText ?? AppLocalizations.of(context).continueButton,
-                style: const TextStyle(fontWeight: FontWeight.w600),
+          child: widget.isLoading
+            // Indicador de carregamento quando isLoading for true
+            ? const SizedBox(
+                height: 20,
+                width: 20,
+                child: CircularProgressIndicator(
+                  color: Colors.white,
+                  strokeWidth: 2.5,
+                ),
+              )
+            // Conteúdo normal do botão quando não estiver carregando
+            : Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    widget.nextButtonText ?? AppLocalizations.of(context).continueButton,
+                    style: const TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                  const SizedBox(width: 8),
+                  const Icon(Icons.arrow_forward, size: 18),
+                ],
               ),
-              const SizedBox(width: 8),
-              const Icon(Icons.arrow_forward, size: 18),
-            ],
-          ),
         ),
       );
     }
@@ -331,17 +346,28 @@ class _OnboardingContainerState extends State<OnboardingContainer> {
                 borderRadius: BorderRadius.circular(12),
               ),
             ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  widget.nextButtonText ?? AppLocalizations.of(context).continueButton,
-                  style: const TextStyle(fontWeight: FontWeight.w600),
+            child: widget.isLoading
+              // Indicador de carregamento quando isLoading for true
+              ? const SizedBox(
+                  height: 20,
+                  width: 20,
+                  child: CircularProgressIndicator(
+                    color: Colors.white,
+                    strokeWidth: 2.5,
+                  ),
+                )
+              // Conteúdo normal do botão quando não estiver carregando
+              : Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      widget.nextButtonText ?? AppLocalizations.of(context).continueButton,
+                      style: const TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                    const SizedBox(width: 8),
+                    const Icon(Icons.arrow_forward, size: 18),
+                  ],
                 ),
-                const SizedBox(width: 8),
-                const Icon(Icons.arrow_forward, size: 18),
-              ],
-            ),
           ),
         ),
       ],

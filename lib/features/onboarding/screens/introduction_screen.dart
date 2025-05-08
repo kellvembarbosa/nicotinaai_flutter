@@ -4,9 +4,116 @@ import 'package:nicotinaai_flutter/features/onboarding/providers/onboarding_prov
 import 'package:nicotinaai_flutter/features/onboarding/screens/onboarding_container.dart';
 import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:nicotinaai_flutter/services/notification_service.dart';
 
-class IntroductionScreen extends StatelessWidget {
+class IntroductionScreen extends StatefulWidget {
   const IntroductionScreen({Key? key}) : super(key: key);
+  
+  @override
+  State<IntroductionScreen> createState() => _IntroductionScreenState();
+}
+  
+class _IntroductionScreenState extends State<IntroductionScreen> {
+  // Estado para o indicador de carregamento
+  bool _isRequestingNotification = false;
+  
+  /// Método para solicitar notificações FCM de forma não bloqueante
+  void _requestFCMNotification(BuildContext context) {
+    // Não solicitar se já estiver em andamento
+    if (_isRequestingNotification) return;
+    
+    // Atualizar estado para mostrar o indicador de carregamento
+    setState(() {
+      _isRequestingNotification = true;
+    });
+    
+    // Executar em segundo plano
+    Future.microtask(() async {
+      try {
+        // Obter o token FCM
+        final fcmToken = await NotificationService().getToken();
+        
+        if (fcmToken != null && mounted) {
+          debugPrint('FCM Token: $fcmToken');
+          
+          // Salvar o token no banco de dados se o usuário estiver logado
+          // Executa em segundo plano sem bloquear
+          NotificationService().saveTokenToDatabase(fcmToken);
+          
+          // Inscrever o usuário em tópicos relevantes (também em segundo plano)
+          NotificationService().subscribeToTopic('all_users');
+          NotificationService().subscribeToTopic('onboarding_users');
+          
+          // Mostrar toast ou diálogo apenas se ainda estiver montado
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Row(
+                  children: [
+                    const Icon(Icons.notifications_active, color: Colors.white),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        'Notificações ativadas com sucesso! Você receberá dicas e lembretes para ajudar na sua jornada.',
+                        style: const TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ],
+                ),
+                backgroundColor: Colors.green,
+                duration: const Duration(seconds: 3),
+                behavior: SnackBarBehavior.floating,
+              ),
+            );
+          }
+          
+          // Tentar enviar uma notificação de teste através do FCM (em segundo plano)
+          _sendTestNotification(fcmToken);
+        }
+      } catch (e) {
+        debugPrint('Erro ao obter token FCM: $e');
+        if (mounted) {
+          // Mostrar um erro caso ocorra algum problema
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Não foi possível ativar as notificações: $e'),
+              backgroundColor: Colors.red,
+              duration: const Duration(seconds: 3),
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
+      } finally {
+        // Resetar o estado de carregamento se ainda estiver montado
+        if (mounted) {
+          setState(() {
+            _isRequestingNotification = false;
+          });
+        }
+      }
+    });
+  }
+  
+  /// Envia uma notificação de teste para o dispositivo
+  Future<void> _sendTestNotification(String token) async {
+    // Esta função é apenas para fins de demonstração
+    // Normalmente, você enviaria a notificação de um servidor backend
+    debugPrint('Enviando notificação de teste para token: $token');
+    
+    // Aqui você implementaria a chamada para seu servidor para enviar a notificação
+    // Como estamos no cliente, apenas simulamos que a notificação foi enviada
+    
+    // Em um cenário real, você faria uma solicitação HTTP para seu servidor:
+    // final response = await http.post(
+    //   Uri.parse('https://seuservidor.com/api/send-notification'),
+    //   body: json.encode({
+    //     'token': token,
+    //     'title': 'Bem-vindo ao NicotinaAI',
+    //     'body': 'Obrigado por se juntar à nossa comunidade. Estamos aqui para ajudar em sua jornada!'
+    //   }),
+    //   headers: {'Content-Type': 'application/json'},
+    // );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -72,9 +179,14 @@ class IntroductionScreen extends StatelessWidget {
         ],
       ),
       onNext: () {
-        // Avançar para a próxima tela
+        // Iniciar solicitação de notificações em segundo plano
+        _requestFCMNotification(context);
+        
+        // Avançar para a próxima tela imediatamente
         provider.nextStep();
       },
+      // Indicador de carregamento no botão
+      isLoading: _isRequestingNotification,
     );
   }
 }
