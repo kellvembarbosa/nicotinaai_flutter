@@ -5,6 +5,7 @@ import 'package:nicotinaai_flutter/features/auth/providers/auth_provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:nicotinaai_flutter/core/constants/app_constants.dart';
 import 'package:nicotinaai_flutter/features/auth/screens/login_screen.dart';
+import 'package:nicotinaai_flutter/widgets/app_icon_widget.dart';
 
 class RegisterScreen extends StatefulWidget {
   static const String routeName = '/register';
@@ -77,7 +78,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 // Logo e título
                 Column(
                   children: [
-                    const FlutterLogo(size: 80),
+                    const AppIconWidget(size: 100, borderRadius: 22),
                     const SizedBox(height: 24),
                     Text(
                       'Criar uma conta',

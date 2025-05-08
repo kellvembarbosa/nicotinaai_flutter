@@ -17,6 +17,9 @@ import 'package:nicotinaai_flutter/features/onboarding/providers/onboarding_prov
 import 'package:nicotinaai_flutter/features/tracking/screens/dashboard_screen.dart';
 import 'package:nicotinaai_flutter/features/tracking/screens/add_smoking_log_screen.dart';
 import 'package:nicotinaai_flutter/features/tracking/screens/add_craving_screen.dart';
+import 'package:nicotinaai_flutter/features/tracking/screens/health_recovery_screen.dart';
+import 'package:nicotinaai_flutter/features/tracking/screens/health_recovery_detail_screen.dart';
+import 'package:nicotinaai_flutter/features/tracking/widgets/health_recovery_test.dart';
 import 'package:nicotinaai_flutter/core/routes/app_routes.dart';
 
 /// Router para configuração de rotas da aplicação com proteção de autenticação
@@ -102,6 +105,23 @@ class AppRouter {
         path: AppRoutes.currency.path,
         builder: (context, state) => const CurrencySelectionScreen(),
       ),
+      
+      // Health recovery routes
+      GoRoute(
+        path: AppRoutes.healthRecovery.path,
+        builder: (context, state) => const HealthRecoveryScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.healthRecoveryDetail.path,
+        builder: (context, state) {
+          final recoveryId = state.pathParameters['recoveryId'] ?? '';
+          return HealthRecoveryDetailScreen(recoveryId: recoveryId);
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.healthRecoveryTest.path,
+        builder: (context, state) => const HealthRecoveryTest(),
+      ),
     ],
     errorBuilder: (context, state) => Scaffold(
       body: Center(
@@ -155,14 +175,14 @@ class AppRouter {
         // Se autenticado e completou onboarding, redireciona para tela principal
         return MainScreen.routeName;
       } else {
-        // Se não autenticado, redireciona para login
-        return LoginScreen.routeName;
+        // Se não autenticado, redireciona para a tela de registro
+        return RegisterScreen.routeName;
       }
     }
     
     // Se não estiver autenticado e tentando acessar página protegida
     if (!isAuthenticated && !isGoingToPublicPage && !isGoingToSplash) {
-      return LoginScreen.routeName;
+      return RegisterScreen.routeName;
     }
     
     // Se estiver autenticado mas não completou onboarding

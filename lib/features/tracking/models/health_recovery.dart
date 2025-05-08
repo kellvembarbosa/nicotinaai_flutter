@@ -54,6 +54,7 @@ class UserHealthRecovery {
   final bool isViewed;
   final DateTime? createdAt;
   final DateTime? updatedAt;
+  final int? _daysToAchieve; // Internal storage for daysToAchieve
 
   const UserHealthRecovery({
     required this.id,
@@ -63,7 +64,16 @@ class UserHealthRecovery {
     required this.isViewed,
     this.createdAt,
     this.updatedAt,
-  });
+    int? daysToAchieve,
+  }) : _daysToAchieve = daysToAchieve;
+  
+  // A health recovery is considered achieved since it has an achievedAt date
+  bool get isAchieved => true;
+  
+  // No longer needed since we updated tracking_provider.dart to use recoveryId directly
+  
+  // Getter for daysToAchieve, defaulting to 0 if not provided
+  int get daysToAchieve => _daysToAchieve ?? 0;
 
   factory UserHealthRecovery.fromJson(Map<String, dynamic> json) {
     return UserHealthRecovery(
@@ -72,6 +82,9 @@ class UserHealthRecovery {
       recoveryId: json['recovery_id'],
       achievedAt: DateTime.parse(json['achieved_at']),
       isViewed: json['is_viewed'],
+      daysToAchieve: json['days_to_achieve'] != null 
+          ? int.tryParse(json['days_to_achieve'].toString()) 
+          : null,
       createdAt: json['created_at'] != null
           ? DateTime.parse(json['created_at'])
           : null,
@@ -88,6 +101,7 @@ class UserHealthRecovery {
       'recovery_id': recoveryId,
       'achieved_at': achievedAt.toIso8601String(),
       'is_viewed': isViewed,
+      if (_daysToAchieve != null) 'days_to_achieve': _daysToAchieve,
       if (createdAt != null) 'created_at': createdAt!.toIso8601String(),
       if (updatedAt != null) 'updated_at': updatedAt!.toIso8601String(),
     };

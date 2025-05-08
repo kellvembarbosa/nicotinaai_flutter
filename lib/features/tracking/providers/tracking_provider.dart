@@ -6,6 +6,7 @@ import 'package:nicotinaai_flutter/features/tracking/models/smoking_log.dart';
 import 'package:nicotinaai_flutter/features/tracking/models/user_stats.dart';
 import 'package:nicotinaai_flutter/features/tracking/repositories/tracking_repository.dart';
 import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
+import 'package:nicotinaai_flutter/services/analytics_service.dart';
 import 'package:nicotinaai_flutter/services/notification_service.dart';
 
 enum TrackingStatus {
@@ -456,6 +457,24 @@ class TrackingProvider extends ChangeNotifier {
         cravings: updatedCravings,
       );
       
+      // Track craving event in analytics
+      try {
+        if (craving.outcome == CravingOutcome.resisted) {
+          await AnalyticsService().logCravingResisted(
+            triggerType: craving.trigger,
+          );
+          
+          if (_state.userStats != null) {
+            // Update user properties with current stats
+            await AnalyticsService().setUserProperties(
+              daysSmokeFree: _state.userStats!.smokeFreeStreak,
+            );
+          }
+        }
+      } catch (analyticsError) {
+        print('⚠️ [TrackingProvider] Failed to track craving event: $analyticsError');
+      }
+      
       // Update stats on the server
       await _repository.updateUserStats();
       
@@ -609,6 +628,7 @@ class TrackingProvider extends ChangeNotifier {
     try {
       List<HealthRecovery> recoveries = [];
       List<UserHealthRecovery> userRecoveries = [];
+      List<UserHealthRecovery> previousUserRecoveries = List.from(_state.userHealthRecoveries);
       
       try {
         recoveries = await _repository.getHealthRecoveries();
@@ -633,6 +653,55 @@ class TrackingProvider extends ChangeNotifier {
         userHealthRecoveries: userRecoveries,
         isRecoveriesLoading: false,
       );
+      
+      // Track newly achieved health recoveries
+      try {
+        if (userRecoveries.isNotEmpty) {
+          // Find newly achieved health recoveries since last load
+          for (final userRecovery in userRecoveries) {
+            // Only track achievements that are achieved
+            if (userRecovery.isAchieved) {
+              // Check if it's newly achieved by comparing with previous list
+              final wasAlreadyAchieved = previousUserRecoveries.any(
+                (prev) => prev.id == userRecovery.id && prev.isAchieved,
+              );
+              
+              if (!wasAlreadyAchieved) {
+                // Find the health recovery details
+                final recoveryDetails = recoveries.firstWhere(
+                  (r) => r.id == userRecovery.recoveryId,
+                  orElse: () => HealthRecovery(
+                    id: userRecovery.recoveryId,
+                    name: 'Unknown Recovery',
+                    description: '',
+                    daysToAchieve: userRecovery.daysToAchieve,
+                  ),
+                );
+                
+                // Track the health recovery achievement
+                await AnalyticsService().logHealthRecoveryAchieved(recoveryDetails.name);
+                
+                // If this is a major milestone (e.g., 1 day, 1 week, 1 month), track it specially
+                final importantMilestones = [1, 7, 14, 30, 90, 180, 365];
+                if (importantMilestones.contains(recoveryDetails.daysToAchieve)) {
+                  await AnalyticsService().logSmokingFreeMilestone(recoveryDetails.daysToAchieve);
+                  
+                  // Update user properties with current stats
+                  if (_state.userStats != null) {
+                    await AnalyticsService().setUserProperties(
+                      daysSmokeFree: _state.userStats!.smokeFreeStreak,
+                    );
+                  }
+                }
+                
+                print('📊 [TrackingProvider] Tracked health recovery achievement: ${recoveryDetails.name}');
+              }
+            }
+          }
+        }
+      } catch (analyticsError) {
+        print('⚠️ [TrackingProvider] Failed to track health recovery achievements: $analyticsError');
+      }
     } catch (e) {
       print('Error in _loadHealthRecoveries method: $e');
       _state = _state.copyWith(

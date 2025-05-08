@@ -76,6 +76,11 @@ class UserStats {
     final now = DateTime.now();
     return now.difference(lastSmokeDate!).inDays;
   }
+  
+  // Current smoke-free streak in days (alias for currentStreakDays)
+  int get smokeFreeStreak {
+    return currentStreakDays;
+  }
 
   // From JSON to Model
   factory UserStats.fromJson(Map<String, dynamic> json) {

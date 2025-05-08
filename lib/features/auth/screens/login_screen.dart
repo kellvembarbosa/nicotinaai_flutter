@@ -7,6 +7,7 @@ import 'package:nicotinaai_flutter/features/auth/screens/register_screen.dart';
 import 'package:nicotinaai_flutter/features/auth/screens/forgot_password_screen.dart';
 import 'package:nicotinaai_flutter/features/main/screens/main_screen.dart';
 import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
+import 'package:nicotinaai_flutter/widgets/app_icon_widget.dart';
 
 class LoginScreen extends StatefulWidget {
   static const String routeName = '/login';
@@ -80,7 +81,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 // Logo e título
                 Column(
                   children: [
-                    const FlutterLogo(size: 80),
+                    const AppIconWidget(size: 100, borderRadius: 22),
                     const SizedBox(height: 24),
                     Text(
                       localizations.welcomeBack,
