@@ -78,6 +78,15 @@ class _HomeScreenState extends State<HomeScreen> {
     
     final trackingProvider = Provider.of<TrackingProvider>(context, listen: false);
     
+    // Verificar explicitamente se a última data de fumo está atualizada
+    if (kDebugMode) {
+      if (trackingProvider.state.userStats?.lastSmokeDate != null) {
+        print('📅 Data do último cigarro no provider: ${trackingProvider.state.userStats!.lastSmokeDate}');
+      } else {
+        print('⚠️ Data do último cigarro não disponível no provider');
+      }
+    }
+    
     // Usamos um método simples de get sem força update
     try {
       // Get health recoveries
@@ -128,6 +137,15 @@ class _HomeScreenState extends State<HomeScreen> {
         final updatedCravingsResisted = updatedStats?.cravingsResisted ?? 0;
         final updatedDaysWithoutSmoking = updatedStats?.currentStreakDays ?? 0;
         final updatedMoneySaved = updatedStats?.moneySaved ?? 0;
+        
+        if (kDebugMode && updatedStats?.lastSmokeDate != null && _stats?.lastSmokeDate != null) {
+          // Verificar se a data mudou para debug
+          final oldDate = _stats!.lastSmokeDate!;
+          final newDate = updatedStats!.lastSmokeDate!;
+          if (oldDate != newDate) {
+            print('🔄 Data do último cigarro atualizada: ${oldDate.toIso8601String()} -> ${newDate.toIso8601String()}');
+          }
+        }
         
         setState(() {
           _userRecoveryIds = newUserRecoveryIds;
@@ -181,6 +199,7 @@ class _HomeScreenState extends State<HomeScreen> {
         'cravingsResisted': provider.state.userStats?.cravingsResisted ?? 0,
         'daysWithoutSmoking': provider.state.userStats?.currentStreakDays ?? 0,
         'moneySaved': provider.state.userStats?.moneySaved ?? 0,
+        'lastSmokeDate': provider.state.userStats?.lastSmokeDate?.millisecondsSinceEpoch ?? 0,
       },
       // Só reconstrua se algo relevante mudar
       builder: (_, data, child) {
@@ -189,6 +208,7 @@ class _HomeScreenState extends State<HomeScreen> {
           _stats?.cravingsResisted != data['cravingsResisted'] || 
           _stats?.currentStreakDays != data['daysWithoutSmoking'] ||
           _stats?.moneySaved != data['moneySaved'] ||
+          (_stats?.lastSmokeDate?.millisecondsSinceEpoch ?? 0) != data['lastSmokeDate'] ||
           (_userRecoveryIds.isEmpty && data['healthRecoveriesCount'] > 0)
         );
         
@@ -312,8 +332,19 @@ class _HomeScreenState extends State<HomeScreen> {
                               if (kDebugMode) {
                                 print("🔄 Atualizando após registrar cigarro");
                               }
-                              // Trigger immediate update
-                              _loadData();
+                              // Resetar o flag de atualização para permitir nova atualização
+                              setState(() {
+                                _isUpdating = false;
+                              });
+                              
+                              // Forçar atualização completa das estatísticas para atualizar última data de fumo
+                              final trackingProvider = Provider.of<TrackingProvider>(context, listen: false);
+                              trackingProvider.refreshUserStats().then((_) {
+                                // Depois de atualizar as estatísticas, carregar todos os dados na UI
+                                if (mounted) {
+                                  _loadData();
+                                }
+                              });
                             }
                           });
                         },
