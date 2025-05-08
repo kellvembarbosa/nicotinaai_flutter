@@ -67,8 +67,9 @@ class _IntroductionScreenState extends State<IntroductionScreen> {
             );
           }
           
-          // Tentar enviar uma notificação de teste através do FCM (em segundo plano)
-          _sendTestNotification(fcmToken);
+          // Não enviar notificação de teste para não sobrecarregar o usuário
+          // Em vez disso, apenas registramos que o token foi obtido com sucesso
+          debugPrint('Token FCM obtido com sucesso, notificações estão ativas');
         }
       } catch (e) {
         debugPrint('Erro ao obter token FCM: $e');

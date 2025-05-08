@@ -34,17 +34,17 @@ void main() async {
     statusBarColor: Colors.transparent,
   ));
   
-  // Inicializa o Firebase
-  await Firebase.initializeApp();
-  
-  // Inicializa o serviço de notificações
-  await NotificationService().initialize();
-  
-  // Carrega as variáveis de ambiente
+  // Carrega as variáveis de ambiente primeiro
   await dotenv.load();
   
   // Inicializa o Supabase
   await SupabaseConfig.initialize();
+  
+  // Inicializa o Firebase
+  await Firebase.initializeApp();
+  
+  // Inicializa o serviço de notificações após Supabase e Firebase
+  await NotificationService().initialize();
   
   // Garante que a preferência de idioma está definida para inglês
   final prefs = await SharedPreferences.getInstance();
