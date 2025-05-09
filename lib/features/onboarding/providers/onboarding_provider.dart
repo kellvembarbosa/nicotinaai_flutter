@@ -8,6 +8,8 @@ import 'package:nicotinaai_flutter/features/onboarding/repositories/onboarding_r
 import 'package:nicotinaai_flutter/services/analytics_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+/// Provider para gerenciar o onboarding do usuário
+/// @deprecated Use OnboardingBloc instead
 class OnboardingProvider extends ChangeNotifier {
   final OnboardingRepository _repository;
   

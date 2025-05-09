@@ -33,7 +33,7 @@ class _DashboardScreenContent extends StatelessWidget {
     
     return Scaffold(
       appBar: AppBar(
-        title: Text(l10n.dashboardScreenTitle),
+        title: Text(l10n.dashboard),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -192,7 +192,7 @@ class _DashboardScreenContent extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       children: [
         Text(
-          l10n.yourProgress,
+          l10n.achievementCurrentProgress,
           style: Theme.of(context).textTheme.headlineSmall?.copyWith(
             fontWeight: FontWeight.bold,
           ),
@@ -214,15 +214,15 @@ class _DashboardScreenContent extends StatelessWidget {
           children: [
             _buildStatCard(
               context,
-              l10n.smokeFreeTime,
-              _formatDuration(userStats.smokeFreeTime),
+              "Days Smoke-Free",
+              userStats.currentStreakDays.toString(),
               Icons.timer_outlined,
               Colors.green,
               isLoading: state.isStatsLoading,
             ),
             _buildStatCard(
               context,
-              l10n.cigarettesNotSmoked,
+              l10n.homeCravingsResisted,
               userStats.cigarettesAvoided.toString(),
               Icons.smoke_free,
               Colors.blue,
@@ -230,7 +230,7 @@ class _DashboardScreenContent extends StatelessWidget {
             ),
             _buildStatCard(
               context,
-              l10n.cravingsResisted,
+              l10n.homeCravingsResisted,
               userStats.cravingsResisted.toString(),
               Icons.sentiment_satisfied_outlined,
               Colors.orange,
@@ -238,7 +238,7 @@ class _DashboardScreenContent extends StatelessWidget {
             ),
             _buildStatCard(
               context,
-              l10n.daysSmokeFree,
+              "Days Smoke-Free Streak",
               '${userStats.smokeFreeStreak}',
               Icons.calendar_today_outlined,
               Colors.purple,
@@ -255,8 +255,9 @@ class _DashboardScreenContent extends StatelessWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     
-    final formattedMoneySaved = CurrencyUtils.format(userStats.moneySaved);
-    final formattedPercentage = '${(userStats.moneySavedPercentage * 100).toInt()}%';
+    final formattedMoneySaved = CurrencyUtils().format(userStats.moneySaved);
+    final moneySavedPercentage = userStats.moneySavedPercentage.clamp(0.0, 1.0);
+    final formattedPercentage = '${(moneySavedPercentage * 100).toInt()}%';
     
     return Card(
       elevation: 2,
@@ -271,7 +272,7 @@ class _DashboardScreenContent extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    l10n.moneySaved,
+                    "Money Saved (${l10n.potentialMonthlySavings})",
                     style: theme.textTheme.titleMedium,
                   ),
                   const SizedBox(height: 8),
@@ -286,7 +287,7 @@ class _DashboardScreenContent extends StatelessWidget {
                   ClipRRect(
                     borderRadius: BorderRadius.circular(4),
                     child: LinearProgressIndicator(
-                      value: userStats.moneySavedPercentage,
+                      value: moneySavedPercentage,
                       backgroundColor: colorScheme.primary.withOpacity(0.2),
                       color: colorScheme.primary,
                       minHeight: 8,

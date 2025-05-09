@@ -1,7 +1,10 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nicotinaai_flutter/features/home/models/craving_model.dart';
-import 'package:nicotinaai_flutter/features/home/providers/craving_provider.dart';
+import 'package:nicotinaai_flutter/blocs/craving/craving_bloc.dart';
+import 'package:nicotinaai_flutter/blocs/craving/craving_state.dart';
+import 'package:nicotinaai_flutter/blocs/craving/craving_event.dart';
 import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
 
 /// Utility functions for optimistic updates
@@ -78,8 +81,8 @@ class OptimisticUpdateUtils {
     required BuildContext context, 
     required CravingModel craving,
   }) async {
-    // Get the provider
-    final cravingProvider = Provider.of<CravingProvider>(context, listen: false);
+    // Get the BLoC
+    final cravingBloc = context.read<CravingBloc>();
     final l10n = AppLocalizations.of(context);
     
     // Cache values needed after the asynchronous operation
@@ -91,38 +94,50 @@ class OptimisticUpdateUtils {
     // Save scaffold messenger reference to use after async gap
     final scaffoldMessenger = ScaffoldMessenger.of(context);
     
-    // Optimistically update the UI and save in the background
-    await cravingProvider.saveCraving(craving);
+    // Dispatch event to save craving
+    cravingBloc.add(SaveCravingRequested(craving: craving));
     
-    // Create retry action that works even after the async gap
-    void retryAction() {
-      final failedCravings = cravingProvider.failedCravings;
-      if (failedCravings.isNotEmpty) {
-        final failedCraving = failedCravings.first;
-        if (failedCraving.id != null) {
-          // Manual retry logic since we can't access the provider method directly
-          cravingProvider.saveCraving(failedCraving.copyWith(
-            id: failedCraving.id!.startsWith('temp_') ? null : failedCraving.id,
-            syncStatus: SyncStatus.pending
-          ));
+    // Listen for state changes to determine success/failure
+    late final StreamSubscription<CravingState> subscription;
+    subscription = cravingBloc.stream.listen((state) {
+      // Only respond to state changes related to this operation
+      if (state.status == CravingStatus.error || state.status == CravingStatus.loaded) {
+        subscription.cancel();
+        
+        final hasError = state.status == CravingStatus.error;
+        
+        // Create retry action that works even after the async gap
+        void retryAction() {
+          if (state.failedCravings.isNotEmpty) {
+            final failedCraving = state.failedCravings.first;
+            if (failedCraving.id != null) {
+              // Retry saving the failed craving
+              cravingBloc.add(SaveCravingRequested(craving: failedCraving.copyWith(
+                id: failedCraving.id!.startsWith('temp_') ? null : failedCraving.id,
+                syncStatus: SyncStatus.pending
+              )));
+            }
+          }
         }
+        
+        // Show snackbar using the cached scaffold messenger
+        scaffoldMessenger.showSnackBar(
+          SnackBar(
+            content: Text(hasError ? errorMsg : successMsg),
+            backgroundColor: hasError ? Colors.red : successClr,
+            duration: const Duration(seconds: 3),
+            action: hasError ? SnackBarAction(
+              label: l10n.retry,
+              onPressed: retryAction,
+            ) : null,
+          ),
+        );
       }
-    }
+    });
     
-    // Check for errors directly from provider after the async operation
-    final hasError = cravingProvider.error != null;
-    
-    // Show snackbar using the cached scaffold messenger
-    scaffoldMessenger.showSnackBar(
-      SnackBar(
-        content: Text(hasError ? errorMsg : successMsg),
-        backgroundColor: hasError ? Colors.red : successClr,
-        duration: const Duration(seconds: 3),
-        action: hasError ? SnackBarAction(
-          label: l10n.retry,
-          onPressed: retryAction,
-        ) : null,
-      ),
-    );
+    // Cancel subscription after a timeout to prevent memory leaks
+    Future.delayed(const Duration(seconds: 10), () {
+      subscription.cancel();
+    });
   }
 }

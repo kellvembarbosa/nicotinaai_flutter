@@ -2,6 +2,8 @@ import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Provider para gerenciar o modo de desenvolvedor
+/// @deprecated Use DeveloperModeBloc instead
+/// @see OnboardingBloc
 class DeveloperModeProvider extends ChangeNotifier {
   bool _isDeveloperModeEnabled = false;
   final String _key = 'developer_mode_enabled';

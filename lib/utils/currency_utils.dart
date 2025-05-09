@@ -19,7 +19,12 @@ class CurrencyUtils {
   /// Formata um valor monetário de acordo com as preferências do usuário
   /// [valueInCents] - O valor em centavos (formato de armazenamento)
   /// [user] - O usuário com informações de moeda
-  String format(int valueInCents, {UserModel? user, String? currencySymbol, String? currencyLocale}) {
+  String format(int valueInCents, {
+    UserModel? user, 
+    String? currencyCode,
+    String? currencySymbol, 
+    String? currencyLocale
+  }) {
     final double valueInCurrency = valueInCents / 100.0;
     
     // Usar NumberFormat da biblioteca intl para formatação de números
@@ -35,14 +40,19 @@ class CurrencyUtils {
   
   /// Formata um valor monetário para exibição simplificada (sem casas decimais)
   /// Útil para resumos e estatísticas
-  String formatCompact(int valueInCents, {UserModel? user}) {
+  String formatCompact(int valueInCents, {
+    UserModel? user,
+    String? currencyCode,
+    String? currencySymbol,
+    String? currencyLocale
+  }) {
     final double valueInCurrency = valueInCents / 100.0;
     
     // Usar NumberFormat da biblioteca intl para formatação de números sem casas decimais
     final formatter = NumberFormat.currency(
-      symbol: user?.currencySymbol ?? defaultCurrencySymbol,
+      symbol: currencySymbol ?? user?.currencySymbol ?? defaultCurrencySymbol,
       decimalDigits: 0,  // Sem casas decimais para o formato compacto
-      locale: user?.currencyLocale ?? defaultCurrencyLocale,
+      locale: currencyLocale ?? user?.currencyLocale ?? defaultCurrencyLocale,
     );
     
     // Formatar o valor sem decimais
@@ -51,15 +61,20 @@ class CurrencyUtils {
   
   /// Converte um valor em string para centavos (formato de armazenamento)
   /// [value] - O valor em formato de string (pode conter símbolos de moeda)
-  int parseToCents(String value, {UserModel? user}) {
+  int parseToCents(String value, {
+    UserModel? user,
+    String? currencyCode,
+    String? currencySymbol,
+    String? currencyLocale
+  }) {
     // Remove símbolos de moeda e espaços
-    String cleanValue = value.replaceAll(user?.currencySymbol ?? defaultCurrencySymbol, '')
+    String cleanValue = value.replaceAll(currencySymbol ?? user?.currencySymbol ?? defaultCurrencySymbol, '')
         .replaceAll(' ', '')
         .trim();
     
     // Substitui separadores por formato que o double.parse entenda
-    final decimalSeparator = _getDecimalSeparator(user?.currencyLocale ?? defaultCurrencyLocale);
-    final thousandSeparator = _getThousandSeparator(user?.currencyLocale ?? defaultCurrencyLocale);
+    final decimalSeparator = _getDecimalSeparator(currencyLocale ?? user?.currencyLocale ?? defaultCurrencyLocale);
+    final thousandSeparator = _getThousandSeparator(currencyLocale ?? user?.currencyLocale ?? defaultCurrencyLocale);
     
     if (decimalSeparator != '.') {
       cleanValue = cleanValue.replaceAll(thousandSeparator, '');

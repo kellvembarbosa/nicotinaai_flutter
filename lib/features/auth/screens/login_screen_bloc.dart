@@ -84,7 +84,7 @@ class _LoginScreenBlocState extends State<LoginScreenBloc> {
                   
                   // Subtitle
                   Text(
-                    l10n.loginToYourAccount,
+                    l10n.loginToContinue,
                     style: theme.textTheme.bodyLarge,
                     textAlign: TextAlign.center,
                   ),
@@ -106,7 +106,7 @@ class _LoginScreenBlocState extends State<LoginScreenBloc> {
                         return l10n.emailRequired;
                       }
                       if (!value.contains('@') || !value.contains('.')) {
-                        return l10n.invalidEmail;
+                        return l10n.emailInvalid;
                       }
                       return null;
                     },
@@ -140,7 +140,7 @@ class _LoginScreenBlocState extends State<LoginScreenBloc> {
                         return l10n.passwordRequired;
                       }
                       if (value.length < 6) {
-                        return l10n.passwordTooShort;
+                        return l10n.passwordRequired;
                       }
                       return null;
                     },
@@ -177,7 +177,7 @@ class _LoginScreenBlocState extends State<LoginScreenBloc> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text(l10n.dontHaveAccount),
+                      Text(l10n.noAccount),
                       TextButton(
                         onPressed: state.isLoading 
                           ? null 

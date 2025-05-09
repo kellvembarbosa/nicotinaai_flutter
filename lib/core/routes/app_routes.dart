@@ -38,6 +38,8 @@ enum AppRoutes {
   currency('/settings/currency'),
   currencyBloc('/settings/currency_bloc'),
   themeBloc('/settings/theme_bloc'),
+  languageBloc('/settings/language_bloc'),
+  developerModeBloc('/settings/developer_mode_bloc'),
   privacyPolicy('/privacy-policy'),
   termsOfService('/terms-of-service'),
   about('/about'),

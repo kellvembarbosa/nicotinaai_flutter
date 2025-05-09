@@ -956,6 +956,7 @@ class _HomeScreenState extends State<HomeScreen> {
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min, // Keep the column as small as possible
         children: [
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -972,23 +973,28 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 8), // Reduced spacing
           Text(
             title,
             style: context.textTheme.titleMedium!.copyWith(
               fontWeight: FontWeight.bold,
               color: context.contentColor,
-              fontSize: 16,
+              fontSize: 15, // Slightly smaller font
             ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            description,
-            style: context.textTheme.bodySmall!.copyWith(
-              color: context.subtitleColor,
-            ),
-            maxLines: 2,
+            maxLines: 1, // Limit to 1 line
             overflow: TextOverflow.ellipsis,
+          ),
+          const SizedBox(height: 2), // Reduced spacing
+          Flexible(
+            child: Text(
+              description,
+              style: context.textTheme.bodySmall!.copyWith(
+                color: context.subtitleColor,
+                fontSize: 11, // Smaller font size
+              ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
         ],
       ),

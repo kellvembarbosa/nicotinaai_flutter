@@ -11,7 +11,8 @@ import 'package:nicotinaai_flutter/features/auth/repositories/auth_repository.da
 import 'package:nicotinaai_flutter/features/onboarding/repositories/onboarding_repository.dart';
 import 'package:nicotinaai_flutter/features/tracking/repositories/tracking_repository.dart';
 import 'package:nicotinaai_flutter/features/achievements/services/achievement_notification_service.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:nicotinaai_flutter/features/home/repositories/craving_repository.dart';
+import 'package:nicotinaai_flutter/features/home/repositories/smoking_record_repository.dart';
 
 import 'package:nicotinaai_flutter/main.dart';
 
@@ -20,6 +21,8 @@ class MockAuthRepository extends Mock implements AuthRepository {}
 class MockOnboardingRepository extends Mock implements OnboardingRepository {}
 class MockTrackingRepository extends Mock implements TrackingRepository {}
 class MockAchievementNotificationService extends Mock implements AchievementNotificationService {}
+class MockCravingRepository extends Mock implements CravingRepository {}
+class MockSmokingRecordRepository extends Mock implements SmokingRecordRepository {}
 
 void main() {
   testWidgets('Teste de integração básico', (WidgetTester tester) async {
@@ -28,6 +31,8 @@ void main() {
     final onboardingRepository = MockOnboardingRepository();
     final trackingRepository = MockTrackingRepository();
     final achievementNotifications = MockAchievementNotificationService();
+    final cravingRepository = MockCravingRepository();
+    final smokingRecordRepository = MockSmokingRecordRepository();
     
     // Build our app and trigger a frame.
     await tester.pumpWidget(MyApp(
@@ -35,6 +40,8 @@ void main() {
       onboardingRepository: onboardingRepository,
       trackingRepository: trackingRepository,
       achievementNotifications: achievementNotifications,
+      cravingRepository: cravingRepository,
+      smokingRecordRepository: smokingRecordRepository,
     ));
 
     // Verifica se a tela de login é exibida inicialmente

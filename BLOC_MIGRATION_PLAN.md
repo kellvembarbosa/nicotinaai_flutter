@@ -1,210 +1,122 @@
-# BLoC Migration Plan for NicotinaAI Flutter
+# Plano de Migração Provider → BLoC
 
-This document outlines the plan to migrate the app from Provider/ChangeNotifier pattern to BLoC (Business Logic Component) pattern using the flutter_bloc package.
+Este documento descreve o plano para finalizar a migração do estado da aplicação de Provider para BLoC.
 
-## Why BLoC?
+## Estado Atual
 
-- **Separation of Concerns**: BLoC separates business logic from UI
-- **Testability**: BLoC is highly testable
-- **Predictable State Management**: Event-driven architecture makes state changes predictable
-- **Reusability**: Business logic can be reused across different UI components
-- **Scalability**: Better for complex apps with many features
+A migração foi concluída com sucesso!
 
-## BLoC Architecture Overview
+- Todos os BLoCs correspondentes aos Providers foram implementados
+- Todas as referências a Provider foram removidas do código
+- O `AppRouter` agora usa `AuthBloc` e `OnboardingBloc`
+- O Builder no `main.dart` agora usa `context.read<Bloc>()` em vez de `Provider.of`
+- O pacote `provider` foi removido das dependências em pubspec.yaml
 
-1. **Events**: Represent user interactions or system events
-2. **States**: Represent the current state of the application
-3. **BLoC**: Business Logic Component that processes events and emits states
+## Etapas Realizadas
 
-## Migration Plan
-
-### Phase 1: Setup and Infrastructure
-
-1. **Add Dependencies**
-   - Add `flutter_bloc` and `bloc` packages ✅
-   - Add `bloc_test` for testing BLoCs
-
-2. **Define Base Architecture**
-   - Create base classes/interfaces for events and states
-   - Set up BLoC observer for logging/debugging
-
-### Phase 2: Feature by Feature Migration
-
-Start with simpler features like skeletons/loading states, then move to more complex ones:
-
-#### 1. Skeleton Loading Feature
-
-1. **Define Events and States**
-   ```dart
-   // Events
-   abstract class SkeletonEvent {}
-   class LoadData extends SkeletonEvent {}
-   
-   // States
-   abstract class SkeletonState {}
-   class SkeletonLoading extends SkeletonState {}
-   class SkeletonLoaded extends SkeletonState {
-     final dynamic data;
-     SkeletonLoaded(this.data);
-   }
-   class SkeletonError extends SkeletonState {
-     final String message;
-     SkeletonError(this.message);
-   }
-   ```
-
-2. **Implement BLoC**
-   ```dart
-   class SkeletonBloc extends Bloc<SkeletonEvent, SkeletonState> {
-     final Repository repository;
-     
-     SkeletonBloc({required this.repository}) : super(SkeletonLoading()) {
-       on<LoadData>(_onLoadData);
-     }
-     
-     Future<void> _onLoadData(LoadData event, Emitter<SkeletonState> emit) async {
-       emit(SkeletonLoading());
-       try {
-         final data = await repository.getData();
-         emit(SkeletonLoaded(data));
-       } catch (e) {
-         emit(SkeletonError(e.toString()));
-       }
-     }
-   }
-   ```
-
-3. **Update UI**
-   ```dart
-   // Replace Provider with BlocProvider
-   BlocProvider(
-     create: (context) => SkeletonBloc(
-       repository: context.read<Repository>(),
-     )..add(LoadData()),
-     child: SkeletonScreen(),
-   )
-   
-   // Replace Consumer with BlocBuilder
-   BlocBuilder<SkeletonBloc, SkeletonState>(
-     builder: (context, state) {
-       if (state is SkeletonLoading) {
-         return SkeletonLoadingWidget();
-       } else if (state is SkeletonLoaded) {
-         return DataWidget(data: state.data);
-       } else if (state is SkeletonError) {
-         return ErrorWidget(message: state.message);
-       }
-       return Container();
-     },
-   )
-   ```
-
-#### 2. Auth Feature
-
-Similar approach with Auth-specific events and states.
-
-#### 3. Home Feature (Smoking Records, Cravings)
-
-Update with events for adding/updating records and appropriate states.
-
-#### 4. Tracking Feature
-
-Implement tracking-specific BLoCs.
-
-#### 5. Achievements Feature
-
-Migrate achievements feature to BLoC pattern.
-
-### Phase 3: Global State Management
-
-1. **Implement Global BLoCs** for app-wide state (if needed)
-   - User BLoC
-   - Theme BLoC
-   - Currency BLoC
-
-2. **Use MultiBlocProvider** to provide multiple BLoCs at the app root
-
-### Phase 4: Testing and Optimization
-
-1. **Write Unit Tests** for all BLoCs
-2. **Integration Tests** for key user flows
-3. **Performance Optimization**
-
-## Feature Migration Order
-
-1. Skeleton/Loading States - Simple UI states
-2. Auth Feature - Login/Registration 
-3. Home Feature - Core app features
-4. Tracking Feature - User statistics
-5. Achievements Feature - User achievements
-6. Settings Feature - App configuration
-
-## Best Practices
-
-1. **Keep BLoCs Focused**: Each BLoC should handle a specific feature
-2. **Immutable States**: States should be immutable
-3. **Meaningful Events**: Events should clearly describe user intentions
-4. **BLoC Communication**: Use repositories or streams for BLoC-to-BLoC communication
-5. **Error Handling**: Handle errors within BLoCs, not in UI
-
-## Sample Implementation: Skeleton Loading
-
-### Directory Structure
-
-```
-lib/
-├── blocs/
-│   ├── skeleton/
-│   │   ├── skeleton_bloc.dart
-│   │   ├── skeleton_event.dart
-│   │   └── skeleton_state.dart
-│   └── app_bloc_observer.dart
-```
-
-### Implementation Steps
-
-1. Create event, state, and bloc files
-2. Update UI components to use BlocBuilder/BlocListener
-3. Provide BLoC using BlocProvider
-4. Test the implementation
-
-## Optimistic Updates with BLoC
-
-For implementing optimistic updates pattern:
+### 1. Criado Adaptador para GoRouter com BLoC
+Implementamos o `RouterRefreshStream` para adaptar BLoCs para o sistema de refresh do GoRouter:
 
 ```dart
-// Example: Adding a smoking record optimistically
-on<AddSmokingRecord>((event, emit) async {
-  // 1. Store original state for potential rollback
-  final originalState = state;
+class RouterRefreshStream<B extends BlocBase<S>, S> extends ChangeNotifier {
+  final B _bloc;
+  final bool Function(S state)? _shouldRefresh;
   
-  // 2. Update state optimistically with new record
-  final newRecord = event.record;
-  final updatedRecords = List<SmokingRecord>.from(state.records)..add(newRecord);
-  emit(RecordsLoaded(records: updatedRecords));
+  late final StreamSubscription<S> _subscription;
   
-  try {
-    // 3. Perform the actual operation
-    await repository.addSmokingRecord(newRecord);
-    
-    // 4. Operation succeeded - no need to update state again
-  } catch (e) {
-    // 5. Operation failed, revert to original state
-    emit(originalState);
-    
-    // 6. Emit error state
-    emit(RecordsError(message: 'Failed to save record: ${e.toString()}'));
+  RouterRefreshStream(this._bloc, {bool Function(S state)? shouldRefresh}) 
+    : _shouldRefresh = shouldRefresh {
+    _subscription = _bloc.stream.listen((state) {
+      if (_shouldRefresh == null || _shouldRefresh(state)) {
+        notifyListeners();
+      }
+    });
   }
-});
+  
+  @override
+  void dispose() {
+    _subscription.cancel();
+    super.dispose();
+  }
+}
 ```
 
-## Timeline
+### 2. Atualizado o AppRouter para usar BLoC
+AppRouter foi completamente atualizado para usar AuthBloc e OnboardingBloc:
 
-- **Week 1**: Setup infrastructure and migrate skeleton loading
-- **Week 2**: Migrate Auth and Home features
-- **Week 3**: Migrate Tracking and Achievement features
-- **Week 4**: Testing, optimization, and cleanup
+```dart
+class AppRouter {
+  final AuthBloc authBloc;
+  final OnboardingBloc onboardingBloc;
+  
+  AppRouter({
+    required this.authBloc,
+    required this.onboardingBloc,
+  });
+  
+  late final GoRouter router = GoRouter(
+    debugLogDiagnostics: true,
+    refreshListenable: RouterRefreshStream(authBloc),
+    initialLocation: SplashScreen.routeName,
+    redirect: _handleRedirect,
+    // ...
+  );
 
-## Conclusion
+  String? _handleRedirect(BuildContext context, GoRouterState state) {
+    // ...
+    final isAuthenticated = authBloc.state.isAuthenticated;
+    final onboardingCompleted = onboardingBloc.state.isCompleted;
+    // ...
+  }
+}
+```
 
-This migration will improve code organization, testability, and scalability. The BLoC pattern will make it easier to implement complex features and maintain the codebase long-term.
+### 3. Atualizado main.dart
+Substituído MultiProvider por MultiBlocProvider e atualizadas todas as instanciações:
+
+```dart
+child: Builder(
+  builder: (context) {
+    // Inicializar o router usando os BLoCs
+    final authBloc = context.read<AuthBloc>();
+    final onboardingBloc = context.read<OnboardingBloc>();
+      
+    // Criar router usando BLoCs para evitar loop de reconstrução
+    final appRouter = AppRouter(
+      authBloc: authBloc,
+      onboardingBloc: onboardingBloc,
+    );
+    
+    // ...
+  }
+)
+```
+
+### 4. Atualizado todos os widgets
+Todos os widgets que usavam Provider.of foram atualizados para usar context.watch ou context.read.
+
+### 5. Removido Provider do pubspec.yaml
+O pacote provider foi removido das dependências do projeto.
+
+### 6. Verificação Final
+Confirmado que não existem mais referências ao pacote provider no código.
+
+## Benefícios da Migração
+
+1. **Manutenibilidade**: Uma única solução de gerenciamento de estado em vez de duas
+2. **Testabilidade**: BLoCs são mais facilmente testáveis que Providers
+3. **Separação de Responsabilidades**: Melhor separação entre UI, lógica de negócios e estado
+4. **Performance**: Redução de rebuilds desnecessários
+
+## Prazo Sugerido
+
+1. Planejamento e Análise: 1 dia
+2. Implementação da Migração: 2-3 dias
+3. Testes e Correções: 1-2 dias
+4. Total: 4-6 dias de trabalho
+
+## Notas Adicionais
+
+- Não implementar novas funcionalidades durante a migração
+- Fazer commits incrementais para cada parte da migração
+- Manter testes automatizados rodando durante todo o processo

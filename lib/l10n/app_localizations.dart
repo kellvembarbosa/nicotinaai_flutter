@@ -2406,6 +2406,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Register your first cigarette to see health recovery'**
   String get registerFirstCigarette;
+
+  /// Generic error message displayed when an unknown error occurs
+  ///
+  /// In en, this message translates to:
+  /// **'An error occurred'**
+  String get errorOccurred;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

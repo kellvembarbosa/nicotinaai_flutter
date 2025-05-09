@@ -8,8 +8,9 @@ class DbCheckService {
   final List<String> _essentialTables = [
     'smoking_logs',
     'cravings',
-    'onboarding_data',
     'profiles',
+    // Nota: onboarding_data não é mais considerada essencial, pois os dados de onboarding 
+    // podem ser armazenados em profiles ou em outras tabelas customizadas
   ];
 
   /// Checks if all essential tables are available

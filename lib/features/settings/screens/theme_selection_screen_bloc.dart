@@ -48,7 +48,7 @@ class ThemeSelectionScreenBloc extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    localizations.themeDescription,
+                    localizations.theme,
                     style: context.textTheme.bodyLarge!.copyWith(
                       color: context.subtitleColor,
                     ),
@@ -58,8 +58,8 @@ class ThemeSelectionScreenBloc extends StatelessWidget {
                   // Opção de tema claro
                   _buildThemeOption(
                     context,
-                    title: localizations.lightTheme,
-                    description: localizations.lightThemeDescription,
+                    title: localizations.light,
+                    description: localizations.light,
                     icon: Icons.light_mode,
                     isSelected: state.themeMode == ThemeMode.light,
                     onTap: () {
@@ -74,8 +74,8 @@ class ThemeSelectionScreenBloc extends StatelessWidget {
                   // Opção de tema escuro
                   _buildThemeOption(
                     context,
-                    title: localizations.darkTheme,
-                    description: localizations.darkThemeDescription,
+                    title: localizations.dark,
+                    description: localizations.dark,
                     icon: Icons.dark_mode,
                     isSelected: state.themeMode == ThemeMode.dark,
                     onTap: () {
@@ -90,8 +90,8 @@ class ThemeSelectionScreenBloc extends StatelessWidget {
                   // Opção de tema do sistema
                   _buildThemeOption(
                     context,
-                    title: localizations.systemTheme,
-                    description: localizations.systemThemeDescription,
+                    title: localizations.system,
+                    description: localizations.system,
                     icon: Icons.settings_brightness,
                     isSelected: state.themeMode == ThemeMode.system,
                     onTap: () {

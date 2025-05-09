@@ -397,38 +397,60 @@ class NotificationService {
       final deviceInfoJson = await _getDeviceInfo();
       
       try {
-        // Verificar se o token já existe no banco de dados
-        final existingTokens = await _supabaseClient
-            .from('user_fcm_tokens')
-            .select()
-            .eq('fcm_token', token)
-            .limit(1);
-        
-        if (existingTokens.isNotEmpty) {
-          // Atualizar o token existente
-          await _supabaseClient
+        try {
+          // Verificar se o token já existe no banco de dados
+          final existingTokens = await _supabaseClient
               .from('user_fcm_tokens')
-              .update({
-                'user_id': userId,
-                'last_used_at': DateTime.now().toIso8601String(),
-                'device_info': deviceInfoJson
-              })
-              .eq('fcm_token', token);
+              .select()
+              .eq('fcm_token', token)
+              .limit(1);
           
-          debugPrint('Token FCM atualizado para o usuário: $userId');
-        } else {
-          // Inserir um novo token
-          await _supabaseClient
-              .from('user_fcm_tokens')
-              .insert({
-                'user_id': userId,
-                'fcm_token': token,
-                'device_info': deviceInfoJson,
-                'created_at': DateTime.now().toIso8601String(),
-                'last_used_at': DateTime.now().toIso8601String()
-              });
+          if (existingTokens.isNotEmpty) {
+            // Atualizar o token existente
+            await _supabaseClient
+                .from('user_fcm_tokens')
+                .update({
+                  'user_id': userId,
+                  'last_used_at': DateTime.now().toIso8601String(),
+                  'device_info': deviceInfoJson
+                })
+                .eq('fcm_token', token);
+            
+            debugPrint('Token FCM atualizado para o usuário: $userId');
+          } else {
+            // Tentar inserir um novo token - usando upsert para evitar erros de duplicação
+            await _supabaseClient
+                .from('user_fcm_tokens')
+                .upsert({
+                  'user_id': userId,
+                  'fcm_token': token,
+                  'device_info': deviceInfoJson,
+                  'created_at': DateTime.now().toIso8601String(),
+                  'last_used_at': DateTime.now().toIso8601String()
+                }, 
+                onConflict: 'fcm_token'); // Se houver conflito, atualiza
+            
+            debugPrint('Novo token FCM inserido ou atualizado para o usuário: $userId');
+          }
+        } catch (tokenError) {
+          debugPrint('Erro ao inserir/atualizar token FCM (tentando via RPC): $tokenError');
           
-          debugPrint('Novo token FCM inserido para o usuário: $userId');
+          // Tenta via função RPC se falhar
+          try {
+            final result = await _supabaseClient.rpc(
+              'save_fcm_token',
+              params: {
+                'p_user_id': userId,
+                'p_fcm_token': token,
+                'p_device_info': deviceInfoJson
+              }
+            );
+            
+            debugPrint('Token FCM salvo via RPC: $result');
+          } catch (rpcError) {
+            debugPrint('Erro ao salvar token via RPC também: $rpcError');
+            throw rpcError; // Propaga o erro para tratamento posterior
+          }
         }
         
         return true;
@@ -644,6 +666,36 @@ class NotificationService {
   Future<void> unsubscribeFromTopic(String topic) async {
     await _messaging.unsubscribeFromTopic(topic);
     debugPrint('Unsubscribed from topic: $topic');
+  }
+  
+  /// Get user notifications from database
+  Future<List<Map<String, dynamic>>> getUserNotifications() async {
+    try {
+      if (!_isSupabaseInitialized()) {
+        debugPrint('Não foi possível obter notificações: Supabase não inicializado');
+        return [];
+      }
+      
+      // Check if user is authenticated
+      final session = _supabaseClient.auth.currentSession;
+      if (session == null) {
+        debugPrint('Não foi possível obter notificações: usuário não está logado');
+        return [];
+      }
+      
+      // Get notifications from database
+      final data = await _supabaseClient
+          .from('notifications')
+          .select('*')
+          .eq('user_id', session.user.id)
+          .order('created_at', ascending: false)
+          .limit(50);
+      
+      return List<Map<String, dynamic>>.from(data);
+    } catch (e) {
+      debugPrint('Erro ao obter notificações: $e');
+      return [];
+    }
   }
   
   /// Mark a notification as read in the database

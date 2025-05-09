@@ -99,6 +99,7 @@ class AchievementState {
 }
 
 /// Provider to manage achievement state and interactions
+/// @deprecated Use AchievementBloc instead
 class AchievementProvider extends ChangeNotifier {
   final AchievementService _service;
   AchievementState _state = AchievementState();

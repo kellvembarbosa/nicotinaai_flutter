@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../blocs/skeleton/skeleton_bloc.dart';
 import '../blocs/skeleton/skeleton_event.dart';
-import '../blocs/skeleton/skeleton_state.dart';
+import '../blocs/skeleton/skeleton_state.dart' as skeleton_state;
 import 'skeleton_loading.dart';
 
 /// A generic skeleton loading widget that uses BLoC to manage loading states
@@ -42,13 +42,13 @@ class SkeletonWidget<T> extends StatelessWidget {
         }
         return bloc;
       },
-      child: BlocBuilder<SkeletonBloc, SkeletonState>(
+      child: BlocBuilder<SkeletonBloc, skeleton_state.SkeletonState>(
         builder: (context, state) {
-          if (state is SkeletonLoading) {
+          if (state is skeleton_state.SkeletonLoading) {
             return loadingWidget;
-          } else if (state is SkeletonLoaded) {
+          } else if (state is skeleton_state.SkeletonLoaded) {
             return builder(context, state.data as T);
-          } else if (state is SkeletonError) {
+          } else if (state is skeleton_state.SkeletonError) {
             return errorWidget != null
                 ? errorWidget!(context, state.message)
                 : Center(

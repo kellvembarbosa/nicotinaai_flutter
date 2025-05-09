@@ -1203,4 +1203,7 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get registerFirstCigarette => 'Registre seu primeiro cigarro para ver a recuperação da saúde';
+
+  @override
+  String get errorOccurred => 'Ocorreu um erro';
 }

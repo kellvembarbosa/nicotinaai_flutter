@@ -87,7 +87,7 @@ class CurrencyBloc extends Bloc<CurrencyEvent, CurrencyState> {
         );
 
         // Atualiza o perfil do usuário
-        await _authRepository.updateProfile(updatedUser);
+        await _authRepository.updateUserProfile(updatedUser);
       }
     } catch (e) {
       debugPrint('❌ [CurrencyBloc] Error changing currency: $e');

@@ -16,7 +16,7 @@ class DashboardScreenWithBloc extends StatelessWidget {
     
     return Scaffold(
       appBar: AppBar(
-        title: Text(l10n.dashboardScreenTitle),
+        title: Text(l10n.dashboard),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -190,7 +190,7 @@ class DashboardScreenWithBloc extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       children: [
         Text(
-          l10n.yourProgress,
+          l10n.achievementCurrentProgress,
           style: Theme.of(context).textTheme.headlineSmall?.copyWith(
             fontWeight: FontWeight.bold,
           ),
@@ -212,15 +212,15 @@ class DashboardScreenWithBloc extends StatelessWidget {
           children: [
             _buildStatCard(
               context,
-              l10n.smokeFreeTime,
-              _formatDuration(userStats.smokeFreeTime),
+              "Days Smoke-Free",
+              userStats.currentStreakDays.toString(),
               Icons.timer_outlined,
               Colors.green,
               isLoading: state.isStatsLoading,
             ),
             _buildStatCard(
               context,
-              l10n.cigarettesNotSmoked,
+              l10n.homeCravingsResisted,
               userStats.cigarettesAvoided.toString(),
               Icons.smoke_free,
               Colors.blue,
@@ -228,7 +228,7 @@ class DashboardScreenWithBloc extends StatelessWidget {
             ),
             _buildStatCard(
               context,
-              l10n.cravingsResisted,
+              l10n.homeCravingsResisted,
               state.cravingsResisted.toString(),
               Icons.sentiment_satisfied_outlined,
               Colors.orange,
@@ -236,7 +236,7 @@ class DashboardScreenWithBloc extends StatelessWidget {
             ),
             _buildStatCard(
               context,
-              l10n.daysSmokeFree,
+              "Days Smoke-Free Streak",
               '${userStats.smokeFreeStreak}',
               Icons.calendar_today_outlined,
               Colors.purple,
@@ -252,7 +252,7 @@ class DashboardScreenWithBloc extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                l10n.healthRecoveries,
+                l10n.homeHealthRecovery,
                 style: Theme.of(context).textTheme.titleLarge,
               ),
               Text(
@@ -280,8 +280,9 @@ class DashboardScreenWithBloc extends StatelessWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     
-    final formattedMoneySaved = CurrencyUtils.format(userStats.moneySaved);
-    final formattedPercentage = '${(userStats.moneySavedPercentage * 100).toInt()}%';
+    final formattedMoneySaved = CurrencyUtils().format(userStats.moneySaved);
+    final moneySavedPercentage = userStats.moneySavedPercentage.clamp(0.0, 1.0);
+    final formattedPercentage = '${(moneySavedPercentage * 100).toInt()}%';
     
     return Card(
       elevation: 2,
@@ -296,7 +297,7 @@ class DashboardScreenWithBloc extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    l10n.moneySaved,
+                    "Money Saved (${l10n.potentialMonthlySavings})",
                     style: theme.textTheme.titleMedium,
                   ),
                   const SizedBox(height: 8),
@@ -311,7 +312,7 @@ class DashboardScreenWithBloc extends StatelessWidget {
                   ClipRRect(
                     borderRadius: BorderRadius.circular(4),
                     child: LinearProgressIndicator(
-                      value: userStats.moneySavedPercentage,
+                      value: moneySavedPercentage,
                       backgroundColor: colorScheme.primary.withOpacity(0.2),
                       color: colorScheme.primary,
                       minHeight: 8,
