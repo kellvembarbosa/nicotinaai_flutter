@@ -1,3 +1,4 @@
+import 'package:equatable/equatable.dart';
 import 'package:nicotinaai_flutter/features/tracking/models/craving.dart';
 import 'package:nicotinaai_flutter/features/tracking/models/health_recovery.dart';
 import 'package:nicotinaai_flutter/features/tracking/models/smoking_log.dart';
@@ -11,7 +12,7 @@ enum TrackingStatus {
   error,
 }
 
-class TrackingState {
+class TrackingState extends Equatable {
   final TrackingStatus status;
   final List<SmokingLog> smokingLogs;
   final List<Craving> cravings;
@@ -44,6 +45,21 @@ class TrackingState {
   bool get isLoaded => status == TrackingStatus.loaded;
   bool get isSaving => status == TrackingStatus.saving;
   bool get hasError => status == TrackingStatus.error;
+  
+  // Stats analysis
+  int get cravingsResisted => cravings.where((c) => c.outcome == CravingOutcome.resisted).length;
+  int get cravingsYielded => cravings.where((c) => c.outcome == CravingOutcome.smoked).length;
+  double get resistanceRate => cravings.isEmpty ? 0 : cravingsResisted / cravings.length;
+  
+  // Recovery progress
+  List<UserHealthRecovery> get achievedRecoveries => 
+      userHealthRecoveries.where((r) => r.isAchieved).toList();
+  
+  List<UserHealthRecovery> get pendingRecoveries => 
+      userHealthRecoveries.where((r) => !r.isAchieved).toList();
+  
+  double get healthRecoveryProgress => 
+      userHealthRecoveries.isEmpty ? 0 : achievedRecoveries.length / userHealthRecoveries.length;
 
   // Copy with
   TrackingState copyWith({
@@ -73,4 +89,19 @@ class TrackingState {
       isRecoveriesLoading: isRecoveriesLoading ?? this.isRecoveriesLoading,
     );
   }
+  
+  @override
+  List<Object?> get props => [
+    status, 
+    smokingLogs, 
+    cravings, 
+    healthRecoveries,
+    userHealthRecoveries,
+    userStats,
+    errorMessage,
+    isStatsLoading,
+    isLogsLoading,
+    isCravingsLoading,
+    isRecoveriesLoading,
+  ];
 }
