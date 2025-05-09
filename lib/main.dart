@@ -190,26 +190,16 @@ class MyApp extends StatelessWidget {
             final provider = previousOnboardingProvider ?? 
                 OnboardingProvider(repository: onboardingRepository);
                 
-            // Inicializa apenas se o usuário estiver autenticado
+            // NÃO inicializamos o onboarding aqui para evitar corrida com SplashScreen
+            // A SplashScreen tem total controle sobre a inicialização e verificação
+            // do onboarding para garantir sequência correta de navegação
+            print('🔒 [MyApp] Provider criado, mas SplashScreen controlará inicialização');
+            
+            // Apenas para modo de desenvolvimento, verificar o estado atual
             if (authProvider.isAuthenticated) {
-              // Agende a inicialização para o próximo ciclo de frame
-              // para evitar chamadas múltiplas durante a construção
-              print('👤 [MyApp] Usuário autenticado. Agendando inicialização do onboarding');
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                print('🔄 [MyApp] Iniciando onboarding após autenticação');
-                provider.initialize();
-                
-                // Verificar explicitamente o status de conclusão no banco de dados
-                // com uma pequena espera para garantir que a conexão está estável
-                WidgetsBinding.instance.addPostFrameCallback((_) async {
-                  await Future.delayed(const Duration(milliseconds: 1000));
-                  print('🔍 [MyApp] Verificando status de onboarding no banco de dados');
-                  final isCompleted = await provider.checkCompletionStatus();
-                  print('🔍 [MyApp] Status de conclusão do onboarding: ${isCompleted ? "Completo" : "Incompleto"}');
-                });
-              });
+              print('👤 [MyApp] DEBUG: Usuário autenticado, status onboarding: ${provider.state.isCompleted ? "COMPLETO" : "INCOMPLETO"}');
             } else {
-              print('🔒 [MyApp] Usuário não autenticado. Onboarding não inicializado');
+              print('🔒 [MyApp] DEBUG: Usuário não autenticado');
             }
             
             return provider;
