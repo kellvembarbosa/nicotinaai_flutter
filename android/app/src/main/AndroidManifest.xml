@@ -3,6 +3,8 @@
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <!-- Required for Facebook App Events -->
+    <uses-permission android:name="android.permission.AD_ID" />
     
     <application
         android:label="Nicotina.AI"
@@ -35,6 +37,14 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+            
+        <!-- Facebook App Events Configuration -->
+        <meta-data 
+            android:name="com.facebook.sdk.ApplicationId" 
+            android:value="fb1122057663011514" />
+        <meta-data 
+            android:name="com.facebook.sdk.ClientToken" 
+            android:value="5c322aa391bc253b88122690a80aec2e" />
             
         <!-- Configuração para Firebase Messaging -->
         <meta-data

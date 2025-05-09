@@ -28,7 +28,7 @@ class SupabaseDiagnostic {
       report.writeln('\n1️⃣ CHECKING CLIENT CONNECTION');
       try {
         // Get Supabase client info
-        final String url = Supabase.instance.client.supabaseUrl;
+        final String url = SupabaseConfig.client.toString().split(' ').last;
         report.writeln('✓ Client initialized with URL: $url');
       } catch (e) {
         report.writeln('❌ Client not properly initialized: $e');
@@ -109,12 +109,18 @@ class SupabaseDiagnostic {
       report.writeln('\n4️⃣ TESTING TABLE ACCESS');
       try {
         // Try a simple count query on the table
+        // First check if we can access the table with a simple query
+        await SupabaseConfig.client
+            .from(tableName)
+            .select('*')
+            .limit(1);
+            
+        // Then get the count of records
         final countResult = await SupabaseConfig.client
             .from(tableName)
-            .select('count(*)', const FetchOptions(count: CountOption.exact))
-            .limit(1);
+            .count();
         
-        final int count = countResult.count ?? 0;
+        final int count = countResult;
         report.writeln('✓ Successfully accessed \'$tableName\' table');
         report.writeln('  Table contains $count records');
       } catch (e) {

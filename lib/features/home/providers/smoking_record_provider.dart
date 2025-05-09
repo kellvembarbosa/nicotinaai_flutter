@@ -1,9 +1,11 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import 'package:uuid/uuid.dart';
 import 'package:nicotinaai_flutter/features/home/models/craving_model.dart';
 import 'package:nicotinaai_flutter/features/home/models/smoking_record_model.dart';
 import 'package:nicotinaai_flutter/features/home/repositories/smoking_record_repository.dart';
 import 'package:nicotinaai_flutter/features/tracking/providers/tracking_provider.dart'; // Importação explícita
+import 'package:nicotinaai_flutter/features/achievements/helpers/achievement_helper.dart';
 
 class SmokingRecordProvider extends ChangeNotifier {
   final SmokingRecordRepository _repository = SmokingRecordRepository();
@@ -85,6 +87,11 @@ class SmokingRecordProvider extends ChangeNotifier {
       
       // Update last smoke date in TrackingProvider
       await _updateLastSmokeDate();
+      
+      // Check for achievements after recording a smoking event
+      if (record.context != null) {
+        AchievementHelper.checkAfterSmokingRecord(record.context!);
+      }
       
       // Only emit one notification - multiple notifications will be triggered by the TrackingProvider
       // from the method that calls this one
@@ -210,5 +217,14 @@ class SmokingRecordProvider extends ChangeNotifier {
   void clearError() {
     _error = null;
     notifyListeners();
+  }
+  
+  /// Limpa todos os registros de fumo em memória (usado no logout)
+  void clearRecords() {
+    _records = [];
+    _error = null;
+    _isLoading = false;
+    notifyListeners();
+    print('🧹 [SmokingRecordProvider] Todos os registros de fumo foram limpos');
   }
 }

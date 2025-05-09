@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:nicotinaai_flutter/features/auth/providers/auth_provider.dart';
 import 'package:nicotinaai_flutter/features/tracking/models/user_stats.dart';
 import 'package:nicotinaai_flutter/features/tracking/providers/tracking_provider.dart';
 import 'package:nicotinaai_flutter/features/tracking/screens/add_craving_screen.dart';
 import 'package:nicotinaai_flutter/features/tracking/screens/add_smoking_log_screen.dart';
+import 'package:nicotinaai_flutter/utils/currency_utils.dart';
 import 'package:provider/provider.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -14,6 +16,9 @@ class DashboardScreen extends StatefulWidget {
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
+  // Instância do utilitário de moeda para formatação
+  final CurrencyUtils _currencyUtils = CurrencyUtils();
+  
   @override
   void initState() {
     super.initState();
@@ -144,6 +149,26 @@ class _DashboardScreenState extends State<DashboardScreen> {
       );
     }
     
+    // Obter usuário atual para formatar a moeda de acordo com as preferências
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final user = authProvider.currentUser;
+    
+    // Formatar o valor monetário usando o utilitário de moeda
+    final String formattedMoneySaved;
+    if (user != null) {
+      // Se o usuário estiver autenticado, use as preferências de moeda dele
+      formattedMoneySaved = _currencyUtils.format(
+        stats.moneySaved, 
+        user: user, // Usa as preferências de moeda do usuário
+      );
+    } else {
+      // Se o usuário não estiver autenticado ou for nulo, use a localização do dispositivo
+      formattedMoneySaved = _currencyUtils.formatWithDeviceLocale(
+        stats.moneySaved,
+        context: context,
+      );
+    }
+    
     return GridView.count(
       crossAxisCount: 2,
       shrinkWrap: true,
@@ -169,7 +194,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         _statCard(
           context,
           'Money Saved',
-          stats.formattedMoneySaved,
+          formattedMoneySaved, // Usando o valor formatado pelo CurrencyUtils
           Icons.account_balance_wallet,
           Colors.blue,
           subtitle: 'Based on ${stats.cravingsResisted} cravings resisted',

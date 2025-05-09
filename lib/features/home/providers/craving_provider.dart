@@ -1,7 +1,9 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import 'package:uuid/uuid.dart';
 import 'package:nicotinaai_flutter/features/home/models/craving_model.dart';
 import 'package:nicotinaai_flutter/features/home/repositories/craving_repository.dart';
+import 'package:nicotinaai_flutter/features/achievements/helpers/achievement_helper.dart';
 
 class CravingProvider extends ChangeNotifier {
   final CravingRepository _repository = CravingRepository();
@@ -88,6 +90,21 @@ class CravingProvider extends ChangeNotifier {
       _error = null;
       notifyListeners();
       
+      // Check for achievements without requiring BuildContext
+      debugPrint('Checking for achievements after craving recorded');
+      try {
+        // Using direct provider access within our provider instead of through context
+        // We need to get the provider instance from somewhere else to avoid context dependency
+        final achievementProvider = await _getAchievementProvider();
+        if (achievementProvider != null) {
+          AchievementHelper.checkAfterCravingRecorded(achievementProvider, craving.resisted);
+        } else {
+          debugPrint('Cannot check for achievements: AchievementProvider not available');
+        }
+      } catch (e) {
+        debugPrint('Error checking achievements: $e');
+      }
+      
       // Force reload tracking stats to update the UI
       // This ensures the cravings count gets updated
       try {
@@ -144,6 +161,23 @@ class CravingProvider extends ChangeNotifier {
       return null;
     } catch (e) {
       debugPrint('Error getting tracking provider: $e');
+      return null;
+    }
+  }
+  
+  // Helper to get achievement provider without requiring BuildContext
+  // This is a temporary solution until dependency injection is implemented
+  Future<dynamic> _getAchievementProvider() async {
+    try {
+      // We can't access Provider directly without context, so for now we'll 
+      // rely on global state notification to trigger achievement checks externally
+      debugPrint('AchievementProvider must be explicitly passed. Achievement checks will be limited.');
+      
+      // In the future, consider implementing a service locator or proper DI solution
+      // to access providers without BuildContext dependency
+      return null;
+    } catch (e) {
+      debugPrint('Error getting achievement provider: $e');
       return null;
     }
   }
@@ -231,5 +265,14 @@ class CravingProvider extends ChangeNotifier {
   void clearError() {
     _error = null;
     notifyListeners();
+  }
+  
+  /// Limpa todos os cravings em memória (usado no logout)
+  void clearCravings() {
+    _cravings = [];
+    _error = null;
+    _isLoading = false;
+    notifyListeners();
+    print('🧹 [CravingProvider] Todos os cravings foram limpos');
   }
 }

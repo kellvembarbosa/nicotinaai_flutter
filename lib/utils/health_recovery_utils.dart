@@ -22,10 +22,14 @@ class HealthRecoveryUtils {
 
   /// Check for new health recoveries for the current user
   /// Returns the result from the checkHealthRecoveries edge function
-  static Future<Map<String, dynamic>> checkForNewRecoveries() async {
+  /// 
+  /// @param updateAchievements Se true, verificará achievements. Se false, apenas verifica health recoveries.
+  /// Isso ajuda a quebrar o ciclo de dependência que causa loops infinitos.
+  static Future<Map<String, dynamic>> checkForNewRecoveries({bool updateAchievements = true}) async {
     try {
       // Verifica cache para evitar chamadas repetidas
       if (_wasRecentlyExecuted('checkForNewRecoveries')) {
+        debugPrint('Using cached health recovery checks');
         return _cache['checkForNewRecoveries'] ?? {'message': 'Using cached data (empty)'};
       }
       
@@ -39,7 +43,10 @@ class HealthRecoveryUtils {
       
       // Call the edge function to check health recoveries
       final response = await _client.functions.invoke('checkHealthRecoveries', 
-        body: {'userId': user.id},
+        body: {
+          'userId': user.id,
+          'updateAchievements': updateAchievements, // Parâmetro adicional para controle
+        },
       );
       
       if (response.status != 200) {
@@ -189,6 +196,12 @@ class HealthRecoveryUtils {
   /// including those achieved and those still in progress
   static Future<Map<String, dynamic>> getUserHealthRecoveryStatus() async {
     try {
+      // Verifica cache para evitar chamadas repetidas
+      final cacheKey = 'userHealthRecoveryStatus';
+      if (_wasRecentlyExecuted(cacheKey) && _cache.containsKey(cacheKey)) {
+        return _cache[cacheKey] as Map<String, dynamic>;
+      }
+      
       final user = _client.auth.currentUser;
       
       if (user == null) {
@@ -209,16 +222,52 @@ class HealthRecoveryUtils {
           .order('achieved_at', ascending: false);
       
       // Get user's streak information
-      final userStats = await _client
+      // Usamos maybeSingle() em vez de single() para evitar exceções quando nenhuma linha é encontrada
+      final userStatsResponse = await _client
           .from('user_stats')
           .select('current_streak_days, last_smoke_date')
           .eq('user_id', user.id)
-          .single();
+          .maybeSingle();
+      
+      // Se não encontrou dados do usuário, retorne um objeto vazio
+      if (userStatsResponse == null) {
+        final emptyResult = {
+          'recoveries': <Map<String, dynamic>>[],
+          'achieved_recoveries': <Map<String, dynamic>>[],
+          'current_streak_days': 0,
+          'last_smoke_date': null,
+        };
+        
+        // Armazena em cache para evitar chamadas repetidas
+        _cache[cacheKey] = emptyResult;
+        _lastCheckTime = DateTime.now();
+        
+        debugPrint('⚠️ Nenhum dado de usuário encontrado em user_stats');
+        return emptyResult;
+      }
+      
+      final userStats = userStatsResponse;
       
       final currentStreakDays = userStats['current_streak_days'] as int? ?? 0;
       final lastSmokeDate = userStats['last_smoke_date'] != null
           ? DateTime.parse(userStats['last_smoke_date'])
           : null;
+      
+      // Se não tiver data do último cigarro, retorna dados vazios para evitar cálculos desnecessários
+      if (lastSmokeDate == null) {
+        final emptyResult = {
+          'recoveries': <Map<String, dynamic>>[],
+          'achieved_recoveries': <Map<String, dynamic>>[],
+          'current_streak_days': currentStreakDays,
+          'last_smoke_date': null,
+        };
+        
+        // Armazena em cache para evitar chamadas repetidas
+        _cache[cacheKey] = emptyResult;
+        _lastCheckTime = DateTime.now();
+        
+        return emptyResult;
+      }
       
       // Mark each recovery as achieved or in progress
       final allRecoveries = (recoveries as List).map((dynamic r) {
@@ -246,14 +295,20 @@ class HealthRecoveryUtils {
         return Map<String, dynamic>.from(item as Map);
       }).toList();
       
-      return {
+      final result = {
         'recoveries': allRecoveries,
         'achieved_recoveries': safeUserRecoveries,
         'current_streak_days': currentStreakDays,
         'last_smoke_date': lastSmokeDate?.toIso8601String(),
       };
+      
+      // Armazena em cache para evitar chamadas repetidas
+      _cache[cacheKey] = result;
+      _lastCheckTime = DateTime.now();
+      
+      return result;
     } catch (e) {
-      print('Error getting user health recovery status: $e');
+      debugPrint('Error getting user health recovery status: $e');
       rethrow;
     }
   }
@@ -282,33 +337,34 @@ class HealthRecoveryUtils {
       // Log the current streak for debugging
       debugPrint('Getting next milestone for streak: $currentStreakDays days');
       
-      // Get all health recoveries and their status
-      final status = await getUserHealthRecoveryStatus();
+      try {
+        // Get all health recoveries and their status
+        final status = await getUserHealthRecoveryStatus();
       
-      // Safe check for recoveries
-      if (!status.containsKey('recoveries') || status['recoveries'] == null) {
-        debugPrint('Error: No recoveries found in status');
-        _cache[cacheKey] = null;
-        return null;
-      }
-      
-      final recoveries = status['recoveries'] as List;
-      
-      debugPrint('Found ${recoveries.length} total health recoveries');
-      
-      // Filter to only non-achieved recoveries and sort by days to achieve
-      final nonAchievedRecoveries = recoveries
-          .where((r) => r['is_achieved'] != true)
-          .toList()
-        ..sort((a, b) => a['days_to_achieve'].compareTo(b['days_to_achieve']));
-      
-      debugPrint('Found ${nonAchievedRecoveries.length} non-achieved recoveries');
-      
-      // If all recoveries are achieved, return null
-      if (nonAchievedRecoveries.isEmpty) {
-        _cache[cacheKey] = null;
-        return null;
-      }
+        // Safe check for recoveries
+        if (!status.containsKey('recoveries') || status['recoveries'] == null) {
+          debugPrint('Error: No recoveries found in status');
+          _cache[cacheKey] = null;
+          return null;
+        }
+        
+        final recoveries = status['recoveries'] as List;
+        
+        debugPrint('Found ${recoveries.length} total health recoveries');
+        
+        // Filter to only non-achieved recoveries and sort by days to achieve
+        final nonAchievedRecoveries = recoveries
+            .where((r) => r['is_achieved'] != true)
+            .toList()
+          ..sort((a, b) => a['days_to_achieve'].compareTo(b['days_to_achieve']));
+        
+        debugPrint('Found ${nonAchievedRecoveries.length} non-achieved recoveries');
+        
+        // If all recoveries are achieved, return null
+        if (nonAchievedRecoveries.isEmpty) {
+          _cache[cacheKey] = null;
+          return null;
+        }
       
       // Find the next recovery - the one with the lowest days_to_achieve that is higher than current streak
       Map<String, dynamic>? nextRecovery;
@@ -383,6 +439,10 @@ class HealthRecoveryUtils {
     } catch (e) {
       debugPrint('Error getting next health recovery milestone: $e');
       return null;
-    }
+    } // Fechando o try interno
+    } catch (e) {
+      debugPrint('Error in getNextHealthRecoveryMilestone: $e');
+      return null;
+    } // Fechando o try externo
   }
 }

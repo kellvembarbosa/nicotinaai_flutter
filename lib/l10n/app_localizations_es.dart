@@ -1194,4 +1194,13 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get healthRecoveryDescription => 'Ve cómo tu cuerpo se recupera después de dejar de fumar';
+
+  @override
+  String get somethingWentWrong => 'Algo salió mal, por favor inténtalo de nuevo';
+
+  @override
+  String get comingSoon => 'Próximamente';
+
+  @override
+  String get registerFirstCigarette => 'Registra tu primer cigarrillo para ver la recuperación de salud';
 }

@@ -1,3 +1,4 @@
+import 'package:flutter/widgets.dart';
 import 'package:nicotinaai_flutter/features/home/models/craving_model.dart';
 import 'package:nicotinaai_flutter/features/onboarding/models/onboarding_model.dart';
 
@@ -15,6 +16,9 @@ class SmokingRecordModel {
   final ProductType productType;
   final String? location;
   final String? mood;
+  
+  // Context for UI operations (not serialized)
+  final BuildContext? context;
 
   SmokingRecordModel({
     this.id,
@@ -28,6 +32,7 @@ class SmokingRecordModel {
     this.productType = ProductType.cigaretteOnly, // Default value
     this.location,
     this.mood,
+    this.context,
   });
 
   // Add copy method for state manipulation
@@ -43,6 +48,7 @@ class SmokingRecordModel {
     ProductType? productType,
     String? location,
     String? mood,
+    BuildContext? context,
   }) {
     return SmokingRecordModel(
       id: id ?? this.id,
@@ -56,6 +62,7 @@ class SmokingRecordModel {
       productType: productType ?? this.productType,
       location: location ?? this.location,
       mood: mood ?? this.mood,
+      context: context ?? this.context,
     );
   }
 

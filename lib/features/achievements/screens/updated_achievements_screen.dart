@@ -12,6 +12,7 @@ import 'package:nicotinaai_flutter/core/routes/app_routes.dart';
 import '../providers/achievement_provider.dart';
 import '../models/user_achievement.dart';
 import '../models/time_period.dart';
+import '../models/achievement_definition.dart';
 import '../widgets/time_period_selector.dart';
 
 class AchievementsScreen extends StatefulWidget {
@@ -28,15 +29,55 @@ class _AchievementsScreenState extends State<AchievementsScreen> with SingleTick
   late List<String> _categories;
   String _currentCategory = 'all';
 
+  // Flag para controlar carga única de achievements
+  bool _hasLoadedAchievements = false;
+  
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 5, vsync: this);
     _tabController.addListener(_handleTabChange);
     
-    // Load achievements when screen initializes
+    // Load achievements quando a tela inicializa
+    _loadAchievements();
+  }
+  
+  // Time tracking for achievement loading
+  static DateTime? _lastScreenLoadTime;
+  static const _minScreenLoadIntervalMs = 60000; // 1 minuto entre carregamentos
+  
+  /// Verifica se podemos recarregar achievements baseado no tempo decorrido desde o último carregamento de tela
+  bool get _canReloadAchievements {
+    if (_lastScreenLoadTime == null) return true;
+    
+    final now = DateTime.now();
+    final difference = now.difference(_lastScreenLoadTime!).inMilliseconds;
+    return difference > _minScreenLoadIntervalMs;
+  }
+  
+  void _loadAchievements() {
+    // Atualizar o tempo de última carga da tela
+    _lastScreenLoadTime = DateTime.now();
+    
+    // Forçar carregamento de achievements quando a tela é aberta, mas com limites
     Future.microtask(() {
-      context.read<AchievementProvider>().loadAchievements();
+      final provider = context.read<AchievementProvider>();
+      
+      // Verificar o estado atual
+      if (provider.state.status == AchievementStatus.initial ||
+          provider.state.userAchievements.isEmpty) {
+        // Primeira carga - sempre executar
+        debugPrint('🔄 [AchievementsScreen] Carregando achievements pela primeira vez');
+        _hasLoadedAchievements = true;
+        provider.loadAchievements();
+      } else if (!_hasLoadedAchievements && _canReloadAchievements) {
+        // Ainda não carregou nesta sessão e passou tempo suficiente
+        debugPrint('🔄 [AchievementsScreen] Recarregando achievements após intervalo');
+        _hasLoadedAchievements = true;
+        provider.loadAchievements();
+      } else {
+        debugPrint('ℹ️ [AchievementsScreen] Usando achievements em cache: ${provider.state.userAchievements.length}');
+      }
     });
   }
 
@@ -359,20 +400,84 @@ class _AchievementsScreenState extends State<AchievementsScreen> with SingleTick
   }
 
   Widget _buildProgressTracker(AppLocalizations l10n, AchievementState state) {
+    // Verificar se temos dados de achievements carregados
+    if (state.status == AchievementStatus.loading) {
+      return Center(child: CircularProgressIndicator());
+    }
+    
     // Get days smoke-free from time achievements
-    final timeDaysAchievement = state.userAchievements.firstWhere(
-      (a) => a.definition.requirementType == 'DAYS_SMOKE_FREE' && a.definition.requirementValue == 30,
-      orElse: () => UserAchievement(
-        id: 'placeholder',
-        definition: state.allDefinitions.firstWhere(
-          (d) => d.requirementType == 'DAYS_SMOKE_FREE' && d.requirementValue == 30,
-          orElse: () => state.allDefinitions.first,
+    UserAchievement timeDaysAchievement;
+    
+    try {
+      // Verificar primeiro se há dados disponíveis
+      if (state.userAchievements.isEmpty && state.allDefinitions.isEmpty) {
+        // Se não houver dados, lançar exceção para usar o fallback
+        throw Exception('No achievements or definitions available');
+      }
+      
+      // Primeiro tentamos encontrar nos achievements do usuário
+      timeDaysAchievement = state.userAchievements.firstWhere(
+        (a) => a.definition.requirementType == 'DAYS_SMOKE_FREE' && a.definition.requirementValue == 30,
+        orElse: () {
+          // Se não encontrado nas conquistas do usuário, tentamos encontrar na definição
+          if (state.allDefinitions.isNotEmpty) {
+            // Tentamos encontrar uma definição específica para dias sem fumar
+            AchievementDefinition? definition;
+            try {
+              definition = state.allDefinitions.firstWhere(
+                (d) => d.requirementType == 'DAYS_SMOKE_FREE' && d.requirementValue == 30,
+                // Não usamos first aqui pois pode causar erro se a lista estiver vazia
+              );
+            } catch (e) {
+              // Se não encontrarmos a definição específica e a lista não estiver vazia,
+              // usamos a primeira definição disponível
+              if (state.allDefinitions.isNotEmpty) {
+                definition = state.allDefinitions.first;
+              } else {
+                // Se não houver definições, lançamos exceção para usar o fallback
+                throw Exception('No suitable achievement definition found');
+              }
+            }
+            
+            // Se encontramos uma definição, criamos um achievement temporário
+            if (definition != null) {
+              return UserAchievement(
+                id: 'placeholder',
+                definition: definition,
+                unlockedAt: DateTime.now(),
+                isViewed: false,
+                progress: 0.0,
+              );
+            }
+          }
+          
+          // Se chegamos aqui, não encontramos nenhuma definição adequada
+          throw Exception('No achievement definitions available');
+        },
+      );
+    } catch (e) {
+      // Fallback for any error scenario
+      print('Error finding smoke-free achievement: $e');
+      // Create a placeholder achievement with default values
+      timeDaysAchievement = UserAchievement(
+        id: 'error-placeholder',
+        definition: AchievementDefinition(
+          id: 'error-placeholder',
+          name: l10n.achievementDaysWithoutSmoking(0),
+          description: 'Track your smoke-free days',
+          iconName: 'access_time',
+          requirementType: 'DAYS_SMOKE_FREE',
+          requirementValue: 30,
+          badgeText: 'Health',
+          category: 'health',
+          orderIndex: 0,
+          xpReward: 100,
         ),
         unlockedAt: DateTime.now(),
         isViewed: false,
         progress: 0.0,
-      ),
-    );
+      );
+    }
     
     final daysSmokeFreee = (timeDaysAchievement.progress * 30).round();
     
@@ -720,14 +825,37 @@ class _AchievementsScreenState extends State<AchievementsScreen> with SingleTick
     IconData getIconData(String? iconName) {
       if (iconName == null) return Icons.emoji_events;
       
-      try {
-        // Try to convert from the material icons font
-        return IconData(
-          iconName.codeUnitAt(0),
-          fontFamily: 'MaterialIcons',
-        );
-      } catch (e) {
-        return Icons.emoji_events;
+      // Map icon names to Flutter's Icons class constants
+      switch (iconName) {
+        case 'calendar_today': return Icons.calendar_today;
+        case 'celebration': return Icons.celebration;
+        case 'calendar_month': return Icons.calendar_month;
+        case 'emoji_events': return Icons.emoji_events;
+        case 'military_tech': return Icons.military_tech;
+        case 'workspace_premium': return Icons.workspace_premium;
+        case 'verified': return Icons.verified;
+        case 'bloodtype': return Icons.bloodtype;
+        case 'air_purifier_gen': return Icons.air; // Using Icons.air as fallback
+        case 'restaurant': return Icons.restaurant;
+        case 'air': return Icons.air;
+        case 'science': return Icons.science;
+        case 'air_sharp': return Icons.air_sharp;
+        case 'favorite': return Icons.favorite;
+        case 'healing': return Icons.healing;
+        case 'air_rounded': return Icons.air_rounded;
+        case 'favorite_border': return Icons.favorite_border;
+        case 'savings': return Icons.savings;
+        case 'attach_money': return Icons.attach_money;
+        case 'monetization_on': return Icons.monetization_on;
+        case 'savings_outlined': return Icons.savings_outlined;
+        case 'account_balance': return Icons.account_balance;
+        case 'trending_up': return Icons.trending_up;
+        case 'auto_graph': return Icons.auto_graph;
+        case 'published_with_changes': return Icons.published_with_changes;
+        case 'fitness_center': return Icons.fitness_center;
+        case 'psychology': return Icons.psychology;
+        case 'directions_run': return Icons.directions_run;
+        default: return Icons.emoji_events; // Fallback icon
       }
     }
     
@@ -739,9 +867,9 @@ class _AchievementsScreenState extends State<AchievementsScreen> with SingleTick
       padding: const EdgeInsets.only(bottom: 16),
       child: InkWell(
         onTap: () {
-          // Navigate to achievement detail screen
+          // Navigate to achievement detail screen using push to maintain history
           HapticFeedback.lightImpact();
-          context.go(AppRoutes.achievementDetail.withParams(params: {
+          context.push(AppRoutes.achievementDetail.withParams(params: {
             'achievementId': achievement.id,
           }));
         },
@@ -759,16 +887,18 @@ class _AchievementsScreenState extends State<AchievementsScreen> with SingleTick
     IconData icon,
     AppLocalizations l10n
   ) {
+    final primaryColor = context.primaryColor;
+    
     return ClipRRect(
       borderRadius: BorderRadius.circular(16),
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
         child: Container(
           decoration: BoxDecoration(
-            color: context.primaryColor.withOpacity(0.15),
+            color: primaryColor.withOpacity(0.2),
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: context.primaryColor.withOpacity(0.3),
+              color: primaryColor.withOpacity(0.4),
               width: 1.5,
             ),
           ),
@@ -889,6 +1019,8 @@ class _AchievementsScreenState extends State<AchievementsScreen> with SingleTick
   }
 
   Widget _buildAchievementIcon(BuildContext context, IconData icon, bool unlocked) {
+    final primaryColor = context.primaryColor;
+    
     return Container(
       width: 56,
       height: 56,
@@ -897,19 +1029,19 @@ class _AchievementsScreenState extends State<AchievementsScreen> with SingleTick
         gradient: unlocked
             ? LinearGradient(
                 colors: [
-                  context.primaryColor.withOpacity(0.8),
-                  context.primaryColor,
+                  primaryColor.withOpacity(0.8),
+                  primaryColor,
                 ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               )
             : null,
-        color: unlocked ? null : Colors.grey[300],
+        color: unlocked ? null : context.isDarkMode ? Colors.grey[700] : Colors.grey[300],
         shape: BoxShape.circle,
         boxShadow: unlocked
             ? [
                 BoxShadow(
-                  color: context.primaryColor.withOpacity(0.3),
+                  color: primaryColor.withOpacity(0.3),
                   blurRadius: 8,
                   spreadRadius: 0,
                   offset: const Offset(0, 2),
@@ -919,7 +1051,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> with SingleTick
       ),
       child: Icon(
         icon,
-        color: unlocked ? Colors.white : Colors.grey[600],
+        color: unlocked ? Colors.white : context.isDarkMode ? Colors.grey[400] : Colors.grey[600],
         size: 30,
       ),
     );

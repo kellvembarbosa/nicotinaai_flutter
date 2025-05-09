@@ -10,6 +10,8 @@ import 'package:mockito/mockito.dart';
 import 'package:nicotinaai_flutter/features/auth/repositories/auth_repository.dart';
 import 'package:nicotinaai_flutter/features/onboarding/repositories/onboarding_repository.dart';
 import 'package:nicotinaai_flutter/features/tracking/repositories/tracking_repository.dart';
+import 'package:nicotinaai_flutter/features/achievements/services/achievement_notification_service.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 import 'package:nicotinaai_flutter/main.dart';
 
@@ -17,6 +19,7 @@ import 'package:nicotinaai_flutter/main.dart';
 class MockAuthRepository extends Mock implements AuthRepository {}
 class MockOnboardingRepository extends Mock implements OnboardingRepository {}
 class MockTrackingRepository extends Mock implements TrackingRepository {}
+class MockAchievementNotificationService extends Mock implements AchievementNotificationService {}
 
 void main() {
   testWidgets('Teste de integração básico', (WidgetTester tester) async {
@@ -24,12 +27,14 @@ void main() {
     final authRepository = MockAuthRepository();
     final onboardingRepository = MockOnboardingRepository();
     final trackingRepository = MockTrackingRepository();
+    final achievementNotifications = MockAchievementNotificationService();
     
     // Build our app and trigger a frame.
     await tester.pumpWidget(MyApp(
       authRepository: authRepository,
       onboardingRepository: onboardingRepository,
       trackingRepository: trackingRepository,
+      achievementNotifications: achievementNotifications,
     ));
 
     // Verifica se a tela de login é exibida inicialmente

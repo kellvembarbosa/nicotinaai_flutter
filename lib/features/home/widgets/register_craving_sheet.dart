@@ -5,6 +5,8 @@ import 'package:nicotinaai_flutter/features/auth/providers/auth_provider.dart';
 import 'package:nicotinaai_flutter/features/home/models/craving_model.dart';
 import 'package:nicotinaai_flutter/features/home/providers/craving_provider.dart';
 import 'package:nicotinaai_flutter/features/tracking/providers/tracking_provider.dart';
+import 'package:nicotinaai_flutter/features/achievements/providers/achievement_provider.dart';
+import 'package:nicotinaai_flutter/features/achievements/helpers/achievement_helper.dart';
 import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
 
 class RegisterCravingSheet extends StatefulWidget {
@@ -1582,8 +1584,19 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
     final backgroundColor = didResist ? Colors.green : Colors.blue;
     final retryLabel = l10n.retry;
     
-    // Store current context's scaffold messenger
+    // Store current context's scaffold messenger and achievement provider
     final scaffoldMessenger = ScaffoldMessenger.of(context);
+    final achievementProvider = Provider.of<AchievementProvider>(context, listen: false);
+    
+    // Check for achievements now while context is still valid
+    if (_didResist != null) {
+      try {
+        // This is safe because the context is still mounted
+        AchievementHelper.checkAfterCravingRecordedWithNotifications(context, _didResist!);
+      } catch (e) {
+        debugPrint('Error checking for achievements in UI: $e');
+      }
+    }
     
     // Close the sheet immediately for better UX with success result
     Navigator.of(context).pop(true);

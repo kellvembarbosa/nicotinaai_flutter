@@ -646,6 +646,37 @@ class NotificationService {
     debugPrint('Unsubscribed from topic: $topic');
   }
   
+  /// Mark a notification as read in the database
+  Future<bool> markNotificationAsRead(String notificationId) async {
+    try {
+      if (!_isSupabaseInitialized()) {
+        debugPrint('Não foi possível marcar notificação como lida: Supabase não inicializado');
+        return false;
+      }
+      
+      // Check if user is authenticated
+      final session = _supabaseClient.auth.currentSession;
+      if (session == null) {
+        debugPrint('Não foi possível marcar notificação como lida: usuário não está logado');
+        return false;
+      }
+      
+      // Update the notification in the database
+      await _supabaseClient
+          .from('notifications')
+          .update({
+            'viewed_at': DateTime.now().toIso8601String(),
+          })
+          .eq('id', notificationId);
+      
+      debugPrint('Notificação marcada como lida: $notificationId');
+      return true;
+    } catch (e) {
+      debugPrint('Erro ao marcar notificação como lida: $e');
+      return false;
+    }
+  }
+  
   /// Salvar o token FCM usando a Edge Function do Supabase
   /// Esta é uma alternativa que contorna as limitações de RLS
   Future<bool> saveTokenViaEdgeFunction(String token, String userId) async {

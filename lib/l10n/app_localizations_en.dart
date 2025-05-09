@@ -174,7 +174,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get achievementCategoryHabits => 'Habits';
 
   @override
-  String get achievementUnlocked => 'Achievement Unlocked!';
+  String get achievementUnlocked => 'Unlocked!';
 
   @override
   String get achievementInProgress => 'In progress';
@@ -1087,4 +1087,120 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get loading => 'Loading...';
+
+  @override
+  String get tryAgain => 'Try Again';
+
+  @override
+  String get errorLoadingData => 'Error loading data';
+
+  @override
+  String get noRecoveriesFound => 'No health recoveries found';
+
+  @override
+  String get noRecentRecoveries => 'No recent health recoveries to display';
+
+  @override
+  String get viewAllRecoveries => 'View All Health Recoveries';
+
+  @override
+  String get healthRecovery => 'Health Recovery';
+
+  @override
+  String get seeAll => 'See all';
+
+  @override
+  String get achieved => 'Achieved';
+
+  @override
+  String get progress => 'Progress';
+
+  @override
+  String daysToAchieve(int days) {
+    return '$days days to achieve';
+  }
+
+  @override
+  String daysRemaining(int days) {
+    return '$days days remaining';
+  }
+
+  @override
+  String achievedOn(DateTime date) {
+    final intl.DateFormat dateDateFormat = intl.DateFormat.yMMMd(localeName);
+    final String dateString = dateDateFormat.format(date);
+
+    return 'Achieved on $dateString';
+  }
+
+  @override
+  String daysSmokeFree(int days) {
+    return '$days days smoke-free';
+  }
+
+  @override
+  String get keepGoing => 'Keep Going!';
+
+  @override
+  String get encouragementMessage => 'You\'re making great progress. Each day without smoking brings you closer to achieving this health milestone.';
+
+  @override
+  String get recoveryAchievedMessage => 'Your body has already recovered in this area. Keep up the good work to maintain and improve your health even further.';
+
+  @override
+  String get scienceBehindIt => 'The Science Behind It';
+
+  @override
+  String get generalHealthScienceInfo => 'When you stop smoking, your body begins a series of healing processes. These start within minutes of your last cigarette and continue for years, gradually restoring your health to that of a non-smoker.';
+
+  @override
+  String get tasteScienceInfo => 'When you smoke, chemicals in tobacco damage taste buds and reduce your ability to taste flavors. After just a few days without smoking, these taste receptors begin to heal, allowing you to experience more flavors and enjoy food more fully.';
+
+  @override
+  String get smellScienceInfo => 'Smoking damages the olfactory nerves that transmit scent information to your brain. Within days of quitting, these nerves begin to recover, gradually improving your sense of smell and allowing you to detect more subtle scents.';
+
+  @override
+  String get bloodOxygenScienceInfo => 'Carbon monoxide from cigarettes binds to hemoglobin in your blood, reducing its ability to carry oxygen. Within 12-24 hours after quitting, carbon monoxide levels drop dramatically, allowing your blood to carry oxygen more effectively.';
+
+  @override
+  String get carbonMonoxideScienceInfo => 'Cigarette smoke contains carbon monoxide, which displaces oxygen in your blood. Within 12 hours of quitting, carbon monoxide levels return to normal, and your body\'s oxygen levels increase significantly.';
+
+  @override
+  String get nicotineScienceInfo => 'Nicotine has a half-life of about 2 hours, meaning it takes approximately 72 hours (3 days) for all nicotine to be eliminated from your body. Once nicotine is gone, physical withdrawal symptoms begin to decrease.';
+
+  @override
+  String get improvedBreathingScienceInfo => 'After 7 days without smoking, lung function begins to improve as inflammation decreases and the lungs start to clear accumulated mucus. You\'ll notice less coughing and easier breathing, especially during physical activity.';
+
+  @override
+  String get improvedCirculationScienceInfo => 'After two weeks of not smoking, your circulation improves significantly. Blood vessels dilate, blood pressure normalizes, and more oxygen reaches your muscles and organs, making physical activity easier and less strenuous.';
+
+  @override
+  String get decreasedCoughingScienceInfo => 'One month after quitting, the cilia (tiny hair-like structures) in your lungs begin to regrow. These help clean your lungs and reduce infections. Your coughing and shortness of breath continue to decrease.';
+
+  @override
+  String get lungCiliaScienceInfo => 'After 3 months without smoking, your lung function can improve by up to 30%. The cilia in your lungs have largely regrown, improving your lungs\' ability to clean themselves, fight infection, and reduce mucus.';
+
+  @override
+  String get reducedHeartDiseaseRiskScienceInfo => 'After one year without smoking, your risk of coronary heart disease decreases to about half that of a smoker. Your heart function continues to improve as blood vessels heal and circulation enhances.';
+
+  @override
+  String get viewHealthRecoveries => 'View Health Recoveries';
+
+  @override
+  String get recoveryNotFound => 'Health recovery not found';
+
+  @override
+  String get trackYourHealthJourney => 'Track Your Health Journey';
+
+  @override
+  String get healthRecoveryDescription => 'See how your body heals after quitting smoking';
+
+  @override
+  String get somethingWentWrong => 'Something went wrong, please try again';
+
+  @override
+  String get comingSoon => 'Coming Soon';
+
+  @override
+  String get registerFirstCigarette => 'Register your first cigarette to see health recovery';
 }

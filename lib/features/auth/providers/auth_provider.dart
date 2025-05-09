@@ -3,7 +3,12 @@ import 'package:nicotinaai_flutter/core/exceptions/auth_exception.dart' as app_e
 import 'package:nicotinaai_flutter/features/auth/models/auth_state.dart';
 import 'package:nicotinaai_flutter/features/auth/models/user_model.dart';
 import 'package:nicotinaai_flutter/features/auth/repositories/auth_repository.dart';
+import 'package:nicotinaai_flutter/features/home/providers/craving_provider.dart';
+import 'package:nicotinaai_flutter/features/home/providers/smoking_record_provider.dart';
+import 'package:nicotinaai_flutter/features/tracking/providers/tracking_provider.dart';
+import 'package:nicotinaai_flutter/services/analytics_service.dart';
 import 'package:nicotinaai_flutter/services/notification_service.dart';
+import 'package:nicotinaai_flutter/services/storage_service.dart';
 
 /// Provider para gerenciamento do estado de autenticação
 /// Implementa ChangeNotifier para ser usado como refreshListenable no GoRouter
@@ -88,6 +93,18 @@ class AuthProvider extends ChangeNotifier {
       await NotificationService().saveFcmTokenAfterLogin();
       print('🔔 [AuthProvider] Token FCM salvo após login');
       
+      // Track login event in analytics
+      try {
+        await AnalyticsService().logLogin(method: 'email');
+        await AnalyticsService().setUserProperties(
+          userId: user.id,
+          email: user.email,
+        );
+        print('📊 [AuthProvider] Login event tracked in analytics');
+      } catch (analyticsError) {
+        print('⚠️ [AuthProvider] Failed to track login event: $analyticsError');
+      }
+      
       // Forçar redirecionamento imediato para garantir navegação adequada
       WidgetsBinding.instance.addPostFrameCallback((_) {
         // Esta chamada é vazia, mas força um rebuild que ativa o sistema de rotas
@@ -130,6 +147,18 @@ class AuthProvider extends ChangeNotifier {
       await NotificationService().saveFcmTokenAfterLogin();
       print('🔔 [AuthProvider] Token FCM salvo após registro');
       
+      // Track signup event in analytics
+      try {
+        await AnalyticsService().logSignUp(method: 'email');
+        await AnalyticsService().setUserProperties(
+          userId: user.id,
+          email: user.email,
+        );
+        print('📊 [AuthProvider] Signup event tracked in analytics');
+      } catch (analyticsError) {
+        print('⚠️ [AuthProvider] Failed to track signup event: $analyticsError');
+      }
+      
       // Forçar redirecionamento imediato para garantir navegação adequada
       WidgetsBinding.instance.addPostFrameCallback((_) {
         // Esta chamada é vazia, mas força um rebuild que ativa o sistema de rotas
@@ -151,6 +180,50 @@ class AuthProvider extends ChangeNotifier {
   Future<void> signOut() async {
     try {
       print('🔄 [AuthProvider] Iniciando logout');
+      
+      // Clear analytics data before signing out
+      try {
+        await AnalyticsService().clearUserData();
+        print('🧹 [AuthProvider] Analytics data cleared');
+      } catch (analyticsError) {
+        print('⚠️ [AuthProvider] Failed to clear analytics data: $analyticsError');
+      }
+      
+      // Limpar dados locais dos providers
+      try {
+        // Importar os providers necessários
+        final cravingProvider = _getCravingProvider();
+        final smokingRecordProvider = _getSmokingRecordProvider();
+        final trackingProvider = _getTrackingProvider();
+        
+        // Agora com os métodos implementados, podemos limpar os dados
+        if (cravingProvider != null) {
+          cravingProvider.clearCravings();
+          print('🧹 [AuthProvider] Cravings data cleared');
+        }
+        
+        if (smokingRecordProvider != null) {
+          smokingRecordProvider.clearRecords();
+          print('🧹 [AuthProvider] Smoking records data cleared');
+        }
+        
+        if (trackingProvider != null) {
+          trackingProvider.resetStats();
+          print('🧹 [AuthProvider] Tracking stats reset');
+        }
+      } catch (providersError) {
+        print('⚠️ [AuthProvider] Failed to clear providers data: $providersError');
+      }
+      
+      // Limpar dados do storage seguro
+      try {
+        final storageService = StorageService();
+        await storageService.clearAll();
+        print('🧹 [AuthProvider] Secure storage cleared');
+      } catch (storageError) {
+        print('⚠️ [AuthProvider] Failed to clear secure storage: $storageError');
+      }
+      
       await _authRepository.signOut();
       print('✅ [AuthProvider] Logout realizado com sucesso');
       _state = AuthState.unauthenticated();
@@ -163,6 +236,36 @@ class AuthProvider extends ChangeNotifier {
       _state = AuthState.error(error.message);
     } finally {
       notifyListeners();
+    }
+  }
+  
+  // Métodos auxiliares para obter instâncias dos providers
+  // Nota: Estes métodos são simplificados e devem ser adaptados para uma
+  // solução de injeção de dependência adequada no futuro
+  CravingProvider? _getCravingProvider() {
+    try {
+      return null; // Deve ser implementado com uma solução real de DI
+    } catch (e) {
+      print('⚠️ [AuthProvider] Erro ao obter CravingProvider: $e');
+      return null;
+    }
+  }
+  
+  SmokingRecordProvider? _getSmokingRecordProvider() {
+    try {
+      return null; // Deve ser implementado com uma solução real de DI
+    } catch (e) {
+      print('⚠️ [AuthProvider] Erro ao obter SmokingRecordProvider: $e');
+      return null;
+    }
+  }
+  
+  TrackingProvider? _getTrackingProvider() {
+    try {
+      return null; // Deve ser implementado com uma solução real de DI
+    } catch (e) {
+      print('⚠️ [AuthProvider] Erro ao obter TrackingProvider: $e');
+      return null;
     }
   }
   

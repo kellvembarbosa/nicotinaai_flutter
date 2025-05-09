@@ -7,10 +7,10 @@ class DailyMotivationCard extends StatefulWidget {
   final VoidCallback? onRewardClaimed;
   
   const DailyMotivationCard({
-    Key? key,
+    super.key,
     required this.notification,
     this.onRewardClaimed,
-  }) : super(key: key);
+  });
 
   @override
   State<DailyMotivationCard> createState() => _DailyMotivationCardState();
@@ -117,38 +117,39 @@ class _DailyMotivationCardState extends State<DailyMotivationCard> with SingleTi
     // Pode usar um overlay para mostrar um "+XP" flutuando para cima
   }
   
-  void _showUnlockedAchievements(List<dynamic> achievements) {
-    // Implementar lógica para mostrar conquistas desbloqueadas
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Nova Conquista Desbloqueada!', 
-          style: TextStyle(color: context.primaryColor),
-        ),
-        content: SizedBox(
-          height: 200,
-          width: 300,
-          child: ListView.builder(
-            itemCount: achievements.length,
-            itemBuilder: (context, index) {
-              final achievement = achievements[index];
-              return ListTile(
-                leading: Icon(Icons.emoji_events, color: Colors.amber),
-                title: Text(achievement['title'] ?? 'Conquista desbloqueada'),
-                subtitle: Text(achievement['description'] ?? ''),
-              );
-            },
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Ótimo!'),
-          ),
-        ],
-      ),
-    );
-  }
+  // Commented out as it's currently unused but may be implemented in the future
+  // void _showUnlockedAchievements(List<dynamic> achievements) {
+  //   // Implementar lógica para mostrar conquistas desbloqueadas
+  //   showDialog(
+  //     context: context,
+  //     builder: (context) => AlertDialog(
+  //       title: Text('Nova Conquista Desbloqueada!', 
+  //         style: TextStyle(color: context.primaryColor),
+  //       ),
+  //       content: SizedBox(
+  //         height: 200,
+  //         width: 300,
+  //         child: ListView.builder(
+  //           itemCount: achievements.length,
+  //           itemBuilder: (context, index) {
+  //             final achievement = achievements[index];
+  //             return ListTile(
+  //               leading: Icon(Icons.emoji_events, color: Colors.amber),
+  //               title: Text(achievement['title'] ?? 'Conquista desbloqueada'),
+  //               subtitle: Text(achievement['description'] ?? ''),
+  //             );
+  //           },
+  //         ),
+  //       ),
+  //       actions: [
+  //         TextButton(
+  //           onPressed: () => Navigator.of(context).pop(),
+  //           child: const Text('Ótimo!'),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -180,7 +181,7 @@ class _DailyMotivationCardState extends State<DailyMotivationCard> with SingleTi
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                context.primaryColor.withOpacity(0.8),
+                context.primaryColor.withAlpha((255 * 0.8).round()),
                 context.primaryColor,
               ],
             ),
@@ -194,7 +195,7 @@ class _DailyMotivationCardState extends State<DailyMotivationCard> with SingleTi
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
+                    color: Colors.white.withAlpha((255 * 0.2).round()),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
@@ -256,7 +257,7 @@ class _DailyMotivationCardState extends State<DailyMotivationCard> with SingleTi
                             ),
                           )
                         : const Icon(Icons.star),
-                    label: Text('Ganhar ${xpReward} XP'),
+                    label: Text('Ganhar $xpReward XP'),
                   )
                 else
                   Container(
@@ -265,7 +266,7 @@ class _DailyMotivationCardState extends State<DailyMotivationCard> with SingleTi
                       vertical: 12,
                     ),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.3),
+                      color: Colors.white.withAlpha((255 * 0.3).round()),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Row(
@@ -277,7 +278,7 @@ class _DailyMotivationCardState extends State<DailyMotivationCard> with SingleTi
                         ),
                         const SizedBox(width: 8),
                         Text(
-                          'Recompensa recebida: ${xpReward} XP',
+                          'Recompensa recebida: $xpReward XP',
                           style: const TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,

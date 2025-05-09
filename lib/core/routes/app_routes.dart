@@ -43,7 +43,10 @@ enum AppRoutes {
   // Health recovery routes
   healthRecovery('/health-recovery'),
   healthRecoveryDetail('/health-recovery/:recoveryId'),
-  healthRecoveryTest('/health-recovery-test');
+  healthRecoveryTest('/health-recovery-test'),
+  
+  // Achievement routes
+  achievementDetail('/achievement/:achievementId');
 
   /// Caminho da rota
   final String path;

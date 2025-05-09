@@ -138,45 +138,75 @@ class TrackingProvider extends ChangeNotifier {
         _loadCravings(),
       ]);
       
-      // Carrega recuperações de saúde somente se tiver estatísticas do usuário
-      if (_state.userStats != null && _state.userStats!.lastSmokeDate != null) {
+      // Try to ensure we have user stats
+      if (_state.userStats == null) {
         try {
-          // Primeiro carrega as recuperações de saúde existentes
-          await _loadHealthRecoveries();
-          
-          // Depois verifica novas recuperações de saúde
-          try {
-            await _repository.checkHealthRecoveries();
-          } catch (e) {
-            print('Error checking health recoveries: $e');
-            // Continue even if there's an error with checking health recoveries
+          await _loadUserStats(forceRefresh: true);
+        } catch (statsErr) {
+          print('Error loading user stats: $statsErr');
+        }
+      }
+      
+      // If we have smoking logs, make sure we have a last smoke date
+      if (_state.userStats != null && _state.userStats!.lastSmokeDate == null && _state.smokingLogs.isNotEmpty) {
+        // Try to update the last smoke date from the latest smoking log
+        try {
+          await _repository.updateUserStats();
+          await _loadUserStats(forceRefresh: true);
+        } catch (updateErr) {
+          print('Error updating user stats: $updateErr');
+        }
+      }
+      
+      // Log current user stats status
+      if (_state.userStats == null) {
+        print('User stats not available after initialization');
+      } else if (_state.userStats!.lastSmokeDate == null) {
+        print('Last smoke date not available after initialization');
+      } else {
+        print('User stats available: last smoke date = ${_state.userStats!.lastSmokeDate}');
+      }
+      
+      // First load existing health recoveries
+      try {
+        await _loadHealthRecoveries();
+      } catch (e) {
+        print('Error loading health recoveries: $e');
+        // Ensure we have at least empty recoveries list
+        _state = _state.copyWith(
+          healthRecoveries: [],
+          userHealthRecoveries: [],
+          isRecoveriesLoading: false,
+        );
+      }
+      
+      // Verifica se há logs de fumo ou data do último cigarro para verificar recuperações
+      if (_state.smokingLogs.isNotEmpty || (_state.userStats != null && _state.userStats!.lastSmokeDate != null)) {
+        try {
+          // Se não temos data do último cigarro mas temos logs de fumo, tenta atualizar as estatísticas primeiro
+          if ((_state.userStats == null || _state.userStats!.lastSmokeDate == null) && _state.smokingLogs.isNotEmpty) {
+            print('⚠️ No last smoke date available but smoking logs exist - updating stats first');
+            try {
+              // Atualiza as estatísticas usando os logs de fumo
+              await _repository.updateUserStats();
+              await _loadUserStats(forceRefresh: true);
+            } catch (statsErr) {
+              print('⚠️ Error updating user stats: $statsErr');
+            }
           }
           
-          // Recarrega as recuperações após a verificação
-          await _loadHealthRecoveries();
+          print('✅ Checking for new health recoveries...');
+          final result = await _repository.checkHealthRecoveries(updateAchievements: false);
+          print('✅ Health recovery check completed: $result');
+          
+          // Reload health recoveries after successful check
+          await _loadHealthRecoveries(forceRefresh: true);
         } catch (e) {
-          print('Error in health recovery loading process: $e');
-          // Continue execution and ensure we have at least empty recoveries list
-          _state = _state.copyWith(
-            healthRecoveries: _state.healthRecoveries.isEmpty ? [] : _state.healthRecoveries,
-            userHealthRecoveries: _state.userHealthRecoveries.isEmpty ? [] : _state.userHealthRecoveries,
-            isRecoveriesLoading: false,
-          );
+          print('⚠️ Error checking health recoveries: $e');
+          // Continue even if there's an error with checking health recoveries
         }
       } else {
-        // Ainda carrega as recuperações de saúde existentes, mas não verifica novas
-        try {
-          await _loadHealthRecoveries();
-        } catch (e) {
-          print('Error loading health recoveries: $e');
-          // Ensure we have at least empty recoveries list
-          _state = _state.copyWith(
-            healthRecoveries: [],
-            userHealthRecoveries: [],
-            isRecoveriesLoading: false,
-          );
-        }
-        print('Skipping health recovery check: User stats or last smoke date not available');
+        print('⚠️ Skipping health recovery check: No smoking logs or last smoke date available');
       }
       
       _state = _state.copyWith(
@@ -252,7 +282,7 @@ class TrackingProvider extends ChangeNotifier {
       if (_state.userStats != null && _state.userStats!.lastSmokeDate != null) {
         // Check for health recoveries only if we have last smoke date
         try {
-          await _repository.checkHealthRecoveries();
+          await _repository.checkHealthRecoveries(updateAchievements: false);
         } catch (e) {
           print('Error checking health recoveries: $e');
           // Continue even if checkHealthRecoveries fails
@@ -723,40 +753,80 @@ class TrackingProvider extends ChangeNotifier {
         notifyListeners();
       });
       
-      // Primeiro verifica se temos estatísticas do usuário e data do último cigarro
-      UserStats? userStats;
-      try {
-        userStats = await _repository.getUserStats();
-      } catch (e) {
-        print('Error getting user stats: $e');
-        // Continue with null user stats, we'll handle this below
-      }
-      
-      // Só verifica recoveries se tivermos as estatísticas do usuário e uma data de último cigarro
-      if (userStats != null && userStats.lastSmokeDate != null) {
-        // Wrap in try-catch to prevent cascading errors
+      // First check if we have smoking logs to possibly update the last smoke date
+      if (_state.smokingLogs.isNotEmpty) {
+        // Try to update user stats using the latest smoking log
         try {
-          await _repository.checkHealthRecoveries();
+          await _repository.updateUserStats();
         } catch (e) {
-          print('Error checking health recoveries: $e');
-          // Continue even if checkHealthRecoveries fails
+          print('Error updating user stats: $e');
         }
-      } else {
-        print('Skipping health recovery check: User stats or last smoke date not available');
       }
       
+      // Load updated user stats
+      try {
+        await _loadUserStats(forceRefresh: true);
+      } catch (e) {
+        print('Error refreshing user stats: $e');
+      }
+      
+      // Now check the stats situation
+      final userStats = _state.userStats;
+      
+      // Informação de debug importante
+      if (userStats == null) {
+        print('⚠️ User stats not available in provider');
+      } else if (userStats.lastSmokeDate == null) {
+        print('⚠️ Data do último cigarro não disponível no provider');
+      } else {
+        print('✅ User stats available with last smoke date: ${userStats.lastSmokeDate}');
+      }
+      
+      // Primeiro sempre carrega as recuperações de saúde existentes
       try {
         await _loadHealthRecoveries(forceRefresh: true);
+        print('✅ Successfully loaded existing health recoveries');
       } catch (e) {
-        print('Error loading health recoveries: $e');
-        // Ensure we have at least empty lists
+        print('⚠️ Error loading existing health recoveries: $e');
+        // Set empty lists if we couldn't load anything
         _state = _state.copyWith(
           healthRecoveries: [],
           userHealthRecoveries: [],
           isRecoveriesLoading: false,
         );
       }
+      
+      // Verifica se há logs de fumo ou data do último cigarro para verificar recuperações
+      if (_state.smokingLogs.isNotEmpty || (userStats != null && userStats.lastSmokeDate != null)) {
+        print('✅ Checking for new health recoveries...');
+        try {
+          // Se não temos data do último cigarro mas temos logs de fumo, tenta atualizar as estatísticas primeiro
+          if ((userStats == null || userStats.lastSmokeDate == null) && _state.smokingLogs.isNotEmpty) {
+            print('⚠️ No last smoke date available but smoking logs exist - updating stats first');
+            try {
+              // Atualiza as estatísticas usando os logs de fumo
+              await _repository.updateUserStats();
+              await _loadUserStats(forceRefresh: true);
+            } catch (statsErr) {
+              print('⚠️ Error updating user stats: $statsErr');
+            }
+          }
+          
+          // Depois verifica recuperações de saúde
+          final result = await _repository.checkHealthRecoveries(updateAchievements: false);
+          print('✅ Health recovery check completed: $result');
+          
+          // Reload health recoveries after successful check
+          await _loadHealthRecoveries(forceRefresh: true);
+        } catch (e) {
+          print('⚠️ Error checking for new health recoveries: $e');
+          // Continue even if checkHealthRecoveries fails - não é crítico
+        }
+      } else {
+        print('⚠️ Skipping health recovery check: No smoking logs or last smoke date available');
+      }
     } catch (e) {
+      print('❌ Unexpected error in loadHealthRecoveries: $e');
       _state = _state.copyWith(
         errorMessage: 'Failed to load health recoveries: ${e.toString()}',
         isRecoveriesLoading: false,
@@ -765,6 +835,7 @@ class TrackingProvider extends ChangeNotifier {
         userHealthRecoveries: _state.userHealthRecoveries.isEmpty ? [] : _state.userHealthRecoveries,
       );
     } finally {
+      _state = _state.copyWith(isRecoveriesLoading: false);
       // Use a microtask para adiar a notificação após o ciclo de build atual
       Future.microtask(() {
         notifyListeners();
@@ -781,5 +852,17 @@ class TrackingProvider extends ChangeNotifier {
       );
       notifyListeners();
     }
+  }
+  
+  // Reset stats for logout
+  void resetStats() {
+    print('🧹 [TrackingProvider] Resetting all tracking data');
+    _state = const TrackingState();
+    _lastStatsUpdateTime = null;
+    _lastLogsUpdateTime = null;
+    _lastCravingsUpdateTime = null;
+    _lastRecoveriesUpdateTime = null;
+    _isInitializing = false;
+    notifyListeners();
   }
 }

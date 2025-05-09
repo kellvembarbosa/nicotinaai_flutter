@@ -65,12 +65,28 @@ class AchievementHelper {
   }
   
   /// Check for achievements after a craving is recorded
-  static Future<void> checkAfterCravingRecorded(BuildContext context, bool wasResisted) async {
+  /// Use this method without requiring a BuildContext
+  static Future<void> checkAfterCravingRecorded(AchievementProvider achievementProvider, bool wasResisted) async {
+    final triggers = AchievementTriggers(achievementProvider);
+    
+    final newAchievements = await triggers.onCravingRecorded(wasResisted);
+    // Return achievements for later handling since we don't have context here
+    return;
+  }
+  
+  /// Check for achievements after a craving is recorded with context for notifications
+  /// This method should only be called when context is guaranteed to be valid
+  static Future<void> checkAfterCravingRecordedWithNotifications(BuildContext context, bool wasResisted) async {
+    if (!context.mounted) return;
+    
     final achievementProvider = Provider.of<AchievementProvider>(context, listen: false);
     final triggers = AchievementTriggers(achievementProvider);
     
     final newAchievements = await triggers.onCravingRecorded(wasResisted);
-    _showAchievementNotifications(context, newAchievements);
+    
+    if (context.mounted) {
+      _showAchievementNotifications(context, newAchievements);
+    }
   }
   
   /// Check for achievements after a health recovery is achieved

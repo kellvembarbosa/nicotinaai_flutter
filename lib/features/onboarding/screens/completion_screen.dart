@@ -159,29 +159,39 @@ class _CompletionScreenState extends State<CompletionScreen> {
         );
         
         try {
-          // Completar onboarding e redirecionar para a tela principal
+          // Abordagem simplificada: completar onboarding com foco na UI
+          print('✅ [CompletionScreen] Completando onboarding');
           await provider.completeOnboarding();
           
-          // Fechar o diálogo de carregamento
+          // Pequeno delay para garantir que o estado seja propagado
+          await Future.delayed(const Duration(milliseconds: 300));
+          
+          // Fechar o diálogo de carregamento e navegar
           if (context.mounted) {
             Navigator.of(context).pop();
             
-            // Usar GoRouter para navegar
+            // Navegar imediatamente para a tela principal
+            print('🚀 [CompletionScreen] Navegando para a tela principal');
             context.go(AppRoutes.main.path);
           }
         } catch (e) {
-          // Fechar o diálogo de carregamento
+          print('❌ [CompletionScreen] Erro ao completar onboarding: $e');
+          
+          // Mesmo com erro, tentar realizar a navegação
           if (context.mounted) {
             Navigator.of(context).pop();
             
-            // Mostrar erro
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text(localizations.loadingError(e.toString())),
-                duration: const Duration(seconds: 3),
+                content: Text(localizations.somethingWentWrong),
+                duration: const Duration(seconds: 2),
                 behavior: SnackBarBehavior.floating,
               ),
             );
+            
+            // Navegação de fallback mesmo com erro
+            print('⚠️ [CompletionScreen] Navegando com fallback');
+            context.go(AppRoutes.main.path);
           }
         }
       },

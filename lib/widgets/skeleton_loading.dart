@@ -104,7 +104,7 @@ class RecoveryItemSkeleton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: 110,
-      margin: EdgeInsets.only(right: 12, bottom: 8),
+      margin: const EdgeInsets.only(right: 12, bottom: 8),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
@@ -112,7 +112,7 @@ class RecoveryItemSkeleton extends StatelessWidget {
           BoxShadow(
             color: Colors.black.withOpacity(0.05),
             blurRadius: 8,
-            offset: Offset(0, 2),
+            offset: const Offset(0, 2),
           ),
         ],
       ),
@@ -122,10 +122,20 @@ class RecoveryItemSkeleton extends StatelessWidget {
           Stack(
             alignment: Alignment.center,
             children: [
-              SkeletonLoading(height: 64, isCircle: true),
+              SizedBox(
+                height: 64,
+                width: 64,
+                child: SkeletonLoading(
+                  height: 4,
+                  width: 64,
+                  borderRadius: 2,
+                  isCircle: false,
+                ),
+              ),
+              const SkeletonLoading(height: 48, isCircle: true),
             ],
           ),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8),
             child: SkeletonLoading(
@@ -134,7 +144,7 @@ class RecoveryItemSkeleton extends StatelessWidget {
               borderRadius: 4,
             ),
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: SkeletonLoading(

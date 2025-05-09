@@ -5,6 +5,24 @@ import 'package:nicotinaai_flutter/features/tracking/models/smoking_log.dart';
 import 'package:nicotinaai_flutter/features/tracking/models/user_stats.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+/// Exception thrown when a Supabase Edge Function returns an error
+class FunctionException implements Exception {
+  final int status;
+  final Map<String, dynamic> details;
+  final String reasonPhrase;
+  
+  FunctionException({
+    required this.status,
+    required this.details,
+    required this.reasonPhrase,
+  });
+  
+  @override
+  String toString() {
+    return 'FunctionException(status: $status, details: $details, reasonPhrase: $reasonPhrase)';
+  }
+}
+
 class TrackingRepository {
   final _client = SupabaseConfig.client;
 
@@ -206,7 +224,7 @@ class TrackingRepository {
     }
   }
 
-  Future<void> checkHealthRecoveries() async {
+  Future<Map<String, dynamic>> checkHealthRecoveries({bool updateAchievements = true}) async {
     try {
       final user = _client.auth.currentUser;
       
@@ -215,10 +233,51 @@ class TrackingRepository {
       }
       
       // Call the edge function to check health recoveries
-      await _client.functions.invoke('checkHealthRecoveries', 
-        body: {'userId': user.id},
+      final response = await _client.functions.invoke('checkHealthRecoveries', 
+        body: {
+          'userId': user.id,
+          'updateAchievements': updateAchievements, // Parâmetro para evitar loops infinitos
+        },
       );
+      
+      if (response.status != 200) {
+        final errorData = response.data is Map 
+          ? response.data as Map<String, dynamic> 
+          : {'error': 'Unknown error', 'details': response.data};
+        
+        // Determine appropriate reason phrase based on status code
+        String reasonPhrase;
+        switch (response.status) {
+          case 400:
+            reasonPhrase = 'Bad Request';
+            break;
+          case 401:
+            reasonPhrase = 'Unauthorized';
+            break;
+          case 403:
+            reasonPhrase = 'Forbidden';
+            break;
+          case 404:
+            reasonPhrase = 'Not Found';
+            break;
+          case 500:
+            reasonPhrase = 'Internal Server Error';
+            break;
+          default:
+            reasonPhrase = 'Error ${response.status}';
+        }
+        
+        throw FunctionException(
+          status: response.status,
+          details: errorData,
+          reasonPhrase: reasonPhrase
+        );
+      }
+      
+      return response.data as Map<String, dynamic>;
     } catch (e) {
+      // Log the error but rethrow
+      print('Repository checkHealthRecoveries error: $e');
       rethrow;
     }
   }

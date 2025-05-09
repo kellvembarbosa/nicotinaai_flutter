@@ -174,7 +174,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get achievementCategoryHabits => 'Hábitos';
 
   @override
-  String get achievementUnlocked => 'Conquista Desbloqueada!';
+  String get achievementUnlocked => 'Desbloqueada!';
 
   @override
   String get achievementInProgress => 'Em progresso';
@@ -1087,4 +1087,120 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get loading => 'Carregando...';
+
+  @override
+  String get tryAgain => 'Tentar Novamente';
+
+  @override
+  String get errorLoadingData => 'Erro ao carregar dados';
+
+  @override
+  String get noRecoveriesFound => 'Nenhuma recuperação de saúde encontrada';
+
+  @override
+  String get noRecentRecoveries => 'Nenhuma recuperação de saúde recente para exibir';
+
+  @override
+  String get viewAllRecoveries => 'Ver Todas as Recuperações de Saúde';
+
+  @override
+  String get healthRecovery => 'Recuperação da Saúde';
+
+  @override
+  String get seeAll => 'Ver todos';
+
+  @override
+  String get achieved => 'Conquistado';
+
+  @override
+  String get progress => 'Progresso';
+
+  @override
+  String daysToAchieve(int days) {
+    return '$days dias para conquistar';
+  }
+
+  @override
+  String daysRemaining(int days) {
+    return '$days dias restantes';
+  }
+
+  @override
+  String achievedOn(DateTime date) {
+    final intl.DateFormat dateDateFormat = intl.DateFormat.yMMMd(localeName);
+    final String dateString = dateDateFormat.format(date);
+
+    return 'Conquistado em $dateString';
+  }
+
+  @override
+  String daysSmokeFree(int days) {
+    return '$days dias sem fumar';
+  }
+
+  @override
+  String get keepGoing => 'Continue Assim!';
+
+  @override
+  String get encouragementMessage => 'Você está fazendo um ótimo progresso. Cada dia sem fumar te aproxima mais de alcançar este marco de saúde.';
+
+  @override
+  String get recoveryAchievedMessage => 'Seu corpo já se recuperou nesta área. Continue com o bom trabalho para manter e melhorar ainda mais sua saúde.';
+
+  @override
+  String get scienceBehindIt => 'A Ciência Por Trás Disso';
+
+  @override
+  String get generalHealthScienceInfo => 'Quando você para de fumar, seu corpo inicia uma série de processos de cura. Estes começam dentro de minutos após seu último cigarro e continuam por anos, restaurando gradualmente sua saúde para a de um não fumante.';
+
+  @override
+  String get tasteScienceInfo => 'Quando você fuma, substâncias químicas do tabaco danificam as papilas gustativas e reduzem sua capacidade de sentir sabores. Após alguns dias sem fumar, esses receptores de sabor começam a se curar, permitindo que você experimente mais sabores e aprecie melhor os alimentos.';
+
+  @override
+  String get smellScienceInfo => 'O fumo danifica os nervos olfativos que transmitem informações de cheiro para o cérebro. Em poucos dias após parar, esses nervos começam a se recuperar, melhorando gradualmente seu olfato e permitindo que você detecte cheiros mais sutis.';
+
+  @override
+  String get bloodOxygenScienceInfo => 'O monóxido de carbono dos cigarros se liga à hemoglobina no sangue, reduzindo sua capacidade de transportar oxigênio. Entre 12-24 horas após parar, os níveis de monóxido de carbono caem drasticamente, permitindo que seu sangue transporte oxigênio de forma mais eficaz.';
+
+  @override
+  String get carbonMonoxideScienceInfo => 'A fumaça do cigarro contém monóxido de carbono, que desloca o oxigênio no sangue. Dentro de 12 horas após parar, os níveis de monóxido de carbono voltam ao normal, e os níveis de oxigênio do corpo aumentam significativamente.';
+
+  @override
+  String get nicotineScienceInfo => 'A nicotina tem meia-vida de cerca de 2 horas, o que significa que leva aproximadamente 72 horas (3 dias) para que toda a nicotina seja eliminada do corpo. Uma vez que a nicotina é eliminada, os sintomas físicos de abstinência começam a diminuir.';
+
+  @override
+  String get improvedBreathingScienceInfo => 'Após 7 dias sem fumar, a função pulmonar começa a melhorar conforme a inflamação diminui e os pulmões começam a limpar o muco acumulado. Você notará menos tosse e respiração mais fácil, especialmente durante atividade física.';
+
+  @override
+  String get improvedCirculationScienceInfo => 'Após duas semanas sem fumar, sua circulação melhora significativamente. Os vasos sanguíneos dilatam, a pressão arterial normaliza, e mais oxigênio chega aos seus músculos e órgãos, tornando a atividade física mais fácil e menos desgastante.';
+
+  @override
+  String get decreasedCoughingScienceInfo => 'Um mês após parar, os cílios (pequenas estruturas semelhantes a pelos) nos pulmões começam a crescer novamente. Eles ajudam a limpar os pulmões e reduzir infecções. Sua tosse e falta de ar continuam a diminuir.';
+
+  @override
+  String get lungCiliaScienceInfo => 'Após 3 meses sem fumar, sua função pulmonar pode melhorar em até 30%. Os cílios nos pulmões cresceram substancialmente, melhorando a capacidade dos pulmões de se limpar, combater infecções e reduzir o muco.';
+
+  @override
+  String get reducedHeartDiseaseRiskScienceInfo => 'Após um ano sem fumar, seu risco de doença cardíaca coronária diminui para cerca da metade do de um fumante. Sua função cardíaca continua a melhorar à medida que os vasos sanguíneos se curam e a circulação melhora.';
+
+  @override
+  String get viewHealthRecoveries => 'Ver Recuperações de Saúde';
+
+  @override
+  String get recoveryNotFound => 'Recuperação de saúde não encontrada';
+
+  @override
+  String get trackYourHealthJourney => 'Acompanhe Sua Jornada de Saúde';
+
+  @override
+  String get healthRecoveryDescription => 'Veja como seu corpo se recupera após parar de fumar';
+
+  @override
+  String get somethingWentWrong => 'Algo deu errado, por favor tente novamente';
+
+  @override
+  String get comingSoon => 'Em breve';
+
+  @override
+  String get registerFirstCigarette => 'Registre seu primeiro cigarro para ver a recuperação da saúde';
 }

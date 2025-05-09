@@ -2,8 +2,10 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'package:nicotinaai_flutter/core/theme/app_theme.dart';
 import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
+import 'package:nicotinaai_flutter/features/achievements/providers/achievement_provider.dart';
 
 class AchievementsScreen extends StatefulWidget {
   static const String routeName = '/achievements';
@@ -18,10 +20,26 @@ class _AchievementsScreenState extends State<AchievementsScreen> with SingleTick
   late TabController _tabController;
   late List<String> _categories;
 
+  bool _hasLoadedAchievements = false;
+
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 5, vsync: this);
+    
+    // Carrega achievements apenas uma vez, de forma controlada
+    if (!_hasLoadedAchievements) {
+      _hasLoadedAchievements = true;
+      // Usa microtask para carregar após montagem da UI
+      Future.microtask(() {
+        // Verifica se já não está carregando achievements em outro lugar
+        final achievementProvider = context.read<AchievementProvider>();
+        // Só carrega se o estado ainda estiver em initial para evitar recargas desnecessárias
+        if (achievementProvider.state.status == AchievementStatus.initial) {
+          achievementProvider.loadAchievements();
+        }
+      });
+    }
   }
 
   @override

@@ -6,6 +6,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/intl.dart' as intl;
 
 import 'app_localizations_en.dart';
+import 'app_localizations_es.dart';
 import 'app_localizations_pt.dart';
 
 // ignore_for_file: type=lint
@@ -92,6 +93,7 @@ abstract class AppLocalizations {
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[
     Locale('en'),
+    Locale('es'),
     Locale('pt')
   ];
 
@@ -416,7 +418,7 @@ abstract class AppLocalizations {
   /// Unlocked achievements label
   ///
   /// In en, this message translates to:
-  /// **'Achievement Unlocked!'**
+  /// **'Unlocked!'**
   String get achievementUnlocked;
 
   /// In progress achievements label
@@ -2194,6 +2196,216 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Loading...'**
   String get loading;
+
+  /// Button text to try an operation again
+  ///
+  /// In en, this message translates to:
+  /// **'Try Again'**
+  String get tryAgain;
+
+  /// Message shown when data loading fails
+  ///
+  /// In en, this message translates to:
+  /// **'Error loading data'**
+  String get errorLoadingData;
+
+  /// Message shown when no health recoveries are found
+  ///
+  /// In en, this message translates to:
+  /// **'No health recoveries found'**
+  String get noRecoveriesFound;
+
+  /// Message shown when no recent health recoveries are available
+  ///
+  /// In en, this message translates to:
+  /// **'No recent health recoveries to display'**
+  String get noRecentRecoveries;
+
+  /// Button text to view all health recoveries
+  ///
+  /// In en, this message translates to:
+  /// **'View All Health Recoveries'**
+  String get viewAllRecoveries;
+
+  /// Title for health recovery section
+  ///
+  /// In en, this message translates to:
+  /// **'Health Recovery'**
+  String get healthRecovery;
+
+  /// Button text to see all items
+  ///
+  /// In en, this message translates to:
+  /// **'See all'**
+  String get seeAll;
+
+  /// Label for achieved status
+  ///
+  /// In en, this message translates to:
+  /// **'Achieved'**
+  String get achieved;
+
+  /// Label for progress status
+  ///
+  /// In en, this message translates to:
+  /// **'Progress'**
+  String get progress;
+
+  /// Text showing days required to achieve a recovery
+  ///
+  /// In en, this message translates to:
+  /// **'{days} days to achieve'**
+  String daysToAchieve(int days);
+
+  /// Text showing days remaining to achieve a recovery
+  ///
+  /// In en, this message translates to:
+  /// **'{days} days remaining'**
+  String daysRemaining(int days);
+
+  /// Text showing when a recovery was achieved
+  ///
+  /// In en, this message translates to:
+  /// **'Achieved on {date}'**
+  String achievedOn(DateTime date);
+
+  /// Text showing days without smoking
+  ///
+  /// In en, this message translates to:
+  /// **'{days} days smoke-free'**
+  String daysSmokeFree(int days);
+
+  /// Encouragement message
+  ///
+  /// In en, this message translates to:
+  /// **'Keep Going!'**
+  String get keepGoing;
+
+  /// Detailed encouragement message
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re making great progress. Each day without smoking brings you closer to achieving this health milestone.'**
+  String get encouragementMessage;
+
+  /// Message shown when a health recovery is achieved
+  ///
+  /// In en, this message translates to:
+  /// **'Your body has already recovered in this area. Keep up the good work to maintain and improve your health even further.'**
+  String get recoveryAchievedMessage;
+
+  /// Title for science information section
+  ///
+  /// In en, this message translates to:
+  /// **'The Science Behind It'**
+  String get scienceBehindIt;
+
+  /// General scientific information about health recovery
+  ///
+  /// In en, this message translates to:
+  /// **'When you stop smoking, your body begins a series of healing processes. These start within minutes of your last cigarette and continue for years, gradually restoring your health to that of a non-smoker.'**
+  String get generalHealthScienceInfo;
+
+  /// Scientific information about taste recovery
+  ///
+  /// In en, this message translates to:
+  /// **'When you smoke, chemicals in tobacco damage taste buds and reduce your ability to taste flavors. After just a few days without smoking, these taste receptors begin to heal, allowing you to experience more flavors and enjoy food more fully.'**
+  String get tasteScienceInfo;
+
+  /// Scientific information about smell recovery
+  ///
+  /// In en, this message translates to:
+  /// **'Smoking damages the olfactory nerves that transmit scent information to your brain. Within days of quitting, these nerves begin to recover, gradually improving your sense of smell and allowing you to detect more subtle scents.'**
+  String get smellScienceInfo;
+
+  /// Scientific information about blood oxygen recovery
+  ///
+  /// In en, this message translates to:
+  /// **'Carbon monoxide from cigarettes binds to hemoglobin in your blood, reducing its ability to carry oxygen. Within 12-24 hours after quitting, carbon monoxide levels drop dramatically, allowing your blood to carry oxygen more effectively.'**
+  String get bloodOxygenScienceInfo;
+
+  /// Scientific information about carbon monoxide elimination
+  ///
+  /// In en, this message translates to:
+  /// **'Cigarette smoke contains carbon monoxide, which displaces oxygen in your blood. Within 12 hours of quitting, carbon monoxide levels return to normal, and your body\'s oxygen levels increase significantly.'**
+  String get carbonMonoxideScienceInfo;
+
+  /// Scientific information about nicotine expulsion
+  ///
+  /// In en, this message translates to:
+  /// **'Nicotine has a half-life of about 2 hours, meaning it takes approximately 72 hours (3 days) for all nicotine to be eliminated from your body. Once nicotine is gone, physical withdrawal symptoms begin to decrease.'**
+  String get nicotineScienceInfo;
+
+  /// Scientific information about improved breathing
+  ///
+  /// In en, this message translates to:
+  /// **'After 7 days without smoking, lung function begins to improve as inflammation decreases and the lungs start to clear accumulated mucus. You\'ll notice less coughing and easier breathing, especially during physical activity.'**
+  String get improvedBreathingScienceInfo;
+
+  /// Scientific information about improved circulation
+  ///
+  /// In en, this message translates to:
+  /// **'After two weeks of not smoking, your circulation improves significantly. Blood vessels dilate, blood pressure normalizes, and more oxygen reaches your muscles and organs, making physical activity easier and less strenuous.'**
+  String get improvedCirculationScienceInfo;
+
+  /// Scientific information about decreased coughing
+  ///
+  /// In en, this message translates to:
+  /// **'One month after quitting, the cilia (tiny hair-like structures) in your lungs begin to regrow. These help clean your lungs and reduce infections. Your coughing and shortness of breath continue to decrease.'**
+  String get decreasedCoughingScienceInfo;
+
+  /// Scientific information about lung cilia recovery
+  ///
+  /// In en, this message translates to:
+  /// **'After 3 months without smoking, your lung function can improve by up to 30%. The cilia in your lungs have largely regrown, improving your lungs\' ability to clean themselves, fight infection, and reduce mucus.'**
+  String get lungCiliaScienceInfo;
+
+  /// Scientific information about reduced heart disease risk
+  ///
+  /// In en, this message translates to:
+  /// **'After one year without smoking, your risk of coronary heart disease decreases to about half that of a smoker. Your heart function continues to improve as blood vessels heal and circulation enhances.'**
+  String get reducedHeartDiseaseRiskScienceInfo;
+
+  /// Button text to view health recoveries screen
+  ///
+  /// In en, this message translates to:
+  /// **'View Health Recoveries'**
+  String get viewHealthRecoveries;
+
+  /// Message shown when a health recovery is not found
+  ///
+  /// In en, this message translates to:
+  /// **'Health recovery not found'**
+  String get recoveryNotFound;
+
+  /// Title for health recovery tracking feature
+  ///
+  /// In en, this message translates to:
+  /// **'Track Your Health Journey'**
+  String get trackYourHealthJourney;
+
+  /// Description for health recovery tracking feature
+  ///
+  /// In en, this message translates to:
+  /// **'See how your body heals after quitting smoking'**
+  String get healthRecoveryDescription;
+
+  /// Generic error message when an operation fails
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong, please try again'**
+  String get somethingWentWrong;
+
+  /// Text displayed for features that are not yet available
+  ///
+  /// In en, this message translates to:
+  /// **'Coming Soon'**
+  String get comingSoon;
+
+  /// Message prompting users to register their first cigarette to see health recovery data
+  ///
+  /// In en, this message translates to:
+  /// **'Register your first cigarette to see health recovery'**
+  String get registerFirstCigarette;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
@@ -2205,7 +2417,7 @@ class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> 
   }
 
   @override
-  bool isSupported(Locale locale) => <String>['en', 'pt'].contains(locale.languageCode);
+  bool isSupported(Locale locale) => <String>['en', 'es', 'pt'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
@@ -2217,6 +2429,7 @@ AppLocalizations lookupAppLocalizations(Locale locale) {
   // Lookup logic when only language code is specified.
   switch (locale.languageCode) {
     case 'en': return AppLocalizationsEn();
+    case 'es': return AppLocalizationsEs();
     case 'pt': return AppLocalizationsPt();
   }
 

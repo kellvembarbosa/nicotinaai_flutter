@@ -59,14 +59,27 @@ class _HealthRecoveryWidgetState extends State<HealthRecoveryWidget> {
       // Check if the widget is still mounted before setting state
       if (!mounted) return;
       
+      // Se as listas estiverem vazias mas isso for válido (usuário sem data de último cigarro),
+      // mostre uma UI vazia mas sem erro
+      if (status['recoveries'] == null || (status['recoveries'] as List).isEmpty) {
+        setState(() {
+          _recoveries = [];
+          _currentStreakDays = status['current_streak_days'] ?? 0;
+          _isLoading = false;
+          _errorMessage = null; // Não é erro, apenas não há dados ainda
+        });
+        return;
+      }
+      
       setState(() {
         _recoveries = status['recoveries'];
         _currentStreakDays = status['current_streak_days'] ?? 0;
         _isLoading = false;
       });
       
-      // Optionally check for new recoveries if we've had a login
-      if (widget.autoRefresh) {
+      // Verifica se devemos checar por novas recuperações
+      // Só faz isso se tivermos uma data de último cigarro
+      if (widget.autoRefresh && status['last_smoke_date'] != null) {
         try {
           await HealthRecoveryUtils.checkForNewRecoveries();
           // Reload the data to reflect any new achievements
@@ -91,6 +104,7 @@ class _HealthRecoveryWidgetState extends State<HealthRecoveryWidget> {
       setState(() {
         _errorMessage = e.toString();
         _isLoading = false;
+        _recoveries = []; // Certifique-se de que não há dados inválidos
       });
     }
   }

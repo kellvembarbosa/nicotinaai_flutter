@@ -53,6 +53,10 @@ class _HomeScreenState extends State<HomeScreen> {
   Map<String, dynamic>? _nextHealthMilestone;
   // Flag para evitar múltiplas chamadas de atualização simultâneas
   bool _isUpdating = false;
+  // Flag para limitar o número de atualizações quando não há dados de saúde
+  bool _hasCheckedHealthData = false;
+  // Timestamp da última atualização
+  DateTime? _lastUpdateTime;
   // Currency formatter
   final CurrencyUtils _currencyUtils = CurrencyUtils();
   
@@ -76,19 +80,48 @@ class _HomeScreenState extends State<HomeScreen> {
       return;
     }
     
+    // Limitar a frequência de atualizações
+    final now = DateTime.now();
+    if (_lastUpdateTime != null) {
+      final timeSinceLastUpdate = now.difference(_lastUpdateTime!);
+      // Se a última atualização foi há menos de 10 segundos, ignorar
+      if (timeSinceLastUpdate.inSeconds < 10) {
+        if (kDebugMode) {
+          print('🕒 Última atualização foi há apenas ${timeSinceLastUpdate.inSeconds} segundos, ignorando');
+        }
+        return;
+      }
+    }
+    
     setState(() {
       _isUpdating = true;
     });
     
+    // Atualizar o timestamp da última atualização
+    _lastUpdateTime = now;
+    
     final trackingProvider = Provider.of<TrackingProvider>(context, listen: false);
     
     // Verificar explicitamente se a última data de fumo está atualizada
+    final hasLastSmokeDate = trackingProvider.state.userStats?.lastSmokeDate != null;
+    
     if (kDebugMode) {
-      if (trackingProvider.state.userStats?.lastSmokeDate != null) {
+      if (hasLastSmokeDate) {
         print('📅 Data do último cigarro no provider: ${trackingProvider.state.userStats!.lastSmokeDate}');
       } else {
         print('⚠️ Data do último cigarro não disponível no provider');
       }
+    }
+    
+    // Se não temos data de último cigarro e já verificamos antes, limitar atualizações
+    if (!hasLastSmokeDate && _hasCheckedHealthData) {
+      if (kDebugMode) {
+        print('🛑 Limitando atualizações repetidas quando não há dados de saúde');
+      }
+      setState(() {
+        _isUpdating = false;
+      });
+      return;
     }
     
     // Usamos um método simples de get sem força update
@@ -166,6 +199,7 @@ class _HomeScreenState extends State<HomeScreen> {
           _loadNextHealthMilestone();
           
           _isUpdating = false;
+          _hasCheckedHealthData = true; // Marcar que verificamos os dados de saúde
         });
       } else {
         _isUpdating = false;
@@ -177,6 +211,7 @@ class _HomeScreenState extends State<HomeScreen> {
       if (mounted) {
         setState(() {
           _isUpdating = false;
+          _hasCheckedHealthData = true; // Marcar que verificamos os dados mesmo em caso de erro
         });
       } else {
         _isUpdating = false;
@@ -188,6 +223,17 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _loadNextHealthMilestone() async {
     if (!mounted) return;
     
+    // Se o usuário não tem dias sem fumar ou estatísticas, não tentamos carregar o próximo milestone
+    final trackingProvider = Provider.of<TrackingProvider>(context, listen: false);
+    final hasLastSmokeDate = trackingProvider.state.userStats?.lastSmokeDate != null;
+    
+    if (!hasLastSmokeDate || _daysWithoutSmoking <= 0) {
+      if (kDebugMode) {
+        print('⚠️ Skipping next health milestone load: no last smoke date or days without smoking');
+      }
+      return;
+    }
+    
     try {
       // Get the next health milestone
       final nextMilestone = await HealthRecoveryUtils.getNextHealthRecoveryMilestone(_daysWithoutSmoking);
@@ -198,7 +244,9 @@ class _HomeScreenState extends State<HomeScreen> {
         });
       }
     } catch (e) {
-      print('Error loading next health milestone: $e');
+      if (kDebugMode) {
+        print('Error loading next health milestone: $e');
+      }
       // Don't update state on error, keep previous milestone if any
     }
   }
@@ -230,8 +278,15 @@ class _HomeScreenState extends State<HomeScreen> {
       },
       // Só reconstrua se algo relevante mudar
       builder: (_, data, child) {
+        // Verifica se passaram pelo menos 5 segundos desde a última atualização
+        bool canUpdate = true;
+        if (_lastUpdateTime != null) {
+          final timeSinceLastUpdate = DateTime.now().difference(_lastUpdateTime!);
+          canUpdate = timeSinceLastUpdate.inSeconds >= 5;
+        }
+        
         // Detecta eventos reais de mudança para atualizar
-        final bool shouldUpdate = data['isLoaded'] && (
+        final bool shouldUpdate = data['isLoaded'] && canUpdate && (
           _stats?.cravingsResisted != data['cravingsResisted'] || 
           _stats?.currentStreakDays != data['daysWithoutSmoking'] ||
           _stats?.moneySaved != data['moneySaved'] ||
@@ -243,6 +298,9 @@ class _HomeScreenState extends State<HomeScreen> {
         if (shouldUpdate && !_isUpdating) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (mounted && !_isUpdating) {
+              if (kDebugMode) {
+                print('🔄 Atualizando dados devido a mudanças reais nos dados');
+              }
               _loadData();
             }
           });
@@ -468,21 +526,32 @@ class _HomeScreenState extends State<HomeScreen> {
                       ],
                     ),
                   ),
-                  // Health Recovery Widget
-                  HealthRecoveryWidget(
-                    showAllRecoveries: false,
-                    autoRefresh: true,
-                    showHeader: false,
-                    onRecoveryTap: (recovery, isAchieved) {
-                      if (recovery.id == 'all') {
-                        // Navigate to all health recoveries screen
-                        context.push(AppRoutes.healthRecovery.path);
-                      } else {
-                        // Navigate to specific health recovery detail
-                        context.push(AppRoutes.healthRecoveryDetail.withParams(
-                          params: {'recoveryId': recovery.id},
-                        ));
+                  
+                  // Health Recovery Widget ou Placeholder
+                  Consumer<TrackingProvider>(
+                    builder: (context, trackingProvider, _) {
+                      final hasLastSmokeDate = trackingProvider.state.userStats?.lastSmokeDate != null;
+                      
+                      // Se não tem data do último cigarro, mostramos um widget de placeholder
+                      if (!hasLastSmokeDate) {
+                        return _buildHealthRecoveryPlaceholder(context, l10n);
                       }
+                      
+                      // Se tem data, mostramos o widget normal
+                      return HealthRecoveryWidget(
+                        showAllRecoveries: false,
+                        autoRefresh: true,
+                        showHeader: false,
+                        onRecoveryTap: (recovery, isAchieved) {
+                          if (recovery.id == 'all') {
+                            context.push(AppRoutes.healthRecovery.path);
+                          } else {
+                            context.push(AppRoutes.healthRecoveryDetail.withParams(
+                              params: {'recoveryId': recovery.id},
+                            ));
+                          }
+                        },
+                      );
                     },
                   ),
                 ],
@@ -535,13 +604,14 @@ class _HomeScreenState extends State<HomeScreen> {
               
               const SizedBox(height: 24),
               
-              // Próximo marco
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: context.isDarkMode 
-                    ? _buildGlassMorphicNextMilestone(context, l10n)
-                    : _buildNextMilestone(context, l10n),
-              ),
+              // Próximo marco - só exibir se temos dias sem fumar
+              if (_stats?.lastSmokeDate != null)
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: context.isDarkMode 
+                      ? _buildGlassMorphicNextMilestone(context, l10n)
+                      : _buildNextMilestone(context, l10n),
+                ),
               
               const SizedBox(height: 24),
               
@@ -1162,6 +1232,80 @@ class _HomeScreenState extends State<HomeScreen> {
   }
   
   // Constrói uma lista de conquistas reais baseadas nos recoveries do usuário
+  /// Widget placeholder para recuperação de saúde quando o usuário ainda não tem dados
+  Widget _buildHealthRecoveryPlaceholder(BuildContext context, AppLocalizations l10n) {
+    return SizedBox(
+      height: 140,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: 3,
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        itemBuilder: (context, index) {
+          return Container(
+            width: 110,
+            margin: EdgeInsets.only(right: 12, bottom: 8),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surface,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 8,
+                  offset: Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: context.primaryColor.withOpacity(0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    index == 0 ? Icons.favorite : 
+                    index == 1 ? Icons.air : 
+                    Icons.spa,
+                    color: context.primaryColor.withOpacity(0.5),
+                    size: 24,
+                  ),
+                ),
+                SizedBox(height: 8),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  child: Text(
+                    l10n.comingSoon,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: context.contentColor.withOpacity(0.7),
+                    ),
+                    textAlign: TextAlign.center,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  child: Text(
+                    l10n.registerFirstCigarette,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: context.subtitleColor,
+                      fontSize: 10,
+                    ),
+                    textAlign: TextAlign.center,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+  
   List<Widget> _buildRecentAchievements(BuildContext context, AppLocalizations l10n) {
     final achievements = <Widget>[];
     final trackingProvider = Provider.of<TrackingProvider>(context, listen: false);

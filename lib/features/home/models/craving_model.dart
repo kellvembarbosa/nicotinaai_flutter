@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 enum SyncStatus {
   synced,     // Item is synced with server
   pending,    // Item is waiting to be synced
