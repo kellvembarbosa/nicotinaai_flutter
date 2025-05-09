@@ -224,11 +224,15 @@ class MyApp extends StatelessWidget {
             final provider = previousProvider ?? 
                 TrackingProvider(repository: trackingRepository);
                 
-            // Inicializa apenas se o usuário estiver autenticado
+            // Inicializa apenas se o usuário estiver autenticado e realiza uma inicialização imediata
             if (authProvider.isAuthenticated) {
-              // Agenda a inicialização para o próximo ciclo de frame
+              // Inicializa imediatamente
+              provider.initialize();
+              
+              // E depois agenda outra inicialização para o próximo ciclo de frame para garantir
               WidgetsBinding.instance.addPostFrameCallback((_) {
-                provider.initialize();
+                // Força atualização de estatísticas
+                provider.refreshUserStats();
               });
             }
             

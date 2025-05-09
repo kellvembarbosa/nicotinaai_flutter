@@ -63,9 +63,18 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    // Evite chamar Provider.of() diretamente em initState
+    // Inicializa dados imediatamente para evitar tela vazia
+    _loadData();
+    
+    // Depois agenda outra atualização para garantir dados mais recentes
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _loadData();
+      if (mounted) {
+        _loadData();
+        
+        // Força uma atualização completa no TrackingProvider
+        final trackingProvider = Provider.of<TrackingProvider>(context, listen: false);
+        trackingProvider.refreshAll(forceRefresh: true);
+      }
     });
   }
 

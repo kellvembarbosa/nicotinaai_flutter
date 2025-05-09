@@ -75,6 +75,9 @@ dependencies:
   facebook_app_events: ^0.19.7
   app_tracking_transparency: ^2.0.6+1
   fl_chart: ^0.71.0
+  flutter_bloc: ^9.1.1
+  bloc: ^9.0.0
+  equatable: ^2.0.7
 
 dev_dependencies:
   flutter_test:

@@ -116,7 +116,7 @@ class TrackingProvider extends ChangeNotifier {
     try {
       _isInitializing = true;
       
-      // Atualize o estado primeiro, mas notifique depois para evitar erros durante o build
+      // Notificar imediatamente para mostrar estado de loading
       _state = _state.copyWith(
         status: TrackingStatus.loading,
         isStatsLoading: true,
@@ -124,28 +124,32 @@ class TrackingProvider extends ChangeNotifier {
         isCravingsLoading: true,
         isRecoveriesLoading: true,
       );
+      notifyListeners(); // Notificação imediata para UI mostrar loading
       
-      // Adie a notificação para evitar conflitos durante o build
-      Future.microtask(() {
-        if (!_isInitializing) return; // Verifique se ainda está inicializando
-        notifyListeners();
-      });
+      // Primeiro tenta carregar estatísticas do usuário - o mais crítico
+      await _loadUserStats(forceRefresh: true);
       
-      // Primeiro carrega estatísticas do usuário e dados básicos
-      await Future.wait([
-        _loadUserStats(),
-        _loadSmokingLogs(),
-        _loadCravings(),
-      ]);
-      
-      // Try to ensure we have user stats
+      // Se falhar, tentar atualizar estatísticas
       if (_state.userStats == null) {
         try {
+          await _repository.updateUserStats();
           await _loadUserStats(forceRefresh: true);
         } catch (statsErr) {
-          print('Error loading user stats: $statsErr');
+          print('Error updating and loading user stats: $statsErr');
         }
       }
+      
+      // Notificar que temos dados básicos
+      notifyListeners();
+      
+      // Carregar outros dados em paralelo
+      await Future.wait([
+        _loadSmokingLogs(forceRefresh: true),
+        _loadCravings(forceRefresh: true),
+      ]);
+      
+      // Notificar novamente com mais dados
+      notifyListeners();
       
       // If we have smoking logs, make sure we have a last smoke date
       if (_state.userStats != null && _state.userStats!.lastSmokeDate == null && _state.smokingLogs.isNotEmpty) {
@@ -153,6 +157,7 @@ class TrackingProvider extends ChangeNotifier {
         try {
           await _repository.updateUserStats();
           await _loadUserStats(forceRefresh: true);
+          notifyListeners(); // Notificar novamente com dados atualizados
         } catch (updateErr) {
           print('Error updating user stats: $updateErr');
         }
@@ -170,6 +175,7 @@ class TrackingProvider extends ChangeNotifier {
       // First load existing health recoveries
       try {
         await _loadHealthRecoveries();
+        notifyListeners(); // Notificar com dados de health recoveries
       } catch (e) {
         print('Error loading health recoveries: $e');
         // Ensure we have at least empty recoveries list
@@ -190,6 +196,7 @@ class TrackingProvider extends ChangeNotifier {
               // Atualiza as estatísticas usando os logs de fumo
               await _repository.updateUserStats();
               await _loadUserStats(forceRefresh: true);
+              notifyListeners(); // Notificar com dados atualizados
             } catch (statsErr) {
               print('⚠️ Error updating user stats: $statsErr');
             }
@@ -227,10 +234,8 @@ class TrackingProvider extends ChangeNotifier {
       );
     } finally {
       _isInitializing = false;
-      // Use a microtask para adiar a notificação após o ciclo de build atual
-      Future.microtask(() {
-        notifyListeners();
-      });
+      // Notificar o resultado final
+      notifyListeners();
     }
   }
 

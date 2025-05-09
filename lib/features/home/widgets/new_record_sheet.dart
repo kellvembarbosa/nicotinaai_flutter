@@ -1514,6 +1514,9 @@ class _NewRecordSheetState extends State<NewRecordSheet> {
         );
       }
       await trackingProvider.forceUpdateStats();
+      
+      // Força uma atualização completa para garantir que todos os dados são carregados
+      await trackingProvider.refreshAll(forceRefresh: true);
 
       // Show a success snackbar using the stored scaffold messenger
       // This avoids the mounted check which can cause issues

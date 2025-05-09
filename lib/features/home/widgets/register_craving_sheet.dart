@@ -1608,6 +1608,9 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
       // Força a atualização das estatísticas no TrackingProvider
       await trackingProvider.forceUpdateStats();
       
+      // Força uma atualização completa para garantir que todos os dados são carregados
+      await trackingProvider.refreshAll(forceRefresh: true);
+      
       // Se resistiu ao craving, vamos exibir uma notificação motivacional
       // Envio de notificação é feito no TrackingProvider
       
