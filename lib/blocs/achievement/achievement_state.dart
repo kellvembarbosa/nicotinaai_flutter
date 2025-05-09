@@ -34,6 +34,9 @@ class AchievementState extends Equatable {
   
   /// Período de tempo selecionado para filtragem
   final TimePeriod selectedTimePeriod;
+  
+  /// Lista de achievements recém-desbloqueados após uma verificação
+  final List<UserAchievement>? newlyUnlockedAchievements;
 
   /// Construtor
   const AchievementState({
@@ -42,6 +45,7 @@ class AchievementState extends Equatable {
     this.userAchievements = const [],
     this.errorMessage,
     this.selectedTimePeriod = TimePeriod.allTime,
+    this.newlyUnlockedAchievements,
   });
 
   /// Estado inicial
@@ -59,12 +63,14 @@ class AchievementState extends Equatable {
     required List<AchievementDefinition> allDefinitions,
     required List<UserAchievement> userAchievements,
     TimePeriod selectedTimePeriod = TimePeriod.allTime,
+    List<UserAchievement>? newlyUnlockedAchievements,
   }) {
     return AchievementState(
       status: AchievementStatus.loaded,
       allDefinitions: allDefinitions,
       userAchievements: userAchievements,
       selectedTimePeriod: selectedTimePeriod,
+      newlyUnlockedAchievements: newlyUnlockedAchievements,
     );
   }
 
@@ -83,7 +89,9 @@ class AchievementState extends Equatable {
     List<UserAchievement>? userAchievements,
     String? errorMessage,
     TimePeriod? selectedTimePeriod,
+    List<UserAchievement>? newlyUnlockedAchievements,
     bool clearError = false,
+    bool clearNewlyUnlocked = false,
   }) {
     return AchievementState(
       status: status ?? this.status,
@@ -91,6 +99,7 @@ class AchievementState extends Equatable {
       userAchievements: userAchievements ?? this.userAchievements,
       errorMessage: clearError ? null : errorMessage ?? this.errorMessage,
       selectedTimePeriod: selectedTimePeriod ?? this.selectedTimePeriod,
+      newlyUnlockedAchievements: clearNewlyUnlocked ? null : newlyUnlockedAchievements ?? this.newlyUnlockedAchievements,
     );
   }
 
@@ -160,5 +169,6 @@ class AchievementState extends Equatable {
     userAchievements,
     errorMessage,
     selectedTimePeriod,
+    newlyUnlockedAchievements,
   ];
 }

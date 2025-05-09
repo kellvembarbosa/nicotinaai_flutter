@@ -148,20 +148,25 @@ class AchievementBloc extends Bloc<AchievementEvent, AchievementState> {
     CheckForNewAchievements event,
     Emitter<AchievementState> emit,
   ) async {
-    // Prevent concurrent checks and limit check frequency
-    if (_isCheckingAchievements || !_canCheckAchievements) {
+    // Prevent concurrent checks and limit check frequency unless forced
+    if (!event.forceDailyCheck && (_isCheckingAchievements || !_canCheckAchievements)) {
       debugPrint('⏳ [AchievementBloc] Ignorando verificação duplicada');
       return;
     }
     
     // If we've had too many consecutive failures, stop checking temporarily
-    if (_consecutiveCheckFailures >= _maxConsecutiveFailures) {
+    // Unless this is a forced daily check
+    if (!event.forceDailyCheck && _consecutiveCheckFailures >= _maxConsecutiveFailures) {
       debugPrint('⚠️ [AchievementBloc] Muitas falhas consecutivas, ignorando verificação temporariamente');
       return;
     }
     
     _isCheckingAchievements = true;
     _lastCheckTime = DateTime.now();
+    
+    if (event.forceDailyCheck) {
+      debugPrint('🔍 [AchievementBloc] Verificando achievements diários (forçado)');
+    }
     
     try {
       final newlyUnlocked = await _service.checkForNewAchievements();
@@ -198,7 +203,20 @@ class AchievementBloc extends Bloc<AchievementEvent, AchievementState> {
             return ua;
           }).toList();
           
-          emit(state.copyWith(userAchievements: updatedAchievements));
+          emit(state.copyWith(
+            userAchievements: updatedAchievements,
+            newlyUnlockedAchievements: newlyUnlocked,
+          ));
+        } else {
+          // Se não pudermos atualizar completamente, ao menos atualizamos a lista de novos
+          emit(state.copyWith(
+            newlyUnlockedAchievements: newlyUnlocked,
+          ));
+        }
+      } else {
+        // Se não houver novos achievements, limpar a lista de recém-desbloqueados
+        if (state.newlyUnlockedAchievements != null) {
+          emit(state.copyWith(clearNewlyUnlocked: true));
         }
       }
     } catch (e) {
