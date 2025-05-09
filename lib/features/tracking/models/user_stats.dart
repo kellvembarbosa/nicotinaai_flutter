@@ -63,7 +63,8 @@ class UserStats {
   }
 
   // Calculated properties
-  // Money saved in currency format (e.g., $10.50)
+  // This is a legacy method kept for backward compatibility
+  // Use CurrencyUtils.format instead for actual formatting
   String get formattedMoneySaved {
     final dollars = moneySaved / 100;
     return 'R\$ ${dollars.toStringAsFixed(2)}';

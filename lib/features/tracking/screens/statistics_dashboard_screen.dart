@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:nicotinaai_flutter/core/providers/currency_provider.dart';
 import 'package:nicotinaai_flutter/core/routes/app_routes.dart';
 import 'package:nicotinaai_flutter/core/theme/app_theme.dart';
+import 'package:nicotinaai_flutter/features/auth/providers/auth_provider.dart';
 import 'package:nicotinaai_flutter/features/tracking/models/craving.dart';
 import 'package:nicotinaai_flutter/features/tracking/models/user_stats.dart';
 import 'package:nicotinaai_flutter/features/tracking/providers/tracking_provider.dart';
@@ -23,7 +25,7 @@ class StatisticsDashboardScreen extends StatefulWidget {
 
 class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen> with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  final CurrencyUtils _currencyUtils = CurrencyUtils();
+  // Não precisamos mais da instância direta, pois usamos o CurrencyProvider
   
   @override
   void initState() {
@@ -32,6 +34,10 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen> w
     // Initialize tracking data
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<TrackingProvider>().initialize();
+      // Garante que o CurrencyProvider também esteja inicializado
+      if (!context.read<CurrencyProvider>().isInitialized) {
+        context.read<CurrencyProvider>().initialize();
+      }
     });
   }
 
@@ -129,6 +135,11 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen> w
 
   Widget _buildOverviewTab(BuildContext context, UserStats? stats) {
     final l10n = AppLocalizations.of(context);
+    // Obtenha o CurrencyProvider de forma que as mudanças de moeda disparem rebuild
+    final currencyProvider = Provider.of<CurrencyProvider>(context);
+    
+    // Debug para verificar qual moeda está sendo usada
+    print('🔄 Moeda atual: ${currencyProvider.currencySymbol} (${currencyProvider.currencyCode})');
     
     if (stats == null) {
       return const Center(
@@ -205,7 +216,7 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen> w
         _buildStatsCard(
           context,
           l10n.potentialMonthlySavings ?? 'Money saved',
-          _currencyUtils.formatWithDeviceLocale(stats.moneySaved, context: context),
+          currencyProvider.format(stats.moneySaved),
           Icons.account_balance_wallet,
           Colors.blue,
         ),
@@ -215,6 +226,11 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen> w
 
   Widget _buildSavingsTab(BuildContext context, UserStats? stats) {
     final l10n = AppLocalizations.of(context);
+    // Obtenha o CurrencyProvider de forma que as mudanças de moeda disparem rebuild
+    final currencyProvider = Provider.of<CurrencyProvider>(context);
+    
+    // Debug para verificar qual moeda está sendo usada
+    print('🔄 Moeda atual: ${currencyProvider.currencySymbol} (${currencyProvider.currencyCode})');
     
     if (stats == null) {
       return const Center(
@@ -244,7 +260,7 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen> w
         _buildStatsCard(
           context,
           l10n.savingsCalculator ?? 'Total Savings',
-          _currencyUtils.formatWithDeviceLocale(stats.moneySaved, context: context),
+          currencyProvider.format(stats.moneySaved),
           Icons.account_balance_wallet,
           Colors.blue,
         ),
@@ -261,7 +277,7 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen> w
               child: _buildStatsCard(
                 context,
                 'Month',
-                _currencyUtils.formatWithDeviceLocale(stats.moneySaved * 30 ~/ (days > 0 ? days : 30), context: context),
+                currencyProvider.format(stats.moneySaved * 30 ~/ (days > 0 ? days : 30)),
                 Icons.calendar_month,
                 Colors.teal,
               ),
@@ -271,7 +287,7 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen> w
               child: _buildStatsCard(
                 context,
                 'Year',
-                _currencyUtils.formatWithDeviceLocale(stats.moneySaved * 365 ~/ (days > 0 ? days : 30), context: context),
+                currencyProvider.format(stats.moneySaved * 365 ~/ (days > 0 ? days : 30)),
                 Icons.cake,
                 Colors.amber,
               ),
