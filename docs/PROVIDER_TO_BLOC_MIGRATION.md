@@ -4,7 +4,7 @@ This document summarizes the migration from Provider to BLoC pattern in the Nico
 
 ## Overview
 
-The application has been successfully migrated from using Provider state management to using the BLoC (Business Logic Component) pattern. This migration provides better separation of concerns, improved testability, and a more structured approach to state management.
+The core infrastructure of the application has been migrated from Provider state management to the BLoC (Business Logic Component) pattern. The migration is partially complete, with the main infrastructure and critical screens updated, but some UI components still need to be migrated.
 
 ## Completed Steps
 
@@ -21,14 +21,51 @@ The application has been successfully migrated from using Provider state managem
    - Updated the Router initialization to use BLoCs
    - Removed all legacy Provider declarations
 
-4. **Updated UI Components**
-   - Replaced all instances of `Provider.of<T>` with either `context.watch<T>()` or `context.read<T>()`
-   - Updated event handling to use BLoC events
-   - Modified state access to use BLoC states
+4. **Updated Critical Screens**
+   - Fixed SplashScreen to use AuthBloc and OnboardingBloc
+   - Updated MainScreen to use AuthBloc instead of AuthProvider
+   - Modified AchievementHelper and AchievementTriggers to work with AchievementBloc
 
-5. **Removed Provider Dependency**
+5. **Updated Core Components**
+   - Replaced optimistic_update_utils.dart to use BLoC
+
+6. **Removed Provider Dependency**
    - Removed the Provider package from pubspec.yaml
    - Ran `flutter pub get` to update dependencies
+
+## Pending Tasks
+
+The following files still import the provider package and need to be updated:
+
+1. **Theme Related**
+   - lib/core/theme/theme_settings.dart
+   - lib/core/theme/theme_switch.dart
+
+2. **Settings Screens**
+   - lib/features/settings/screens/currency_selection_screen.dart
+   - lib/features/settings/screens/language_selection_screen.dart
+
+3. **Home Widgets**
+   - lib/features/home/widgets/register_craving_sheet.dart
+
+4. **Achievement Screens**
+   - lib/features/achievements/screens/updated_achievements_screen.dart
+   - lib/features/achievements/screens/achievements_screen.dart
+   - lib/features/achievements/screens/achievement_detail_screen.dart
+   - lib/features/achievements/services/achievement_notification_service.dart
+   - lib/features/achievements/widgets/time_period_selector.dart
+
+5. **Auth Screens**
+   - lib/features/auth/screens/register_screen.dart
+   - lib/features/auth/screens/login_screen.dart
+   - lib/features/auth/screens/forgot_password_screen.dart
+
+6. **Tracking Screens**
+   - Multiple screens in /lib/features/tracking/screens/
+   - lib/features/tracking/widgets/health_recovery_test.dart
+
+7. **Onboarding Screens**
+   - Multiple screens in /lib/features/onboarding/screens/
 
 ## Benefits
 
@@ -53,15 +90,19 @@ The application has been successfully migrated from using Provider state managem
 
 ## Next Steps
 
-1. **Testing**
+1. **Complete UI Migration**
+   - Update all remaining screens and widgets to use BLoC instead of Provider
+   - Prioritize screens based on usage frequency
+
+2. **Testing**
    - Thoroughly test all application features to ensure proper functioning
    - Pay special attention to navigation and authentication flows
 
-2. **Documentation**
+3. **Documentation**
    - Update project documentation to reflect the new architecture
    - Add comments to newly created BLoCs and adapters
 
-3. **Further Optimization**
+4. **Further Optimization**
    - Consider implementing more advanced BLoC patterns as needed
    - Look for opportunities to further improve state management
 
