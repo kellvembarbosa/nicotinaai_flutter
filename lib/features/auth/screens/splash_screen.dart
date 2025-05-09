@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:nicotinaai_flutter/features/auth/providers/auth_provider.dart';
-import 'package:nicotinaai_flutter/features/onboarding/providers/onboarding_provider.dart';
+import 'package:nicotinaai_flutter/blocs/auth/auth_bloc.dart';
+import 'package:nicotinaai_flutter/blocs/auth/auth_state.dart';
+import 'package:nicotinaai_flutter/blocs/onboarding/onboarding_bloc.dart';
+import 'package:nicotinaai_flutter/blocs/onboarding/onboarding_state.dart';
+import 'package:nicotinaai_flutter/blocs/onboarding/onboarding_event.dart';
 import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
 import 'package:nicotinaai_flutter/core/routes/app_routes.dart';
 
@@ -29,8 +32,12 @@ class _SplashScreenState extends State<SplashScreen> {
   void _checkAuthAndNavigate() async {
     if (!mounted) return;
     
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    final isAuthenticated = authProvider.isAuthenticated;
+    final authBloc = context.read<AuthBloc>();
+    final authState = authBloc.state;
+    final isAuthenticated = authState.isAuthenticated;
+    
+    print('🛑 [SplashScreen] Na tela de splash, NUNCA interferir na navegação do Router!');
+    print('ℹ️ [SplashScreen] O SplashScreen agora está apenas aguardando o Router decidir para onde ir.');
     
     if (!isAuthenticated) {
       // Se não estiver autenticado, ir para login
@@ -41,27 +48,37 @@ class _SplashScreenState extends State<SplashScreen> {
     
     print('👤 [SplashScreen] Usuário autenticado, verificando onboarding');
     
-    // Se autenticado, verificar onboarding de forma síncrona
-    final onboardingProvider = Provider.of<OnboardingProvider>(context, listen: false);
+    // Se autenticado, verificar onboarding
+    final onboardingBloc = context.read<OnboardingBloc>();
     
     try {
-      // Forçar inicialização do onboarding e aguardar conclusão
+      // Forçar inicialização do onboarding e aguardar resposta do evento
       print('🔄 [SplashScreen] Inicializando onboarding...');
-      await onboardingProvider.initialize();
+      onboardingBloc.add(InitializeOnboarding());
+      
+      // Aguardar um tempo para o onboarding ser inicializado
+      await Future.delayed(const Duration(milliseconds: 500));
       
       if (!mounted) return;
       
       // Verificação direta no Supabase para confirmar o status
-      print('🔍 [SplashScreen] Verificando status diretamente no Supabase');
-      final isCompletedInSupabase = await onboardingProvider.checkCompletionStatus();
+      print('🔍 [SplashScreen] Verificando status do onboarding');
+      onboardingBloc.add(CheckOnboardingStatus());
+      
+      // Aguardar verificação
+      await Future.delayed(const Duration(milliseconds: 500));
       
       if (!mounted) return;
       
-      // Usar a verificação do Supabase como fonte primária da verdade
-      print('✅ [SplashScreen] Status do onboarding no Supabase: ${isCompletedInSupabase ? "COMPLETO" : "INCOMPLETO"}');
+      // Obter estado atual do onboarding
+      final onboardingState = onboardingBloc.state;
+      final isCompleted = onboardingState.isCompleted;
       
-      if (isCompletedInSupabase) {
-        // Se onboarding completo no Supabase, ir para tela principal
+      // Usar a verificação como fonte primária da verdade
+      print('✅ [SplashScreen] Status do onboarding: ${isCompleted ? "COMPLETO" : "INCOMPLETO"}');
+      
+      if (isCompleted) {
+        // Se onboarding completo, ir para tela principal
         print('✅ [SplashScreen] Onboarding completo, redirecionando para tela principal');
         context.go(AppRoutes.main.path);
       } else {
@@ -74,11 +91,12 @@ class _SplashScreenState extends State<SplashScreen> {
       
       print('❌ [SplashScreen] Erro ao verificar onboarding: $e');
       
-      // Em caso de erro, verificar estado em memória como fallback
-      final isCompletedLocally = onboardingProvider.state.isCompleted;
-      print('🔄 [SplashScreen] Fallback: status do onboarding em memória: ${isCompletedLocally ? "COMPLETO" : "INCOMPLETO"}');
+      // Em caso de erro, verificar estado atual como fallback
+      final onboardingState = onboardingBloc.state;
+      final isCompleted = onboardingState.isCompleted;
+      print('🔄 [SplashScreen] Fallback: status do onboarding: ${isCompleted ? "COMPLETO" : "INCOMPLETO"}');
       
-      if (isCompletedLocally) {
+      if (isCompleted) {
         context.go(AppRoutes.main.path);
       } else {
         context.go(AppRoutes.onboarding.path);
@@ -118,7 +136,7 @@ class _SplashScreenState extends State<SplashScreen> {
             
             // Loading message
             Text(
-              l10n?.loading ?? 'Loading...',
+              l10n.loading ?? 'Loading...',
               style: Theme.of(context).textTheme.bodyLarge,
             ),
           ],
