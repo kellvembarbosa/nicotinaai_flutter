@@ -2011,5 +2011,20 @@
   "healthRecoveryDescription": "Ve cómo tu cuerpo se recupera después de dejar de fumar",
   "@healthRecoveryDescription": {
     "description": "Description for health recovery tracking feature"
+  },
+  
+  "somethingWentWrong": "Algo salió mal, por favor inténtalo de nuevo",
+  "@somethingWentWrong": {
+    "description": "Generic error message when an operation fails"
+  },
+  
+  "comingSoon": "Próximamente",
+  "@comingSoon": {
+    "description": "Text displayed for features that are not yet available"
+  },
+  
+  "registerFirstCigarette": "Registra tu primer cigarrillo para ver la recuperación de salud",
+  "@registerFirstCigarette": {
+    "description": "Message prompting users to register their first cigarette to see health recovery data"
   }
 }

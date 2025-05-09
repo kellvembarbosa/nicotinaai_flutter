@@ -1769,7 +1769,7 @@
   "noNotificationsYet": "No notifications yet!",
   "emptyNotificationsDescription": "Continue using the app to receive motivational messages and achievements.",
   "motivationalMessage": "Motivational Message",
-  "achievementUnlocked": "Achievement Unlocked!",
+  "achievementUnlocked": "Unlocked!",
   "claimReward": "Claim {xp} XP",
   "@claimReward": {
     "placeholders": {
@@ -1827,5 +1827,204 @@
   "loading": "Loading...",
   "@loading": {
     "description": "Text shown while loading content"
+  },
+
+  "tryAgain": "Try Again",
+  "@tryAgain": {
+    "description": "Button text to try an operation again"
+  },
+
+  "errorLoadingData": "Error loading data",
+  "@errorLoadingData": {
+    "description": "Message shown when data loading fails"
+  },
+
+  "noRecoveriesFound": "No health recoveries found",
+  "@noRecoveriesFound": {
+    "description": "Message shown when no health recoveries are found"
+  },
+
+  "noRecentRecoveries": "No recent health recoveries to display",
+  "@noRecentRecoveries": {
+    "description": "Message shown when no recent health recoveries are available"
+  },
+
+  "viewAllRecoveries": "View All Health Recoveries",
+  "@viewAllRecoveries": {
+    "description": "Button text to view all health recoveries"
+  },
+
+  "healthRecovery": "Health Recovery",
+  "@healthRecovery": {
+    "description": "Title for health recovery section"
+  },
+
+  "seeAll": "See all",
+  "@seeAll": {
+    "description": "Button text to see all items"
+  },
+
+  "achieved": "Achieved",
+  "@achieved": {
+    "description": "Label for achieved status"
+  },
+
+  "progress": "Progress",
+  "@progress": {
+    "description": "Label for progress status"
+  },
+
+  "daysToAchieve": "{days} days to achieve",
+  "@daysToAchieve": {
+    "description": "Text showing days required to achieve a recovery",
+    "placeholders": {
+      "days": {
+        "type": "int",
+        "example": "7"
+      }
+    }
+  },
+
+  "daysRemaining": "{days} days remaining",
+  "@daysRemaining": {
+    "description": "Text showing days remaining to achieve a recovery",
+    "placeholders": {
+      "days": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+
+  "achievedOn": "Achieved on {date}",
+  "@achievedOn": {
+    "description": "Text showing when a recovery was achieved",
+    "placeholders": {
+      "date": {
+        "type": "DateTime",
+        "format": "yMMMd"
+      }
+    }
+  },
+
+  "daysSmokeFree": "{days} days smoke-free",
+  "@daysSmokeFree": {
+    "description": "Text showing days without smoking",
+    "placeholders": {
+      "days": {
+        "type": "int",
+        "example": "10"
+      }
+    }
+  },
+
+  "keepGoing": "Keep Going!",
+  "@keepGoing": {
+    "description": "Encouragement message"
+  },
+
+  "encouragementMessage": "You're making great progress. Each day without smoking brings you closer to achieving this health milestone.",
+  "@encouragementMessage": {
+    "description": "Detailed encouragement message"
+  },
+
+  "recoveryAchievedMessage": "Your body has already recovered in this area. Keep up the good work to maintain and improve your health even further.",
+  "@recoveryAchievedMessage": {
+    "description": "Message shown when a health recovery is achieved"
+  },
+
+  "scienceBehindIt": "The Science Behind It",
+  "@scienceBehindIt": {
+    "description": "Title for science information section"
+  },
+
+  "generalHealthScienceInfo": "When you stop smoking, your body begins a series of healing processes. These start within minutes of your last cigarette and continue for years, gradually restoring your health to that of a non-smoker.",
+  "@generalHealthScienceInfo": {
+    "description": "General scientific information about health recovery"
+  },
+
+  "tasteScienceInfo": "When you smoke, chemicals in tobacco damage taste buds and reduce your ability to taste flavors. After just a few days without smoking, these taste receptors begin to heal, allowing you to experience more flavors and enjoy food more fully.",
+  "@tasteScienceInfo": {
+    "description": "Scientific information about taste recovery"
+  },
+
+  "smellScienceInfo": "Smoking damages the olfactory nerves that transmit scent information to your brain. Within days of quitting, these nerves begin to recover, gradually improving your sense of smell and allowing you to detect more subtle scents.",
+  "@smellScienceInfo": {
+    "description": "Scientific information about smell recovery"
+  },
+
+  "bloodOxygenScienceInfo": "Carbon monoxide from cigarettes binds to hemoglobin in your blood, reducing its ability to carry oxygen. Within 12-24 hours after quitting, carbon monoxide levels drop dramatically, allowing your blood to carry oxygen more effectively.",
+  "@bloodOxygenScienceInfo": {
+    "description": "Scientific information about blood oxygen recovery"
+  },
+
+  "carbonMonoxideScienceInfo": "Cigarette smoke contains carbon monoxide, which displaces oxygen in your blood. Within 12 hours of quitting, carbon monoxide levels return to normal, and your body's oxygen levels increase significantly.",
+  "@carbonMonoxideScienceInfo": {
+    "description": "Scientific information about carbon monoxide elimination"
+  },
+
+  "nicotineScienceInfo": "Nicotine has a half-life of about 2 hours, meaning it takes approximately 72 hours (3 days) for all nicotine to be eliminated from your body. Once nicotine is gone, physical withdrawal symptoms begin to decrease.",
+  "@nicotineScienceInfo": {
+    "description": "Scientific information about nicotine expulsion"
+  },
+
+  "improvedBreathingScienceInfo": "After 7 days without smoking, lung function begins to improve as inflammation decreases and the lungs start to clear accumulated mucus. You'll notice less coughing and easier breathing, especially during physical activity.",
+  "@improvedBreathingScienceInfo": {
+    "description": "Scientific information about improved breathing"
+  },
+
+  "improvedCirculationScienceInfo": "After two weeks of not smoking, your circulation improves significantly. Blood vessels dilate, blood pressure normalizes, and more oxygen reaches your muscles and organs, making physical activity easier and less strenuous.",
+  "@improvedCirculationScienceInfo": {
+    "description": "Scientific information about improved circulation"
+  },
+
+  "decreasedCoughingScienceInfo": "One month after quitting, the cilia (tiny hair-like structures) in your lungs begin to regrow. These help clean your lungs and reduce infections. Your coughing and shortness of breath continue to decrease.",
+  "@decreasedCoughingScienceInfo": {
+    "description": "Scientific information about decreased coughing"
+  },
+
+  "lungCiliaScienceInfo": "After 3 months without smoking, your lung function can improve by up to 30%. The cilia in your lungs have largely regrown, improving your lungs' ability to clean themselves, fight infection, and reduce mucus.",
+  "@lungCiliaScienceInfo": {
+    "description": "Scientific information about lung cilia recovery"
+  },
+
+  "reducedHeartDiseaseRiskScienceInfo": "After one year without smoking, your risk of coronary heart disease decreases to about half that of a smoker. Your heart function continues to improve as blood vessels heal and circulation enhances.",
+  "@reducedHeartDiseaseRiskScienceInfo": {
+    "description": "Scientific information about reduced heart disease risk"
+  },
+  
+  "viewHealthRecoveries": "View Health Recoveries",
+  "@viewHealthRecoveries": {
+    "description": "Button text to view health recoveries screen"
+  },
+  
+  "recoveryNotFound": "Health recovery not found",
+  "@recoveryNotFound": {
+    "description": "Message shown when a health recovery is not found"
+  },
+  
+  "trackYourHealthJourney": "Track Your Health Journey",
+  "@trackYourHealthJourney": {
+    "description": "Title for health recovery tracking feature"
+  },
+  
+  "healthRecoveryDescription": "See how your body heals after quitting smoking",
+  "@healthRecoveryDescription": {
+    "description": "Description for health recovery tracking feature"
+  },
+  
+  "somethingWentWrong": "Something went wrong, please try again",
+  "@somethingWentWrong": {
+    "description": "Generic error message when an operation fails"
+  },
+  
+  "comingSoon": "Coming Soon",
+  "@comingSoon": {
+    "description": "Text displayed for features that are not yet available"
+  },
+  
+  "registerFirstCigarette": "Register your first cigarette to see health recovery",
+  "@registerFirstCigarette": {
+    "description": "Message prompting users to register their first cigarette to see health recovery data"
   }
 }
