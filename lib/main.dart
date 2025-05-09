@@ -5,6 +5,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:nicotinaai_flutter/config/firebase_options.dart';
 import 'package:nicotinaai_flutter/config/supabase_config.dart';
 import 'package:nicotinaai_flutter/core/routes/app_router.dart';
@@ -21,7 +22,12 @@ import 'package:nicotinaai_flutter/features/onboarding/providers/onboarding_prov
 import 'package:nicotinaai_flutter/features/onboarding/repositories/onboarding_repository.dart';
 import 'package:nicotinaai_flutter/features/tracking/providers/tracking_provider.dart';
 import 'package:nicotinaai_flutter/features/tracking/repositories/tracking_repository.dart';
+import 'package:nicotinaai_flutter/features/achievements/providers/achievement_provider.dart';
+import 'package:nicotinaai_flutter/features/achievements/services/achievement_service.dart';
+import 'package:nicotinaai_flutter/features/achievements/services/achievement_notification_service.dart';
+import 'package:nicotinaai_flutter/features/achievements/helpers/achievement_helper.dart';
 import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
+import 'package:nicotinaai_flutter/services/analytics_service.dart';
 import 'package:nicotinaai_flutter/services/notification_service.dart';
 import 'package:nicotinaai_flutter/services/supabase_diagnostic.dart';
 import 'package:nicotinaai_flutter/services/migration_service.dart';
@@ -55,6 +61,16 @@ void main() async {
   // Inicializa o serviço de notificações após Supabase e Firebase
   await NotificationService().initialize();
   
+  // Inicializa o serviço de analytics (Facebook App Events)
+  try {
+    await AnalyticsService().initialize();
+    debugPrint('✅ Analytics service initialized successfully');
+    await AnalyticsService().logAppOpen();
+  } catch (e) {
+    debugPrint('⚠️ Analytics initialization error: $e');
+    // Continue without analytics if it fails
+  }
+  
   // Garante que a preferência de idioma está definida para inglês
   final prefs = await SharedPreferences.getInstance();
   await prefs.setString('app_locale', 'en_US');
@@ -68,16 +84,31 @@ void main() async {
     debugPrint('⚠️ Nem todas as tabelas essenciais estão disponíveis');
     debugPrint(await dbCheckService.getDiagnosticReport());
     
-    // Tenta criar a tabela smoking_logs caso não exista
-    final tableFixed = await MigrationService.ensureTableExists('smoking_logs');
+    // Check if tables exist but don't try to create them from the client
+    debugPrint('🔍 Checking for essential tables...');
     
-    if (tableFixed) {
-      debugPrint('✅ Tabela smoking_logs criada com sucesso');
-    } else {
-      debugPrint('❌ Não foi possível criar a tabela smoking_logs');
+    // Check smoking_logs
+    try {
+      await SupabaseConfig.client.from('smoking_logs').select('*').limit(1);
+      debugPrint('✅ Table smoking_logs exists');
+    } catch (e) {
+      debugPrint('❌ Table smoking_logs does not exist or is not accessible');
+      debugPrint('⚠️ SECURITY NOTE: Tables should be created using Supabase migrations or MCP functions');
       
-      // Executa o diagnóstico completo do Supabase para ajudar a identificar o problema
+      // Log diagnostic info
       await SupabaseDiagnostic.logDiagnosticReport(tableName: 'smoking_logs');
+    }
+    
+    // Check viewed_achievements
+    try {
+      await SupabaseConfig.client.from('viewed_achievements').select('*').limit(1);
+      debugPrint('✅ Table viewed_achievements exists');
+    } catch (e) {
+      debugPrint('❌ Table viewed_achievements does not exist or is not accessible');
+      debugPrint('⚠️ SECURITY NOTE: Tables should be created using Supabase migrations or MCP functions');
+      
+      // Log diagnostic info
+      await SupabaseDiagnostic.logDiagnosticReport(tableName: 'viewed_achievements');
     }
   } else {
     debugPrint('✅ Todas as tabelas essenciais estão disponíveis');
@@ -88,10 +119,16 @@ void main() async {
   final onboardingRepository = OnboardingRepository();
   final trackingRepository = TrackingRepository();
   
+  // Initialize achievement notification service
+  final achievementNotifications = AchievementNotificationService(
+    FlutterLocalNotificationsPlugin()
+  );
+  
   runApp(MyApp(
     authRepository: authRepository,
     onboardingRepository: onboardingRepository,
     trackingRepository: trackingRepository,
+    achievementNotifications: achievementNotifications,
   ));
 }
 
@@ -99,11 +136,13 @@ class MyApp extends StatelessWidget {
   final AuthRepository authRepository;
   final OnboardingRepository onboardingRepository;
   final TrackingRepository trackingRepository;
+  final AchievementNotificationService achievementNotifications;
   
   const MyApp({
     required this.authRepository,
     required this.onboardingRepository,
     required this.trackingRepository,
+    required this.achievementNotifications,
     super.key,
   });
 
@@ -239,33 +278,69 @@ class MyApp extends StatelessWidget {
             return provider;
           },
         ),
+        
+        // Provider para o sistema de achievements
+        ChangeNotifierProxyProvider2<AuthProvider, TrackingProvider, AchievementProvider>(
+          create: (context) => AchievementProvider(
+            AchievementService(
+              SupabaseConfig.client,
+              trackingRepository,
+            ),
+          ),
+          update: (_, authProvider, trackingProvider, previousProvider) {
+            // Reutilizar sempre o provider anterior para evitar recriações desnecessárias
+            final provider = previousProvider ?? AchievementProvider(
+              AchievementService(
+                SupabaseConfig.client,
+                trackingRepository,
+              ),
+            );
+            
+            // Inicializar apenas uma vez e somente se o usuário estiver autenticado
+            if (authProvider.isAuthenticated && 
+                provider.state.status == AchievementStatus.initial) {
+              // Agendar para próximo frame para evitar loops
+              Future.microtask(() {
+                provider.loadAchievements();
+              });
+            }
+            
+            return provider;
+          },
+        ),
       ],
-      child: Consumer4<ThemeProvider, LocaleProvider, AuthProvider, OnboardingProvider>(
-        builder: (context, themeProvider, localeProvider, authProvider, onboardingProvider, _) {
-          // Criamos o router dentro do Consumer para reconstruir quando o estado mudar
-          final appRouter = AppRouter(
-            authProvider: authProvider,
-            onboardingProvider: onboardingProvider,
-          );
+      builder: (context, child) {
+        // Inicializar o router fora do consumer para evitar reconstruções
+        final authProvider = Provider.of<AuthProvider>(context, listen: false);
+        final onboardingProvider = Provider.of<OnboardingProvider>(context, listen: false);
           
-          return MaterialApp.router(
-            title: 'NicotinaAI',
-            debugShowCheckedModeBanner: false,
-            
-            // Configuração de temas
-            themeMode: themeProvider.themeMode,
-            theme: themeProvider.lightTheme,
-            darkTheme: themeProvider.darkTheme,
-            
-            // Configuração de localização
-            locale: localeProvider.locale,
-            localizationsDelegates: AppLocalizations.localizationsDelegates,
-            supportedLocales: localeProvider.supportedLocales,
-            
-            routerConfig: appRouter.router,
-          );
-        },
-      ),
+        // Criar router apenas uma vez para evitar loop de reconstrução
+        final appRouter = AppRouter(
+          authProvider: authProvider,
+          onboardingProvider: onboardingProvider,
+        );
+          
+        return Consumer2<ThemeProvider, LocaleProvider>(
+          builder: (context, themeProvider, localeProvider, _) {
+            return MaterialApp.router(
+              title: 'NicotinaAI',
+              debugShowCheckedModeBanner: false,
+              
+              // Configuração de temas
+              themeMode: themeProvider.themeMode,
+              theme: themeProvider.lightTheme,
+              darkTheme: themeProvider.darkTheme,
+              
+              // Configuração de localização
+              locale: localeProvider.locale,
+              localizationsDelegates: AppLocalizations.localizationsDelegates,
+              supportedLocales: localeProvider.supportedLocales,
+              
+              routerConfig: appRouter.router,
+            );
+          },
+        );
+      },
     );
   }
 }

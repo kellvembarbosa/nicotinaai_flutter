@@ -145,8 +145,35 @@ class AppRouter {
     ),
   );
 
+  // Flag para evitar loops infinitos
+  bool _hasCompletedInitialNavigation = false;
+  bool _redirectLoopDetected = false;
+  int _redirectCount = 0;
+  DateTime? _lastRedirectTime;
+  
   /// Gerencia os redirecionamentos com base no estado de autenticação e onboarding
   String? _handleRedirect(BuildContext context, GoRouterState state) {
+    // Implementação de controle de loop
+    _redirectCount++;
+    final now = DateTime.now();
+    if (_lastRedirectTime != null) {
+      final difference = now.difference(_lastRedirectTime!).inMilliseconds;
+      if (difference < 100 && _redirectCount > 5) {
+        if (!_redirectLoopDetected) {
+          print('⚠️ [AppRouter] Detectado possível loop de redirecionamento! Pausando redirecionamentos.');
+          _redirectLoopDetected = true;
+        }
+        return null; // Bloqueia redirecionamentos quando um loop é detectado
+      }
+    }
+    _lastRedirectTime = now;
+    
+    // Reset do contador após um período sem redirecionamentos
+    Future.delayed(Duration(seconds: 5), () {
+      _redirectCount = 0;
+      _redirectLoopDetected = false;
+    });
+    
     // Páginas que não requerem autenticação
     final publicPages = [
       LoginScreen.routeName,
@@ -159,6 +186,7 @@ class AppRouter {
     final isGoingToSplash = currentLocation == SplashScreen.routeName;
     final isGoingToPublicPage = publicPages.contains(currentLocation);
     final isGoingToOnboarding = currentLocation == OnboardingScreen.routeName;
+    final isGoingToMainScreen = currentLocation == MainScreen.routeName;
     
     // Verifica se está autenticado ou verificando autenticação
     final isAuthenticated = authProvider.isAuthenticated;
@@ -166,17 +194,29 @@ class AppRouter {
     final isInitializing = authProvider.state.status == AuthStatus.initial;
     
     // Verifica se já completou o onboarding
-    // Sempre considera o estado atual, mesmo que ainda não esteja totalmente carregado
     final onboardingState = onboardingProvider.state;
     final hasCompletedOnboarding = onboardingState.isCompleted;
     final isOnboardingLoaded = !onboardingState.isInitial && !onboardingState.isLoading;
     
-    // Log para depuração
-    print('🧭 [AppRouter] Redirecionamento - Autenticado: $isAuthenticated, Onboarding completo: $hasCompletedOnboarding, Rota: $currentLocation');
+    // Log para depuração (reduzido)
+    if (_redirectCount < 10 || _redirectCount % 10 == 0) {
+      print('🧭 [AppRouter] Redirecionamento #$_redirectCount - Autenticado: $isAuthenticated, Onboarding: $hasCompletedOnboarding, Rota: $currentLocation');
+    }
     
-    // Prevenção contra loop infinito de redirecionamento
-    if (state.matchedLocation == MainScreen.routeName) {
-      return null; // Se já estamos na tela principal, não redirecionar
+    // PROTEÇÃO CONTRA LOOP: Se já estamos na tela principal, nunca redirecionar
+    if (isGoingToMainScreen) {
+      _hasCompletedInitialNavigation = true;
+      return null;
+    }
+    
+    // PROTEÇÃO CONTRA LOOP: Se já completamos a navegação inicial, só redirecionar para páginas específicas
+    if (_hasCompletedInitialNavigation) {
+      // Após a primeira navegação completa, permitimos apenas redirecionamentos específicos
+      // para evitar loops infinitos
+      if (!isAuthenticated && !isGoingToPublicPage && !isGoingToSplash) {
+        return RegisterScreen.routeName; // Redirecionar páginas protegidas para login se não autenticado
+      }
+      return null; // Para todos os outros casos, não redirecionamos mais
     }
     
     // Se estiver inicializando ou autenticando, permite permanecer na tela de splash
@@ -187,15 +227,11 @@ class AppRouter {
     // Redirecionamento da tela de splash após verificação de autenticação
     if (isGoingToSplash && !isInitializing && !isAuthenticating) {
       if (isAuthenticated) {
-        // Se autenticado mas não completou onboarding, redireciona para onboarding
         if (!hasCompletedOnboarding) {
-          print('🔄 [AppRouter] Redirecionando do splash para onboarding - usuário autenticado mas onboarding não concluído');
           return OnboardingScreen.routeName;
         }
-        // Se autenticado e completou onboarding, redireciona para tela principal
         return MainScreen.routeName;
       } else {
-        // Se não autenticado, redireciona para a tela de registro
         return RegisterScreen.routeName;
       }
     }
@@ -206,28 +242,18 @@ class AppRouter {
     }
     
     // Se estiver autenticado mas não completou onboarding
-    // e não está indo para a página de onboarding
-    // Dar alta prioridade para este redirecionamento
-    if (isAuthenticated && !onboardingProvider.state.isCompleted && !isGoingToOnboarding && !isGoingToSplash) {
-      print('🔄 [AppRouter] Redirecionando para onboarding - usuário autenticado mas onboarding não concluído');
+    if (isAuthenticated && !hasCompletedOnboarding && !isGoingToOnboarding && !isGoingToSplash) {
       return OnboardingScreen.routeName;
     }
     
     // Se estiver autenticado, completou onboarding e está indo para onboarding
-    // Só redireciona se o estado do onboarding já foi carregado
-    if (isAuthenticated && isOnboardingLoaded && hasCompletedOnboarding && isGoingToOnboarding) {
+    if (isAuthenticated && hasCompletedOnboarding && isGoingToOnboarding) {
       return MainScreen.routeName;
     }
     
     // Se estiver autenticado e tentando acessar página pública
     if (isAuthenticated && isGoingToPublicPage) {
-      // Verificar diretamente no repositório se o onboarding está completo
-      final isCompleted = onboardingProvider.state.isCompleted;
-      
-      print('🔄 [AppRouter] Usuário autenticado acessando página pública. Onboarding concluído: $isCompleted');
-      
-      // Se não estiver completo, redirecionar para onboarding (prioridade máxima)
-      if (!isCompleted) {
+      if (!hasCompletedOnboarding) {
         return OnboardingScreen.routeName;
       }
       return MainScreen.routeName;

@@ -5,11 +5,32 @@ import 'package:flutter/material.dart';
 /// Helper functions for working with health recoveries
 class HealthRecoveryUtils {
   static final _client = SupabaseConfig.client;
+  
+  // Cache para evitar chamadas repetidas
+  static final Map<String, dynamic> _cache = {};
+  static DateTime? _lastCheckTime;
+  static const _cacheExpirationMs = 60000; // 1 minuto
+  
+  /// Verifica se uma operação foi executada recentemente
+  static bool _wasRecentlyExecuted(String operation) {
+    if (_lastCheckTime == null) return false;
+    
+    final now = DateTime.now();
+    final difference = now.difference(_lastCheckTime!).inMilliseconds;
+    return difference < _cacheExpirationMs;
+  }
 
   /// Check for new health recoveries for the current user
   /// Returns the result from the checkHealthRecoveries edge function
   static Future<Map<String, dynamic>> checkForNewRecoveries() async {
     try {
+      // Verifica cache para evitar chamadas repetidas
+      if (_wasRecentlyExecuted('checkForNewRecoveries')) {
+        return _cache['checkForNewRecoveries'] ?? {'message': 'Using cached data (empty)'};
+      }
+      
+      _lastCheckTime = DateTime.now();
+      
       final user = _client.auth.currentUser;
       
       if (user == null) {
@@ -25,10 +46,13 @@ class HealthRecoveryUtils {
         throw Exception('Failed to check health recoveries: Status ${response.status}');
       }
       
-      return response.data as Map<String, dynamic>;
+      // Armazena em cache
+      _cache['checkForNewRecoveries'] = response.data as Map<String, dynamic>;
+      
+      return _cache['checkForNewRecoveries']!;
     } catch (e) {
       // Log the error but don't crash the app
-      print('Error checking health recoveries: $e');
+      debugPrint('Error checking health recoveries: $e');
       rethrow;
     }
   }
@@ -36,64 +60,129 @@ class HealthRecoveryUtils {
   /// Get the number of days required to achieve all health recoveries
   static Future<List<int>> getHealthRecoveryMilestones() async {
     try {
+      // Verifica cache para evitar chamadas repetidas
+      if (_wasRecentlyExecuted('getHealthRecoveryMilestones') && 
+          _cache.containsKey('healthRecoveryMilestones')) {
+        return _cache['healthRecoveryMilestones'] as List<int>;
+      }
+      
       final response = await _client
           .from('health_recoveries')
           .select('days_to_achieve')
           .order('days_to_achieve', ascending: true);
       
-      return (response as List).map((r) => r['days_to_achieve'] as int).toList();
+      final result = (response as List).map((r) => r['days_to_achieve'] as int).toList();
+      
+      // Armazena em cache
+      _cache['healthRecoveryMilestones'] = result;
+      _lastCheckTime = DateTime.now();
+      
+      return result;
     } catch (e) {
       // Return some sensible defaults if we can't get the milestones
-      print('Error getting health recovery milestones: $e');
+      debugPrint('Error getting health recovery milestones: $e');
       return [1, 2, 3, 7, 14, 30, 90, 365];
     }
   }
   
   /// Get the next health recovery milestone for a given number of days
   static Future<int> getNextMilestone(int currentDays) async {
-    final milestones = await getHealthRecoveryMilestones();
+    debugPrint('Getting next milestone for streak: $currentDays days');
     
-    // Find the next milestone that's greater than the current days
-    for (final days in milestones) {
-      if (days > currentDays) {
-        return days;
+    try {
+      // Verificar o cache para evitar chamadas repetidas
+      final cacheKey = 'nextMilestone_$currentDays';
+      if (_wasRecentlyExecuted(cacheKey) && _cache.containsKey(cacheKey)) {
+        return _cache[cacheKey] as int;
       }
+      
+      final milestones = await getHealthRecoveryMilestones();
+      
+      if (milestones.isEmpty) {
+        debugPrint('No health recovery milestones found, using default value 365');
+        return 365; // Default fallback if no milestones available
+      }
+      
+      // Find the next milestone that's greater than the current days
+      for (final days in milestones) {
+        if (days > currentDays) {
+          // Armazena em cache
+          _cache[cacheKey] = days;
+          return days;
+        }
+      }
+      
+      // If there are no more milestones, return the last one
+      _cache[cacheKey] = milestones.last;
+      return milestones.last;
+    } catch (e) {
+      debugPrint('Error getting next health recovery milestone: $e');
+      // Return a sensible default if we can't get the milestones
+      return currentDays < 365 ? 365 : currentDays + 30;
     }
-    
-    // If there are no more milestones, return the last one or 365 as a fallback
-    return milestones.isNotEmpty ? milestones.last : 365;
   }
   
   /// Calculate progress towards the next milestone
   static Future<double> getProgressToNextMilestone(int currentDays) async {
-    final milestones = await getHealthRecoveryMilestones();
-    
-    // If no milestones or already past all milestones
-    if (milestones.isEmpty || currentDays >= milestones.last) {
-      return 1.0; // 100% progress
-    }
-    
-    // Find the previous and next milestones
-    int? previousMilestone;
-    int nextMilestone = milestones.first;
-    
-    for (final days in milestones) {
-      if (days <= currentDays) {
-        previousMilestone = days;
-      } else {
-        nextMilestone = days;
-        break;
+    try {
+      // Verificar cache para evitar chamadas repetidas
+      final cacheKey = 'progressToNext_$currentDays';
+      if (_wasRecentlyExecuted(cacheKey) && _cache.containsKey(cacheKey)) {
+        return _cache[cacheKey] as double;
       }
+      
+      final milestones = await getHealthRecoveryMilestones();
+      
+      // Handle no milestones case
+      if (milestones.isEmpty) {
+        debugPrint('No health recovery milestones found for progress calculation');
+        final defaultProgress = currentDays > 0 ? 0.5 : 0.0;
+        _cache[cacheKey] = defaultProgress;
+        return defaultProgress;
+      }
+      
+      // If already past all milestones
+      if (currentDays >= milestones.last) {
+        _cache[cacheKey] = 1.0;
+        return 1.0; // 100% progress
+      }
+      
+      // Find the previous and next milestones
+      int? previousMilestone;
+      int nextMilestone = milestones.first;
+      
+      for (final days in milestones) {
+        if (days <= currentDays) {
+          previousMilestone = days;
+        } else {
+          nextMilestone = days;
+          break;
+        }
+      }
+      
+      // If no previous milestone, use 0
+      previousMilestone ??= 0;
+      
+      // Calculate progress between previous and next milestones
+      final totalDays = nextMilestone - previousMilestone;
+      final progressDays = currentDays - previousMilestone;
+      
+      // Avoid division by zero
+      final progress = totalDays > 0 ? progressDays / totalDays : 0.0;
+      
+      // Ensure progress is between 0 and 1
+      final result = progress.clamp(0.0, 1.0);
+      
+      // Armazenar em cache
+      _cache[cacheKey] = result;
+      _lastCheckTime = DateTime.now();
+      
+      return result;
+    } catch (e) {
+      debugPrint('Error calculating progress to next milestone: $e');
+      // Return a sensible default if calculation fails
+      return 0.0;
     }
-    
-    // If no previous milestone, use 0
-    previousMilestone ??= 0;
-    
-    // Calculate progress between previous and next milestones
-    final totalDays = nextMilestone - previousMilestone;
-    final progressDays = currentDays - previousMilestone;
-    
-    return totalDays > 0 ? progressDays / totalDays : 0.0;
   }
   
   /// Get detailed information about a user's health recoveries
@@ -132,25 +221,34 @@ class HealthRecoveryUtils {
           : null;
       
       // Mark each recovery as achieved or in progress
-      final allRecoveries = (recoveries as List).map((r) {
-        final recoveryObj = HealthRecovery.fromJson(r);
+      final allRecoveries = (recoveries as List).map((dynamic r) {
+        // First convert r to Map<String, dynamic> to ensure consistent typing
+        final Map<String, dynamic> recoveryMap = Map<String, dynamic>.from(r as Map);
+        
+        final recoveryObj = HealthRecovery.fromJson(recoveryMap);
         final daysToAchieve = recoveryObj.daysToAchieve;
         final isAchieved = userRecoveries.any((ur) => ur['recovery_id'] == recoveryObj.id);
         final progress = daysToAchieve > 0 && daysToAchieve > currentStreakDays
             ? currentStreakDays / daysToAchieve
             : isAchieved ? 1.0 : 0.0;
         
-        return {
-          ...r,
+        // Return a new Map<String, dynamic> with all properties
+        return Map<String, dynamic>.from({
+          ...recoveryMap,
           'is_achieved': isAchieved,
           'progress': progress,
           'days_remaining': isAchieved ? 0 : (daysToAchieve - currentStreakDays) > 0 ? (daysToAchieve - currentStreakDays) : 0
-        };
+        });
+      }).toList();
+      
+      // Ensure userRecoveries is properly converted to avoid type issues
+      final safeUserRecoveries = (userRecoveries as List).map((dynamic item) {
+        return Map<String, dynamic>.from(item as Map);
       }).toList();
       
       return {
         'recoveries': allRecoveries,
-        'achieved_recoveries': userRecoveries,
+        'achieved_recoveries': safeUserRecoveries,
         'current_streak_days': currentStreakDays,
         'last_smoke_date': lastSmokeDate?.toIso8601String(),
       };
@@ -175,9 +273,28 @@ class HealthRecoveryUtils {
   /// If all milestones have been achieved, it returns null.
   static Future<Map<String, dynamic>?> getNextHealthRecoveryMilestone(int currentStreakDays) async {
     try {
+      // Check cache para evitar chamadas repetidas
+      final cacheKey = 'nextMilestone_$currentStreakDays';
+      if (_wasRecentlyExecuted(cacheKey) && _cache.containsKey(cacheKey)) {
+        return _cache[cacheKey] as Map<String, dynamic>?;
+      }
+      
+      // Log the current streak for debugging
+      debugPrint('Getting next milestone for streak: $currentStreakDays days');
+      
       // Get all health recoveries and their status
       final status = await getUserHealthRecoveryStatus();
+      
+      // Safe check for recoveries
+      if (!status.containsKey('recoveries') || status['recoveries'] == null) {
+        debugPrint('Error: No recoveries found in status');
+        _cache[cacheKey] = null;
+        return null;
+      }
+      
       final recoveries = status['recoveries'] as List;
+      
+      debugPrint('Found ${recoveries.length} total health recoveries');
       
       // Filter to only non-achieved recoveries and sort by days to achieve
       final nonAchievedRecoveries = recoveries
@@ -185,16 +302,39 @@ class HealthRecoveryUtils {
           .toList()
         ..sort((a, b) => a['days_to_achieve'].compareTo(b['days_to_achieve']));
       
+      debugPrint('Found ${nonAchievedRecoveries.length} non-achieved recoveries');
+      
       // If all recoveries are achieved, return null
       if (nonAchievedRecoveries.isEmpty) {
+        _cache[cacheKey] = null;
         return null;
       }
       
       // Find the next recovery - the one with the lowest days_to_achieve that is higher than current streak
-      final nextRecovery = nonAchievedRecoveries.firstWhere(
-        (r) => r['days_to_achieve'] > currentStreakDays,
-        orElse: () => nonAchievedRecoveries.first,
-      );
+      Map<String, dynamic>? nextRecovery;
+      
+      // First try to find a recovery with days_to_achieve > currentStreakDays
+      final futureRecoveries = nonAchievedRecoveries.where(
+        (r) => r['days_to_achieve'] > currentStreakDays
+      ).toList();
+      
+      dynamic rawRecovery;
+      
+      if (futureRecoveries.isNotEmpty) {
+        // Get the closest future recovery
+        rawRecovery = futureRecoveries.first;
+        debugPrint('Found next recovery: ${rawRecovery['name']} at ${rawRecovery['days_to_achieve']} days');
+      } else if (nonAchievedRecoveries.isNotEmpty) {
+        // If no future recoveries found, use the first non-achieved one as fallback
+        rawRecovery = nonAchievedRecoveries.first;
+        debugPrint('Using fallback recovery: ${rawRecovery['name']} at ${rawRecovery['days_to_achieve']} days');
+      } else {
+        _cache[cacheKey] = null;
+        return null; // No recoveries available
+      }
+      
+      // Convert the dynamic Map to Map<String, dynamic> manually
+      nextRecovery = Map<String, dynamic>.from(rawRecovery as Map);
       
       // Get icon based on name or type
       IconData icon = Icons.healing;
@@ -224,7 +364,7 @@ class HealthRecoveryUtils {
       }
       
       // Create result
-      return {
+      final result = {
         'id': nextRecovery['id'],
         'name': nextRecovery['name'],
         'description': nextRecovery['description'],
@@ -234,8 +374,14 @@ class HealthRecoveryUtils {
         'isNext': true,
         'icon': icon,
       };
+      
+      // Store in cache
+      _cache[cacheKey] = result;
+      _lastCheckTime = DateTime.now();
+      
+      return result;
     } catch (e) {
-      print('Error getting next health recovery milestone: $e');
+      debugPrint('Error getting next health recovery milestone: $e');
       return null;
     }
   }
