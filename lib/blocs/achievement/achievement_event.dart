@@ -26,7 +26,14 @@ class MarkAchievementAsViewed extends AchievementEvent {
 }
 
 /// Evento para verificar novos achievements
-class CheckForNewAchievements extends AchievementEvent {}
+class CheckForNewAchievements extends AchievementEvent {
+  final bool forceDailyCheck;
+  
+  const CheckForNewAchievements({this.forceDailyCheck = false});
+  
+  @override
+  List<Object?> get props => [forceDailyCheck];
+}
 
 /// Evento para alterar o período de tempo de filtragem
 class ChangeTimePeriod extends AchievementEvent {
