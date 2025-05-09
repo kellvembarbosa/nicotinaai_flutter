@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:nicotinaai_flutter/blocs/currency/currency_bloc.dart';
+import 'package:nicotinaai_flutter/blocs/currency/currency_state.dart';
 import 'package:nicotinaai_flutter/core/routes/app_routes.dart';
 import 'package:nicotinaai_flutter/core/theme/app_theme.dart';
 import 'package:nicotinaai_flutter/core/theme/theme_provider.dart';
@@ -177,6 +180,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
               ),
             ),
+            _buildSettingItem(
+              context,
+              "${localizations.theme} (BLoC)",
+              "${localizations.themePreference} - BLoC version",
+              Icons.color_lens_outlined,
+              onTap: () {
+                context.push(AppRoutes.themeBloc.path);
+              },
+              trailing: BlocBuilder<ThemeBloc, ThemeState>(
+                builder: (context, state) => Text(
+                  _getThemeModeName(state.themeMode, localizations),
+                  style: context.textTheme.bodySmall!.copyWith(
+                    color: context.subtitleColor,
+                  ),
+                ),
+              ),
+            ),
 
             const SizedBox(height: 24),
 
@@ -211,6 +231,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
               trailing: Consumer<CurrencyProvider>(
                 builder: (context, provider, child) => Text(
                   provider.currencyCode,
+                  style: context.textTheme.bodySmall!.copyWith(
+                    color: context.subtitleColor,
+                  ),
+                ),
+              ),
+            ),
+            _buildSettingItem(
+              context,
+              "${localizations.currency} (BLoC)",
+              "${localizations.setCurrencyForCalculations} - BLoC version",
+              Icons.currency_exchange,
+              onTap: () {
+                context.push(AppRoutes.currencyBloc.path);
+              },
+              trailing: BlocBuilder<CurrencyBloc, CurrencyState>(
+                builder: (context, state) => Text(
+                  state.currencyCode,
                   style: context.textTheme.bodySmall!.copyWith(
                     color: context.subtitleColor,
                   ),
@@ -493,6 +530,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
+  // Retorna o nome localizado do modo de tema
+  String _getThemeModeName(ThemeMode mode, AppLocalizations localizations) {
+    switch (mode) {
+      case ThemeMode.light:
+        return localizations.lightTheme;
+      case ThemeMode.dark:
+        return localizations.darkTheme;
+      case ThemeMode.system:
+        return localizations.systemTheme;
+    }
+  }
+  
   void _showAboutDialog(BuildContext context) {
     final localizations = AppLocalizations.of(context);
     

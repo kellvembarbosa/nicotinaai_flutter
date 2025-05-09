@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:nicotinaai_flutter/features/auth/models/auth_state.dart';
-import 'package:nicotinaai_flutter/features/auth/providers/auth_provider.dart';
+import 'package:nicotinaai_flutter/blocs/auth/auth_bloc.dart';
+import 'package:nicotinaai_flutter/blocs/auth/auth_state.dart' as bloc_state;
 import 'package:nicotinaai_flutter/features/auth/screens/forgot_password_screen.dart';
 import 'package:nicotinaai_flutter/features/auth/screens/login_screen.dart';
+import 'package:nicotinaai_flutter/features/auth/screens/login_screen_bloc.dart';
 import 'package:nicotinaai_flutter/features/auth/screens/register_screen.dart';
 import 'package:nicotinaai_flutter/features/auth/screens/splash_screen.dart';
 import 'package:nicotinaai_flutter/features/main/screens/main_screen.dart';
@@ -13,9 +15,12 @@ import 'package:nicotinaai_flutter/features/achievements/screens/achievement_det
 import 'package:nicotinaai_flutter/features/settings/screens/settings_screen.dart';
 import 'package:nicotinaai_flutter/features/settings/screens/language_selection_screen.dart';
 import 'package:nicotinaai_flutter/features/settings/screens/currency_selection_screen.dart';
+import 'package:nicotinaai_flutter/features/settings/screens/currency_selection_screen_bloc.dart';
+import 'package:nicotinaai_flutter/features/settings/screens/theme_selection_screen_bloc.dart';
 import 'package:nicotinaai_flutter/features/onboarding/screens/onboarding_screen.dart';
 import 'package:nicotinaai_flutter/features/onboarding/providers/onboarding_provider.dart';
 import 'package:nicotinaai_flutter/features/tracking/screens/dashboard_screen.dart';
+import 'package:nicotinaai_flutter/features/tracking/screens/dashboard_screen_with_bloc.dart';
 import 'package:nicotinaai_flutter/features/tracking/screens/statistics_dashboard_screen.dart';
 import 'package:nicotinaai_flutter/features/tracking/screens/add_smoking_log_screen.dart';
 import 'package:nicotinaai_flutter/features/tracking/screens/add_craving_screen.dart';
@@ -24,19 +29,35 @@ import 'package:nicotinaai_flutter/features/tracking/screens/health_recovery_det
 import 'package:nicotinaai_flutter/features/tracking/widgets/health_recovery_test.dart';
 import 'package:nicotinaai_flutter/core/routes/app_routes.dart';
 
+/// Classe de refresh para GoRouter usar com BLoC
+class AuthBlocRefreshListener extends ChangeNotifier {
+  final AuthBloc _authBloc;
+  bloc_state.AuthState _authState;
+
+  AuthBlocRefreshListener(this._authBloc) : _authState = _authBloc.state {
+    _authBloc.stream.listen((newState) {
+      if (newState != _authState) {
+        _authState = newState;
+        notifyListeners();
+      }
+    });
+  }
+}
+
 /// Router para configuração de rotas da aplicação com proteção de autenticação
-class AppRouter {
-  final AuthProvider authProvider;
-  final OnboardingProvider onboardingProvider;
+/// Versão adaptada para usar BLoC em vez de Provider
+class AppRouterBloc {
+  final AuthBloc authBloc;
+  final OnboardingProvider onboardingProvider; // Mantido por enquanto
   
-  AppRouter({
-    required this.authProvider,
+  AppRouterBloc({
+    required this.authBloc,
     required this.onboardingProvider,
   });
   
   late final GoRouter router = GoRouter(
     debugLogDiagnostics: true,
-    refreshListenable: authProvider,
+    refreshListenable: AuthBlocRefreshListener(authBloc),
     initialLocation: SplashScreen.routeName,
     redirect: _handleRedirect,
     routes: [
@@ -49,7 +70,7 @@ class AppRouter {
       // Rotas de autenticação
       GoRoute(
         path: LoginScreen.routeName,
-        builder: (context, state) => const LoginScreen(),
+        builder: (context, state) => const LoginScreenBloc(),
       ),
       GoRoute(
         path: RegisterScreen.routeName,
@@ -93,7 +114,7 @@ class AppRouter {
       // Rotas de tracking e estatísticas
       GoRoute(
         path: AppRoutes.developerDashboard.path,
-        builder: (context, state) => const DashboardScreen(),
+        builder: (context, state) => const DashboardScreenWithBloc(),
       ),
       GoRoute(
         path: AppRoutes.statisticsDashboard.path,
@@ -110,6 +131,14 @@ class AppRouter {
       GoRoute(
         path: AppRoutes.currency.path,
         builder: (context, state) => const CurrencySelectionScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.currencyBloc.path,
+        builder: (context, state) => const CurrencySelectionScreenBloc(),
+      ),
+      GoRoute(
+        path: AppRoutes.themeBloc.path,
+        builder: (context, state) => const ThemeSelectionScreenBloc(),
       ),
       
       // Health recovery routes
@@ -137,7 +166,6 @@ class AppRouter {
           return AchievementDetailScreen(achievementId: achievementId);
         },
       ),
-      
     ],
     errorBuilder: (context, state) => Scaffold(
       body: Center(
@@ -153,36 +181,33 @@ class AppRouter {
   DateTime? _lastRedirectTime;
   
   /// Gerencia os redirecionamentos com base no estado de autenticação e onboarding
-  /// Versão ultra-simplificada para evitar problemas
   String? _handleRedirect(BuildContext context, GoRouterState state) {
     // Página atual
     final currentLocation = state.uri.path;
     
     // REGRA CRÍTICA: JAMAIS interferir na navegação da SplashScreen
-    // A SplashScreen é responsável por direcionar o usuário para o local correto
     if (currentLocation == SplashScreen.routeName) {
-      print('🛑 [AppRouter] Na tela de splash, NUNCA interferir');
+      print('🛑 [AppRouterBloc] Na tela de splash, NUNCA interferir');
       return null;
     }
     
-    final isAuthenticated = authProvider.isAuthenticated;
+    // Obter estado de autenticação do BLoC
+    final isAuthenticated = authBloc.state.isAuthenticated;
     final onboardingCompleted = onboardingProvider.state.isCompleted;
     
     // Log detalhado para diagnosticar problemas de redirecionamento
-    print('🧭 [AppRouter] Navegação para: $currentLocation - Auth: $isAuthenticated, Onboarding completo: $onboardingCompleted');
+    print('🧭 [AppRouterBloc] Navegação para: $currentLocation - Auth: $isAuthenticated, Onboarding completo: $onboardingCompleted');
     
     // REGRA 1: NUNCA interferir em navegações para MainScreen
-    // Se o usuário está indo para MainScreen, devemos sempre permitir
     if (currentLocation == MainScreen.routeName) {
-      print('✅ [AppRouter] Indo para MainScreen, permitindo navegação');
-      _hasCompletedInitialNavigation = true; // Marca que já concluiu a navegação inicial
+      print('✅ [AppRouterBloc] Indo para MainScreen, permitindo navegação');
+      _hasCompletedInitialNavigation = true;
       return null;
     }
     
     // REGRA 2: Permitir navegação irrestrita após primeira navegação bem-sucedida
-    // Isso evita que o sistema fique preso em loops infinitos de redirecionamento
     if (_hasCompletedInitialNavigation) {
-      print('✅ [AppRouter] Navegação inicial já concluída, permitindo todas as navegações');
+      print('✅ [AppRouterBloc] Navegação inicial já concluída, permitindo todas as navegações');
       return null;
     }
     
@@ -194,7 +219,7 @@ class AppRouter {
                           currentLocation == ForgotPasswordScreen.routeName;
                           
       if (!isAuthRoute) {
-        print('🔒 [AppRouter] Usuário não autenticado, redirecionando para login');
+        print('🔒 [AppRouterBloc] Usuário não autenticado, redirecionando para login');
         return LoginScreen.routeName;
       }
       
@@ -207,17 +232,17 @@ class AppRouter {
                         currentLocation == ForgotPasswordScreen.routeName;
                         
     if (isAuthenticated && isAuthRoute) {
-      print('🔄 [AppRouter] Usuário já autenticado tentando acessar tela de autenticação');
+      print('🔄 [AppRouterBloc] Usuário já autenticado tentando acessar tela de autenticação');
       
       // Se o onboarding está completo, ir para tela principal
       if (onboardingCompleted) {
-        print('✅ [AppRouter] Onboarding completo, redirecionando para MainScreen');
+        print('✅ [AppRouterBloc] Onboarding completo, redirecionando para MainScreen');
         _hasCompletedInitialNavigation = true;
         return MainScreen.routeName;
       }
       
       // Se onboarding não está completo, ir para onboarding
-      print('⏩ [AppRouter] Onboarding incompleto, redirecionando para OnboardingScreen');
+      print('⏩ [AppRouterBloc] Onboarding incompleto, redirecionando para OnboardingScreen');
       return OnboardingScreen.routeName;
     }
     

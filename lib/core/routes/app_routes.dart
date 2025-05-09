@@ -36,6 +36,8 @@ enum AppRoutes {
   notifications('/notifications'),
   language('/settings/language'),
   currency('/settings/currency'),
+  currencyBloc('/settings/currency_bloc'),
+  themeBloc('/settings/theme_bloc'),
   privacyPolicy('/privacy-policy'),
   termsOfService('/terms-of-service'),
   about('/about'),
@@ -46,7 +48,7 @@ enum AppRoutes {
   healthRecoveryTest('/health-recovery-test'),
   
   // Achievement routes
-  achievementDetail('/achievement/:achievementId');
+  achievementDetail('/achievement/:achievementId');  
 
   /// Caminho da rota
   final String path;

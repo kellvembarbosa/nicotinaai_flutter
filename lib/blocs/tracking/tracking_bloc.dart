@@ -1,5 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:nicotinaai_flutter/features/tracking/models/craving.dart';
+import 'package:nicotinaai_flutter/features/tracking/models/health_recovery.dart';
 import 'package:nicotinaai_flutter/features/tracking/models/user_stats.dart';
 import 'package:nicotinaai_flutter/features/tracking/repositories/tracking_repository.dart';
 import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
@@ -405,7 +407,7 @@ class TrackingBloc extends Bloc<TrackingEvent, TrackingState> {
       try {
         if (event.craving.outcome == CravingOutcome.resisted) {
           await AnalyticsService().logCravingResisted(
-            triggerType: event.craving.trigger,
+            triggerType: event.craving.trigger ?? 'unknown',
           );
           
           if (state.userStats != null) {
