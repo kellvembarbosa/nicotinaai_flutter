@@ -174,6 +174,11 @@ class AppRouter {
     // Log para depuração
     print('🧭 [AppRouter] Redirecionamento - Autenticado: $isAuthenticated, Onboarding completo: $hasCompletedOnboarding, Rota: $currentLocation');
     
+    // Prevenção contra loop infinito de redirecionamento
+    if (state.matchedLocation == MainScreen.routeName) {
+      return null; // Se já estamos na tela principal, não redirecionar
+    }
+    
     // Se estiver inicializando ou autenticando, permite permanecer na tela de splash
     if ((isInitializing || isAuthenticating) && isGoingToSplash) {
       return null;

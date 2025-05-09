@@ -34,16 +34,22 @@ class _MainScreenState extends State<MainScreen> {
   void initState() {
     super.initState();
     // Schedule achievement initialization for after the first frame
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _initializeAchievementsOnce();
+    // Using a delayed execution to prevent initialization during router redirects
+    Future.delayed(Duration(milliseconds: 500), () {
+      if (mounted) {
+        _initializeAchievementsOnce();
+      }
     });
   }
   
-  // Initialize achievements only once
+  // Initialize achievements only once with additional safeguards
   void _initializeAchievementsOnce() {
     if (!_hasInitializedAchievements && mounted) {
+      print('🏆 MainScreen: Initializing achievements');
       _hasInitializedAchievements = true;
       AchievementHelper.initializeAchievements(context);
+    } else {
+      print('🏆 MainScreen: Achievements already initialized');
     }
   }
 
