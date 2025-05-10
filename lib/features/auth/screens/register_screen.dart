@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:nicotinaai_flutter/features/auth/providers/auth_provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:nicotinaai_flutter/core/constants/app_constants.dart';
-import 'package:nicotinaai_flutter/features/auth/screens/login_screen.dart';
+import 'package:nicotinaai_flutter/features/auth/screens/login_screen_bloc.dart';
 import 'package:nicotinaai_flutter/widgets/app_icon_widget.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -59,7 +59,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   void _navigateToLogin() {
     // Usando GoRouter para navegação
-    context.go(LoginScreen.routeName);
+    context.go(LoginScreenBloc.routeName);
   }
 
   @override

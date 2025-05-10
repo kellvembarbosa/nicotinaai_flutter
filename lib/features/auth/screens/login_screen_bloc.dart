@@ -8,6 +8,8 @@ import 'package:nicotinaai_flutter/core/routes/app_routes.dart';
 import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
 
 class LoginScreenBloc extends StatefulWidget {
+  static const String routeName = '/login';
+  
   const LoginScreenBloc({Key? key}) : super(key: key);
 
   @override

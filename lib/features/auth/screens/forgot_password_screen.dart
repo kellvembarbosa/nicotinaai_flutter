@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:nicotinaai_flutter/features/auth/providers/auth_provider.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:nicotinaai_flutter/features/auth/screens/login_screen.dart';
+import 'package:nicotinaai_flutter/features/auth/screens/login_screen_bloc.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
   static const String routeName = '/forgot-password';
@@ -41,7 +41,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
   void _navigateToLogin() {
     // Usando GoRouter para navegação - volta para tela de login
-    context.go(LoginScreen.routeName);
+    context.go(LoginScreenBloc.routeName);
   }
 
   @override

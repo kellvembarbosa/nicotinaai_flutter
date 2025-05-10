@@ -4,7 +4,7 @@ import 'package:nicotinaai_flutter/blocs/auth/auth_bloc.dart';
 import 'package:nicotinaai_flutter/blocs/onboarding/onboarding_bloc.dart';
 import 'package:nicotinaai_flutter/core/routes/router_refresh_stream.dart';
 import 'package:nicotinaai_flutter/features/auth/screens/forgot_password_screen.dart';
-import 'package:nicotinaai_flutter/features/auth/screens/login_screen.dart';
+import 'package:nicotinaai_flutter/features/auth/screens/login_screen_bloc.dart';
 import 'package:nicotinaai_flutter/features/auth/screens/register_screen.dart';
 import 'package:nicotinaai_flutter/features/auth/screens/splash_screen.dart';
 import 'package:nicotinaai_flutter/features/main/screens/main_screen.dart';
@@ -51,8 +51,8 @@ class AppRouter {
       
       // Rotas de autenticação
       GoRoute(
-        path: LoginScreen.routeName,
-        builder: (context, state) => const LoginScreen(),
+        path: LoginScreenBloc.routeName,
+        builder: (context, state) => const LoginScreenBloc(),
       ),
       GoRoute(
         path: RegisterScreen.routeName,
@@ -202,20 +202,20 @@ class AppRouter {
     // REGRA 3: Proteger rotas autenticadas se o usuário não estiver logado
     if (!isAuthenticated) {
       // Se não está autenticado, permitir acesso apenas às rotas de autenticação
-      final isAuthRoute = currentLocation == LoginScreen.routeName || 
+      final isAuthRoute = currentLocation == LoginScreenBloc.routeName || 
                           currentLocation == RegisterScreen.routeName || 
                           currentLocation == ForgotPasswordScreen.routeName;
                           
       if (!isAuthRoute) {
         print('🔒 [AppRouter] Usuário não autenticado, redirecionando para login');
-        return LoginScreen.routeName;
+        return LoginScreenBloc.routeName;
       }
       
       return null;
     }
     
     // REGRA 4: Proteger contra acesso a telas de autenticação quando já autenticado
-    final isAuthRoute = currentLocation == LoginScreen.routeName || 
+    final isAuthRoute = currentLocation == LoginScreenBloc.routeName || 
                         currentLocation == RegisterScreen.routeName || 
                         currentLocation == ForgotPasswordScreen.routeName;
                         
