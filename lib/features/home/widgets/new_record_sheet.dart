@@ -799,14 +799,31 @@ class _NewRecordSheetState extends State<NewRecordSheet> {
                         top: 8,
                       ),
                       decoration: BoxDecoration(
-                        color: context.backgroundColor,
+                        color: context.isDarkMode 
+                            ? const Color.fromRGBO(0, 0, 0, 0.5) 
+                            : const Color.fromRGBO(255, 255, 255, 0.7),
+                        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.07),
+                            color: const Color.fromRGBO(0, 0, 0, 0.1),
                             offset: const Offset(0, -3),
-                            blurRadius: 8,
+                            blurRadius: 10,
+                            spreadRadius: 1,
                           ),
                         ],
+                        // Add gradient for glass effect
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            context.isDarkMode 
+                                ? const Color.fromRGBO(255, 255, 255, 0.03) 
+                                : const Color.fromRGBO(255, 255, 255, 0.9),
+                            context.isDarkMode 
+                                ? const Color.fromRGBO(0, 0, 0, 0.5) 
+                                : const Color.fromRGBO(255, 255, 255, 0.7),
+                          ],
+                        ),
                       ),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
@@ -822,10 +839,10 @@ class _NewRecordSheetState extends State<NewRecordSheet> {
                                   horizontal: 12,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: Colors.red.withOpacity(0.1),
+                                  color: const Color.fromRGBO(255, 0, 0, 0.1),
                                   borderRadius: BorderRadius.circular(8),
                                   border: Border.all(
-                                    color: Colors.red.withOpacity(0.3),
+                                    color: const Color.fromRGBO(255, 0, 0, 0.3),
                                     width: 1,
                                   ),
                                 ),
