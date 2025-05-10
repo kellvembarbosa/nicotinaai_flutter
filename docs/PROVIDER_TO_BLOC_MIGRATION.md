@@ -25,11 +25,18 @@ The core infrastructure of the application has been migrated from Provider state
    - Fixed SplashScreen to use AuthBloc and OnboardingBloc
    - Updated MainScreen to use AuthBloc instead of AuthProvider
    - Modified AchievementHelper and AchievementTriggers to work with AchievementBloc
+   - Updated AchievementsScreen to use AchievementBloc instead of AchievementProvider
+   - Updated updated_achievements_screen.dart to use AchievementBloc
 
 5. **Updated Core Components**
    - Replaced optimistic_update_utils.dart to use BLoC
+   - Migrated ThemeSwitch and ThemeSettings widgets to use ThemeBloc instead of ThemeProvider
+   - Updated theme_settings.dart to use ThemeBloc for full theme management
 
-6. **Removed Provider Dependency**
+6. **Updated Widgets**
+   - Updated TimePeriodSelector widget to use AchievementBloc instead of AchievementProvider
+
+7. **Removed Provider Dependency**
    - Removed the Provider package from pubspec.yaml
    - Ran `flutter pub get` to update dependencies
 
@@ -37,23 +44,16 @@ The core infrastructure of the application has been migrated from Provider state
 
 The following files still import the provider package and need to be updated:
 
-1. **Theme Related**
-   - lib/core/theme/theme_settings.dart
-   - lib/core/theme/theme_switch.dart
-
-2. **Settings Screens**
+1. **Settings Screens**
    - lib/features/settings/screens/currency_selection_screen.dart
    - lib/features/settings/screens/language_selection_screen.dart
 
-3. **Home Widgets**
+2. **Home Widgets**
    - lib/features/home/widgets/register_craving_sheet.dart
 
-4. **Achievement Screens**
-   - lib/features/achievements/screens/updated_achievements_screen.dart
-   - lib/features/achievements/screens/achievements_screen.dart
+3. **Achievement Screens**
    - lib/features/achievements/screens/achievement_detail_screen.dart
    - lib/features/achievements/services/achievement_notification_service.dart
-   - lib/features/achievements/widgets/time_period_selector.dart
 
 5. **Auth Screens**
    - lib/features/auth/screens/register_screen.dart

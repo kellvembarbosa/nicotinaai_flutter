@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:nicotinaai_flutter/blocs/theme/theme_bloc.dart';
+import 'package:nicotinaai_flutter/blocs/theme/theme_event.dart';
+import 'package:nicotinaai_flutter/blocs/theme/theme_state.dart';
 import 'package:nicotinaai_flutter/core/theme/app_theme.dart';
-import 'package:nicotinaai_flutter/core/theme/theme_provider.dart';
 
 /// Widget para exibir uma tela de configurações de tema completa
 class ThemeSettings extends StatelessWidget {
@@ -9,57 +11,57 @@ class ThemeSettings extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final themeProvider = Provider.of<ThemeProvider>(context);
-    final currentThemeMode = themeProvider.themeMode;
-    
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Tema do aplicativo',
-          style: context.textTheme.titleMedium!.copyWith(
-            fontWeight: FontWeight.w600,
-            color: context.contentColor,
-          ),
-        ),
-        const SizedBox(height: 16),
-        _buildThemeOption(
-          context,
-          'Tema claro',
-          'Interface com cores claras',
-          Icons.light_mode,
-          ThemeMode.light,
-          currentThemeMode,
-          themeProvider,
-        ),
-        const SizedBox(height: 8),
-        _buildThemeOption(
-          context,
-          'Tema escuro',
-          'Interface escura para ambientes com pouca luz',
-          Icons.dark_mode,
-          ThemeMode.dark,
-          currentThemeMode,
-          themeProvider,
-        ),
-        const SizedBox(height: 8),
-        _buildThemeOption(
-          context,
-          'Automático',
-          'Segue as configurações do sistema',
-          Icons.brightness_auto,
-          ThemeMode.system,
-          currentThemeMode,
-          themeProvider,
-        ),
-        const SizedBox(height: 16),
-        Text(
-          'O tema será alterado imediatamente e sua preferência será salva para futuros acessos.',
-          style: context.textTheme.bodySmall!.copyWith(
-            color: context.subtitleColor,
-          ),
-        ),
-      ],
+    return BlocBuilder<ThemeBloc, ThemeState>(
+      builder: (context, state) {
+        final currentThemeMode = state.themeMode;
+        
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Tema do aplicativo',
+              style: context.textTheme.titleMedium!.copyWith(
+                fontWeight: FontWeight.w600,
+                color: context.contentColor,
+              ),
+            ),
+            const SizedBox(height: 16),
+            _buildThemeOption(
+              context,
+              'Tema claro',
+              'Interface com cores claras',
+              Icons.light_mode,
+              ThemeMode.light,
+              currentThemeMode,
+            ),
+            const SizedBox(height: 8),
+            _buildThemeOption(
+              context,
+              'Tema escuro',
+              'Interface escura para ambientes com pouca luz',
+              Icons.dark_mode,
+              ThemeMode.dark,
+              currentThemeMode,
+            ),
+            const SizedBox(height: 8),
+            _buildThemeOption(
+              context,
+              'Automático',
+              'Segue as configurações do sistema',
+              Icons.brightness_auto,
+              ThemeMode.system,
+              currentThemeMode,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'O tema será alterado imediatamente e sua preferência será salva para futuros acessos.',
+              style: context.textTheme.bodySmall!.copyWith(
+                color: context.subtitleColor,
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
   
@@ -70,13 +72,13 @@ class ThemeSettings extends StatelessWidget {
     IconData icon,
     ThemeMode mode,
     ThemeMode currentMode,
-    ThemeProvider provider,
   ) {
     final isSelected = mode == currentMode;
+    final themeBloc = context.read<ThemeBloc>();
     
     return InkWell(
       onTap: () {
-        provider.setThemeMode(mode);
+        themeBloc.add(ChangeThemeMode(mode));
       },
       borderRadius: BorderRadius.circular(12),
       child: Container(
@@ -97,7 +99,7 @@ class ThemeSettings extends StatelessWidget {
               groupValue: currentMode,
               onChanged: (ThemeMode? value) {
                 if (value != null) {
-                  provider.setThemeMode(value);
+                  themeBloc.add(ChangeThemeMode(value));
                 }
               },
               activeColor: context.primaryColor,

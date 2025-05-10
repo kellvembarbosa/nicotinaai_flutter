@@ -9,6 +9,8 @@ import 'package:nicotinaai_flutter/blocs/auth/auth_state.dart' as bloc_auth;
 import 'package:nicotinaai_flutter/blocs/smoking_record/smoking_record_bloc.dart';
 import 'package:nicotinaai_flutter/blocs/smoking_record/smoking_record_event.dart';
 import 'package:nicotinaai_flutter/blocs/smoking_record/smoking_record_state.dart';
+import 'package:nicotinaai_flutter/blocs/theme/theme_bloc.dart';
+import 'package:nicotinaai_flutter/blocs/theme/theme_state.dart';
 import 'package:nicotinaai_flutter/blocs/tracking/tracking_bloc.dart';
 import 'package:nicotinaai_flutter/blocs/tracking/tracking_event.dart';
 import 'package:nicotinaai_flutter/blocs/tracking/tracking_state.dart';
@@ -16,6 +18,7 @@ import 'package:nicotinaai_flutter/core/routes/app_routes.dart';
 import 'package:nicotinaai_flutter/core/theme/app_theme.dart';
 import 'package:nicotinaai_flutter/core/theme/theme_switch.dart';
 import 'package:nicotinaai_flutter/features/home/widgets/new_record_sheet.dart';
+import 'package:nicotinaai_flutter/features/home/widgets/register_craving_sheet_bloc.dart';
 import 'package:nicotinaai_flutter/features/tracking/models/health_recovery.dart';
 import 'package:nicotinaai_flutter/features/tracking/models/user_stats.dart';
 import 'package:nicotinaai_flutter/features/tracking/widgets/health_recovery_widget.dart';
@@ -478,13 +481,19 @@ class _HomeScreenState extends State<HomeScreen> {
                                     Colors.redAccent,
                                     Icons.air,
                                     () {
-                                      // Implementar RegisterCravingSheet com BLoC
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        SnackBar(
-                                          content: Text("Craving sheet with BLoC is not implemented yet"),
-                                          duration: const Duration(seconds: 2),
-                                        ),
-                                      );
+                                      // Use the BLoC version of RegisterCravingSheet
+                                      RegisterCravingSheetBloc.show(context).then((registered) {
+                                        // Only update if a craving was actually registered
+                                        if (registered) {
+                                          if (kDebugMode) {
+                                            print("🔄 Updating after registering craving with BLoC");
+                                          }
+                                          
+                                          // Force full update of statistics (via BLoC)
+                                          final trackingBloc = BlocProvider.of<TrackingBloc>(context);
+                                          trackingBloc.add(ForceUpdateStats());
+                                        }
+                                      });
                                     },
                                   ),
                                 ),

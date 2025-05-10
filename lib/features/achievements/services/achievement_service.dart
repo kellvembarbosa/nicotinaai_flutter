@@ -16,6 +16,10 @@ class AchievementService {
   Set<String> _viewedAchievementIds = {};
   bool _hasLoadedViewedState = false;
 
+  // Cache para os achievements já notificados nesta sessão do app
+  // Isso evita que o mesmo achievement seja notificado múltiplas vezes
+  final Set<String> _notifiedAchievementsThisSession = {};
+
   AchievementService(this._supabase, this._trackingRepo);
 
   /// Load which achievements have been viewed
@@ -502,7 +506,17 @@ class AchievementService {
     for (final achievement in currentAchievements) {
       // If unlocked but not viewed, it might be new
       if (achievement.isUnlocked && !achievement.isViewed) {
+        // Verifica se já notificamos sobre este achievement nesta sessão
+        if (_notifiedAchievementsThisSession.contains(achievement.id)) {
+          debugPrint('🔕 Achievement ${achievement.id} already notified this session, skipping notification');
+          continue;
+        }
+
+        // Adiciona à lista de achievements recém-desbloqueados
         newlyUnlocked.add(achievement);
+        
+        // Marca como notificado nesta sessão
+        _notifiedAchievementsThisSession.add(achievement.id);
         
         // Persist achievement to database using new function
         try {

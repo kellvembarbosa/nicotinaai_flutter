@@ -65,9 +65,11 @@ class AchievementBloc extends Bloc<AchievementEvent, AchievementState> {
     InitializeAchievements event,
     Emitter<AchievementState> emit,
   ) async {
-    // Inicializar os achievements - para ser chamado na SplashScreen
-    // mas não carrega os dados para evitar operações desnecessárias
-    debugPrint('🏁 [AchievementBloc] Inicializado');
+    // Em vez de apenas logar, carregamos os achievements imediatamente
+    debugPrint('🏁 [AchievementBloc] Inicializado e carregando achievements');
+    
+    // Disparar o evento para carregar dados
+    add(LoadAchievements());
   }
 
   /// Manipulador do evento LoadAchievements
