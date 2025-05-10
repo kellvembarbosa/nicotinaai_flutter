@@ -19,6 +19,7 @@ class NewRecordSheet extends StatefulWidget {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
+      barrierColor: Colors.black.withOpacity(0.6),
       builder: (context) => const NewRecordSheet(),
     );
     // Returns true if a record was successfully registered
@@ -155,25 +156,46 @@ class _NewRecordSheetState extends State<NewRecordSheet> {
           0.95,
         ], // Keep snap options for user flexibility
         builder: (context, scrollController) {
-          return ClipRRect(
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-            child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: context.isDarkMode 
-                      ? Color(0xFF1C1C1E).withOpacity(0.9) 
-                      : context.backgroundColor.withOpacity(0.9),
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+          return Container(
+            margin: const EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 10,
+                  spreadRadius: 2,
+                )
+              ],
+            ),
+            child: Container(
+              decoration: BoxDecoration(
+                color: context.isDarkMode 
+                  ? Color(0xFF1C1C1E) 
+                  : context.backgroundColor,
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+                // Add a frosted glass effect with gradient
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    context.isDarkMode 
+                        ? Colors.white.withOpacity(0.05) 
+                        : Colors.white.withOpacity(0.7),
+                    context.isDarkMode 
+                        ? Color(0xFF1C1C1E) 
+                        : context.backgroundColor,
+                  ],
                 ),
+              ),
                 child: Column(
                   children: [
                     // Scrollable content with optimized layout
                     Expanded(
-                  child: ListView(
-                    controller: scrollController,
-                    padding: const EdgeInsets.only(bottom: 16),
-                    children: [
+                      child: ListView(
+                        controller: scrollController,
+                        padding: const EdgeInsets.only(bottom: 16),
+                        children: [
                       _buildHandle(context),
 
                       // Main title, optimized without background
