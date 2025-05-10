@@ -6,6 +6,7 @@ import 'package:nicotinaai_flutter/blocs/auth/auth_event.dart';
 import 'package:nicotinaai_flutter/blocs/auth/auth_state.dart';
 import 'package:nicotinaai_flutter/core/routes/app_routes.dart';
 import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
+import 'package:nicotinaai_flutter/widgets/app_icon_widget.dart';
 
 class LoginScreen extends StatefulWidget {
   // Rota definida no AppRoutes
@@ -68,11 +69,8 @@ class _LoginScreenState extends State<LoginScreen> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   // App Logo
-                  Center(
-                    child: SizedBox(
-                      height: 120,
-                      child: Image.asset('assets/images/app_icon/app_icon.png'),
-                    ),
+                  const Center(
+                    child: AppIconWidget(size: 100, borderRadius: 22),
                   ),
                   const SizedBox(height: 32),
                   
@@ -142,7 +140,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         return l10n.passwordRequired;
                       }
                       if (value.length < 6) {
-                        return l10n.passwordRequired;
+                        return l10n.passwordTooShort;
                       }
                       return null;
                     },

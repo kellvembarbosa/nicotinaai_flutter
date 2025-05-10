@@ -1,1 +1,41 @@
-{}
+{
+  "es": [
+    "pageNotFound",
+    "resetLinkSent",
+    "checkEmailInstructions",
+    "backToLogin",
+    "forgotPasswordInstructions",
+    "sendResetLink",
+    "createAccount",
+    "fillInformation",
+    "name",
+    "nameRequired",
+    "passwordTooShort",
+    "confirmPassword",
+    "confirmPasswordRequired",
+    "passwordsDoNotMatch",
+    "termsConditionsAgree",
+    "termsConditionsRequired",
+    "alreadyAccount"
+  ],
+
+  "pt": [
+    "pageNotFound",
+    "resetLinkSent",
+    "checkEmailInstructions",
+    "backToLogin",
+    "forgotPasswordInstructions",
+    "sendResetLink",
+    "createAccount",
+    "fillInformation",
+    "name",
+    "nameRequired",
+    "passwordTooShort",
+    "confirmPassword",
+    "confirmPasswordRequired",
+    "passwordsDoNotMatch",
+    "termsConditionsAgree",
+    "termsConditionsRequired",
+    "alreadyAccount"
+  ]
+}

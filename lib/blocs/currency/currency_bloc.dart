@@ -1,10 +1,7 @@
-import 'dart:ui';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nicotinaai_flutter/blocs/auth/auth_bloc.dart';
 import 'package:nicotinaai_flutter/blocs/auth/auth_state.dart' as bloc_auth;
-import 'package:nicotinaai_flutter/features/auth/models/user_model.dart';
 import 'package:nicotinaai_flutter/features/auth/repositories/auth_repository.dart';
 import 'package:nicotinaai_flutter/utils/currency_utils.dart';
 import 'package:nicotinaai_flutter/utils/supported_currencies.dart';
@@ -50,10 +47,8 @@ class CurrencyBloc extends Bloc<CurrencyEvent, CurrencyState> {
       }
 
       // Se não estiver autenticado ou não tiver moeda definida, detecta a moeda do dispositivo
-      selectedCurrency ??= _detectDeviceCurrency();
-      
-      // Se ainda não tiver encontrado uma moeda, usa a moeda padrão
-      selectedCurrency ??= SupportedCurrencies.defaultCurrency;
+      // O método _detectDeviceCurrency já inclui o fallback para moeda padrão
+      selectedCurrency = selectedCurrency ?? _detectDeviceCurrency();
 
       emit(CurrencyState.loaded(selectedCurrency));
     } catch (e) {

@@ -2412,6 +2412,108 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'An error occurred'**
   String get errorOccurred;
+
+  /// Message shown when a page is not found
+  ///
+  /// In en, this message translates to:
+  /// **'Page not found'**
+  String get pageNotFound;
+
+  /// Message shown when password reset link is sent
+  ///
+  /// In en, this message translates to:
+  /// **'Reset link sent!'**
+  String get resetLinkSent;
+
+  /// Instructions to check email after password reset request
+  ///
+  /// In en, this message translates to:
+  /// **'Check your email for instructions to reset your password.'**
+  String get checkEmailInstructions;
+
+  /// Button text to go back to login screen
+  ///
+  /// In en, this message translates to:
+  /// **'Back to login'**
+  String get backToLogin;
+
+  /// Instructions on forgot password screen
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your email address and we\'ll send you instructions to reset your password.'**
+  String get forgotPasswordInstructions;
+
+  /// Button text to send password reset link
+  ///
+  /// In en, this message translates to:
+  /// **'Send reset link'**
+  String get sendResetLink;
+
+  /// Title for registration screen
+  ///
+  /// In en, this message translates to:
+  /// **'Create Account'**
+  String get createAccount;
+
+  /// Subtitle for registration screen
+  ///
+  /// In en, this message translates to:
+  /// **'Fill in your information to create an account'**
+  String get fillInformation;
+
+  /// Label for name field
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get name;
+
+  /// Error message when name is empty
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter your name'**
+  String get nameRequired;
+
+  /// Error message when password is too short
+  ///
+  /// In en, this message translates to:
+  /// **'Password must be at least 6 characters'**
+  String get passwordTooShort;
+
+  /// Label for confirm password field
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm Password'**
+  String get confirmPassword;
+
+  /// Error message when confirm password is empty
+  ///
+  /// In en, this message translates to:
+  /// **'Please confirm your password'**
+  String get confirmPasswordRequired;
+
+  /// Error message when passwords don't match
+  ///
+  /// In en, this message translates to:
+  /// **'Passwords do not match'**
+  String get passwordsDoNotMatch;
+
+  /// Text for terms and conditions agreement checkbox
+  ///
+  /// In en, this message translates to:
+  /// **'I agree to the Terms and Conditions'**
+  String get termsConditionsAgree;
+
+  /// Error message when terms not accepted
+  ///
+  /// In en, this message translates to:
+  /// **'Please accept the Terms and Conditions to continue'**
+  String get termsConditionsRequired;
+
+  /// Text for users who already have an account
+  ///
+  /// In en, this message translates to:
+  /// **'Already have an account?'**
+  String get alreadyAccount;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:nicotinaai_flutter/blocs/auth/auth_bloc.dart';
-import 'package:nicotinaai_flutter/blocs/auth/auth_state.dart';
 import 'package:nicotinaai_flutter/blocs/onboarding/onboarding_bloc.dart';
-import 'package:nicotinaai_flutter/blocs/onboarding/onboarding_state.dart';
 import 'package:nicotinaai_flutter/blocs/onboarding/onboarding_event.dart';
 import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
 import 'package:nicotinaai_flutter/core/routes/app_routes.dart';
@@ -136,7 +134,7 @@ class _SplashScreenState extends State<SplashScreen> {
             
             // Loading message
             Text(
-              l10n.loading ?? 'Loading...',
+              l10n.loading,
               style: Theme.of(context).textTheme.bodyLarge,
             ),
           ],

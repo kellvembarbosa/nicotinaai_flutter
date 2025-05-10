@@ -1206,4 +1206,55 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get errorOccurred => 'Ocorreu um erro';
+
+  @override
+  String get pageNotFound => 'Page not found';
+
+  @override
+  String get resetLinkSent => 'Reset link sent!';
+
+  @override
+  String get checkEmailInstructions => 'Check your email for instructions to reset your password.';
+
+  @override
+  String get backToLogin => 'Back to login';
+
+  @override
+  String get forgotPasswordInstructions => 'Enter your email address and we\'ll send you instructions to reset your password.';
+
+  @override
+  String get sendResetLink => 'Send reset link';
+
+  @override
+  String get createAccount => 'Create Account';
+
+  @override
+  String get fillInformation => 'Fill in your information to create an account';
+
+  @override
+  String get name => 'Name';
+
+  @override
+  String get nameRequired => 'Please enter your name';
+
+  @override
+  String get passwordTooShort => 'Password must be at least 6 characters';
+
+  @override
+  String get confirmPassword => 'Confirm Password';
+
+  @override
+  String get confirmPasswordRequired => 'Please confirm your password';
+
+  @override
+  String get passwordsDoNotMatch => 'Passwords do not match';
+
+  @override
+  String get termsConditionsAgree => 'I agree to the Terms and Conditions';
+
+  @override
+  String get termsConditionsRequired => 'Please accept the Terms and Conditions to continue';
+
+  @override
+  String get alreadyAccount => 'Already have an account?';
 }
