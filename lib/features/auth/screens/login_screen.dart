@@ -8,7 +8,7 @@ import 'package:nicotinaai_flutter/core/routes/app_routes.dart';
 import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
 
 class LoginScreen extends StatefulWidget {
-  static const String routeName = '/login';
+  // Rota definida no AppRoutes
   
   const LoginScreen({Key? key}) : super(key: key);
 

@@ -10,7 +10,7 @@ import 'package:nicotinaai_flutter/widgets/app_icon_widget.dart';
 import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
 
 class RegisterScreen extends StatefulWidget {
-  static const String routeName = '/register';
+  // Rota definida no AppRoutes
   
   const RegisterScreen({Key? key}) : super(key: key);
 
@@ -39,7 +39,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   void _navigateToLogin() {
     // Navegação usando GoRouter
-    context.go(LoginScreen.routeName);
+    context.go(AppRoutes.login.path);
   }
 
   @override

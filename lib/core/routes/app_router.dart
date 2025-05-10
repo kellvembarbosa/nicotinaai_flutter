@@ -3,9 +3,9 @@ import 'package:go_router/go_router.dart';
 import 'package:nicotinaai_flutter/blocs/auth/auth_bloc.dart';
 import 'package:nicotinaai_flutter/blocs/onboarding/onboarding_bloc.dart';
 import 'package:nicotinaai_flutter/core/routes/router_refresh_stream.dart';
-import 'package:nicotinaai_flutter/features/auth/screens/forgot_password_screen_bloc.dart';
-import 'package:nicotinaai_flutter/features/auth/screens/login_screen_bloc.dart';
-import 'package:nicotinaai_flutter/features/auth/screens/register_screen_bloc.dart';
+import 'package:nicotinaai_flutter/features/auth/screens/forgot_password_screen.dart';
+import 'package:nicotinaai_flutter/features/auth/screens/login_screen.dart';
+import 'package:nicotinaai_flutter/features/auth/screens/register_screen.dart';
 import 'package:nicotinaai_flutter/features/auth/screens/splash_screen.dart';
 import 'package:nicotinaai_flutter/features/main/screens/main_screen.dart';
 import 'package:nicotinaai_flutter/features/home/screens/home_screen.dart';
@@ -51,15 +51,15 @@ class AppRouter {
       
       // Rotas de autenticação
       GoRoute(
-        path: LoginScreen.routeName,
+        path: AppRoutes.login.path,
         builder: (context, state) => const LoginScreen(),
       ),
       GoRoute(
-        path: RegisterScreen.routeName,
+        path: AppRoutes.register.path,
         builder: (context, state) => const RegisterScreen(),
       ),
       GoRoute(
-        path: ForgotPasswordScreen.routeName,
+        path: AppRoutes.forgotPassword.path,
         builder: (context, state) => const ForgotPasswordScreen(),
       ),
       
@@ -202,22 +202,22 @@ class AppRouter {
     // REGRA 3: Proteger rotas autenticadas se o usuário não estiver logado
     if (!isAuthenticated) {
       // Se não está autenticado, permitir acesso apenas às rotas de autenticação
-      final isAuthRoute = currentLocation == LoginScreen.routeName || 
-                          currentLocation == RegisterScreen.routeName || 
-                          currentLocation == ForgotPasswordScreen.routeName;
+      final isAuthRoute = currentLocation == AppRoutes.login.path || 
+                          currentLocation == AppRoutes.register.path || 
+                          currentLocation == AppRoutes.forgotPassword.path;
                           
       if (!isAuthRoute) {
         print('🔒 [AppRouter] Usuário não autenticado, redirecionando para login');
-        return LoginScreen.routeName;
+        return AppRoutes.login.path;
       }
       
       return null;
     }
     
     // REGRA 4: Proteger contra acesso a telas de autenticação quando já autenticado
-    final isAuthRoute = currentLocation == LoginScreen.routeName || 
-                        currentLocation == RegisterScreen.routeName || 
-                        currentLocation == ForgotPasswordScreen.routeName;
+    final isAuthRoute = currentLocation == AppRoutes.login.path || 
+                        currentLocation == AppRoutes.register.path || 
+                        currentLocation == AppRoutes.forgotPassword.path;
                         
     if (isAuthenticated && isAuthRoute) {
       print('🔄 [AppRouter] Usuário já autenticado tentando acessar tela de autenticação');
