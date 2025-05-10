@@ -52,6 +52,7 @@ class TrackingBloc extends Bloc<TrackingEvent, TrackingState> {
     on<RefreshCravings>(_onRefreshCravings);
     on<AddCraving>(_onAddCraving);
     on<UpdateCraving>(_onUpdateCraving);
+    on<CravingAdded>(_onCravingAdded);
     
     // Health Recoveries events
     on<LoadHealthRecoveries>(_onLoadHealthRecoveries);
@@ -489,6 +490,45 @@ class TrackingBloc extends Bloc<TrackingEvent, TrackingState> {
         status: TrackingStatus.error,
         errorMessage: 'Failed to update craving: ${e.toString()}',
       ));
+    }
+  }
+  
+  /// Handler para o evento CravingAdded - atualização otimista imediata do contador de cravings
+  Future<void> _onCravingAdded(CravingAdded event, Emitter<TrackingState> emit) async {
+    if (kDebugMode) {
+      print('🔄 [TrackingBloc] Atualização otimista para craving adicionado');
+    }
+    
+    // Atualização otimista - incrementa imediatamente o contador de cravings
+    final currentStats = state.userStats;
+    if (currentStats != null) {
+      if (kDebugMode) {
+        print('✅ [TrackingBloc] Incrementando cravings resisted de ${currentStats.cravingsResisted ?? 0} para ${(currentStats.cravingsResisted ?? 0) + 1}');
+      }
+      
+      emit(state.copyWith(
+        userStats: currentStats.copyWith(
+          cravingsResisted: (currentStats.cravingsResisted ?? 0) + 1
+        ),
+        lastUpdated: DateTime.now().millisecondsSinceEpoch
+      ));
+    } else if (kDebugMode) {
+      print('⚠️ [TrackingBloc] Não foi possível fazer atualização otimista - userStats é null');
+    }
+    
+    // Em segundo plano, busca os dados atualizados
+    try {
+      await _repository.updateUserStats();
+      await _loadUserStats(emit, forceRefresh: true);
+      
+      if (kDebugMode) {
+        print('✅ [TrackingBloc] Atualização de fundo completa para craving adicionado');
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('❌ [TrackingBloc] Erro na atualização de fundo: $e');
+      }
+      // Não expomos o erro para o usuário já que a atualização otimista foi feita
     }
   }
   

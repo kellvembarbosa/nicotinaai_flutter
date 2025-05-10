@@ -275,8 +275,15 @@ class CravingBloc extends Bloc<CravingEvent, CravingState> {
   // Update tracking stats after changes to cravings
   void _updateTrackingStats() {
     if (_trackingBloc != null) {
-      _trackingBloc.add(ForceUpdateStats());
-      debugPrint('✅ [CravingBloc] Updated tracking stats');
+      // Primeiro dispara o evento otimista de craving adicionado
+      _trackingBloc.add(const CravingAdded());
+      
+      // Em seguida, programa atualização completa com leve atraso para garantir persistência
+      Future.delayed(const Duration(milliseconds: 300), () {
+        _trackingBloc.add(ForceUpdateStats());
+      });
+      
+      debugPrint('✅ [CravingBloc] Updated tracking stats with optimistic update');
     } else {
       debugPrint('⚠️ [CravingBloc] TrackingBloc not available to update stats');
     }

@@ -65,6 +65,10 @@ class UpdateCraving extends TrackingEvent {
   UpdateCraving({required this.craving});
 }
 
+class CravingAdded extends TrackingEvent {
+  const CravingAdded();
+}
+
 // Health Recoveries events
 class LoadHealthRecoveries extends TrackingEvent {
   final bool forceRefresh;

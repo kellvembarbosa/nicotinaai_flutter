@@ -321,6 +321,9 @@ class _HomeScreenState extends State<HomeScreen> {
               // Listener para TrackingBloc
               BlocListener<TrackingBloc, TrackingState>(
                 listenWhen: (previous, current) => 
+                  // Adicionar verificação específica para o caso de estado inicial
+                  previous.lastUpdated != current.lastUpdated || 
+                  (previous.userStats == null && current.userStats != null) ||
                   // Listen specifically for changes in key stats values
                   previous.userStats?.cravingsResisted != current.userStats?.cravingsResisted || 
                   previous.userStats?.currentStreakDays != current.userStats?.currentStreakDays ||
@@ -328,13 +331,15 @@ class _HomeScreenState extends State<HomeScreen> {
                   (previous.userStats?.lastSmokeDate?.millisecondsSinceEpoch ?? 0) != 
                   (current.userStats?.lastSmokeDate?.millisecondsSinceEpoch ?? 0) ||
                   // Also listen for changes in loading state or update timestamp
-                  previous.isStatsLoading != current.isStatsLoading ||
-                  previous.lastUpdated != current.lastUpdated,
+                  previous.isStatsLoading != current.isStatsLoading,
                 listener: (context, state) {
                   // Atualizar dados locais quando o estado do TrackingBloc mudar
                   if (state.isLoaded || !state.isStatsLoading) {
                     if (kDebugMode) {
                       print('🔄 [HomeScreen] TrackingBloc state changed, reloading data');
+                      if (previous.userStats?.cravingsResisted != current.userStats?.cravingsResisted) {
+                        print('📊 [HomeScreen] Cravings resistidos mudaram: ${previous.userStats?.cravingsResisted} -> ${current.userStats?.cravingsResisted}');
+                      }
                     }
                     _loadData(state);
                   }
