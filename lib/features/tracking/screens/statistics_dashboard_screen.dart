@@ -112,7 +112,7 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen> w
                       context.read<TrackingBloc>().add(ClearError());
                       context.read<TrackingBloc>().add(InitializeTracking());
                     },
-                    child: Text(l10n.retry ?? 'Retry'),
+                    child: Text(l10n.retry),
                   ),
                 ],
               ),
@@ -165,17 +165,17 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen> w
           children: [
             // Key stats
             const SizedBox(height: 16),
-            _buildSectionHeader(context, l10n.achievementCurrentProgress ?? 'Current Progress'),
+            _buildSectionHeader(context, l10n.achievementCurrentProgress),
             const SizedBox(height: 16),
             
             // Current streak card
             _buildStatsCard(
               context,
-              l10n.homeDaysWithoutSmoking(stats.currentStreakDays) ?? 'Days smoke-free',
+              l10n.homeDaysWithoutSmoking(stats.currentStreakDays),
               stats.currentStreakDays.toString(),
               Icons.local_fire_department,
               Colors.orange,
-              suffix: l10n.days ?? 'days',
+              suffix: l10n.days,
             ),
             
             const SizedBox(height: 16),
@@ -186,7 +186,7 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen> w
                 Expanded(
                   child: _buildStatsCard(
                     context,
-                    l10n.homeCravingsResisted ?? 'Cravings resisted',
+                    l10n.homeCravingsResisted,
                     stats.cravingsResisted.toString(),
                     Icons.smoke_free,
                     Colors.green,
@@ -196,7 +196,7 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen> w
                 Expanded(
                   child: _buildStatsCard(
                     context,
-                    l10n.cigarettesPerDay ?? 'Cigarettes avoided',
+                    l10n.cigarettesPerDay,
                     stats.cigarettesAvoided.toString(),
                     Icons.check_circle_outline,
                     Colors.purple,
@@ -208,12 +208,12 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen> w
             const SizedBox(height: 16),
             
             // More stats
-            _buildSectionHeader(context, l10n.homeNextMilestone ?? 'Health Benefits'),
+            _buildSectionHeader(context, l10n.homeNextMilestone),
             const SizedBox(height: 16),
             
             _buildStatsCard(
               context,
-              l10n.homeMinutesLifeGained ?? 'Life gained',
+              l10n.homeMinutesLifeGained,
               '${stats.cigarettesAvoided * 7}',
               Icons.favorite,
               Colors.red,
@@ -225,7 +225,7 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen> w
             // Money savings
             _buildStatsCard(
               context,
-              l10n.potentialMonthlySavings ?? 'Money saved',
+              l10n.potentialMonthlySavings,
               context.read<CurrencyBloc>().format(stats.moneySaved),
               Icons.account_balance_wallet,
               Colors.blue,
@@ -270,13 +270,13 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen> w
         return ListView(
           padding: const EdgeInsets.all(16.0),
           children: [
-            _buildSectionHeader(context, l10n.potentialMonthlySavings ?? 'Money Saved'),
+            _buildSectionHeader(context, l10n.potentialMonthlySavings),
             const SizedBox(height: 16),
             
             // Money saved card
             _buildStatsCard(
               context,
-              l10n.savingsCalculator ?? 'Total Savings',
+              l10n.savingsCalculator,
               currencyBloc.format(stats.moneySaved),
               Icons.account_balance_wallet,
               Colors.blue,
@@ -285,7 +285,7 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen> w
             const SizedBox(height: 24),
             
             // Projected savings
-            _buildSectionHeader(context, l10n.potentialMonthlySavings ?? 'Projected Savings'),
+            _buildSectionHeader(context, l10n.potentialMonthlySavings),
             const SizedBox(height: 16),
             
             Row(
@@ -315,12 +315,13 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen> w
             const SizedBox(height: 24),
             
             // Savings chart
-            _buildSectionHeader(context, l10n.achievementCategorySavings ?? 'Savings Chart'),
+            _buildSectionHeader(context, l10n.achievementCategorySavings),
             const SizedBox(height: 16),
             
-            Container(
+            SizedBox(
               height: 250,
-              padding: const EdgeInsets.all(16),
+              child: Container(
+                padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: context.cardColor,
                 borderRadius: BorderRadius.circular(16),
@@ -394,11 +395,11 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen> w
                   ],
                 ),
               ),
-            ),
+            )),
             
             const SizedBox(height: 16),
             Text(
-              l10n.savingsCalculatorDescription ?? 'Based on your daily consumption and pack price before quitting.',
+              l10n.savingsCalculatorDescription,
               style: TextStyle(
                 color: context.subtitleColor,
                 fontSize: 12,
@@ -419,7 +420,7 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen> w
       return Center(
         child: Padding(
           padding: const EdgeInsets.all(20.0),
-          child: Text(l10n.emptyNotificationsDescription ?? 'No cravings data available yet.'),
+          child: Text(l10n.emptyNotificationsDescription),
         ),
       );
     }
@@ -442,27 +443,22 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen> w
     final totalCravings = resistedCount + smokedCount + alternativeCount;
     final resistedPercentage = totalCravings > 0 ? (resistedCount / totalCravings * 100).round() : 0;
     
-    // Prepare data for pie chart
-    final Map<String, double> cravingData = {
-      'Resisted': resistedCount.toDouble(),
-      'Smoked': smokedCount.toDouble(),
-      'Alternative': alternativeCount.toDouble(),
-    };
+    // Data will be directly used in the pie chart sections
     
     return ListView(
       padding: const EdgeInsets.all(16.0),
       children: [
-        _buildSectionHeader(context, l10n.homeCravingsResisted ?? 'Cravings Overview'),
+        _buildSectionHeader(context, l10n.homeCravingsResisted),
         const SizedBox(height: 16),
         
         // Success rate card
         _buildStatsCard(
           context,
-          l10n.achievementUnlocked ?? 'Success Rate',
+          l10n.achievementUnlocked,
           '$resistedPercentage%',
           Icons.trending_up,
           Colors.blue,
-          subtitle: l10n.achievementCompleted ?? 'of cravings resisted',
+          subtitle: l10n.achievementCompleted,
         ),
         
         const SizedBox(height: 16),
@@ -498,9 +494,10 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen> w
         _buildSectionHeader(context, 'Craving Outcomes'),
         const SizedBox(height: 16),
         
-        Container(
+        SizedBox(
           height: 250,
-          padding: const EdgeInsets.all(16),
+          child: Container(
+            padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             color: context.cardColor,
             borderRadius: BorderRadius.circular(16),
@@ -553,7 +550,7 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen> w
               sectionsSpace: 0,
             ),
           ),
-        ),
+        )),
         
         const SizedBox(height: 16),
         
@@ -561,9 +558,9 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen> w
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            _buildLegendItem(context, l10n.yes ?? 'Resisted', Colors.green),
+            _buildLegendItem(context, l10n.yes, Colors.green),
             const SizedBox(width: 24),
-            _buildLegendItem(context, l10n.no ?? 'Smoked', Colors.red),
+            _buildLegendItem(context, l10n.no, Colors.red),
             const SizedBox(width: 24),
             _buildLegendItem(context, 'Alternative', Colors.blue),
           ],
@@ -575,7 +572,7 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen> w
         _buildSectionHeader(context, 'Recent Cravings'),
         const SizedBox(height: 16),
         
-        ...cravings.take(5).map((craving) => _buildCravingListItem(context, craving)).toList(),
+        ...cravings.take(5).map((craving) => _buildCravingListItem(context, craving)),
       ],
     );
   }
@@ -587,7 +584,7 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen> w
       return Center(
         child: Padding(
           padding: const EdgeInsets.all(20.0),
-          child: Text(l10n.noRecoveriesFound ?? 'No health data available yet.'),
+          child: Text(l10n.noRecoveriesFound),
         ),
       );
     }
@@ -597,17 +594,17 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen> w
     return ListView(
       padding: const EdgeInsets.all(16.0),
       children: [
-        _buildSectionHeader(context, l10n.homeHealthRecovery ?? 'Health Recovery'),
+        _buildSectionHeader(context, l10n.homeHealthRecovery),
         const SizedBox(height: 16),
         
         // Days smoke free
         _buildStatsCard(
           context,
-          l10n.daysSmokeFree(daysSmokeFree) ?? 'Days smoke-free',
+          l10n.daysSmokeFree(daysSmokeFree),
           daysSmokeFree.toString(),
           Icons.health_and_safety,
           Colors.teal,
-          suffix: l10n.days ?? 'days',
+          suffix: l10n.days,
         ),
         
         const SizedBox(height: 24),
@@ -622,7 +619,7 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen> w
             Expanded(
               child: _buildStatsCard(
                 context,
-                l10n.homeMinutesLifeGained ?? 'Life gained',
+                l10n.homeMinutesLifeGained,
                 '${stats.cigarettesAvoided * 7}',
                 Icons.favorite,
                 Colors.red,
@@ -653,14 +650,13 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen> w
                   const SizedBox(height: 16),
                   ...healthRecoveries
                       .take(5)
-                      .map((recovery) => _buildHealthRecoveryItem(context, recovery, daysSmokeFree))
-                      .toList(),
+                      .map((recovery) => _buildHealthRecoveryItem(context, recovery, daysSmokeFree)),
                 ],
               )
             : Padding(
                 padding: const EdgeInsets.symmetric(vertical: 24.0),
                 child: Center(
-                  child: Text(l10n.noRecentRecoveries ?? 'No health recoveries to display yet.'),
+                  child: Text(l10n.noRecentRecoveries),
                 ),
               ),
       ],
@@ -789,18 +785,12 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen> w
     
     // Convert CravingOutcome enum to int index
     int outcomeIndex = 0; // Default to resisted
-    if (craving.outcome != null) {
-      switch (craving.outcome) {
-        case CravingOutcome.resisted:
-          outcomeIndex = 0;
-          break;
-        case CravingOutcome.smoked:
-          outcomeIndex = 1;
-          break;
-        case CravingOutcome.alternative:
-          outcomeIndex = 2;
-          break;
-      }
+    if (craving.outcome == CravingOutcome.resisted) {
+      outcomeIndex = 0;
+    } else if (craving.outcome == CravingOutcome.smoked) {
+      outcomeIndex = 1;
+    } else if (craving.outcome == CravingOutcome.alternative) {
+      outcomeIndex = 2;
     }
     
     return Container(
@@ -928,8 +918,8 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen> w
                     const SizedBox(height: 4),
                     Text(
                       isAchieved 
-                          ? (l10n.achievedOn(recovery.achievedAt) ?? 'Achieved')
-                          : l10n.daysToAchieve(daysRequired) ?? '$daysRequired days to achieve',
+                          ? l10n.achievedOn(recovery.achievedAt)
+                          : l10n.daysToAchieve(daysRequired),
                       style: TextStyle(
                         fontSize: 12,
                         color: context.subtitleColor,
@@ -945,7 +935,7 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen> w
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
-                  isAchieved ? l10n.achieved ?? 'Achieved' : l10n.progress ?? 'In progress',
+                  isAchieved ? l10n.achieved : l10n.progress,
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.bold,
@@ -968,8 +958,7 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen> w
             ),
             const SizedBox(height: 8),
             Text(
-              l10n.daysRemaining((daysRequired - daysSmokeFree).clamp(0, daysRequired)) ?? 
-                  '${(daysRequired - daysSmokeFree).clamp(0, daysRequired)} days remaining',
+              l10n.daysRemaining((daysRequired - daysSmokeFree).clamp(0, daysRequired)),
               style: TextStyle(
                 fontSize: 12,
                 color: statusColor,
@@ -1005,17 +994,14 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen> w
   }
 
   String _getCravingIntensityText(CravingIntensity intensity) {
-    switch (intensity) {
-      case CravingIntensity.low:
-        return 'Low Intensity';
-      case CravingIntensity.moderate:
-        return 'Moderate Intensity';
-      case CravingIntensity.high:
-        return 'High Intensity';
-      case CravingIntensity.veryHigh:
-        return 'Very High Intensity';
-      default:
-        return 'Unknown Intensity';
+    if (intensity == CravingIntensity.low) {
+      return 'Low Intensity';
+    } else if (intensity == CravingIntensity.moderate) {
+      return 'Moderate Intensity';
+    } else if (intensity == CravingIntensity.high) {
+      return 'High Intensity';
+    } else {
+      return 'Very High Intensity';
     }
   }
 
