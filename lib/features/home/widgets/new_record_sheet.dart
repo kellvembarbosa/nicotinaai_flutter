@@ -157,7 +157,7 @@ class _NewRecordSheetState extends State<NewRecordSheet> {
         ], // Keep snap options for user flexibility
         builder: (context, scrollController) {
           return Container(
-            margin: const EdgeInsets.all(6),
+            margin: EdgeInsets.zero,
             decoration: BoxDecoration(
               borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
               boxShadow: [
@@ -174,770 +174,786 @@ class _NewRecordSheetState extends State<NewRecordSheet> {
                   ? Color(0xFF1C1C1E) 
                   : context.backgroundColor,
                 borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-                // Add a frosted glass effect with gradient
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    context.isDarkMode 
-                        ? Colors.white.withOpacity(0.05) 
-                        : Colors.white.withOpacity(0.7),
-                    context.isDarkMode 
-                        ? Color(0xFF1C1C1E) 
-                        : context.backgroundColor,
-                  ],
-                ),
               ),
-                child: Column(
-                  children: [
-                    // Scrollable content with optimized layout
-                    Expanded(
-                      child: ListView(
-                        controller: scrollController,
-                        padding: const EdgeInsets.only(bottom: 16),
-                        children: [
-                      _buildHandle(context),
+              child: Column(
+                children: [
+                  // Scrollable content with optimized layout
+                  Expanded(
+                    child: ListView(
+                      controller: scrollController,
+                      padding: const EdgeInsets.only(bottom: 16),
+                      children: [
+                        _buildHandle(context),
 
-                      // Main title, optimized without background
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
-                        child: Column(
-                          children: [
-                            Text(
-                              l10n.newRecord,
-                              style: context.titleStyle.copyWith(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.blue,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                            Text(
-                              l10n.newRecordSubtitle,
-                              style: TextStyle(
-                                fontSize: 14,
-                                color:
-                                    context.isDarkMode
-                                        ? Colors.white70
-                                        : Colors.black54,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                          ],
-                        ),
-                      ),
-
-                      const SizedBox(height: 12),
-
-                      // Reason Section - Collapsible
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        child: Card(
-                          margin: EdgeInsets.zero,
-                          elevation: 0,
-                          color:
-                              context.isDarkMode
-                                  ? Colors.grey[850]
-                                  : Colors.grey[50],
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            side: BorderSide(
-                              color:
-                                  _selectedReason != null
-                                      ? Colors.blue
-                                      : context.isDarkMode
-                                      ? Colors.grey[800]!
-                                      : Colors.grey[300]!,
-                              width: _selectedReason != null ? 1.5 : 0.5,
-                            ),
-                          ),
+                        // Main title, optimized without background
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
                           child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              // Clickable header for expand/collapse
-                              InkWell(
-                                onTap: () {
-                                  setState(() {
-                                    _isReasonSectionExpanded =
-                                        !_isReasonSectionExpanded;
-                                  });
-                                },
-                                borderRadius: const BorderRadius.vertical(
-                                  top: Radius.circular(12),
+                              Text(
+                                l10n.newRecord,
+                                style: context.titleStyle.copyWith(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.blue,
                                 ),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(12.0),
-                                  child: Row(
-                                    children: [
-                                      const Icon(
-                                        Icons.help_outline,
-                                        size: 20,
-                                        color: Colors.blue,
-                                      ),
-                                      const SizedBox(width: 8),
-                                      Expanded(
-                                        child: Text(
-                                          l10n.whatsTheReason,
-                                          style: const TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.blue,
-                                          ),
+                                textAlign: TextAlign.center,
+                              ),
+                              Text(
+                                l10n.newRecordSubtitle,
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color:
+                                      context.isDarkMode
+                                          ? Colors.white70
+                                          : Colors.black54,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        const SizedBox(height: 12),
+
+                        // Reason Section - Collapsible
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: Card(
+                            margin: EdgeInsets.zero,
+                            elevation: 0,
+                            color:
+                                context.isDarkMode
+                                    ? Colors.grey[850]
+                                    : Colors.grey[50],
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              side: BorderSide(
+                                color:
+                                    _selectedReason != null
+                                        ? Colors.blue
+                                        : context.isDarkMode
+                                        ? Colors.grey[800]!
+                                        : Colors.grey[300]!,
+                                width: _selectedReason != null ? 1.5 : 0.5,
+                              ),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // Clickable header for expand/collapse
+                                InkWell(
+                                  onTap: () {
+                                    setState(() {
+                                      _isReasonSectionExpanded =
+                                          !_isReasonSectionExpanded;
+                                    });
+                                  },
+                                  borderRadius: const BorderRadius.vertical(
+                                    top: Radius.circular(12),
+                                  ),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(12.0),
+                                    child: Row(
+                                      children: [
+                                        const Icon(
+                                          Icons.help_outline,
+                                          size: 20,
+                                          color: Colors.blue,
                                         ),
-                                      ),
-                                      if (_selectedReason != null)
-                                        Container(
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 8,
-                                            vertical: 4,
-                                          ),
-                                          decoration: BoxDecoration(
-                                            color: Colors.blue.withOpacity(0.1),
-                                            borderRadius: BorderRadius.circular(
-                                              12,
-                                            ),
-                                            border: Border.all(
-                                              color: Colors.blue.withOpacity(0.3),
-                                            ),
-                                          ),
+                                        const SizedBox(width: 8),
+                                        Expanded(
                                           child: Text(
-                                            _getReasonLabel(_selectedReason!),
+                                            l10n.whatsTheReason,
                                             style: const TextStyle(
-                                              fontSize: 14,
+                                              fontSize: 16,
                                               fontWeight: FontWeight.bold,
                                               color: Colors.blue,
                                             ),
                                           ),
                                         ),
-                                      const SizedBox(width: 4),
-                                      Icon(
-                                        _isReasonSectionExpanded
-                                            ? Icons.expand_less
-                                            : Icons.expand_more,
-                                        color: Colors.grey,
+                                        if (_selectedReason != null)
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 8,
+                                              vertical: 4,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              color: Colors.blue.withOpacity(0.1),
+                                              borderRadius: BorderRadius.circular(
+                                                12,
+                                              ),
+                                              border: Border.all(
+                                                color: Colors.blue.withOpacity(0.3),
+                                              ),
+                                            ),
+                                            child: Text(
+                                              _getReasonLabel(_selectedReason!),
+                                              style: const TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.blue,
+                                              ),
+                                            ),
+                                          ),
+                                        const SizedBox(width: 4),
+                                        Icon(
+                                          _isReasonSectionExpanded
+                                              ? Icons.expand_less
+                                              : Icons.expand_more,
+                                          color: Colors.grey,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+
+                                // Expandable content
+                                if (_isReasonSectionExpanded)
+                                  Padding(
+                                    padding: const EdgeInsets.fromLTRB(
+                                      12,
+                                      0,
+                                      12,
+                                      12,
+                                    ),
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(16),
+                                      child: BackdropFilter(
+                                        filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                                        child: _buildReasonGrid(context, l10n),
                                       ),
-                                    ],
+                                    ),
                                   ),
-                                ),
-                              ),
-
-                              // Expandable content
-                              if (_isReasonSectionExpanded)
-                                Padding(
-                                  padding: const EdgeInsets.fromLTRB(
-                                    12,
-                                    0,
-                                    12,
-                                    12,
-                                  ),
-                                  child: _buildReasonGrid(context, l10n),
-                                ),
-                            ],
-                          ),
-                        ),
-                      ),
-
-                      const SizedBox(height: 12),
-
-                      // Amount and Duration Section - Collapsible
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        child: Card(
-                          margin: EdgeInsets.zero,
-                          elevation: 0,
-                          color:
-                              context.isDarkMode
-                                  ? Colors.grey[850]
-                                  : Colors.grey[50],
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            side: BorderSide(
-                              color:
-                                  (_selectedAmount != null &&
-                                          _selectedDuration != null)
-                                      ? Colors.blue
-                                      : context.isDarkMode
-                                      ? Colors.grey[800]!
-                                      : Colors.grey[300]!,
-                              width:
-                                  (_selectedAmount != null &&
-                                          _selectedDuration != null)
-                                      ? 1.5
-                                      : 0.5,
+                              ],
                             ),
                           ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // Clickable header for expand/collapse
-                              InkWell(
-                                onTap: () {
-                                  setState(() {
-                                    _isAmountDurationSectionExpanded =
-                                        !_isAmountDurationSectionExpanded;
-                                  });
-                                },
-                                borderRadius: const BorderRadius.vertical(
-                                  top: Radius.circular(12),
-                                ),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(12.0),
-                                  child: Row(
-                                    children: [
-                                      const Icon(
-                                        Icons.smoking_rooms_outlined,
-                                        size: 20,
-                                        color: Colors.blue,
-                                      ),
-                                      const SizedBox(width: 8),
-                                      Expanded(
-                                        child: Text(
-                                          "${l10n.howMuchDidYouSmoke} & ${l10n.howLongDidItLast}",
-                                          style: const TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.blue,
-                                          ),
-                                        ),
-                                      ),
-                                      if (_selectedAmount != null &&
-                                          _selectedDuration != null)
-                                        Container(
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 8,
-                                            vertical: 4,
-                                          ),
-                                          decoration: BoxDecoration(
-                                            color: Colors.blue.withOpacity(0.1),
-                                            borderRadius: BorderRadius.circular(
-                                              12,
-                                            ),
-                                            border: Border.all(
-                                              color: Colors.blue.withOpacity(0.3),
-                                            ),
-                                          ),
-                                          child: Row(
-                                            children: [
-                                              Text(
-                                                "${_getAmountLabel(_selectedAmount!)} • ${_getDurationLabel(_selectedDuration!)}",
-                                                style: const TextStyle(
-                                                  fontSize: 14,
-                                                  fontWeight: FontWeight.bold,
-                                                  color: Colors.blue,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      const SizedBox(width: 4),
-                                      Icon(
-                                        _isAmountDurationSectionExpanded
-                                            ? Icons.expand_less
-                                            : Icons.expand_more,
-                                        color: Colors.grey,
-                                      ),
-                                    ],
-                                  ),
-                                ),
+                        ),
+
+                        const SizedBox(height: 12),
+
+                        // Amount and Duration Section - Collapsible
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: Card(
+                            margin: EdgeInsets.zero,
+                            elevation: 0,
+                            color:
+                                context.isDarkMode
+                                    ? Colors.grey[850]
+                                    : Colors.grey[50],
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              side: BorderSide(
+                                color:
+                                    (_selectedAmount != null &&
+                                            _selectedDuration != null)
+                                        ? Colors.blue
+                                        : context.isDarkMode
+                                        ? Colors.grey[800]!
+                                        : Colors.grey[300]!,
+                                width:
+                                    (_selectedAmount != null &&
+                                            _selectedDuration != null)
+                                        ? 1.5
+                                        : 0.5,
                               ),
-
-                              // Expandable content
-                              if (_isAmountDurationSectionExpanded)
-                                Padding(
-                                  padding: const EdgeInsets.fromLTRB(
-                                    12,
-                                    0,
-                                    12,
-                                    12,
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // Clickable header for expand/collapse
+                                InkWell(
+                                  onTap: () {
+                                    setState(() {
+                                      _isAmountDurationSectionExpanded =
+                                          !_isAmountDurationSectionExpanded;
+                                    });
+                                  },
+                                  borderRadius: const BorderRadius.vertical(
+                                    top: Radius.circular(12),
                                   ),
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      // Amount - Normal or minimized version
-                                      if (_isAmountSubSectionVisible)
-                                        // Full version of amount subsection
-                                        Padding(
-                                          padding: const EdgeInsets.only(
-                                            top: 8,
-                                            bottom: 16,
-                                          ),
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              // Label for amount
-                                              Row(
-                                                children: [
-                                                  const Icon(
-                                                    Icons.smoking_rooms_outlined,
-                                                    size: 18,
-                                                    color: Colors.blue,
-                                                  ),
-                                                  const SizedBox(width: 8),
-                                                  Expanded(
-                                                    child: Text(
-                                                      l10n.howMuchDidYouSmoke,
-                                                      style: const TextStyle(
-                                                        fontSize: 16,
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                        color: Colors.blue,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                              const SizedBox(height: 12),
-                                              _buildAmountOptionsVertical(
-                                                context,
-                                                l10n,
-                                              ),
-                                            ],
-                                          ),
-                                        )
-                                      else if (_selectedAmount != null)
-                                        // Minimized version of amount subsection
-                                        GestureDetector(
-                                          onTap: () {
-                                            setState(() {
-                                              _isAmountSubSectionVisible = true;
-                                              _isDurationSubSectionVisible =
-                                                  false;
-                                            });
-                                          },
-                                          child: Padding(
-                                            padding: const EdgeInsets.only(
-                                              top: 8,
-                                              bottom: 8,
-                                            ),
-                                            child: Container(
-                                              padding: const EdgeInsets.symmetric(
-                                                horizontal: 12,
-                                                vertical: 8,
-                                              ),
-                                              decoration: BoxDecoration(
-                                                color: Colors.blue.withOpacity(
-                                                  0.1,
-                                                ),
-                                                borderRadius:
-                                                    BorderRadius.circular(8),
-                                                border: Border.all(
-                                                  color: Colors.blue.withOpacity(
-                                                    0.3,
-                                                  ),
-                                                ),
-                                              ),
-                                              child: Row(
-                                                mainAxisSize: MainAxisSize.min,
-                                                children: [
-                                                  const Icon(
-                                                    Icons.smoking_rooms_outlined,
-                                                    size: 16,
-                                                    color: Colors.blue,
-                                                  ),
-                                                  const SizedBox(width: 8),
-                                                  Text(
-                                                    "${l10n.howMuchDidYouSmoke}: ${_getAmountLabel(_selectedAmount!)}",
-                                                    style: const TextStyle(
-                                                      fontSize: 14,
-                                                      fontWeight: FontWeight.bold,
-                                                      color: Colors.blue,
-                                                    ),
-                                                  ),
-                                                  const SizedBox(width: 4),
-                                                  const Icon(
-                                                    Icons.edit,
-                                                    size: 14,
-                                                    color: Colors.blue,
-                                                  ),
-                                                ],
-                                              ),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(12.0),
+                                    child: Row(
+                                      children: [
+                                        const Icon(
+                                          Icons.smoking_rooms_outlined,
+                                          size: 20,
+                                          color: Colors.blue,
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Expanded(
+                                          child: Text(
+                                            "${l10n.howMuchDidYouSmoke} & ${l10n.howLongDidItLast}",
+                                            style: const TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.blue,
                                             ),
                                           ),
                                         ),
-
-                                      // Duration - Normal or minimized version
-                                      if (_isDurationSubSectionVisible)
-                                        // Full version of duration subsection
-                                        Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            // Label for duration
-                                            Row(
+                                        if (_selectedAmount != null &&
+                                            _selectedDuration != null)
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 8,
+                                              vertical: 4,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              color: Colors.blue.withOpacity(0.1),
+                                              borderRadius: BorderRadius.circular(
+                                                12,
+                                              ),
+                                              border: Border.all(
+                                                color: Colors.blue.withOpacity(0.3),
+                                              ),
+                                            ),
+                                            child: Row(
                                               children: [
-                                                const Icon(
-                                                  Icons.timer_outlined,
-                                                  size: 18,
-                                                  color: Colors.blue,
-                                                ),
-                                                const SizedBox(width: 8),
-                                                Expanded(
-                                                  child: Text(
-                                                    l10n.howLongDidItLast,
-                                                    style: const TextStyle(
-                                                      fontSize: 16,
-                                                      fontWeight: FontWeight.bold,
-                                                      color: Colors.blue,
-                                                    ),
+                                                Text(
+                                                  "${_getAmountLabel(_selectedAmount!)} • ${_getDurationLabel(_selectedDuration!)}",
+                                                  style: const TextStyle(
+                                                    fontSize: 14,
+                                                    fontWeight: FontWeight.bold,
+                                                    color: Colors.blue,
                                                   ),
                                                 ),
                                               ],
                                             ),
-                                            const SizedBox(height: 12),
-                                            _buildDurationOptionsVertical(
-                                              context,
-                                              l10n,
-                                            ),
-                                          ],
-                                        )
-                                      else if (_selectedDuration != null)
-                                        // Minimized version of duration subsection
-                                        GestureDetector(
-                                          onTap: () {
-                                            setState(() {
-                                              _isDurationSubSectionVisible = true;
-                                              _isAmountSubSectionVisible = false;
-                                            });
-                                          },
-                                          child: Padding(
-                                            padding: const EdgeInsets.only(
-                                              top: 8,
-                                              bottom: 8,
-                                            ),
-                                            child: Container(
-                                              padding: const EdgeInsets.symmetric(
-                                                horizontal: 12,
-                                                vertical: 8,
-                                              ),
-                                              decoration: BoxDecoration(
-                                                color: Colors.blue.withOpacity(
-                                                  0.1,
-                                                ),
-                                                borderRadius:
-                                                    BorderRadius.circular(8),
-                                                border: Border.all(
-                                                  color: Colors.blue.withOpacity(
-                                                    0.3,
-                                                  ),
-                                                ),
-                                              ),
-                                              child: Row(
-                                                mainAxisSize: MainAxisSize.min,
-                                                children: [
-                                                  const Icon(
-                                                    Icons.timer_outlined,
-                                                    size: 16,
-                                                    color: Colors.blue,
-                                                  ),
-                                                  const SizedBox(width: 8),
-                                                  Text(
-                                                    "${l10n.howLongDidItLast}: ${_getDurationLabel(_selectedDuration!)}",
-                                                    style: const TextStyle(
-                                                      fontSize: 14,
-                                                      fontWeight: FontWeight.bold,
-                                                      color: Colors.blue,
-                                                    ),
-                                                  ),
-                                                  const SizedBox(width: 4),
-                                                  const Icon(
-                                                    Icons.edit,
-                                                    size: 14,
-                                                    color: Colors.blue,
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
                                           ),
+                                        const SizedBox(width: 4),
+                                        Icon(
+                                          _isAmountDurationSectionExpanded
+                                              ? Icons.expand_less
+                                              : Icons.expand_more,
+                                          color: Colors.grey,
                                         ),
-                                    ],
+                                      ],
+                                    ),
                                   ),
                                 ),
-                            ],
-                          ),
-                        ),
-                      ),
 
-                      const SizedBox(height: 12),
+                                // Expandable content
+                                if (_isAmountDurationSectionExpanded)
+                                  Padding(
+                                    padding: const EdgeInsets.fromLTRB(
+                                      12,
+                                      0,
+                                      12,
+                                      12,
+                                    ),
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(16),
+                                      child: BackdropFilter(
+                                        filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            // Amount - Normal or minimized version
+                                            if (_isAmountSubSectionVisible)
+                                              // Full version of amount subsection
+                                              Padding(
+                                                padding: const EdgeInsets.only(
+                                                  top: 8,
+                                                  bottom: 16,
+                                                ),
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    // Label for amount
+                                                    Row(
+                                                      children: [
+                                                        const Icon(
+                                                          Icons.smoking_rooms_outlined,
+                                                          size: 18,
+                                                          color: Colors.blue,
+                                                        ),
+                                                        const SizedBox(width: 8),
+                                                        Expanded(
+                                                          child: Text(
+                                                            l10n.howMuchDidYouSmoke,
+                                                            style: const TextStyle(
+                                                              fontSize: 16,
+                                                              fontWeight:
+                                                                  FontWeight.bold,
+                                                              color: Colors.blue,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                    const SizedBox(height: 12),
+                                                    _buildAmountOptionsVertical(
+                                                      context,
+                                                      l10n,
+                                                    ),
+                                                  ],
+                                                ),
+                                              )
+                                            else if (_selectedAmount != null)
+                                              // Minimized version of amount subsection
+                                              GestureDetector(
+                                                onTap: () {
+                                                  setState(() {
+                                                    _isAmountSubSectionVisible = true;
+                                                    _isDurationSubSectionVisible =
+                                                        false;
+                                                  });
+                                                },
+                                                child: Padding(
+                                                  padding: const EdgeInsets.only(
+                                                    top: 8,
+                                                    bottom: 8,
+                                                  ),
+                                                  child: Container(
+                                                    padding: const EdgeInsets.symmetric(
+                                                      horizontal: 12,
+                                                      vertical: 8,
+                                                    ),
+                                                    decoration: BoxDecoration(
+                                                      color: Colors.blue.withOpacity(
+                                                        0.1,
+                                                      ),
+                                                      borderRadius:
+                                                          BorderRadius.circular(8),
+                                                      border: Border.all(
+                                                        color: Colors.blue.withOpacity(
+                                                          0.3,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    child: Row(
+                                                      mainAxisSize: MainAxisSize.min,
+                                                      children: [
+                                                        const Icon(
+                                                          Icons.smoking_rooms_outlined,
+                                                          size: 16,
+                                                          color: Colors.blue,
+                                                        ),
+                                                        const SizedBox(width: 8),
+                                                        Text(
+                                                          "${l10n.howMuchDidYouSmoke}: ${_getAmountLabel(_selectedAmount!)}",
+                                                          style: const TextStyle(
+                                                            fontSize: 14,
+                                                            fontWeight: FontWeight.bold,
+                                                            color: Colors.blue,
+                                                          ),
+                                                        ),
+                                                        const SizedBox(width: 4),
+                                                        const Icon(
+                                                          Icons.edit,
+                                                          size: 14,
+                                                          color: Colors.blue,
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
 
-                      // Notes Section - Collapsible
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        child: Card(
-                          margin: EdgeInsets.zero,
-                          elevation: 0,
-                          color:
-                              context.isDarkMode
-                                  ? Colors.grey[850]
-                                  : Colors.grey[50],
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            side: BorderSide(
-                              color:
-                                  _notesController.text.isNotEmpty
-                                      ? Colors.blue
-                                      : context.isDarkMode
-                                      ? Colors.grey[800]!
-                                      : Colors.grey[300]!,
-                              width: _notesController.text.isNotEmpty ? 1.5 : 0.5,
-                            ),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // Clickable header for expand/collapse
-                              InkWell(
-                                onTap: () {
-                                  setState(() {
-                                    _isNotesSectionExpanded =
-                                        !_isNotesSectionExpanded;
-                                  });
-                                },
-                                borderRadius: const BorderRadius.vertical(
-                                  top: Radius.circular(12),
-                                ),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(12.0),
-                                  child: Row(
-                                    children: [
-                                      const Icon(
-                                        Icons.note_outlined,
-                                        size: 20,
-                                        color: Colors.blue,
-                                      ),
-                                      const SizedBox(width: 8),
-                                      Expanded(
-                                        child: Text(
-                                          l10n.notes,
-                                          style: const TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.blue,
-                                          ),
+                                            // Duration - Normal or minimized version
+                                            if (_isDurationSubSectionVisible)
+                                              // Full version of duration subsection
+                                              Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  // Label for duration
+                                                  Row(
+                                                    children: [
+                                                      const Icon(
+                                                        Icons.timer_outlined,
+                                                        size: 18,
+                                                        color: Colors.blue,
+                                                      ),
+                                                      const SizedBox(width: 8),
+                                                      Expanded(
+                                                        child: Text(
+                                                          l10n.howLongDidItLast,
+                                                          style: const TextStyle(
+                                                            fontSize: 16,
+                                                            fontWeight: FontWeight.bold,
+                                                            color: Colors.blue,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  const SizedBox(height: 12),
+                                                  _buildDurationOptionsVertical(
+                                                    context,
+                                                    l10n,
+                                                  ),
+                                                ],
+                                              )
+                                            else if (_selectedDuration != null)
+                                              // Minimized version of duration subsection
+                                              GestureDetector(
+                                                onTap: () {
+                                                  setState(() {
+                                                    _isDurationSubSectionVisible = true;
+                                                    _isAmountSubSectionVisible = false;
+                                                  });
+                                                },
+                                                child: Padding(
+                                                  padding: const EdgeInsets.only(
+                                                    top: 8,
+                                                    bottom: 8,
+                                                  ),
+                                                  child: Container(
+                                                    padding: const EdgeInsets.symmetric(
+                                                      horizontal: 12,
+                                                      vertical: 8,
+                                                    ),
+                                                    decoration: BoxDecoration(
+                                                      color: Colors.blue.withOpacity(
+                                                        0.1,
+                                                      ),
+                                                      borderRadius:
+                                                          BorderRadius.circular(8),
+                                                      border: Border.all(
+                                                        color: Colors.blue.withOpacity(
+                                                          0.3,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    child: Row(
+                                                      mainAxisSize: MainAxisSize.min,
+                                                      children: [
+                                                        const Icon(
+                                                          Icons.timer_outlined,
+                                                          size: 16,
+                                                          color: Colors.blue,
+                                                        ),
+                                                        const SizedBox(width: 8),
+                                                        Text(
+                                                          "${l10n.howLongDidItLast}: ${_getDurationLabel(_selectedDuration!)}",
+                                                          style: const TextStyle(
+                                                            fontSize: 14,
+                                                            fontWeight: FontWeight.bold,
+                                                            color: Colors.blue,
+                                                          ),
+                                                        ),
+                                                        const SizedBox(width: 4),
+                                                        const Icon(
+                                                          Icons.edit,
+                                                          size: 14,
+                                                          color: Colors.blue,
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                          ],
                                         ),
                                       ),
-                                      if (_notesController.text.isNotEmpty)
-                                        Container(
-                                          constraints: BoxConstraints(
-                                            maxWidth:
-                                                MediaQuery.of(
-                                                  context,
-                                                ).size.width *
-                                                0.3,
-                                          ),
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 8,
-                                            vertical: 4,
-                                          ),
-                                          decoration: BoxDecoration(
-                                            color: Colors.blue.withOpacity(0.1),
-                                            borderRadius: BorderRadius.circular(
-                                              12,
-                                            ),
-                                            border: Border.all(
-                                              color: Colors.blue.withOpacity(0.3),
-                                            ),
-                                          ),
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(height: 12),
+
+                        // Notes Section - Collapsible
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: Card(
+                            margin: EdgeInsets.zero,
+                            elevation: 0,
+                            color:
+                                context.isDarkMode
+                                    ? Colors.grey[850]
+                                    : Colors.grey[50],
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              side: BorderSide(
+                                color:
+                                    _notesController.text.isNotEmpty
+                                        ? Colors.blue
+                                        : context.isDarkMode
+                                        ? Colors.grey[800]!
+                                        : Colors.grey[300]!,
+                                width: _notesController.text.isNotEmpty ? 1.5 : 0.5,
+                              ),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // Clickable header for expand/collapse
+                                InkWell(
+                                  onTap: () {
+                                    setState(() {
+                                      _isNotesSectionExpanded =
+                                          !_isNotesSectionExpanded;
+                                    });
+                                  },
+                                  borderRadius: const BorderRadius.vertical(
+                                    top: Radius.circular(12),
+                                  ),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(12.0),
+                                    child: Row(
+                                      children: [
+                                        const Icon(
+                                          Icons.note_outlined,
+                                          size: 20,
+                                          color: Colors.blue,
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Expanded(
                                           child: Text(
-                                            _notesController.text.length > 15
-                                                ? "${_notesController.text.substring(0, 15)}..."
-                                                : _notesController.text,
+                                            l10n.notes,
                                             style: const TextStyle(
-                                              fontSize: 14,
+                                              fontSize: 16,
                                               fontWeight: FontWeight.bold,
                                               color: Colors.blue,
                                             ),
-                                            overflow: TextOverflow.ellipsis,
                                           ),
                                         ),
-                                      const SizedBox(width: 4),
-                                      Icon(
-                                        _isNotesSectionExpanded
-                                            ? Icons.expand_less
-                                            : Icons.expand_more,
-                                        color: Colors.grey,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-
-                              // Expandable content
-                              if (_isNotesSectionExpanded)
-                                Padding(
-                                  padding: const EdgeInsets.fromLTRB(
-                                    12,
-                                    0,
-                                    12,
-                                    12,
-                                  ),
-                                  child: _buildNotesField(context, l10n),
-                                ),
-                            ],
-                          ),
-                        ),
-                      ),
-
-                      // Extra space at bottom
-                      const SizedBox(height: 70), // Reduced from 90 to 70
-                    ],
-                  ),
-                ),
-
-                // Register button with BlocBuilder
-                BlocBuilder<SmokingRecordBloc, SmokingRecordState>(
-                  builder: (context, state) {
-                    final isLoading = state.status == SmokingRecordStatus.saving;
-                    
-                    return Container(
-                      width: double.infinity,
-                      padding: EdgeInsets.only(
-                        left: 20,
-                        right: 20,
-                        bottom: 16 + MediaQuery.of(context).padding.bottom,
-                        top: 8,
-                      ),
-                      decoration: BoxDecoration(
-                        color: context.isDarkMode 
-                            ? Color.fromRGBO(0, 0, 0, 0.5) 
-                            : Color.fromRGBO(255, 255, 255, 0.7),
-                        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Color.fromRGBO(0, 0, 0, 0.1),
-                            offset: const Offset(0, -3),
-                            blurRadius: 10,
-                            spreadRadius: 1,
-                          ),
-                        ],
-                        // Add gradient for glass effect
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [
-                            context.isDarkMode 
-                                ? Color.fromRGBO(255, 255, 255, 0.03) 
-                                : Color.fromRGBO(255, 255, 255, 0.9),
-                            context.isDarkMode 
-                                ? Color.fromRGBO(0, 0, 0, 0.5) 
-                                : Color.fromRGBO(255, 255, 255, 0.7),
-                          ],
-                        ),
-                      ),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          // Compact error message
-                          if (!_isFormValid())
-                            Padding(
-                              padding: const EdgeInsets.only(bottom: 8),
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 8,
-                                  horizontal: 12,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: Color.fromRGBO(255, 0, 0, 0.1),
-                                  borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(
-                                    color: Color.fromRGBO(255, 0, 0, 0.3),
-                                    width: 1,
-                                  ),
-                                ),
-                                child: Row(
-                                  children: [
-                                    const Icon(
-                                      Icons.error_outline,
-                                      color: Colors.red,
-                                      size: 16,
-                                    ),
-                                    const SizedBox(width: 8),
-                                    Expanded(
-                                      child: Text(
-                                        _getValidationMessage(l10n),
-                                        style: const TextStyle(
-                                          color: Colors.red,
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-
-                          // Register button with elevation and gradient
-                          SizedBox(
-                            width: double.infinity,
-                            height: 52,
-                            child: ElevatedButton(
-                              onPressed: isLoading || !_isFormValid()
-                                  ? null
-                                  : _saveRecord,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.blue,
-                                disabledBackgroundColor: Colors.grey[300],
-                                foregroundColor: Colors.white,
-                                padding: EdgeInsets.zero,
-                                elevation: 4,
-                                shadowColor: Colors.blue.withOpacity(0.4),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(16),
-                                ),
-                              ),
-                              child: Ink(
-                                decoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                    colors: [Colors.blue, Colors.blue.shade800],
-                                    begin: Alignment.centerLeft,
-                                    end: Alignment.centerRight,
-                                  ),
-                                  borderRadius: BorderRadius.circular(16),
-                                ),
-                                child: Container(
-                                  width: double.infinity,
-                                  height: 52,
-                                  alignment: Alignment.center,
-                                  child: isLoading
-                                      ? const SizedBox(
-                                          width: 24,
-                                          height: 24,
-                                          child: CircularProgressIndicator(
-                                            color: Colors.white,
-                                            strokeWidth: 2,
-                                          ),
-                                        )
-                                      : Row(
-                                          mainAxisAlignment: MainAxisAlignment.center,
-                                          children: [
-                                            const Icon(
-                                              Icons.smoking_rooms_outlined,
-                                              size: 20,
+                                        if (_notesController.text.isNotEmpty)
+                                          Container(
+                                            constraints: BoxConstraints(
+                                              maxWidth:
+                                                  MediaQuery.of(
+                                                    context,
+                                                  ).size.width *
+                                                  0.3,
                                             ),
-                                            const SizedBox(width: 8),
-                                            Text(
-                                              l10n.register,
-                                              style: const TextStyle(
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.bold,
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 8,
+                                              vertical: 4,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              color: Colors.blue.withOpacity(0.1),
+                                              borderRadius: BorderRadius.circular(
+                                                12,
+                                              ),
+                                              border: Border.all(
+                                                color: Colors.blue.withOpacity(0.3),
                                               ),
                                             ),
-                                          ],
+                                            child: Text(
+                                              _notesController.text.length > 15
+                                                  ? "${_notesController.text.substring(0, 15)}..."
+                                                  : _notesController.text,
+                                              style: const TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.blue,
+                                              ),
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                        const SizedBox(width: 4),
+                                        Icon(
+                                          _isNotesSectionExpanded
+                                              ? Icons.expand_less
+                                              : Icons.expand_more,
+                                          color: Colors.grey,
                                         ),
+                                      ],
+                                    ),
+                                  ),
                                 ),
-                              ),
+
+                                // Expandable content
+                                if (_isNotesSectionExpanded)
+                                  Padding(
+                                    padding: const EdgeInsets.fromLTRB(
+                                      12,
+                                      0,
+                                      12,
+                                      12,
+                                    ),
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(16),
+                                      child: BackdropFilter(
+                                        filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                                        child: _buildNotesField(context, l10n),
+                                      ),
+                                    ),
+                                  ),
+                              ],
                             ),
                           ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
-                  ],
-                ),
+                        ),
+
+                        // Extra space at bottom
+                        const SizedBox(height: 70), // Reduced from 90 to 70
+                      ],
+                    ),
+                  ),
+
+                  // Register button with BlocBuilder
+                  BlocBuilder<SmokingRecordBloc, SmokingRecordState>(
+                    builder: (context, state) {
+                      final isLoading = state.status == SmokingRecordStatus.saving;
+                      
+                      return ClipRRect(
+                        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+                        child: BackdropFilter(
+                          filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+                          child: Container(
+                            width: double.infinity,
+                            padding: EdgeInsets.only(
+                              left: 20,
+                              right: 20,
+                              bottom: 16 + MediaQuery.of(context).padding.bottom,
+                              top: 8,
+                            ),
+                            decoration: BoxDecoration(
+                              color: context.isDarkMode 
+                                  ? Colors.black.withOpacity(0.2)
+                                  : Colors.white.withOpacity(0.2),
+                              borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Color.fromRGBO(0, 0, 0, 0.1),
+                                  offset: const Offset(0, -3),
+                                  blurRadius: 10,
+                                  spreadRadius: 1,
+                                ),
+                              ],
+                              // Add backdrop filter for glass effect
+                              gradient: LinearGradient(
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                                colors: [
+                                  context.isDarkMode 
+                                      ? Color.fromRGBO(255, 255, 255, 0.03) 
+                                      : Color.fromRGBO(255, 255, 255, 0.7),
+                                  context.isDarkMode 
+                                      ? Color.fromRGBO(0, 0, 0, 0.3) 
+                                      : Color.fromRGBO(255, 255, 255, 0.5),
+                                ],
+                              ),
+                            ),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                // Compact error message
+                                if (!_isFormValid())
+                                  Padding(
+                                    padding: const EdgeInsets.only(bottom: 8),
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(8),
+                                      child: BackdropFilter(
+                                        filter: ImageFilter.blur(sigmaX: 3, sigmaY: 3),
+                                        child: Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            vertical: 8,
+                                            horizontal: 12,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: Color.fromRGBO(255, 0, 0, 0.1),
+                                            borderRadius: BorderRadius.circular(8),
+                                            border: Border.all(
+                                              color: Color.fromRGBO(255, 0, 0, 0.3),
+                                              width: 1,
+                                            ),
+                                          ),
+                                          child: Row(
+                                            children: [
+                                              const Icon(
+                                                Icons.error_outline,
+                                                color: Colors.red,
+                                                size: 16,
+                                              ),
+                                              const SizedBox(width: 8),
+                                              Expanded(
+                                                child: Text(
+                                                  _getValidationMessage(l10n),
+                                                  style: const TextStyle(
+                                                    color: Colors.red,
+                                                    fontSize: 12,
+                                                    fontWeight: FontWeight.w500,
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+
+                                // Register button with elevation and gradient
+                                SizedBox(
+                                  width: double.infinity,
+                                  height: 52,
+                                  child: ElevatedButton(
+                                    onPressed: isLoading || !_isFormValid()
+                                        ? null
+                                        : _saveRecord,
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.blue,
+                                      disabledBackgroundColor: Colors.grey[300],
+                                      foregroundColor: Colors.white,
+                                      padding: EdgeInsets.zero,
+                                      elevation: 4,
+                                      shadowColor: Colors.blue.withOpacity(0.4),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(16),
+                                      ),
+                                    ),
+                                    child: Ink(
+                                      decoration: BoxDecoration(
+                                        gradient: LinearGradient(
+                                          colors: [Colors.blue, Colors.blue.shade800],
+                                          begin: Alignment.centerLeft,
+                                          end: Alignment.centerRight,
+                                        ),
+                                        borderRadius: BorderRadius.circular(16),
+                                      ),
+                                      child: Container(
+                                        width: double.infinity,
+                                        height: 52,
+                                        alignment: Alignment.center,
+                                        child: isLoading
+                                            ? const SizedBox(
+                                                width: 24,
+                                                height: 24,
+                                                child: CircularProgressIndicator(
+                                                  color: Colors.white,
+                                                  strokeWidth: 2,
+                                                ),
+                                              )
+                                            : Row(
+                                                mainAxisAlignment: MainAxisAlignment.center,
+                                                children: [
+                                                  const Icon(
+                                                    Icons.smoking_rooms_outlined,
+                                                    size: 20,
+                                                  ),
+                                                  const SizedBox(width: 8),
+                                                  Text(
+                                                    l10n.register,
+                                                    style: const TextStyle(
+                                                      fontSize: 16,
+                                                      fontWeight: FontWeight.bold,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ],
               ),
             ),
           );
