@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:nicotinaai_flutter/features/auth/providers/auth_provider.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:nicotinaai_flutter/blocs/auth/auth_bloc.dart';
+import 'package:nicotinaai_flutter/blocs/auth/auth_event.dart';
+import 'package:nicotinaai_flutter/blocs/auth/auth_state.dart';
 import 'package:nicotinaai_flutter/core/constants/app_constants.dart';
-import 'package:nicotinaai_flutter/features/auth/screens/login_screen_bloc.dart';
+import 'package:nicotinaai_flutter/features/auth/screens/login_screen.dart';
 import 'package:nicotinaai_flutter/widgets/app_icon_widget.dart';
+import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
 
 class RegisterScreen extends StatefulWidget {
   static const String routeName = '/register';
   
-  const RegisterScreen({super.key});
+  const RegisterScreen({Key? key}) : super(key: key);
 
   @override
   State<RegisterScreen> createState() => _RegisterScreenState();
@@ -22,9 +24,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
-  bool _obscurePassword = true;
-  bool _obscureConfirmPassword = true;
-  bool _acceptTerms = true;
+  bool _passwordVisible = false;
+  bool _confirmPasswordVisible = false;
+  bool _termsAccepted = false;
 
   @override
   void dispose() {
@@ -35,305 +37,269 @@ class _RegisterScreenState extends State<RegisterScreen> {
     super.dispose();
   }
 
-  Future<void> _register() async {
-    if (_formKey.currentState?.validate() ?? false) {
-      if (!_acceptTerms) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Você precisa aceitar os termos para continuar'),
-            backgroundColor: Colors.red,
-          ),
-        );
-        return;
-      }
-
-      final authProvider = Provider.of<AuthProvider>(context, listen: false);
-      
-      await authProvider.signUpWithEmailAndPassword(
-        _emailController.text.trim(),
-        _passwordController.text,
-        name: _nameController.text.trim(),
-      );
-    }
-  }
-
   void _navigateToLogin() {
-    // Usando GoRouter para navegação
-    context.go(LoginScreenBloc.routeName);
+    // Navegação usando GoRouter
+    context.go(LoginScreen.routeName);
   }
 
   @override
   Widget build(BuildContext context) {
-    final authProvider = Provider.of<AuthProvider>(context);
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
     
     return Scaffold(
-      body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // Logo e título
-                Column(
-                  children: [
-                    const AppIconWidget(size: 100, borderRadius: 22),
-                    const SizedBox(height: 24),
-                    Text(
-                      'Criar uma conta',
-                      style: GoogleFonts.poppins(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      textAlign: TextAlign.center,
+      appBar: AppBar(
+        title: Text(l10n.register),
+      ),
+      body: BlocConsumer<AuthBloc, AuthState>(
+        listener: (context, state) {
+          // Handle navigation on successful registration
+          if (state.isAuthenticated) {
+            context.go(AppConstants.initialRoute);
+          }
+          
+          // Show error messages
+          if (state.hasError) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(state.errorMessage!),
+                backgroundColor: theme.colorScheme.error,
+                behavior: SnackBarBehavior.floating,
+              ),
+            );
+            
+            // Clear the error
+            context.read<AuthBloc>().add(const ClearAuthErrorRequested());
+          }
+        },
+        builder: (context, state) {
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(16.0),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // App Logo
+                  const Center(
+                    child: AppIconWidget(size: 100, borderRadius: 22),
+                  ),
+                  const SizedBox(height: 24),
+                  
+                  // Title
+                  Text(
+                    l10n.createAccount,
+                    style: theme.textTheme.headlineMedium,
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 8),
+                  
+                  // Subtitle
+                  Text(
+                    l10n.fillInformation,
+                    style: theme.textTheme.bodyLarge,
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 24),
+                  
+                  // Name Field
+                  TextFormField(
+                    controller: _nameController,
+                    decoration: InputDecoration(
+                      labelText: l10n.name,
+                      prefixIcon: const Icon(Icons.person_outline),
+                      border: const OutlineInputBorder(),
                     ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Preencha os dados para se registrar',
-                      style: GoogleFonts.poppins(
-                        fontSize: 16,
-                        color: Colors.grey[600],
-                      ),
-                      textAlign: TextAlign.center,
+                    textInputAction: TextInputAction.next,
+                    enabled: !state.isLoading,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return l10n.nameRequired;
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  
+                  // Email Field
+                  TextFormField(
+                    controller: _emailController,
+                    decoration: InputDecoration(
+                      labelText: l10n.email,
+                      prefixIcon: const Icon(Icons.email_outlined),
+                      border: const OutlineInputBorder(),
                     ),
-                  ],
-                ),
-                const SizedBox(height: 32),
-
-                // Formulário de registro
-                Form(
-                  key: _formKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    keyboardType: TextInputType.emailAddress,
+                    textInputAction: TextInputAction.next,
+                    enabled: !state.isLoading,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return l10n.emailRequired;
+                      }
+                      if (!value.contains('@') || !value.contains('.')) {
+                        return l10n.emailInvalid;
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  
+                  // Password Field
+                  TextFormField(
+                    controller: _passwordController,
+                    decoration: InputDecoration(
+                      labelText: l10n.password,
+                      prefixIcon: const Icon(Icons.lock_outline),
+                      border: const OutlineInputBorder(),
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _passwordVisible 
+                            ? Icons.visibility_outlined
+                            : Icons.visibility_off_outlined,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            _passwordVisible = !_passwordVisible;
+                          });
+                        },
+                      ),
+                    ),
+                    obscureText: !_passwordVisible,
+                    enabled: !state.isLoading,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return l10n.passwordRequired;
+                      }
+                      if (value.length < 6) {
+                        return l10n.passwordTooShort;
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  
+                  // Confirm Password Field
+                  TextFormField(
+                    controller: _confirmPasswordController,
+                    decoration: InputDecoration(
+                      labelText: l10n.confirmPassword,
+                      prefixIcon: const Icon(Icons.lock_outline),
+                      border: const OutlineInputBorder(),
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _confirmPasswordVisible 
+                            ? Icons.visibility_outlined
+                            : Icons.visibility_off_outlined,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            _confirmPasswordVisible = !_confirmPasswordVisible;
+                          });
+                        },
+                      ),
+                    ),
+                    obscureText: !_confirmPasswordVisible,
+                    enabled: !state.isLoading,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return l10n.confirmPasswordRequired;
+                      }
+                      if (value != _passwordController.text) {
+                        return l10n.passwordsDoNotMatch;
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  
+                  // Terms Acceptance
+                  Row(
                     children: [
-                      // Campo de nome
-                      TextFormField(
-                        controller: _nameController,
-                        keyboardType: TextInputType.name,
-                        autofillHints: const [AutofillHints.name],
-                        textCapitalization: TextCapitalization.words,
-                        textInputAction: TextInputAction.next,
-                        decoration: InputDecoration(
-                          labelText: 'Nome',
-                          hintText: 'Seu nome completo',
-                          prefixIcon: const Icon(Icons.person_outline),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Por favor, insira seu nome';
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 16),
-
-                      // Campo de e-mail
-                      TextFormField(
-                        controller: _emailController,
-                        keyboardType: TextInputType.emailAddress,
-                        autocorrect: false,
-                        autofillHints: const [AutofillHints.email],
-                        textInputAction: TextInputAction.next,
-                        decoration: InputDecoration(
-                          labelText: 'E-mail',
-                          hintText: 'exemplo@email.com',
-                          prefixIcon: const Icon(Icons.email_outlined),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Por favor, insira seu e-mail';
-                          }
-                          if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
-                            return 'Por favor, insira um e-mail válido';
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 16),
-
-                      // Campo de senha
-                      TextFormField(
-                        controller: _passwordController,
-                        obscureText: _obscurePassword,
-                        keyboardType: TextInputType.visiblePassword,
-                        autocorrect: false,
-                        autofillHints: const [AutofillHints.newPassword],
-                        textInputAction: TextInputAction.next,
-                        decoration: InputDecoration(
-                          labelText: 'Senha',
-                          prefixIcon: const Icon(Icons.lock_outline),
-                          suffixIcon: IconButton(
-                            icon: Icon(
-                              _obscurePassword
-                                  ? Icons.visibility_outlined
-                                  : Icons.visibility_off_outlined,
-                            ),
-                            onPressed: () {
+                      Checkbox(
+                        value: _termsAccepted,
+                        onChanged: state.isLoading
+                          ? null
+                          : (value) {
                               setState(() {
-                                _obscurePassword = !_obscurePassword;
+                                _termsAccepted = value ?? false;
                               });
                             },
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Por favor, insira uma senha';
-                          }
-                          if (value.length < AppConstants.minPasswordLength) {
-                            return 'A senha deve ter pelo menos ${AppConstants.minPasswordLength} caracteres';
-                          }
-                          return null;
-                        },
                       ),
-                      const SizedBox(height: 16),
-
-                      // Campo de confirmação de senha
-                      TextFormField(
-                        controller: _confirmPasswordController,
-                        obscureText: _obscureConfirmPassword,
-                        keyboardType: TextInputType.visiblePassword,
-                        autocorrect: false,
-                        autofillHints: const [AutofillHints.newPassword],
-                        textInputAction: TextInputAction.done,
-                        onFieldSubmitted: (_) => _register(),
-                        decoration: InputDecoration(
-                          labelText: 'Confirmar senha',
-                          prefixIcon: const Icon(Icons.lock_outline),
-                          suffixIcon: IconButton(
-                            icon: Icon(
-                              _obscureConfirmPassword
-                                  ? Icons.visibility_outlined
-                                  : Icons.visibility_off_outlined,
-                            ),
-                            onPressed: () {
-                              setState(() {
-                                _obscureConfirmPassword = !_obscureConfirmPassword;
-                              });
-                            },
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Por favor, confirme sua senha';
-                          }
-                          if (value != _passwordController.text) {
-                            return 'As senhas não coincidem';
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 16),
-
-                      // Termos e condições
-                      Row(
-                        children: [
-                          Checkbox(
-                            value: _acceptTerms,
-                            onChanged: (value) {
-                              setState(() {
-                                _acceptTerms = value ?? false;
-                              });
-                            },
-                          ),
-                          Expanded(
-                            child: GestureDetector(
-                              onTap: () {
-                                setState(() {
-                                  _acceptTerms = !_acceptTerms;
-                                });
-                              },
-                              child: Text(
-                                'Eu concordo com os Termos de Serviço e Política de Privacidade',
-                                style: GoogleFonts.poppins(
-                                  fontSize: 14,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      
-                      // Mensagem de erro
-                      if (authProvider.state.errorMessage != null)
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 8.0),
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              _termsAccepted = !_termsAccepted;
+                            });
+                          },
                           child: Text(
-                            authProvider.state.errorMessage!,
-                            style: GoogleFonts.poppins(
-                              color: Colors.red,
-                              fontSize: 14,
-                            ),
-                            textAlign: TextAlign.center,
+                            l10n.termsConditionsAgree,
+                            style: theme.textTheme.bodyMedium,
                           ),
                         ),
-                      
-                      const SizedBox(height: 24),
-                      
-                      // Botão de registro
-                      ElevatedButton(
-                        onPressed: authProvider.state.isLoading ? null : _register,
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        child: authProvider.state.isLoading
-                            ? const CircularProgressIndicator()
-                            : Text(
-                                'Registrar',
-                                style: GoogleFonts.poppins(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                      ),
-                      
-                      const SizedBox(height: 24),
-
-                      // Link para login
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            'Já tem uma conta?',
-                            style: GoogleFonts.poppins(
-                              fontSize: 14,
-                            ),
-                          ),
-                          TextButton(
-                            onPressed: _navigateToLogin,
-                            child: Text(
-                              'Faça login',
-                              style: GoogleFonts.poppins(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ),
-                        ],
                       ),
                     ],
                   ),
-                ),
-              ],
+                  const SizedBox(height: 24),
+                  
+                  // Register Button
+                  SizedBox(
+                    height: 50,
+                    child: ElevatedButton(
+                      onPressed: state.isLoading || !_termsAccepted
+                        ? null 
+                        : _handleRegister,
+                      child: state.isLoading
+                        ? const CircularProgressIndicator()
+                        : Text(l10n.createAccount),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  
+                  // Login link
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(l10n.alreadyAccount),
+                      TextButton(
+                        onPressed: state.isLoading 
+                          ? null 
+                          : _navigateToLogin,
+                        child: Text(l10n.login),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
-          ),
-        ),
+          );
+        },
       ),
     );
+  }
+  
+  void _handleRegister() {
+    // Hide keyboard
+    FocusScope.of(context).unfocus();
+    
+    // Validate form
+    if (_formKey.currentState?.validate() ?? false) {
+      if (!_termsAccepted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(AppLocalizations.of(context).termsConditionsRequired),
+            backgroundColor: Theme.of(context).colorScheme.error,
+          ),
+        );
+        return;
+      }
+      
+      // Dispatch register event
+      context.read<AuthBloc>().add(RegisterRequested(
+        name: _nameController.text.trim(),
+        email: _emailController.text.trim(),
+        password: _passwordController.text,
+      ));
+    }
   }
 }

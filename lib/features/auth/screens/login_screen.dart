@@ -1,18 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:nicotinaai_flutter/features/auth/providers/auth_provider.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:nicotinaai_flutter/features/auth/screens/register_screen.dart';
-import 'package:nicotinaai_flutter/features/auth/screens/forgot_password_screen.dart';
-import 'package:nicotinaai_flutter/features/main/screens/main_screen.dart';
+import 'package:nicotinaai_flutter/blocs/auth/auth_bloc.dart';
+import 'package:nicotinaai_flutter/blocs/auth/auth_event.dart';
+import 'package:nicotinaai_flutter/blocs/auth/auth_state.dart';
+import 'package:nicotinaai_flutter/core/routes/app_routes.dart';
 import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
-import 'package:nicotinaai_flutter/widgets/app_icon_widget.dart';
 
 class LoginScreen extends StatefulWidget {
   static const String routeName = '/login';
   
-  const LoginScreen({super.key});
+  const LoginScreen({Key? key}) : super(key: key);
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -22,8 +20,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  bool _obscurePassword = true;
-  bool _rememberMe = false;
+  bool _passwordVisible = false;
 
   @override
   void dispose() {
@@ -32,254 +29,185 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  Future<void> _login() async {
-    if (_formKey.currentState?.validate() ?? false) {
-      final authProvider = Provider.of<AuthProvider>(context, listen: false);
-      
-      await authProvider.signInWithEmailAndPassword(
-        _emailController.text.trim(),
-        _passwordController.text,
-      );
-      
-      // Verificação adicional para debug
-      print('Login finalizado. Status de autenticação: ${authProvider.isAuthenticated}');
-      print('Estado atual: ${authProvider.state.status}');
-      
-      // Se o login for bem-sucedido, redirecionar manualmente para a tela principal
-      if (authProvider.isAuthenticated) {
-        if (mounted) {
-          context.go(MainScreen.routeName);
-        }
-      }
-    }
-  }
-
-  void _navigateToRegister() {
-    // Usando GoRouter para navegação
-    context.go(RegisterScreen.routeName);
-  }
-
-  void _navigateToForgotPassword() {
-    // Usando GoRouter para navegação
-    context.push(ForgotPasswordScreen.routeName);
-  }
-
   @override
   Widget build(BuildContext context) {
-    final authProvider = Provider.of<AuthProvider>(context);
-    final localizations = AppLocalizations.of(context);
+    final l10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
     
     return Scaffold(
-      body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // Logo e título
-                Column(
-                  children: [
-                    const AppIconWidget(size: 100, borderRadius: 22),
-                    const SizedBox(height: 24),
-                    Text(
-                      localizations.welcomeBack,
-                      style: GoogleFonts.poppins(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      textAlign: TextAlign.center,
+      appBar: AppBar(
+        title: Text(l10n.login),
+      ),
+      body: BlocConsumer<AuthBloc, AuthState>(
+        listener: (context, state) {
+          // Handle navigation based on auth state
+          if (state.isAuthenticated) {
+            context.go(AppRoutes.main.path);
+          }
+          
+          // Show error messages
+          if (state.hasError) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(state.errorMessage!),
+                backgroundColor: theme.colorScheme.error,
+                behavior: SnackBarBehavior.floating,
+              ),
+            );
+            
+            // Clear the error
+            context.read<AuthBloc>().add(const ClearAuthErrorRequested());
+          }
+        },
+        builder: (context, state) {
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(16.0),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // App Logo
+                  Center(
+                    child: SizedBox(
+                      height: 120,
+                      child: Image.asset('assets/images/app_icon/app_icon.png'),
                     ),
-                    const SizedBox(height: 8),
-                    Text(
-                      localizations.loginToContinue,
-                      style: GoogleFonts.poppins(
-                        fontSize: 16,
-                        color: Colors.grey[600],
-                      ),
-                      textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 32),
+                  
+                  // Title
+                  Text(
+                    l10n.welcomeBack,
+                    style: theme.textTheme.headlineMedium,
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 8),
+                  
+                  // Subtitle
+                  Text(
+                    l10n.loginToContinue,
+                    style: theme.textTheme.bodyLarge,
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 32),
+                  
+                  // Email Field
+                  TextFormField(
+                    controller: _emailController,
+                    decoration: InputDecoration(
+                      labelText: l10n.email,
+                      prefixIcon: const Icon(Icons.email_outlined),
+                      border: const OutlineInputBorder(),
                     ),
-                  ],
-                ),
-                const SizedBox(height: 32),
-
-                // Formulário de login
-                Form(
-                  key: _formKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    keyboardType: TextInputType.emailAddress,
+                    textInputAction: TextInputAction.next,
+                    enabled: !state.isLoading,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return l10n.emailRequired;
+                      }
+                      if (!value.contains('@') || !value.contains('.')) {
+                        return l10n.emailInvalid;
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  
+                  // Password Field
+                  TextFormField(
+                    controller: _passwordController,
+                    decoration: InputDecoration(
+                      labelText: l10n.password,
+                      prefixIcon: const Icon(Icons.lock_outline),
+                      border: const OutlineInputBorder(),
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _passwordVisible 
+                            ? Icons.visibility_outlined
+                            : Icons.visibility_off_outlined,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            _passwordVisible = !_passwordVisible;
+                          });
+                        },
+                      ),
+                    ),
+                    obscureText: !_passwordVisible,
+                    enabled: !state.isLoading,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return l10n.passwordRequired;
+                      }
+                      if (value.length < 6) {
+                        return l10n.passwordRequired;
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 8),
+                  
+                  // Forgot Password link
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: TextButton(
+                      onPressed: state.isLoading 
+                        ? null
+                        : () => context.push(AppRoutes.forgotPassword.path),
+                      child: Text(l10n.forgotPassword),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  
+                  // Login Button
+                  SizedBox(
+                    height: 50,
+                    child: ElevatedButton(
+                      onPressed: state.isLoading 
+                        ? null 
+                        : _handleLogin,
+                      child: state.isLoading
+                        ? const CircularProgressIndicator()
+                        : Text(l10n.login),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  
+                  // Register link
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      // Campo de e-mail
-                      TextFormField(
-                        controller: _emailController,
-                        keyboardType: TextInputType.emailAddress,
-                        autocorrect: false,
-                        autofillHints: const [AutofillHints.email],
-                        textInputAction: TextInputAction.next,
-                        decoration: InputDecoration(
-                          labelText: localizations.email,
-                          hintText: localizations.emailHint,
-                          prefixIcon: const Icon(Icons.email_outlined),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return localizations.emailRequired;
-                          }
-                          if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
-                            return localizations.emailInvalid;
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 16),
-
-                      // Campo de senha
-                      TextFormField(
-                        controller: _passwordController,
-                        obscureText: _obscurePassword,
-                        keyboardType: TextInputType.visiblePassword,
-                        autocorrect: false,
-                        autofillHints: const [AutofillHints.password],
-                        textInputAction: TextInputAction.done,
-                        onFieldSubmitted: (_) => _login(),
-                        decoration: InputDecoration(
-                          labelText: localizations.password,
-                          prefixIcon: const Icon(Icons.lock_outline),
-                          suffixIcon: IconButton(
-                            icon: Icon(
-                              _obscurePassword
-                                  ? Icons.visibility_outlined
-                                  : Icons.visibility_off_outlined,
-                            ),
-                            onPressed: () {
-                              setState(() {
-                                _obscurePassword = !_obscurePassword;
-                              });
-                            },
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return localizations.passwordRequired;
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 8),
-
-                      // Opções adicionais (lembrar-me e esqueci a senha)
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          // Lembrar-me
-                          Row(
-                            children: [
-                              Checkbox(
-                                value: _rememberMe,
-                                onChanged: (value) {
-                                  setState(() {
-                                    _rememberMe = value ?? false;
-                                  });
-                                },
-                              ),
-                              Text(
-                                localizations.rememberMe,
-                                style: GoogleFonts.poppins(
-                                  fontSize: 14,
-                                ),
-                              ),
-                            ],
-                          ),
-
-                          // Esqueci a senha
-                          TextButton(
-                            onPressed: _navigateToForgotPassword,
-                            child: Text(
-                              localizations.forgotPassword,
-                              style: GoogleFonts.poppins(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      
-                      // Mensagem de erro
-                      if (authProvider.state.errorMessage != null)
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 8.0),
-                          child: Text(
-                            authProvider.state.errorMessage!,
-                            style: GoogleFonts.poppins(
-                              color: Colors.red,
-                              fontSize: 14,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                      
-                      const SizedBox(height: 24),
-                      
-                      // Botão de login
-                      ElevatedButton(
-                        onPressed: authProvider.state.isLoading ? null : _login,
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        child: authProvider.state.isLoading
-                            ? const CircularProgressIndicator()
-                            : Text(
-                                localizations.login,
-                                style: GoogleFonts.poppins(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                      ),
-                      
-                      const SizedBox(height: 24),
-
-                      // Link para registro
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            localizations.noAccount,
-                            style: GoogleFonts.poppins(
-                              fontSize: 14,
-                            ),
-                          ),
-                          TextButton(
-                            onPressed: _navigateToRegister,
-                            child: Text(
-                              localizations.register,
-                              style: GoogleFonts.poppins(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ),
-                        ],
+                      Text(l10n.noAccount),
+                      TextButton(
+                        onPressed: state.isLoading 
+                          ? null 
+                          : () => context.push(AppRoutes.register.path),
+                        child: Text(l10n.register),
                       ),
                     ],
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ),
+          );
+        },
       ),
     );
+  }
+  
+  void _handleLogin() {
+    // Hide keyboard
+    FocusScope.of(context).unfocus();
+    
+    // Validate form
+    if (_formKey.currentState?.validate() ?? false) {
+      // Dispatch login event
+      context.read<AuthBloc>().add(LoginRequested(
+        email: _emailController.text.trim(),
+        password: _passwordController.text,
+      ));
+    }
   }
 }
