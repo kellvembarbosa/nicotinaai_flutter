@@ -109,7 +109,7 @@ class _RegisterCravingSheetBlocState extends State<RegisterCravingSheetBloc> {
       builder: (context, scrollController) {
         return Container(
           decoration: BoxDecoration(
-            color: context.backgroundColor,
+            color: context.isDarkMode ? Color(0xFF1C1C1E) : context.backgroundColor,
             borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
           ),
           child: Column(
@@ -168,7 +168,7 @@ class _RegisterCravingSheetBlocState extends State<RegisterCravingSheetBloc> {
                       margin: const EdgeInsets.fromLTRB(16, 4, 16, 12),
                       decoration: BoxDecoration(
                         color: context.isDarkMode 
-                            ? Colors.grey[850]!.withOpacity(0.8) 
+                            ? Color(0xFF2C2C2E) 
                             : Colors.white,
                         borderRadius: BorderRadius.circular(16),
                         boxShadow: [
@@ -273,7 +273,7 @@ class _RegisterCravingSheetBlocState extends State<RegisterCravingSheetBloc> {
                       margin: const EdgeInsets.fromLTRB(16, 0, 16, 12),
                       decoration: BoxDecoration(
                         color: context.isDarkMode 
-                            ? Colors.grey[850]!.withOpacity(0.8) 
+                            ? Color(0xFF2C2C2E) 
                             : Colors.white,
                         borderRadius: BorderRadius.circular(16),
                         boxShadow: [
@@ -370,7 +370,7 @@ class _RegisterCravingSheetBlocState extends State<RegisterCravingSheetBloc> {
                       margin: const EdgeInsets.fromLTRB(16, 0, 16, 12),
                       decoration: BoxDecoration(
                         color: context.isDarkMode 
-                            ? Colors.grey[850]!.withOpacity(0.8) 
+                            ? Color(0xFF2C2C2E) 
                             : Colors.white,
                         borderRadius: BorderRadius.circular(16),
                         boxShadow: [
@@ -477,7 +477,7 @@ class _RegisterCravingSheetBlocState extends State<RegisterCravingSheetBloc> {
                       margin: const EdgeInsets.fromLTRB(16, 0, 16, 12),
                       decoration: BoxDecoration(
                         color: context.isDarkMode 
-                            ? Colors.grey[850]!.withOpacity(0.8) 
+                            ? Color(0xFF2C2C2E) 
                             : Colors.white,
                         borderRadius: BorderRadius.circular(16),
                         boxShadow: [
@@ -590,7 +590,7 @@ class _RegisterCravingSheetBlocState extends State<RegisterCravingSheetBloc> {
                       margin: const EdgeInsets.fromLTRB(16, 0, 16, 12),
                       decoration: BoxDecoration(
                         color: context.isDarkMode 
-                            ? Colors.grey[850]!.withOpacity(0.8) 
+                            ? Color(0xFF2C2C2E) 
                             : Colors.white,
                         borderRadius: BorderRadius.circular(16),
                         boxShadow: [
@@ -1243,7 +1243,7 @@ class _RegisterCravingSheetBlocState extends State<RegisterCravingSheetBloc> {
       selected: isSelected,
       onSelected: onSelected,
       backgroundColor: context.isDarkMode 
-        ? Colors.grey.withAlpha(26) 
+        ? Color(0xFF383838) 
         : Colors.grey.withAlpha(13),
       selectedColor: context.primaryColor.withAlpha(51),
       checkmarkColor: context.primaryColor,
@@ -1326,7 +1326,7 @@ class _RegisterCravingSheetBlocState extends State<RegisterCravingSheetBloc> {
           color: isSelected 
             ? itemColor.withOpacity(0.1) 
             : context.isDarkMode 
-                ? Colors.grey.withOpacity(0.05) 
+                ? Color(0xFF383838) 
                 : Colors.grey.withOpacity(0.05),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
