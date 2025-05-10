@@ -127,7 +127,7 @@ class _HealthRecoveryWidgetState extends State<HealthRecoveryWidget> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: isAchieved ? Colors.green.withOpacity(0.1) : Colors.grey.withOpacity(0.1),
+        color: isAchieved ? Colors.green.withAlpha(26) : Colors.grey.withAlpha(26), // Equivalent to opacity 0.1 (255 * 0.1 = 25.5 ≈ 26)
         shape: BoxShape.circle,
       ),
       child: Icon(
@@ -288,7 +288,7 @@ class _HealthRecoveryWidgetState extends State<HealthRecoveryWidget> {
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.05),
+                        color: Colors.black.withAlpha(13), // Equivalent to opacity 0.05 (255 * 0.05 = 12.75 ≈ 13)
                         blurRadius: 8,
                         offset: Offset(0, 2),
                       ),
@@ -305,7 +305,7 @@ class _HealthRecoveryWidgetState extends State<HealthRecoveryWidget> {
                             width: 64,
                             child: CircularProgressIndicator(
                               value: progress,
-                              backgroundColor: Colors.grey.withOpacity(0.2),
+                              backgroundColor: Colors.grey.withAlpha(51), // Equivalent to opacity 0.2 (255 * 0.2 = 51)
                               color: isAchieved ? Colors.green : Colors.blue,
                               strokeWidth: 4,
                             ),

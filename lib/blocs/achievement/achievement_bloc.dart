@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nicotinaai_flutter/features/achievements/models/user_achievement.dart';
 import 'package:nicotinaai_flutter/features/achievements/services/achievement_service.dart';
 import 'package:nicotinaai_flutter/features/achievements/services/achievement_notification_service.dart';
-import 'package:nicotinaai_flutter/features/achievements/models/time_period.dart';
 
 import 'achievement_event.dart';
 import 'achievement_state.dart';
@@ -182,7 +181,7 @@ class AchievementBloc extends Bloc<AchievementEvent, AchievementState> {
         // Mostrar notificações para novos achievements
         if (_notificationService != null) {
           for (final achievement in newlyUnlocked) {
-            await _notificationService!.showAchievementUnlockedNotification(achievement);
+            await _notificationService.showAchievementUnlockedNotification(achievement);
           }
         }
         

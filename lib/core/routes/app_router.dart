@@ -17,7 +17,6 @@ import 'package:nicotinaai_flutter/features/settings/screens/language_selection_
 import 'package:nicotinaai_flutter/features/settings/screens/currency_selection_screen.dart';
 import 'package:nicotinaai_flutter/features/settings/screens/currency_selection_screen_bloc.dart';
 import 'package:nicotinaai_flutter/features/settings/screens/theme_selection_screen_bloc.dart';
-import 'package:nicotinaai_flutter/features/settings/screens/developer_mode_screen_bloc.dart';
 import 'package:nicotinaai_flutter/features/onboarding/screens/onboarding_screen.dart';
 import 'package:nicotinaai_flutter/features/tracking/screens/dashboard_screen.dart';
 import 'package:nicotinaai_flutter/features/tracking/screens/statistics_dashboard_screen.dart';
@@ -96,10 +95,6 @@ class AppRouter {
       
       // Rotas de tracking e estatísticas
       GoRoute(
-        path: AppRoutes.developerDashboard.path,
-        builder: (context, state) => const DashboardScreen(),
-      ),
-      GoRoute(
         path: AppRoutes.statisticsDashboard.path,
         builder: (context, state) => const StatisticsDashboardScreen(),
       ),
@@ -128,10 +123,6 @@ class AppRouter {
       GoRoute(
         path: AppRoutes.languageBloc.path,
         builder: (context, state) => const LanguageSelectionScreenBloc(),
-      ),
-      GoRoute(
-        path: AppRoutes.developerModeBloc.path,
-        builder: (context, state) => const DeveloperModeScreenBloc(),
       ),
       
       // Health recovery routes

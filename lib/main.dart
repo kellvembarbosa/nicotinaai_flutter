@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -25,19 +24,15 @@ import 'package:nicotinaai_flutter/services/supabase_diagnostic.dart';
 // BLoC imports
 import 'package:nicotinaai_flutter/blocs/app_bloc_observer.dart';
 import 'package:nicotinaai_flutter/blocs/auth/auth_bloc.dart';
-import 'package:nicotinaai_flutter/blocs/auth/auth_event.dart';
 import 'package:nicotinaai_flutter/blocs/achievement/achievement_bloc.dart';
 import 'package:nicotinaai_flutter/blocs/achievement/achievement_event.dart';
 import 'package:nicotinaai_flutter/blocs/craving/craving_bloc.dart';
 import 'package:nicotinaai_flutter/blocs/currency/currency_bloc.dart';
 import 'package:nicotinaai_flutter/blocs/currency/currency_event.dart';
-import 'package:nicotinaai_flutter/blocs/developer_mode/developer_mode_bloc.dart';
-import 'package:nicotinaai_flutter/blocs/developer_mode/developer_mode_event.dart';
 import 'package:nicotinaai_flutter/blocs/locale/locale_bloc.dart';
 import 'package:nicotinaai_flutter/blocs/locale/locale_event.dart';
 import 'package:nicotinaai_flutter/blocs/locale/locale_state.dart';
 import 'package:nicotinaai_flutter/blocs/onboarding/onboarding_bloc.dart';
-import 'package:nicotinaai_flutter/blocs/onboarding/onboarding_event.dart';
 import 'package:nicotinaai_flutter/blocs/skeleton/skeleton_bloc.dart';
 import 'package:nicotinaai_flutter/blocs/smoking_record/smoking_record_bloc.dart';
 import 'package:nicotinaai_flutter/blocs/theme/theme_bloc.dart';
@@ -258,15 +253,6 @@ class MyApp extends StatelessWidget {
             },
           ),
           
-          // DeveloperModeBloc - Substitui o DeveloperModeProvider
-          BlocProvider<DeveloperModeBloc>(
-            create: (context) {
-              final developerModeBloc = DeveloperModeBloc();
-              // Inicializa o modo desenvolvedor
-              developerModeBloc.add(InitializeDeveloperMode());
-              return developerModeBloc;
-            },
-          ),
           
           // OnboardingBloc - Substitui o OnboardingProvider
           BlocProvider<OnboardingBloc>(

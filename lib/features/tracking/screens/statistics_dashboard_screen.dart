@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:nicotinaai_flutter/core/providers/currency_provider.dart';
+import 'package:nicotinaai_flutter/blocs/currency/currency_bloc.dart';
+import 'package:nicotinaai_flutter/blocs/currency/currency_event.dart';
+import 'package:nicotinaai_flutter/blocs/currency/currency_state.dart';
+import 'package:nicotinaai_flutter/blocs/tracking/tracking_bloc.dart';
+import 'package:nicotinaai_flutter/blocs/tracking/tracking_event.dart';
+import 'package:nicotinaai_flutter/blocs/tracking/tracking_state.dart';
 import 'package:nicotinaai_flutter/core/routes/app_routes.dart';
 import 'package:nicotinaai_flutter/core/theme/app_theme.dart';
-import 'package:nicotinaai_flutter/features/auth/providers/auth_provider.dart';
 import 'package:nicotinaai_flutter/features/tracking/models/craving.dart';
+import 'package:nicotinaai_flutter/features/tracking/models/health_recovery.dart';
 import 'package:nicotinaai_flutter/features/tracking/models/user_stats.dart';
-import 'package:nicotinaai_flutter/features/tracking/providers/tracking_provider.dart';
 import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
-import 'package:nicotinaai_flutter/utils/currency_utils.dart';
 import 'package:nicotinaai_flutter/widgets/statistics_skeleton.dart';
-import 'package:provider/provider.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
 
@@ -25,18 +28,20 @@ class StatisticsDashboardScreen extends StatefulWidget {
 
 class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen> with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  // Não precisamos mais da instância direta, pois usamos o CurrencyProvider
   
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 4, vsync: this);
+    
     // Initialize tracking data
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<TrackingProvider>().initialize();
-      // Garante que o CurrencyProvider também esteja inicializado
-      if (!context.read<CurrencyProvider>().isInitialized) {
-        context.read<CurrencyProvider>().initialize();
+      context.read<TrackingBloc>().add(InitializeTracking());
+      
+      // Garante que o CurrencyBloc também esteja inicializado
+      final currencyState = context.read<CurrencyBloc>().state;
+      if (!currencyState.isInitialized) {
+        context.read<CurrencyBloc>().add(InitializeCurrency());
       }
     });
   }
@@ -69,7 +74,7 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen> w
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: () {
-              context.read<TrackingProvider>().refreshAll();
+              context.read<TrackingBloc>().add(RefreshAllData(forceRefresh: true));
             },
           ),
         ],
@@ -86,10 +91,8 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen> w
           ],
         ),
       ),
-      body: Consumer<TrackingProvider>(
-        builder: (context, provider, child) {
-          final state = provider.state;
-          
+      body: BlocBuilder<TrackingBloc, TrackingState>(
+        builder: (context, state) {
           if (state.isLoading) {
             return const StatisticsDashboardSkeleton();
           }
@@ -106,8 +109,8 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen> w
                   const SizedBox(height: 16),
                   ElevatedButton(
                     onPressed: () {
-                      provider.clearError();
-                      provider.initialize();
+                      context.read<TrackingBloc>().add(ClearError());
+                      context.read<TrackingBloc>().add(InitializeTracking());
                     },
                     child: Text(l10n.retry ?? 'Retry'),
                   ),
@@ -117,7 +120,11 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen> w
           }
           
           return RefreshIndicator(
-            onRefresh: () => provider.refreshAll(),
+            onRefresh: () async {
+              context.read<TrackingBloc>().add(RefreshAllData(forceRefresh: true));
+              // Esperar pelo menos 500ms para dar feedback visual ao usuário
+              await Future.delayed(const Duration(milliseconds: 500));
+            },
             child: TabBarView(
               controller: _tabController,
               children: [
@@ -135,265 +142,277 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen> w
 
   Widget _buildOverviewTab(BuildContext context, UserStats? stats) {
     final l10n = AppLocalizations.of(context);
-    // Obtenha o CurrencyProvider de forma que as mudanças de moeda disparem rebuild
-    final currencyProvider = Provider.of<CurrencyProvider>(context);
     
-    // Debug para verificar qual moeda está sendo usada
-    print('🔄 Moeda atual: ${currencyProvider.currencySymbol} (${currencyProvider.currencyCode})');
-    
-    if (stats == null) {
-      return const Center(
-        child: Padding(
-          padding: EdgeInsets.all(20.0),
-          child: Text('No stats available yet. Start tracking to see your progress!'),
-        ),
-      );
-    }
-    
-    return ListView(
-      padding: const EdgeInsets.all(16.0),
-      children: [
-        // Key stats
-        const SizedBox(height: 16),
-        _buildSectionHeader(context, l10n.achievementCurrentProgress ?? 'Current Progress'),
-        const SizedBox(height: 16),
+    // Use BlocBuilder para o CurrencyBloc para atualizar quando a moeda mudar
+    return BlocBuilder<CurrencyBloc, CurrencyState>(
+      builder: (context, currencyState) {
+        // Debug para verificar qual moeda está sendo usada
+        if (stats?.moneySaved != null) {
+          debugPrint('🔄 Moeda atual: ${currencyState.currencySymbol} (${currencyState.currencyCode}) - Economia: ${stats!.moneySaved} centavos');
+        }
         
-        // Current streak card
-        _buildStatsCard(
-          context,
-          l10n.homeDaysWithoutSmoking(stats.currentStreakDays) ?? 'Days smoke-free',
-          stats.currentStreakDays.toString(),
-          Icons.local_fire_department,
-          Colors.orange,
-          suffix: l10n.days ?? 'days',
-        ),
-        
-        const SizedBox(height: 16),
-        
-        // Dual stats cards
-        Row(
-          children: [
-            Expanded(
-              child: _buildStatsCard(
-                context,
-                l10n.homeCravingsResisted ?? 'Cravings resisted',
-                stats.cravingsResisted.toString(),
-                Icons.smoke_free,
-                Colors.green,
-              ),
+        if (stats == null) {
+          return const Center(
+            child: Padding(
+              padding: EdgeInsets.all(20.0),
+              child: Text('No stats available yet. Start tracking to see your progress!'),
             ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: _buildStatsCard(
-                context,
-                l10n.cigarettesPerDay ?? 'Cigarettes avoided',
-                stats.cigarettesAvoided.toString(),
-                Icons.check_circle_outline,
-                Colors.purple,
-              ),
+          );
+        }
+        
+        return ListView(
+          padding: const EdgeInsets.all(16.0),
+          children: [
+            // Key stats
+            const SizedBox(height: 16),
+            _buildSectionHeader(context, l10n.achievementCurrentProgress ?? 'Current Progress'),
+            const SizedBox(height: 16),
+            
+            // Current streak card
+            _buildStatsCard(
+              context,
+              l10n.homeDaysWithoutSmoking(stats.currentStreakDays) ?? 'Days smoke-free',
+              stats.currentStreakDays.toString(),
+              Icons.local_fire_department,
+              Colors.orange,
+              suffix: l10n.days ?? 'days',
+            ),
+            
+            const SizedBox(height: 16),
+            
+            // Dual stats cards
+            Row(
+              children: [
+                Expanded(
+                  child: _buildStatsCard(
+                    context,
+                    l10n.homeCravingsResisted ?? 'Cravings resisted',
+                    stats.cravingsResisted.toString(),
+                    Icons.smoke_free,
+                    Colors.green,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: _buildStatsCard(
+                    context,
+                    l10n.cigarettesPerDay ?? 'Cigarettes avoided',
+                    stats.cigarettesAvoided.toString(),
+                    Icons.check_circle_outline,
+                    Colors.purple,
+                  ),
+                ),
+              ],
+            ),
+            
+            const SizedBox(height: 16),
+            
+            // More stats
+            _buildSectionHeader(context, l10n.homeNextMilestone ?? 'Health Benefits'),
+            const SizedBox(height: 16),
+            
+            _buildStatsCard(
+              context,
+              l10n.homeMinutesLifeGained ?? 'Life gained',
+              '${stats.cigarettesAvoided * 7}',
+              Icons.favorite,
+              Colors.red,
+              suffix: 'minutes',
+            ),
+            
+            const SizedBox(height: 16),
+            
+            // Money savings
+            _buildStatsCard(
+              context,
+              l10n.potentialMonthlySavings ?? 'Money saved',
+              context.read<CurrencyBloc>().format(stats.moneySaved),
+              Icons.account_balance_wallet,
+              Colors.blue,
             ),
           ],
-        ),
-        
-        const SizedBox(height: 16),
-        
-        // More stats
-        _buildSectionHeader(context, l10n.homeNextMilestone ?? 'Health Benefits'),
-        const SizedBox(height: 16),
-        
-        _buildStatsCard(
-          context,
-          l10n.homeMinutesLifeGained ?? 'Life gained',
-          '${stats.cigarettesAvoided * 7}',
-          Icons.favorite,
-          Colors.red,
-          suffix: 'minutes',
-        ),
-        
-        const SizedBox(height: 16),
-        
-        // Money savings
-        _buildStatsCard(
-          context,
-          l10n.potentialMonthlySavings ?? 'Money saved',
-          currencyProvider.format(stats.moneySaved),
-          Icons.account_balance_wallet,
-          Colors.blue,
-        ),
-      ],
+        );
+      },
     );
   }
 
   Widget _buildSavingsTab(BuildContext context, UserStats? stats) {
     final l10n = AppLocalizations.of(context);
-    // Obtenha o CurrencyProvider de forma que as mudanças de moeda disparem rebuild
-    final currencyProvider = Provider.of<CurrencyProvider>(context);
     
-    // Debug para verificar qual moeda está sendo usada
-    print('🔄 Moeda atual: ${currencyProvider.currencySymbol} (${currencyProvider.currencyCode})');
-    
-    if (stats == null) {
-      return const Center(
-        child: Padding(
-          padding: EdgeInsets.all(20.0),
-          child: Text('No savings data available yet.'),
-        ),
-      );
-    }
+    // Use BlocBuilder para o CurrencyBloc para atualizar quando a moeda mudar
+    return BlocBuilder<CurrencyBloc, CurrencyState>(
+      builder: (context, currencyState) {
+        // Debug para verificar qual moeda está sendo usada
+        if (stats?.moneySaved != null) {
+          debugPrint('🔄 Moeda atual: ${currencyState.currencySymbol} (${currencyState.currencyCode}) - Economia: ${stats!.moneySaved} centavos');
+        }
+        
+        if (stats == null) {
+          return const Center(
+            child: Padding(
+              padding: EdgeInsets.all(20.0),
+              child: Text('No savings data available yet.'),
+            ),
+          );
+        }
 
-    // Generate some mock data for the chart
-    final days = stats.currentStreakDays > 0 ? stats.currentStreakDays : 7;
-    final averageDailySavings = stats.moneySaved / (days > 0 ? days : 1);
-    
-    final List<FlSpot> savingsSpots = List.generate(
-      days > 0 ? days : 7,
-      (index) => FlSpot(index.toDouble(), (index + 1) * averageDailySavings / 100),
-    );
-    
-    return ListView(
-      padding: const EdgeInsets.all(16.0),
-      children: [
-        _buildSectionHeader(context, l10n.potentialMonthlySavings ?? 'Money Saved'),
-        const SizedBox(height: 16),
+        // Generate some mock data for the chart
+        final days = stats.currentStreakDays > 0 ? stats.currentStreakDays : 7;
+        final averageDailySavings = stats.moneySaved / (days > 0 ? days : 1);
         
-        // Money saved card
-        _buildStatsCard(
-          context,
-          l10n.savingsCalculator ?? 'Total Savings',
-          currencyProvider.format(stats.moneySaved),
-          Icons.account_balance_wallet,
-          Colors.blue,
-        ),
+        final List<FlSpot> savingsSpots = List.generate(
+          days > 0 ? days : 7,
+          (index) => FlSpot(index.toDouble(), (index + 1) * averageDailySavings / 100),
+        );
         
-        const SizedBox(height: 24),
+        final currencyBloc = context.read<CurrencyBloc>();
         
-        // Projected savings
-        _buildSectionHeader(context, l10n.potentialMonthlySavings ?? 'Projected Savings'),
-        const SizedBox(height: 16),
-        
-        Row(
+        return ListView(
+          padding: const EdgeInsets.all(16.0),
           children: [
-            Expanded(
-              child: _buildStatsCard(
-                context,
-                'Month',
-                currencyProvider.format(stats.moneySaved * 30 ~/ (days > 0 ? days : 30)),
-                Icons.calendar_month,
-                Colors.teal,
-              ),
+            _buildSectionHeader(context, l10n.potentialMonthlySavings ?? 'Money Saved'),
+            const SizedBox(height: 16),
+            
+            // Money saved card
+            _buildStatsCard(
+              context,
+              l10n.savingsCalculator ?? 'Total Savings',
+              currencyBloc.format(stats.moneySaved),
+              Icons.account_balance_wallet,
+              Colors.blue,
             ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: _buildStatsCard(
-                context,
-                'Year',
-                currencyProvider.format(stats.moneySaved * 365 ~/ (days > 0 ? days : 30)),
-                Icons.cake,
-                Colors.amber,
-              ),
-            ),
-          ],
-        ),
-        
-        const SizedBox(height: 24),
-        
-        // Savings chart
-        _buildSectionHeader(context, l10n.achievementCategorySavings ?? 'Savings Chart'),
-        const SizedBox(height: 16),
-        
-        Container(
-          height: 250,
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: context.cardColor,
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withAlpha(13),
-                offset: const Offset(0, 4),
-                blurRadius: 12,
-              ),
-            ],
-          ),
-          child: LineChart(
-            LineChartData(
-              gridData: FlGridData(show: false),
-              titlesData: FlTitlesData(
-                bottomTitles: AxisTitles(
-                  sideTitles: SideTitles(
-                    showTitles: true,
-                    getTitlesWidget: (value, meta) {
-                      if (value % 7 == 0 || value == days - 1) {
-                        return Padding(
-                          padding: const EdgeInsets.only(top: 8.0),
-                          child: Text(
-                            '${value.toInt() + 1}d',
-                            style: TextStyle(
-                              color: context.subtitleColor,
-                              fontSize: 10,
-                            ),
-                          ),
-                        );
-                      }
-                      return const SizedBox();
-                    },
-                    reservedSize: 30,
+            
+            const SizedBox(height: 24),
+            
+            // Projected savings
+            _buildSectionHeader(context, l10n.potentialMonthlySavings ?? 'Projected Savings'),
+            const SizedBox(height: 16),
+            
+            Row(
+              children: [
+                Expanded(
+                  child: _buildStatsCard(
+                    context,
+                    'Month',
+                    currencyBloc.format(stats.moneySaved * 30 ~/ (days > 0 ? days : 30)),
+                    Icons.calendar_month,
+                    Colors.teal,
                   ),
                 ),
-                leftTitles: AxisTitles(
-                  sideTitles: SideTitles(
-                    showTitles: true,
-                    getTitlesWidget: (value, meta) {
-                      return Padding(
-                        padding: const EdgeInsets.only(right: 8.0),
-                        child: Text(
-                          '${(value * 100).toInt()}',
-                          style: TextStyle(
-                            color: context.subtitleColor,
-                            fontSize: 10,
-                          ),
-                        ),
-                      );
-                    },
-                    reservedSize: 30,
-                  ),
-                ),
-                topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-              ),
-              borderData: FlBorderData(show: false),
-              lineBarsData: [
-                LineChartBarData(
-                  spots: savingsSpots,
-                  isCurved: true,
-                  color: Colors.green,
-                  barWidth: 3,
-                  dotData: FlDotData(show: false),
-                  belowBarData: BarAreaData(
-                    show: true,
-                    color: Colors.green.withAlpha(26),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: _buildStatsCard(
+                    context,
+                    'Year',
+                    currencyBloc.format(stats.moneySaved * 365 ~/ (days > 0 ? days : 30)),
+                    Icons.cake,
+                    Colors.amber,
                   ),
                 ),
               ],
             ),
-          ),
-        ),
-        
-        const SizedBox(height: 16),
-        Text(
-          l10n.savingsCalculatorDescription ?? 'Based on your daily consumption and pack price before quitting.',
-          style: TextStyle(
-            color: context.subtitleColor,
-            fontSize: 12,
-            fontStyle: FontStyle.italic,
-          ),
-          textAlign: TextAlign.center,
-        ),
-      ],
+            
+            const SizedBox(height: 24),
+            
+            // Savings chart
+            _buildSectionHeader(context, l10n.achievementCategorySavings ?? 'Savings Chart'),
+            const SizedBox(height: 16),
+            
+            Container(
+              height: 250,
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: context.cardColor,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withAlpha(13),
+                    offset: const Offset(0, 4),
+                    blurRadius: 12,
+                  ),
+                ],
+              ),
+              child: LineChart(
+                LineChartData(
+                  gridData: FlGridData(show: false),
+                  titlesData: FlTitlesData(
+                    bottomTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        getTitlesWidget: (value, meta) {
+                          if (value % 7 == 0 || value == days - 1) {
+                            return Padding(
+                              padding: const EdgeInsets.only(top: 8.0),
+                              child: Text(
+                                '${value.toInt() + 1}d',
+                                style: TextStyle(
+                                  color: context.subtitleColor,
+                                  fontSize: 10,
+                                ),
+                              ),
+                            );
+                          }
+                          return const SizedBox();
+                        },
+                        reservedSize: 30,
+                      ),
+                    ),
+                    leftTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        getTitlesWidget: (value, meta) {
+                          return Padding(
+                            padding: const EdgeInsets.only(right: 8.0),
+                            child: Text(
+                              '${(value * 100).toInt()}',
+                              style: TextStyle(
+                                color: context.subtitleColor,
+                                fontSize: 10,
+                              ),
+                            ),
+                          );
+                        },
+                        reservedSize: 30,
+                      ),
+                    ),
+                    topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                    rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  ),
+                  borderData: FlBorderData(show: false),
+                  lineBarsData: [
+                    LineChartBarData(
+                      spots: savingsSpots,
+                      isCurved: true,
+                      color: Colors.green,
+                      barWidth: 3,
+                      dotData: FlDotData(show: false),
+                      belowBarData: BarAreaData(
+                        show: true,
+                        color: Colors.green.withAlpha(26),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            
+            const SizedBox(height: 16),
+            Text(
+              l10n.savingsCalculatorDescription ?? 'Based on your daily consumption and pack price before quitting.',
+              style: TextStyle(
+                color: context.subtitleColor,
+                fontSize: 12,
+                fontStyle: FontStyle.italic,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        );
+      },
     );
   }
 
-  Widget _buildCravingsTab(BuildContext context, List cravings) {
+  Widget _buildCravingsTab(BuildContext context, List<Craving> cravings) {
     final l10n = AppLocalizations.of(context);
     
     if (cravings.isEmpty) {
@@ -561,7 +580,7 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen> w
     );
   }
 
-  Widget _buildHealthTab(BuildContext context, UserStats? stats, List healthRecoveries) {
+  Widget _buildHealthTab(BuildContext context, UserStats? stats, List<UserHealthRecovery> healthRecoveries) {
     final l10n = AppLocalizations.of(context);
     
     if (stats == null) {
@@ -713,12 +732,15 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen> w
           Row(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Text(
-                value,
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: context.contentColor,
+              Expanded(
+                child: Text(
+                  value,
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: context.contentColor,
+                  ),
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
               if (suffix != null)
@@ -759,7 +781,7 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen> w
     );
   }
 
-  Widget _buildCravingListItem(BuildContext context, dynamic craving) {
+  Widget _buildCravingListItem(BuildContext context, Craving craving) {
     final dateFormat = DateFormat('MMM d, h:mm a');
     final outcomeColors = [Colors.green, Colors.red, Colors.blue];
     final outcomeIcons = [Icons.check_circle, Icons.smoking_rooms, Icons.swap_horiz];
@@ -814,7 +836,7 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen> w
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      _getCravingIntensityText(_getIntensityIndex(craving.intensity)),
+                      _getCravingIntensityText(craving.intensity),
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         color: context.contentColor,
@@ -840,7 +862,7 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen> w
                 if (craving.location != null) ...[
                   const SizedBox(height: 4),
                   Text(
-                    craving.location,
+                    craving.location!,
                     style: TextStyle(
                       fontSize: 12,
                       color: context.subtitleColor.withAlpha(179),
@@ -855,13 +877,24 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen> w
     );
   }
 
-  Widget _buildHealthRecoveryItem(BuildContext context, dynamic recovery, int daysSmokeFree) {
+  Widget _buildHealthRecoveryItem(BuildContext context, UserHealthRecovery recovery, int daysSmokeFree) {
     final l10n = AppLocalizations.of(context);
-    final bool isAchieved = recovery.achievedDate != null;
+    final bool isAchieved = recovery.isAchieved;
     final Color statusColor = isAchieved ? Colors.green : Colors.orange;
     
+    // Get the recovery details from TrackingBloc state
+    final trackingState = context.read<TrackingBloc>().state;
+    final recoveryDetails = trackingState.healthRecoveries
+        .firstWhere((r) => r.id == recovery.recoveryId,
+            orElse: () => HealthRecovery(
+              id: recovery.recoveryId,
+              name: 'Unknown Recovery',
+              description: '',
+              daysToAchieve: recovery.daysToAchieve,
+            ));
+    
     // Calculate percentage
-    int daysRequired = recovery.recovery.daysToAchieve;
+    int daysRequired = recovery.daysToAchieve;
     double percentage = daysSmokeFree / daysRequired;
     if (percentage > 1) percentage = 1;
     
@@ -885,7 +918,7 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen> w
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      recovery.recovery.name,
+                      recoveryDetails.name,
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
@@ -895,7 +928,7 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen> w
                     const SizedBox(height: 4),
                     Text(
                       isAchieved 
-                          ? l10n.achievedOn(recovery.achievedDate) ?? 'Achieved'
+                          ? (l10n.achievedOn(recovery.achievedAt) ?? 'Achieved')
                           : l10n.daysToAchieve(daysRequired) ?? '$daysRequired days to achieve',
                       style: TextStyle(
                         fontSize: 12,
@@ -971,30 +1004,15 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen> w
     );
   }
 
-  int _getIntensityIndex(CravingIntensity intensity) {
+  String _getCravingIntensityText(CravingIntensity intensity) {
     switch (intensity) {
       case CravingIntensity.low:
-        return 0;
-      case CravingIntensity.moderate:
-        return 1;
-      case CravingIntensity.high:
-        return 2;
-      case CravingIntensity.veryHigh:
-        return 3;
-      default:
-        return 1; // Default to moderate
-    }
-  }
-  
-  String _getCravingIntensityText(int intensity) {
-    switch (intensity) {
-      case 0:
         return 'Low Intensity';
-      case 1:
+      case CravingIntensity.moderate:
         return 'Moderate Intensity';
-      case 2:
+      case CravingIntensity.high:
         return 'High Intensity';
-      case 3:
+      case CravingIntensity.veryHigh:
         return 'Very High Intensity';
       default:
         return 'Unknown Intensity';

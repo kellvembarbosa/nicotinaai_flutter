@@ -23,7 +23,6 @@ enum AppRoutes {
   settings('/settings'),
   
   // Rotas de tracking
-  developerDashboard('/developer-dashboard'),
   statisticsDashboard('/statistics-dashboard'),
   addSmokingLog('/tracking/add-smoking'),
   addCraving('/tracking/add-craving'),
@@ -39,7 +38,6 @@ enum AppRoutes {
   currencyBloc('/settings/currency_bloc'),
   themeBloc('/settings/theme_bloc'),
   languageBloc('/settings/language_bloc'),
-  developerModeBloc('/settings/developer_mode_bloc'),
   privacyPolicy('/privacy-policy'),
   termsOfService('/terms-of-service'),
   about('/about'),

@@ -19,7 +19,7 @@ class AppIconWidget extends StatelessWidget {
         borderRadius: BorderRadius.circular(borderRadius),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withAlpha(25), // Equivalent to opacity 0.1 (255 * 0.1 = 25.5 ≈ 25)
             blurRadius: 10,
             spreadRadius: 1,
             offset: const Offset(0, 4),

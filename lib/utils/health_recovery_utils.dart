@@ -299,7 +299,7 @@ class HealthRecoveryUtils {
         'recoveries': allRecoveries,
         'achieved_recoveries': safeUserRecoveries,
         'current_streak_days': currentStreakDays,
-        'last_smoke_date': lastSmokeDate?.toIso8601String(),
+        'last_smoke_date': lastSmokeDate != null ? lastSmokeDate.toIso8601String() : null,
       };
       
       // Armazena em cache para evitar chamadas repetidas
@@ -410,13 +410,21 @@ class HealthRecoveryUtils {
       } else {
         // Try to guess icon from name
         final name = nextRecovery['name'].toString().toLowerCase();
-        if (name.contains('taste')) icon = Icons.restaurant;
-        else if (name.contains('smell')) icon = Icons.air;
-        else if (name.contains('blood')) icon = Icons.bloodtype;
-        else if (name.contains('lung') || name.contains('breath')) icon = Icons.air_rounded;
-        else if (name.contains('heart')) icon = Icons.favorite;
-        else if (name.contains('chemical') || name.contains('nicotin')) icon = Icons.science;
-        else if (name.contains('circulation')) icon = Icons.bike_scooter;
+        if (name.contains('taste')) {
+          icon = Icons.restaurant;
+        } else if (name.contains('smell')) {
+          icon = Icons.air;
+        } else if (name.contains('blood')) {
+          icon = Icons.bloodtype;
+        } else if (name.contains('lung') || name.contains('breath')) {
+          icon = Icons.air_rounded;
+        } else if (name.contains('heart')) {
+          icon = Icons.favorite;
+        } else if (name.contains('chemical') || name.contains('nicotin')) {
+          icon = Icons.science;
+        } else if (name.contains('circulation')) {
+          icon = Icons.bike_scooter;
+        }
       }
       
       // Create result

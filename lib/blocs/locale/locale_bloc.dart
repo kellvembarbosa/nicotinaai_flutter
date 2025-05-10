@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:nicotinaai_flutter/blocs/locale/locale_event.dart';
 import 'package:nicotinaai_flutter/blocs/locale/locale_state.dart';
 
@@ -13,7 +14,7 @@ class LocaleBloc extends Bloc<LocaleEvent, LocaleState> {
     on<ResetToDefaultLocale>(_onResetToDefaultLocale);
   }
 
-  /// Loads the saved locale from SharedPreferences
+  /// Loads the saved locale from SharedPreferences and Supabase
   Future<void> _onInitializeLocale(
     InitializeLocale event,
     Emitter<LocaleState> emit,
@@ -21,8 +22,41 @@ class LocaleBloc extends Bloc<LocaleEvent, LocaleState> {
     emit(state.copyWith(status: LocaleStatus.loading));
 
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final savedLocale = prefs.getString(_localeKey);
+      // First check if we can get the locale from Supabase (this takes precedence)
+      String? savedLocale;
+      
+      try {
+        final supabase = Supabase.instance.client;
+        final user = supabase.auth.currentUser;
+        
+        if (user != null) {
+          // Try to get user preferences from Supabase
+          final response = await supabase
+              .from('user_preferences')
+              .select('locale')
+              .eq('user_id', user.id)
+              .single()
+              .catchError((e) => null);
+          
+          if (response != null && response['locale'] != null) {
+            savedLocale = response['locale'] as String;
+            print('✅ Loaded locale from Supabase: $savedLocale');
+          }
+        }
+      } catch (supabaseError) {
+        // Just log the error but continue with SharedPreferences
+        print('⚠️ Error loading locale from Supabase: $supabaseError');
+      }
+      
+      // If we couldn't get locale from Supabase, try SharedPreferences
+      if (savedLocale == null) {
+        final prefs = await SharedPreferences.getInstance();
+        savedLocale = prefs.getString(_localeKey);
+        
+        if (savedLocale != null) {
+          print('✅ Loaded locale from SharedPreferences: $savedLocale');
+        }
+      }
 
       if (savedLocale != null) {
         final parts = savedLocale.split('_');
@@ -36,6 +70,11 @@ class LocaleBloc extends Bloc<LocaleEvent, LocaleState> {
               locale: newLocale,
               isInitialized: true,
             ));
+            
+            // Make sure SharedPreferences is in sync
+            final prefs = await SharedPreferences.getInstance();
+            await prefs.setString(_localeKey, savedLocale);
+            
             return;
           }
         }
@@ -43,7 +82,7 @@ class LocaleBloc extends Bloc<LocaleEvent, LocaleState> {
 
       // If no valid locale was found, set default (English) and save it
       const defaultLocale = Locale('en', 'US');
-      await prefs.setString(_localeKey, 'en_US');
+      await _saveLocaleToPreferences(defaultLocale);
       
       emit(state.copyWith(
         status: LocaleStatus.loaded,
@@ -57,8 +96,34 @@ class LocaleBloc extends Bloc<LocaleEvent, LocaleState> {
       ));
     }
   }
+  
+  /// Helper to save locale to SharedPreferences and Supabase
+  Future<void> _saveLocaleToPreferences(Locale locale) async {
+    final localeString = '${locale.languageCode}_${locale.countryCode}';
+    
+    // Save to SharedPreferences
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_localeKey, localeString);
+    
+    // Try to save to Supabase
+    try {
+      final supabase = Supabase.instance.client;
+      final user = supabase.auth.currentUser;
+      
+      if (user != null) {
+        await supabase.from('user_preferences').upsert({
+          'user_id': user.id,
+          'locale': localeString,
+          'updated_at': DateTime.now().toIso8601String(),
+        }, onConflict: 'user_id');
+      }
+    } catch (e) {
+      // Just log the error
+      print('⚠️ Failed to save locale to Supabase: $e');
+    }
+  }
 
-  /// Changes the current locale and saves to SharedPreferences
+  /// Changes the current locale and saves to SharedPreferences and Supabase
   Future<void> _onChangeLocale(
     ChangeLocale event,
     Emitter<LocaleState> emit,
@@ -73,12 +138,8 @@ class LocaleBloc extends Bloc<LocaleEvent, LocaleState> {
         locale: event.locale,
       ));
 
-      // Save the preference to SharedPreferences
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString(
-        _localeKey,
-        '${event.locale.languageCode}_${event.locale.countryCode}',
-      );
+      // Use helper to save the locale
+      await _saveLocaleToPreferences(event.locale);
     } catch (e) {
       emit(state.copyWith(
         status: LocaleStatus.error,
@@ -87,7 +148,7 @@ class LocaleBloc extends Bloc<LocaleEvent, LocaleState> {
     }
   }
 
-  /// Resets to English (default locale) and saves to SharedPreferences
+  /// Resets to English (default locale) and saves to SharedPreferences and Supabase
   Future<void> _onResetToDefaultLocale(
     ResetToDefaultLocale event,
     Emitter<LocaleState> emit,
@@ -101,9 +162,8 @@ class LocaleBloc extends Bloc<LocaleEvent, LocaleState> {
         locale: defaultLocale,
       ));
 
-      // Save the preference to SharedPreferences
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString(_localeKey, 'en_US');
+      // Use helper to save the locale
+      await _saveLocaleToPreferences(defaultLocale);
     } catch (e) {
       emit(state.copyWith(
         status: LocaleStatus.error,

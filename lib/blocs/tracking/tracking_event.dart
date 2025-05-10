@@ -14,7 +14,11 @@ class LoadUserStats extends TrackingEvent {
   LoadUserStats({this.forceRefresh = false});
 }
 
-class RefreshUserStats extends TrackingEvent {}
+class RefreshUserStats extends TrackingEvent {
+  final bool forceRefresh;
+
+  RefreshUserStats({this.forceRefresh = false});
+}
 
 class ForceUpdateStats extends TrackingEvent {}
 

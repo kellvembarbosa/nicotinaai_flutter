@@ -212,7 +212,36 @@ class _HomeScreenState extends State<HomeScreen> {
           _breathCapacityPercent = _daysWithoutSmoking > 30 ? 40 : (_daysWithoutSmoking > 7 ? 20 : 10);
           _cravingsResisted = updatedCravingsResisted;
           _dailyMinutesGained = _daysWithoutSmoking == 0 ? 0 : _minutesLifeGained ~/ _daysWithoutSmoking;
-          _moneySavedInCents = updatedMoneySaved; // Money saved in cents
+          // Debug para analisar o valor da economia
+          if (kDebugMode) {
+            print('💰 Valor economizado recebido do servidor: $updatedMoneySaved centavos');
+            print('💰 Dias sem fumar: $_daysWithoutSmoking, Cigarros evitados: ${_stats?.cigarettesAvoided}');
+          }
+          
+          // Verificar se o valor do servidor é válido - se for próximo de 247 centavos consistentemente,
+          // há um problema no cálculo do servidor
+          if (updatedMoneySaved > 0 && updatedMoneySaved != 247) {
+            // Use o valor do servidor se parecer válido
+            _moneySavedInCents = updatedMoneySaved;
+          } else {
+            // SOLUÇÃO TEMPORÁRIA: Calcular o valor localmente se o servidor retornar zero ou 247 centavos
+            // Assumindo preço médio de R$12,00 por maço com 20 cigarros
+            const int defaultPackPriceInCents = 1200; // R$12,00
+            const int defaultCigarettesPerPack = 20;
+            const int defaultCigarettesPerDay = 20; // Se não temos o valor real, assumimos 1 maço por dia
+            
+            // Cálculo: dias sem fumar * cigarros por dia * (preço do maço / cigarros por maço)
+            final int cigarettesAvoided = _stats?.cigarettesAvoided ?? (_daysWithoutSmoking * defaultCigarettesPerDay);
+            final double pricePerCigarette = defaultPackPriceInCents / defaultCigarettesPerPack;
+            final int calculatedMoneySaved = (cigarettesAvoided * pricePerCigarette).round();
+            
+            if (kDebugMode) {
+              print('💰 CALCULANDO LOCALMENTE: dias=$_daysWithoutSmoking, cigarros evitados=$cigarettesAvoided');
+              print('💰 Preço por cigarro=$pricePerCigarette centavos, economia calculada=$calculatedMoneySaved centavos');
+            }
+            
+            _moneySavedInCents = calculatedMoneySaved > 0 ? calculatedMoneySaved : updatedMoneySaved;
+          }
           
           // Load the next health milestone
           _loadNextHealthMilestone();

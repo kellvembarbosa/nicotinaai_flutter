@@ -6,9 +6,6 @@ import 'package:nicotinaai_flutter/blocs/auth/auth_event.dart';
 import 'package:nicotinaai_flutter/blocs/auth/auth_state.dart';
 import 'package:nicotinaai_flutter/blocs/currency/currency_bloc.dart';
 import 'package:nicotinaai_flutter/blocs/currency/currency_state.dart';
-import 'package:nicotinaai_flutter/blocs/developer_mode/developer_mode_bloc.dart';
-import 'package:nicotinaai_flutter/blocs/developer_mode/developer_mode_event.dart';
-import 'package:nicotinaai_flutter/blocs/developer_mode/developer_mode_state.dart';
 import 'package:nicotinaai_flutter/blocs/locale/locale_bloc.dart';
 import 'package:nicotinaai_flutter/blocs/locale/locale_state.dart' as locale_state;
 import 'package:nicotinaai_flutter/blocs/theme/theme_bloc.dart';
@@ -52,7 +49,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final authState = context.watch<AuthBloc>().state;
     final themeState = context.watch<ThemeBloc>().state;
     final localeState = context.watch<LocaleBloc>().state;
-    final developerModeState = context.watch<DeveloperModeBloc>().state;
     final user = authState.user;
 
     return Scaffold(
@@ -175,27 +171,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
               localizations.changeLanguage,
               Icons.language_outlined,
               onTap: () {
-                // Navegação para configurações de idioma
-                context.push(AppRoutes.language.path);
+                context.push(AppRoutes.languageBloc.path);
               },
-              trailing: Text(
-                localeState.currentLanguageName,
-                style: context.textTheme.bodySmall!.copyWith(
-                  color: context.subtitleColor,
-                ),
-              ),
-            ),
-            _buildSettingItem(
-              context,
-              "${localizations.theme} (BLoC)",
-              localizations.theme,
-              Icons.color_lens_outlined,
-              onTap: () {
-                context.push(AppRoutes.themeBloc.path);
-              },
-              trailing: BlocBuilder<ThemeBloc, theme_state.ThemeState>(
+              trailing: BlocBuilder<LocaleBloc, locale_state.LocaleState>(
                 builder: (context, state) => Text(
-                  _getThemeModeName(state.themeMode, localizations),
+                  state.currentLanguageName,
                   style: context.textTheme.bodySmall!.copyWith(
                     color: context.subtitleColor,
                   ),
@@ -204,15 +184,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
             _buildSettingItem(
               context,
-              "${localizations.language} (BLoC)",
-              "${localizations.changeLanguage} - BLoC version",
-              Icons.language_outlined,
+              localizations.theme,
+              localizations.theme,
+              Icons.color_lens_outlined,
               onTap: () {
-                context.push(AppRoutes.languageBloc.path);
+                context.push(AppRoutes.themeBloc.path);
               },
-              trailing: BlocBuilder<LocaleBloc, locale_state.LocaleState>(
+              trailing: BlocBuilder<ThemeBloc, theme_state.ThemeState>(
                 builder: (context, state) => Text(
-                  state.currentLanguageName,
+                  _getThemeModeName(state.themeMode, localizations),
                   style: context.textTheme.bodySmall!.copyWith(
                     color: context.subtitleColor,
                   ),
@@ -246,23 +226,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
               context,
               localizations.currency,
               localizations.setCurrencyForCalculations,
-              Icons.currency_exchange,
-              onTap: () {
-                context.push(AppRoutes.currency.path);
-              },
-              trailing: BlocBuilder<CurrencyBloc, CurrencyState>(
-                builder: (context, state) => Text(
-                  state.currencyCode,
-                  style: context.textTheme.bodySmall!.copyWith(
-                    color: context.subtitleColor,
-                  ),
-                ),
-              ),
-            ),
-            _buildSettingItem(
-              context,
-              "${localizations.currency} (BLoC)",
-              "${localizations.setCurrencyForCalculations} - BLoC version",
               Icons.currency_exchange,
               onTap: () {
                 context.push(AppRoutes.currencyBloc.path);
@@ -369,53 +332,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
             const SizedBox(height: 24),
             
-            // Seção de desenvolvedor (aparece apenas em modo de desenvolvimento)
-            if (developerModeState.isInDevelopmentMode) ...[
-              _buildSectionHeader(context, localizations.developer),
-              _buildSettingItem(
-                context,
-                localizations.developerMode,
-                localizations.enableDebugging,
-                Icons.developer_mode,
-                onTap: () {
-                  context.read<DeveloperModeBloc>().add(ToggleDeveloperMode());
-                },
-                trailing: Switch(
-                  value: developerModeState.isDeveloperModeEnabled,
-                  onChanged: (_) {
-                    context.read<DeveloperModeBloc>().add(ToggleDeveloperMode());
-                  },
-                ),
-              ),
-              _buildSettingItem(
-                context,
-                "${localizations.developerMode} (BLoC)",
-                "${localizations.enableDebugging} - BLoC version",
-                Icons.developer_mode,
-                onTap: () {
-                  context.push(AppRoutes.developerModeBloc.path);
-                },
-                trailing: BlocBuilder<DeveloperModeBloc, DeveloperModeState>(
-                  builder: (context, state) => Switch(
-                    value: state.isDeveloperModeEnabled,
-                    onChanged: (_) {
-                      context.read<DeveloperModeBloc>().add(ToggleDeveloperMode());
-                    },
-                  ),
-                ),
-              ),
-              if (developerModeState.isDeveloperModeEnabled)
-                _buildSettingItem(
-                  context,
-                  localizations.developer,
-                  localizations.viewDetailedTracking,
-                  Icons.developer_board_outlined,
-                  onTap: () {
-                    context.go(AppRoutes.developerDashboard.path);
-                  },
-                ),
-              const SizedBox(height: 24),
-            ],
 
             // Seção de sobre
             _buildSectionHeader(context, localizations.about),

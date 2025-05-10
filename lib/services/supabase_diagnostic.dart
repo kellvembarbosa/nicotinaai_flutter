@@ -1,6 +1,5 @@
 import 'package:flutter/foundation.dart';
 import 'package:nicotinaai_flutter/config/supabase_config.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 /// Classe utilitária para diagnosticar problemas de conexão com o Supabase
 /// Útil para identificar problemas como erro 404 ao acessar tabelas

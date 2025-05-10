@@ -12,6 +12,13 @@ class UserStats {
   final int totalXp;
   final DateTime? createdAt;
   final DateTime? updatedAt;
+  
+  // Fields used in DeveloperDashboardScreen
+  final int? productType;
+  final int? cigarettesPerDay;
+  final int? cigarettesPerPack;
+  final int? packPrice;
+  final String? currencyCode;
 
   const UserStats({
     this.id,
@@ -27,6 +34,11 @@ class UserStats {
     this.totalXp = 0,
     this.createdAt,
     this.updatedAt,
+    this.productType,
+    this.cigarettesPerDay,
+    this.cigarettesPerPack,
+    this.packPrice,
+    this.currencyCode,
   });
 
   // Copy constructor
@@ -44,6 +56,11 @@ class UserStats {
     int? totalXp,
     DateTime? createdAt,
     DateTime? updatedAt,
+    int? productType,
+    int? cigarettesPerDay,
+    int? cigarettesPerPack,
+    int? packPrice,
+    String? currencyCode,
   }) {
     return UserStats(
       id: id ?? this.id,
@@ -59,6 +76,11 @@ class UserStats {
       totalXp: totalXp ?? this.totalXp,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      productType: productType ?? this.productType,
+      cigarettesPerDay: cigarettesPerDay ?? this.cigarettesPerDay,
+      cigarettesPerPack: cigarettesPerPack ?? this.cigarettesPerPack,
+      packPrice: packPrice ?? this.packPrice,
+      currencyCode: currencyCode ?? this.currencyCode,
     );
   }
 
@@ -113,6 +135,11 @@ class UserStats {
       updatedAt: json['updated_at'] != null
           ? DateTime.parse(json['updated_at'])
           : null,
+      productType: json['product_type'],
+      cigarettesPerDay: json['cigarettes_per_day'],
+      cigarettesPerPack: json['cigarettes_per_pack'],
+      packPrice: json['pack_price'],
+      currencyCode: json['currency_code'],
     );
   }
 
@@ -132,6 +159,11 @@ class UserStats {
         'last_smoke_date': lastSmokeDate!.toIso8601String(),
       'total_smoke_free_days': totalSmokeFreedays,
       'total_xp': totalXp,
+      if (productType != null) 'product_type': productType,
+      if (cigarettesPerDay != null) 'cigarettes_per_day': cigarettesPerDay,
+      if (cigarettesPerPack != null) 'cigarettes_per_pack': cigarettesPerPack,
+      if (packPrice != null) 'pack_price': packPrice,
+      if (currencyCode != null) 'currency_code': currencyCode,
     };
   }
 
@@ -150,7 +182,12 @@ class UserStats {
       other.healthiestDayDate == healthiestDayDate &&
       other.lastSmokeDate == lastSmokeDate &&
       other.totalSmokeFreedays == totalSmokeFreedays &&
-      other.totalXp == totalXp;
+      other.totalXp == totalXp &&
+      other.productType == productType &&
+      other.cigarettesPerDay == cigarettesPerDay &&
+      other.cigarettesPerPack == cigarettesPerPack &&
+      other.packPrice == packPrice &&
+      other.currencyCode == currencyCode;
   }
 
   @override
@@ -165,6 +202,11 @@ class UserStats {
       healthiestDayDate.hashCode ^
       lastSmokeDate.hashCode ^
       totalSmokeFreedays.hashCode ^
-      totalXp.hashCode;
+      totalXp.hashCode ^
+      productType.hashCode ^
+      cigarettesPerDay.hashCode ^
+      cigarettesPerPack.hashCode ^
+      packPrice.hashCode ^
+      currencyCode.hashCode;
   }
 }

@@ -1,7 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nicotinaai_flutter/core/exceptions/auth_exception.dart' as app_exceptions;
-import 'package:nicotinaai_flutter/features/auth/models/user_model.dart';
 import 'package:nicotinaai_flutter/features/auth/repositories/auth_repository.dart';
 import 'package:nicotinaai_flutter/features/home/providers/craving_provider.dart';
 import 'package:nicotinaai_flutter/features/home/providers/smoking_record_provider.dart';

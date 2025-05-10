@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:provider/provider.dart';
 
 import '../models/user_achievement.dart';
-import '../../../blocs/achievement/achievement_bloc.dart';
-import '../../../blocs/achievement/achievement_event.dart';
+import '../providers/achievement_provider.dart';
 import '../widgets/achievement_celebration.dart';
+import '../../../core/routes/app_routes.dart';
 
 /// Service to handle achievement notifications
 class AchievementNotificationService {
@@ -25,9 +24,6 @@ class AchievementNotificationService {
   // Cache para achievements já notificados nesta sessão do app
   // Isso evita que o mesmo achievement seja notificado múltiplas vezes
   final Set<String> _notifiedAchievementsThisSession = {};
-  
-  // Key for SharedPreferences to store which achievements have been notified across sessions
-  static const String _sharedPrefsKeyPrefix = 'achievement_notified_';
 
   AchievementNotificationService(this._notificationsPlugin) {
     _initNotifications();
@@ -74,27 +70,6 @@ class AchievementNotificationService {
     }
   }
   
-  /// Check if this achievement has been notified before (persistence across app sessions)
-  Future<bool> _hasAchievementBeenNotifiedBefore(String achievementId) async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      return prefs.getBool('$_sharedPrefsKeyPrefix$achievementId') ?? false;
-    } catch (e) {
-      debugPrint('Error checking if achievement has been notified: $e');
-      return false;
-    }
-  }
-  
-  /// Mark achievement as having been notified
-  Future<void> _markAchievementAsNotified(String achievementId) async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setBool('$_sharedPrefsKeyPrefix$achievementId', true);
-    } catch (e) {
-      debugPrint('Error marking achievement as notified: $e');
-    }
-  }
-  
   /// Show a notification when an achievement is unlocked
   Future<void> showAchievementUnlockedNotification(UserAchievement achievement) async {
     // Verificar se este achievement já foi notificado nesta sessão
@@ -102,19 +77,9 @@ class AchievementNotificationService {
       debugPrint('Skipping notification for ${achievement.definition.name} - already shown this session');
       return;
     }
-    
-    // Verificar se este achievement já foi notificado em sessões anteriores
-    final wasNotifiedBefore = await _hasAchievementBeenNotifiedBefore(achievement.id);
-    if (wasNotifiedBefore) {
-      debugPrint('Skipping notification for ${achievement.definition.name} - already notified in previous sessions');
-      return;
-    }
 
     // Adicionar o ID do achievement ao cache de notificações
     _notifiedAchievementsThisSession.add(achievement.id);
-    
-    // Marcar este achievement como notificado para sessões futuras
-    await _markAchievementAsNotified(achievement.id);
     
     final androidDetails = AndroidNotificationDetails(
       _channelId,
@@ -138,8 +103,6 @@ class AchievementNotificationService {
       android: androidDetails,
       iOS: iosDetails,
     );
-    
-    debugPrint('Showing notification for achievement: ${achievement.definition.name}');
     
     await _notificationsPlugin.show(
       _achievementUnlockedId + achievement.id.hashCode, // Use unique ID for each achievement
@@ -207,7 +170,7 @@ class AchievementNotificationService {
             context.push('/achievement/${achievement.id}');
             
             // Mark as viewed
-            context.read<AchievementBloc>().add(MarkAchievementAsViewed(achievement.id));
+            context.read<AchievementProvider>().markAchievementAsViewed(achievement.id);
           },
         ),
       ),
@@ -300,7 +263,7 @@ class AchievementNotificationService {
               context.push('/achievement/${achievement.id}');
               
               // Mark as viewed
-              context.read<AchievementBloc>().add(MarkAchievementAsViewed(achievement.id));
+              context.read<AchievementProvider>().markAchievementAsViewed(achievement.id);
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.amber,
@@ -313,7 +276,7 @@ class AchievementNotificationService {
     );
     
     // Mark as viewed after showing dialog
-    context.read<AchievementBloc>().add(MarkAchievementAsViewed(achievement.id));
+    context.read<AchievementProvider>().markAchievementAsViewed(achievement.id);
   }
   
   /// Determine if an achievement is significant enough to show a dialog
@@ -361,14 +324,14 @@ class AchievementNotificationService {
             context.push('/achievement/${achievement.id}');
             
             // Mark as viewed
-            context.read<AchievementBloc>().add(MarkAchievementAsViewed(achievement.id));
+            context.read<AchievementProvider>().markAchievementAsViewed(achievement.id);
           },
         ),
       ),
     );
     
     // Mark as viewed
-    context.read<AchievementBloc>().add(MarkAchievementAsViewed(achievement.id));
+    context.read<AchievementProvider>().markAchievementAsViewed(achievement.id);
   }
   
   /// Check if this is a major milestone achievement

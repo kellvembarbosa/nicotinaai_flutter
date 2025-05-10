@@ -110,7 +110,7 @@ class RecoveryItemSkeleton extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withAlpha(13), // Equivalent to opacity 0.05 (255 * 0.05 = 12.75 ≈ 13)
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -269,7 +269,7 @@ class RecoveryDetailSkeleton extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.grey.withOpacity(0.1),
+              color: Colors.grey.withAlpha(26), // Equivalent to opacity 0.1 (255 * 0.1 = 25.5 ≈ 26)
               borderRadius: BorderRadius.circular(12),
             ),
             child: Column(

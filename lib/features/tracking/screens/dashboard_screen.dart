@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
-import 'package:nicotinaai_flutter/features/auth/providers/auth_provider.dart';
+import 'package:nicotinaai_flutter/blocs/auth/auth_bloc.dart';
+import 'package:nicotinaai_flutter/blocs/auth/auth_state.dart';
+import 'package:nicotinaai_flutter/blocs/tracking/tracking_bloc.dart';
+import 'package:nicotinaai_flutter/blocs/tracking/tracking_event.dart';
+import 'package:nicotinaai_flutter/blocs/tracking/tracking_state.dart';
 import 'package:nicotinaai_flutter/features/tracking/models/user_stats.dart';
-import 'package:nicotinaai_flutter/features/tracking/providers/tracking_provider.dart';
 import 'package:nicotinaai_flutter/features/tracking/screens/add_craving_screen.dart';
 import 'package:nicotinaai_flutter/features/tracking/screens/add_smoking_log_screen.dart';
 import 'package:nicotinaai_flutter/utils/currency_utils.dart';
-import 'package:provider/provider.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({Key? key}) : super(key: key);
@@ -24,7 +27,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     super.initState();
     // Initialize tracking data
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<TrackingProvider>().initialize();
+      context.read<TrackingBloc>().add(InitializeTracking());
     });
   }
 
@@ -37,15 +40,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: () {
-              context.read<TrackingProvider>().refreshAll();
+              context.read<TrackingBloc>().add(RefreshAllData(forceRefresh: true));
             },
           ),
         ],
       ),
-      body: Consumer<TrackingProvider>(
-        builder: (context, provider, child) {
-          final state = provider.state;
-          
+      body: BlocBuilder<TrackingBloc, TrackingState>(
+        builder: (context, state) {
           if (state.isLoading) {
             return const Center(child: CircularProgressIndicator());
           }
@@ -62,8 +63,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   const SizedBox(height: 16),
                   ElevatedButton(
                     onPressed: () {
-                      provider.clearError();
-                      provider.initialize();
+                      context.read<TrackingBloc>().add(ClearError());
+                      context.read<TrackingBloc>().add(InitializeTracking());
                     },
                     child: const Text('Retry'),
                   ),
@@ -73,7 +74,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
           }
           
           return RefreshIndicator(
-            onRefresh: () => provider.refreshAll(),
+            onRefresh: () async {
+              context.read<TrackingBloc>().add(RefreshAllData(forceRefresh: true));
+              // Wait a bit for the refresh to complete
+              await Future.delayed(const Duration(milliseconds: 800));
+            },
             child: ListView(
               padding: const EdgeInsets.all(16.0),
               children: [
@@ -150,8 +155,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
     
     // Obter usuário atual para formatar a moeda de acordo com as preferências
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    final user = authProvider.currentUser;
+    final authState = context.read<AuthBloc>().state;
+    final user = authState.status == AuthStatus.authenticated ? authState.user : null;
     
     // Formatar o valor monetário usando o utilitário de moeda
     final String formattedMoneySaved;

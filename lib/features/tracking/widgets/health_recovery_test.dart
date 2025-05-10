@@ -100,7 +100,7 @@ class _HealthRecoveryTestState extends State<HealthRecoveryTest> {
                     width: double.infinity,
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: Colors.green.withOpacity(0.1),
+                      color: Colors.green.withAlpha(26), // Equivalent to opacity 0.1 (255 * 0.1 = 25.5 ≈ 26)
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(color: Colors.green),
                     ),
@@ -117,7 +117,7 @@ class _HealthRecoveryTestState extends State<HealthRecoveryTest> {
                 width: double.infinity,
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.red.withOpacity(0.1),
+                  color: Colors.red.withAlpha(26), // Equivalent to opacity 0.1 (255 * 0.1 = 25.5 ≈ 26)
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(color: Colors.red),
                 ),
