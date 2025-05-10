@@ -36,14 +36,58 @@ serve(async (req) => {
       .single();
 
     if (statsError || !userStats || !userStats.last_smoke_date) {
-      return new Response(
-        JSON.stringify({ 
-          success: false,
-          error: "User stats or last smoke date not found",
-          details: statsError || "No last smoke date available"
-        }),
-        { headers: { "Content-Type": "application/json" }, status: 404 }
-      );
+      console.log(`No user stats or last smoke date found for user ${userId}, initializing...`);
+
+      // Verificar se houve uma tentativa de registrar craving
+      const { data: cravings, error: cravingsError } = await supabase
+        .from("cravings")
+        .select("*")
+        .eq("user_id", userId)
+        .limit(1);
+
+      if (!cravingsError && cravings && cravings.length > 0) {
+        // Há registros de cravings, podemos inicializar user_stats com a data atual
+        const now = new Date();
+
+        // Criar registro em user_stats com a data atual como last_smoke_date
+        const { data: newStats, error: insertError } = await supabase
+          .from("user_stats")
+          .upsert({
+            user_id: userId,
+            last_smoke_date: now.toISOString(),
+            current_streak_days: 0,
+            money_saved: 0,
+            cigarettes_avoided: 0,
+            cravings_resisted: 0
+          })
+          .select()
+          .single();
+
+        if (insertError) {
+          return new Response(
+            JSON.stringify({
+              success: false,
+              error: "Failed to initialize user stats",
+              details: insertError
+            }),
+            { headers: { "Content-Type": "application/json" }, status: 500 }
+          );
+        }
+
+        // Usar os stats recém-criados
+        userStats = newStats;
+        console.log(`Initialized user_stats for user ${userId} with current date as last_smoke_date`);
+      } else {
+        // Não há cravings ou smoking logs, retornar erro
+        return new Response(
+          JSON.stringify({
+            success: false,
+            error: "User has no smoking history or cravings to establish a baseline",
+            details: cravingsError || "No craving or smoking data available"
+          }),
+          { headers: { "Content-Type": "application/json" }, status: 404 }
+        );
+      }
     }
 
     const lastSmokeDate = new Date(userStats.last_smoke_date);
@@ -64,6 +108,55 @@ serve(async (req) => {
         }),
         { headers: { "Content-Type": "application/json" }, status: 500 }
       );
+    }
+    
+    // Check if this is a newly registered smoking event
+    // This would be indicated by the lastSmokeDate being very recent (within the last hour)
+    const smokeEventTimeDiff = now.getTime() - lastSmokeDate.getTime();
+    const isRecentSmokeEvent = smokeEventTimeDiff < (60 * 60 * 1000); // Within 1 hour
+    
+    // If a new smoke was registered recently, reset any health recoveries
+    if (isRecentSmokeEvent && daysSinceLastSmoke === 0) {
+      console.log(`Recent smoke event detected for user ${userId}, checking for health recoveries to reset...`);
+      
+      // Get user's existing health recoveries
+      const { data: existingRecoveries, error: userRecoveriesResetError } = await supabase
+        .from("user_health_recoveries")
+        .select("id, recovery_id")
+        .eq("user_id", userId);
+        
+      if (!userRecoveriesResetError && existingRecoveries && existingRecoveries.length > 0) {
+        // Reset all health recoveries for this user
+        const { error: deleteError } = await supabase
+          .from("user_health_recoveries")
+          .delete()
+          .eq("user_id", userId);
+          
+        if (deleteError) {
+          console.error(`Failed to reset health recoveries: ${deleteError.message}`);
+        } else {
+          console.log(`Reset ${existingRecoveries.length} health recoveries for user ${userId} due to new smoking event`);
+          
+          // Create a notification about the reset if updateAchievements is true
+          if (updateAchievements) {
+            try {
+              await supabase.from("notifications").insert({
+                user_id: userId,
+                title: "Health Recovery Reset",
+                message: "Your health recovery progress has been reset due to a new smoking event.",
+                type: "HEALTH_RECOVERY_RESET",
+                reference_id: null,
+                is_read: false
+              });
+              console.log(`Created health recovery reset notification for user ${userId}`);
+            } catch (error) {
+              console.error("Failed to create notification:", error);
+            }
+          }
+        }
+      } else {
+        console.log(`No health recoveries to reset for user ${userId}`);
+      }
     }
 
     // Get user's existing health recoveries

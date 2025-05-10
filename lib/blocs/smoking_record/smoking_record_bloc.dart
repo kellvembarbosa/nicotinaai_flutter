@@ -7,6 +7,7 @@ import 'package:nicotinaai_flutter/features/achievements/helpers/achievement_hel
 import 'package:nicotinaai_flutter/features/home/models/craving_model.dart'; // Import for SyncStatus enum
 import 'package:nicotinaai_flutter/features/home/models/smoking_record_model.dart';
 import 'package:nicotinaai_flutter/features/home/repositories/smoking_record_repository.dart';
+import 'package:nicotinaai_flutter/features/tracking/repositories/tracking_repository.dart';
 
 import 'smoking_record_event.dart';
 import 'smoking_record_state.dart';
@@ -90,6 +91,20 @@ class SmokingRecordBloc extends Bloc<SmokingRecordEvent, SmokingRecordState> {
       ).toList();
       
       emit(SmokingRecordState.loaded(finalRecords));
+      
+      // Explicitly check health recoveries to ensure they are reset due to new smoking event
+      try {
+        debugPrint('Checking health recoveries after new smoking record...');
+        final trackingRepository = TrackingRepository();
+        
+        // This will call the edge function which has been updated to detect 
+        // recent smoking events and reset health recoveries if necessary
+        await trackingRepository.checkHealthRecoveries(updateAchievements: true);
+        debugPrint('Health recoveries check completed after adding smoking record');
+      } catch (e) {
+        // Non-critical error, just log it
+        debugPrint('Error checking health recoveries after new smoking record: $e');
+      }
       
       // Update tracking stats
       _updateTrackingStats();

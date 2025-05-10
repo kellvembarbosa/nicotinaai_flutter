@@ -5,6 +5,7 @@ import 'package:nicotinaai_flutter/blocs/tracking/tracking_bloc.dart';
 import 'package:nicotinaai_flutter/blocs/tracking/tracking_event.dart';
 import 'package:nicotinaai_flutter/features/home/models/craving_model.dart';
 import 'package:nicotinaai_flutter/features/home/repositories/craving_repository.dart';
+import 'package:nicotinaai_flutter/features/tracking/repositories/tracking_repository.dart';
 
 import 'craving_event.dart';
 import 'craving_state.dart';
@@ -95,6 +96,27 @@ class CravingBloc extends Bloc<CravingEvent, CravingState> {
       ).toList();
       
       emit(CravingState.loaded(finalCravings));
+      
+      // Check if this is a new user (no smoking_logs or user_stats)
+      // and explicitly initialize user_stats if needed
+      try {
+        debugPrint('Checking and initializing health recoveries after craving...');
+        final trackingRepository = TrackingRepository();
+        final userStats = await trackingRepository.getUserStats();
+
+        if (userStats == null) {
+          // No user stats yet, explicitly initiate health recovery check
+          // to trigger initialization
+          debugPrint('No user_stats found, initializing health recoveries...');
+          await trackingRepository.checkHealthRecoveries(updateAchievements: true);
+          debugPrint('Health recoveries initialized successfully');
+        } else {
+          debugPrint('user_stats already exist, no need to initialize');
+        }
+      } catch (e) {
+        // Non-critical error, just log it
+        debugPrint('Error initializing health recoveries after craving: $e');
+      }
       
       // Update tracking stats
       _updateTrackingStats();
