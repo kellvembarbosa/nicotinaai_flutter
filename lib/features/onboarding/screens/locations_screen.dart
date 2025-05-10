@@ -74,7 +74,7 @@ class _LocationsScreenState extends State<LocationsScreen> {
                   });
                 },
                 label: localizations.atHome,
-                description: localizations.atHomeDescription,
+                description: localizations.homeDetails,
                 child: Icon(Icons.home, color: context.primaryColor),
               ),
               
@@ -88,7 +88,7 @@ class _LocationsScreenState extends State<LocationsScreen> {
                   });
                 },
                 label: localizations.atWork,
-                description: localizations.atWorkDescription,
+                description: localizations.workDetails,
                 child: Icon(Icons.work, color: context.primaryColor),
               ),
               
@@ -102,7 +102,7 @@ class _LocationsScreenState extends State<LocationsScreen> {
                   });
                 },
                 label: localizations.inCar,
-                description: localizations.inCarDescription,
+                description: localizations.carDetails,
                 child: Icon(Icons.directions_car, color: context.primaryColor),
               ),
               
@@ -115,8 +115,8 @@ class _LocationsScreenState extends State<LocationsScreen> {
                     _toggleLocation('social');
                   });
                 },
-                label: localizations.socialGatherings,
-                description: localizations.socialGatheringsDescription,
+                label: localizations.socialEvents,
+                description: localizations.socialDetails,
                 child: Icon(Icons.people, color: context.primaryColor),
               ),
               
@@ -129,8 +129,8 @@ class _LocationsScreenState extends State<LocationsScreen> {
                     _toggleLocation('nightlife');
                   });
                 },
-                label: localizations.nightlife,
-                description: localizations.nightlifeDescription,
+                label: localizations.outdoors,
+                description: localizations.outdoorsDetails,
                 child: Icon(Icons.nightlife, color: context.primaryColor),
               ),
               
@@ -144,7 +144,7 @@ class _LocationsScreenState extends State<LocationsScreen> {
                   });
                 },
                 label: localizations.whenStressed,
-                description: localizations.whenStressedDescription,
+                description: localizations.stressDescription,
                 child: Icon(Icons.psychology, color: context.primaryColor),
               ),
               
