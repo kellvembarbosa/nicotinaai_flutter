@@ -24,9 +24,12 @@ class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
   bool _hasInitializedAchievements = false;
   
-  // List of screens for the tabs
-  final List<Widget> _screens = [
-    const HomeScreen(),
+  // Always use the standard HomeScreen implementation
+  Widget get _homeScreen => const HomeScreen();
+  
+  // List of screens for the tabs (using a getter to ensure we always get the current home screen)
+  List<Widget> get _screens => [
+    _homeScreen,
     const AchievementsScreen(),
     const SettingsScreen(),
   ];
@@ -59,12 +62,18 @@ class _MainScreenState extends State<MainScreen> {
     final authState = context.watch<AuthBloc>().state;
     final userName = authState.user?.name ?? 'User';
     
+    // Key for the home screen
+    final Key homeKey = const ValueKey('home_screen');
+    
     return Scaffold(
       body: IndexedStack(
+        key: homeKey,
         index: _currentIndex,
         children: _screens,
       ),
       bottomNavigationBar: _buildBottomNavigationBar(context),
+      
+      // Removed the floating action button for toggling home screen versions
     );
   }
   
