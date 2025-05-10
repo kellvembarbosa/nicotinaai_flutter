@@ -547,40 +547,36 @@ class _HomeScreenState extends State<HomeScreen> {
                                     Icons.air,
                                     () {
                                       // Use the BLoC version of RegisterCravingSheet
-                                      RegisterCravingSheetBloc.show(context).then((registered) {
-                                        // Only update if a craving was actually registered
-                                        if (registered) {
+                                      RegisterCravingSheetBloc.show(context).then((result) {
+                                        // Only update if a craving was actually registered and we have data
+                                        if (result != null && result['registered'] == true) {
                                           if (kDebugMode) {
                                             print("🔄 Updating after registering craving with BLoC");
+                                            print("📊 Optimistic update data: ${result['stats']}");
                                           }
+                                          
+                                          // Atualização otimista diretamente na UI
+                                          setState(() {
+                                            // Atualizar diretamente contando com os dados da sheet
+                                            _cravingsResisted = result['stats']['cravingsResisted'];
+                                            _minutesLifeGained = result['stats']['cigarettesAvoided'] * 6;
+                                            _moneySavedInCents = result['stats']['moneySaved'];
+                                            
+                                            // Limpar flags para forçar refresh ao receber dados do servidor
+                                            _isUpdating = false;
+                                            _lastUpdateTime = null;
+                                          });
                                           
                                           // Force full update of statistics (via BLoC)
                                           final trackingBloc = BlocProvider.of<TrackingBloc>(context);
                                           trackingBloc.add(ForceUpdateStats());
                                           
-                                          // Force a UI refresh as well
-                                          setState(() {
-                                            _isUpdating = false;
-                                            _lastUpdateTime = null; // Clear update time to force refresh
-                                          });
-                                          
-                                          // Log current stats
                                           if (kDebugMode) {
-                                            print('🔢 Current cravings resisted: ${trackingBloc.state.cravingsResisted}');
+                                            print('🔢 Dados atualizados otimisticamente:');
+                                            print('  - Cravings resistidos: $_cravingsResisted');
+                                            print('  - Minutos de vida ganhos: $_minutesLifeGained');
+                                            print('  - Economia: $_moneySavedInCents centavos');
                                           }
-                                          
-                                          // Wait slightly to let changes propagate
-                                          Future.delayed(const Duration(milliseconds: 500), () {
-                                            // Force data reload directly after a delay
-                                            if (mounted) {
-                                              setState(() {}); // Trigger rebuild
-                                              _loadData(trackingBloc.state);
-                                              
-                                              if (kDebugMode) {
-                                                print('🔢 After refresh - cravings resisted: ${trackingBloc.state.cravingsResisted}');
-                                              }
-                                            }
-                                          });
                                         }
                                       });
                                     },
@@ -596,40 +592,41 @@ class _HomeScreenState extends State<HomeScreen> {
                                     Icons.smoking_rooms,
                                     () {
                                       // Usar a versão BLoC da sheet
-                                      NewRecordSheet.show(context).then((registered) {
+                                      NewRecordSheet.show(context).then((result) {
                                         // Só atualiza se um record foi realmente registrado
-                                        if (registered) {
+                                        if (result != null && result['registered'] == true) {
                                           if (kDebugMode) {
                                             print("🔄 Atualizando após registrar cigarro com BLoC");
+                                            print("📊 Dados para atualização otimista: ${result['stats']}");
                                           }
+                                          
+                                          // Atualização otimista diretamente na UI
+                                          setState(() {
+                                            // Quando registra cigarro, reinicia contagem
+                                            _daysWithoutSmoking = result['stats']['currentStreakDays'] ?? 0;
+                                            _minutesLifeGained = result['stats']['cigarettesAvoided'] * 6;
+                                            _moneySavedInCents = result['stats']['moneySaved'];
+                                            
+                                            // Resetar a capacidade pulmonar com base nos dias
+                                            _breathCapacityPercent = _daysWithoutSmoking > 30 ? 40 : 
+                                                                     (_daysWithoutSmoking > 7 ? 20 : 10);
+                                            
+                                            // Limpar flags para forçar refresh ao receber dados do servidor
+                                            _isUpdating = false;
+                                            _lastUpdateTime = null;
+                                          });
                                           
                                           // Forçar atualização completa das estatísticas (via BLoC)
                                           final trackingBloc = BlocProvider.of<TrackingBloc>(context);
                                           trackingBloc.add(ForceUpdateStats());
                                           
-                                          // Force a UI refresh as well
-                                          setState(() {
-                                            _isUpdating = false;
-                                            _lastUpdateTime = null; // Clear update time to force refresh
-                                          });
-                                          
-                                          // Log current stats
                                           if (kDebugMode) {
-                                            print('🔢 Current stats before refresh');
+                                            print('🔢 Dados atualizados otimisticamente:');
+                                            print('  - Dias sem fumar: $_daysWithoutSmoking');
+                                            print('  - Minutos de vida ganhos: $_minutesLifeGained');
+                                            print('  - Capacidade pulmonar: $_breathCapacityPercent%');
+                                            print('  - Economia: $_moneySavedInCents centavos');
                                           }
-                                          
-                                          // Wait slightly to let changes propagate
-                                          Future.delayed(const Duration(milliseconds: 500), () {
-                                            // Force data reload directly after a delay
-                                            if (mounted) {
-                                              setState(() {}); // Trigger rebuild
-                                              _loadData(trackingBloc.state);
-                                              
-                                              if (kDebugMode) {
-                                                print('🔢 After refresh - stats updated');
-                                              }
-                                            }
-                                          });
                                         }
                                       });
                                     },

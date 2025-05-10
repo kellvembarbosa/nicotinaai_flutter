@@ -17,16 +17,16 @@ import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
 class RegisterCravingSheetBloc extends StatefulWidget {
   const RegisterCravingSheetBloc({super.key});
 
-  static Future<bool> show(BuildContext context) async {
-    final result = await showModalBottomSheet<bool>(
+  static Future<Map<String, dynamic>?> show(BuildContext context) async {
+    final result = await showModalBottomSheet<Map<String, dynamic>>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       barrierColor: Colors.black.withOpacity(0.6),
       builder: (context) => const RegisterCravingSheetBloc(),
     );
-    // Return true if a craving was successfully registered
-    return result ?? false;
+    // Return result data if a craving was successfully registered
+    return result;
   }
 
   @override
@@ -1684,8 +1684,39 @@ class _RegisterCravingSheetBlocState extends State<RegisterCravingSheetBloc> {
       // Wait a moment to let the CravingBloc process the event
       await Future.delayed(const Duration(milliseconds: 300));
       
-      // Close the sheet after initiating the update for better UX
-      Navigator.of(context).pop(true);
+      // Calcular valores para atualização otimista
+      const int defaultPackPriceInCents = 1200; // R$12,00
+      const int defaultCigarettesPerPack = 20;
+      
+      // Obter dados atuais do usuário através do TrackingBloc
+      final currentStats = trackingBloc.state.userStats;
+      
+      // Preço por cigarro (usando valores padrão se não disponíveis)
+      final double pricePerCigarette = 
+        (currentStats?.packPrice ?? defaultPackPriceInCents) / 
+        (currentStats?.cigarettesPerPack ?? defaultCigarettesPerPack);
+      
+      // Valores atualizados para atualização otimista
+      final int newCravingsResisted = (currentStats?.cravingsResisted ?? 0) + 1;
+      final int newCigarettesAvoided = (currentStats?.cigarettesAvoided ?? 0) + 1;
+      final int newMoneySaved = (currentStats?.moneySaved ?? 0) + pricePerCigarette.round();
+      
+      if (kDebugMode) {
+        print('💡 [RegisterCravingSheetBloc] Calculando valores para atualização otimista:');
+        print('  - Cravings resistidos: ${currentStats?.cravingsResisted ?? 0} -> $newCravingsResisted');
+        print('  - Cigarros evitados: ${currentStats?.cigarettesAvoided ?? 0} -> $newCigarettesAvoided');
+        print('  - Economia: ${currentStats?.moneySaved ?? 0} -> $newMoneySaved centavos');
+      }
+      
+      // Close the sheet and pass optimistic update data
+      Navigator.of(context).pop({
+        'registered': true,
+        'stats': {
+          'cravingsResisted': newCravingsResisted,
+          'cigarettesAvoided': newCigarettesAvoided,
+          'moneySaved': newMoneySaved,
+        }
+      });
       
       // Show a success snackbar
       scaffoldMessenger.showSnackBar(
