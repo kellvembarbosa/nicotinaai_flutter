@@ -122,19 +122,10 @@ class _RegisterCravingSheetBlocState extends State<RegisterCravingSheetBloc> {
                   children: [
                     _buildHandle(context),
                     
-                    // Optimized main title
+                    // Optimized main title without background
                     Container(
                       width: double.infinity,
                       padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
-                      decoration: BoxDecoration(
-                        color: context.isDarkMode 
-                            ? context.primaryColor.withOpacity(0.15) 
-                            : context.primaryColor.withOpacity(0.08),
-                        borderRadius: const BorderRadius.only(
-                          bottomLeft: Radius.circular(16),
-                          bottomRight: Radius.circular(16),
-                        ),
-                      ),
                       child: Column(
                         children: [
                           Text(

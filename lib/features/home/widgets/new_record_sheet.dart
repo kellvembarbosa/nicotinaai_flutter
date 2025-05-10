@@ -169,20 +169,10 @@ class _NewRecordSheetState extends State<NewRecordSheet> {
                     children: [
                       _buildHandle(context),
 
-                      // Main title, optimized
+                      // Main title, optimized without background
                       Container(
                         width: double.infinity,
                         padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
-                        decoration: BoxDecoration(
-                          color:
-                              context.isDarkMode
-                                  ? Colors.blue.withOpacity(0.15)
-                                  : Colors.blue.withOpacity(0.08),
-                          borderRadius: const BorderRadius.only(
-                            bottomLeft: Radius.circular(16),
-                            bottomRight: Radius.circular(16),
-                          ),
-                        ),
                         child: Column(
                           children: [
                             Text(
