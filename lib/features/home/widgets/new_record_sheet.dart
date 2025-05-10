@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
+import 'dart:ui';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nicotinaai_flutter/blocs/auth/auth_bloc.dart';
 import 'package:nicotinaai_flutter/blocs/auth/auth_state.dart' as bloc_auth;
@@ -154,15 +155,21 @@ class _NewRecordSheetState extends State<NewRecordSheet> {
           0.95,
         ], // Keep snap options for user flexibility
         builder: (context, scrollController) {
-          return Container(
-            decoration: BoxDecoration(
-              color: context.backgroundColor,
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-            ),
-            child: Column(
-              children: [
-                // Scrollable content with optimized layout
-                Expanded(
+          return ClipRRect(
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: context.isDarkMode 
+                      ? Color(0xFF1C1C1E).withOpacity(0.9) 
+                      : context.backgroundColor.withOpacity(0.9),
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+                ),
+                child: Column(
+                  children: [
+                    // Scrollable content with optimized layout
+                    Expanded(
                   child: ListView(
                     controller: scrollController,
                     padding: const EdgeInsets.only(bottom: 16),
@@ -890,7 +897,9 @@ class _NewRecordSheetState extends State<NewRecordSheet> {
                     );
                   },
                 ),
-              ],
+                  ],
+                ),
+              ),
             ),
           );
         },

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:ui';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nicotinaai_flutter/blocs/auth/auth_bloc.dart';
 import 'package:nicotinaai_flutter/blocs/auth/auth_state.dart' as bloc_auth;
@@ -107,11 +108,17 @@ class _RegisterCravingSheetBlocState extends State<RegisterCravingSheetBloc> {
       snap: true,
       snapSizes: const [0.7, 0.85, 0.95],
       builder: (context, scrollController) {
-        return Container(
-          decoration: BoxDecoration(
-            color: context.isDarkMode ? Color(0xFF1C1C1E) : context.backgroundColor,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-          ),
+        return ClipRRect(
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
+            child: Container(
+              decoration: BoxDecoration(
+                color: context.isDarkMode 
+                    ? Color(0xFF1C1C1E).withOpacity(0.9) 
+                    : context.backgroundColor.withOpacity(0.9),
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+              ),
           child: Column(
             children: [
               // Scrollable content with optimized layout
@@ -827,6 +834,8 @@ class _RegisterCravingSheetBlocState extends State<RegisterCravingSheetBloc> {
                 ),
               ),
             ],
+              ),
+            ),
           ),
         );
       },
