@@ -24,6 +24,7 @@ class TrackingState extends Equatable {
   final bool isLogsLoading;
   final bool isCravingsLoading;
   final bool isRecoveriesLoading;
+  final int? lastUpdated; // Timestamp to force state changes
 
   const TrackingState({
     this.status = TrackingStatus.initial,
@@ -37,6 +38,7 @@ class TrackingState extends Equatable {
     this.isLogsLoading = false,
     this.isCravingsLoading = false,
     this.isRecoveriesLoading = false,
+    this.lastUpdated,
   });
 
   // Helper getters
@@ -74,6 +76,7 @@ class TrackingState extends Equatable {
     bool? isLogsLoading,
     bool? isCravingsLoading,
     bool? isRecoveriesLoading,
+    int? lastUpdated,
   }) {
     return TrackingState(
       status: status ?? this.status,
@@ -87,6 +90,7 @@ class TrackingState extends Equatable {
       isLogsLoading: isLogsLoading ?? this.isLogsLoading,
       isCravingsLoading: isCravingsLoading ?? this.isCravingsLoading,
       isRecoveriesLoading: isRecoveriesLoading ?? this.isRecoveriesLoading,
+      lastUpdated: lastUpdated ?? this.lastUpdated,
     );
   }
   
@@ -103,5 +107,6 @@ class TrackingState extends Equatable {
     isLogsLoading,
     isCravingsLoading,
     isRecoveriesLoading,
+    lastUpdated,
   ];
 }

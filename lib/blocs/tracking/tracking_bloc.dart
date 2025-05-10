@@ -236,14 +236,25 @@ class TrackingBloc extends Bloc<TrackingEvent, TrackingState> {
     }
     
     try {
-      // Atualiza os dados no servidor
+      // First emit a loading state to ensure subscribers notice the change
+      emit(state.copyWith(isStatsLoading: true));
+      
+      // First load fresh cravings
+      await _loadCravings(emit, forceRefresh: true);
+      
+      // Now update stats based on fresh cravings
       await _repository.updateUserStats();
       
-      // Carrega as estatísticas atualizadas
+      // Finally load the updated stats
       await _loadUserStats(emit, forceRefresh: true);
       
-      // Também atualiza os cravings, que geralmente mudaram
-      await _loadCravings(emit, forceRefresh: true);
+      // Ensure the state is clearly different when emitted
+      emit(state.copyWith(
+        isStatsLoading: false,
+        // Force a timestamp update to make the state change detectable
+        status: TrackingStatus.loaded,
+        lastUpdated: DateTime.now().millisecondsSinceEpoch
+      ));
       
       if (kDebugMode) {
         print('✅ [TrackingBloc] Stats updated successfully');
@@ -252,6 +263,7 @@ class TrackingBloc extends Bloc<TrackingEvent, TrackingState> {
       if (kDebugMode) {
         print('❌ [TrackingBloc] Error forcing stats update: $e');
       }
+      emit(state.copyWith(isStatsLoading: false));
     }
   }
   

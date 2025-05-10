@@ -319,9 +319,22 @@ class _HomeScreenState extends State<HomeScreen> {
             listeners: [
               // Listener para TrackingBloc
               BlocListener<TrackingBloc, TrackingState>(
+                listenWhen: (previous, current) => 
+                  // Listen specifically for changes in key stats values
+                  previous.userStats?.cravingsResisted != current.userStats?.cravingsResisted || 
+                  previous.userStats?.currentStreakDays != current.userStats?.currentStreakDays ||
+                  previous.userStats?.moneySaved != current.userStats?.moneySaved ||
+                  (previous.userStats?.lastSmokeDate?.millisecondsSinceEpoch ?? 0) != 
+                  (current.userStats?.lastSmokeDate?.millisecondsSinceEpoch ?? 0) ||
+                  // Also listen for changes in loading state or update timestamp
+                  previous.isStatsLoading != current.isStatsLoading ||
+                  previous.lastUpdated != current.lastUpdated,
                 listener: (context, state) {
                   // Atualizar dados locais quando o estado do TrackingBloc mudar
-                  if (state.isLoaded) {
+                  if (state.isLoaded || !state.isStatsLoading) {
+                    if (kDebugMode) {
+                      print('🔄 [HomeScreen] TrackingBloc state changed, reloading data');
+                    }
                     _loadData(state);
                   }
                 },
@@ -521,6 +534,30 @@ class _HomeScreenState extends State<HomeScreen> {
                                           // Force full update of statistics (via BLoC)
                                           final trackingBloc = BlocProvider.of<TrackingBloc>(context);
                                           trackingBloc.add(ForceUpdateStats());
+                                          
+                                          // Force a UI refresh as well
+                                          setState(() {
+                                            _isUpdating = false;
+                                            _lastUpdateTime = null; // Clear update time to force refresh
+                                          });
+                                          
+                                          // Log current stats
+                                          if (kDebugMode) {
+                                            print('🔢 Current cravings resisted: ${trackingBloc.state.cravingsResisted}');
+                                          }
+                                          
+                                          // Wait slightly to let changes propagate
+                                          Future.delayed(const Duration(milliseconds: 500), () {
+                                            // Force data reload directly after a delay
+                                            if (mounted) {
+                                              setState(() {}); // Trigger rebuild
+                                              _loadData(trackingBloc.state);
+                                              
+                                              if (kDebugMode) {
+                                                print('🔢 After refresh - cravings resisted: ${trackingBloc.state.cravingsResisted}');
+                                              }
+                                            }
+                                          });
                                         }
                                       });
                                     },
@@ -546,6 +583,30 @@ class _HomeScreenState extends State<HomeScreen> {
                                           // Forçar atualização completa das estatísticas (via BLoC)
                                           final trackingBloc = BlocProvider.of<TrackingBloc>(context);
                                           trackingBloc.add(ForceUpdateStats());
+                                          
+                                          // Force a UI refresh as well
+                                          setState(() {
+                                            _isUpdating = false;
+                                            _lastUpdateTime = null; // Clear update time to force refresh
+                                          });
+                                          
+                                          // Log current stats
+                                          if (kDebugMode) {
+                                            print('🔢 Current stats before refresh');
+                                          }
+                                          
+                                          // Wait slightly to let changes propagate
+                                          Future.delayed(const Duration(milliseconds: 500), () {
+                                            // Force data reload directly after a delay
+                                            if (mounted) {
+                                              setState(() {}); // Trigger rebuild
+                                              _loadData(trackingBloc.state);
+                                              
+                                              if (kDebugMode) {
+                                                print('🔢 After refresh - stats updated');
+                                              }
+                                            }
+                                          });
                                         }
                                       });
                                     },

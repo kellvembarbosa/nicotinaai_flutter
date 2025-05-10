@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'dart:ui';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nicotinaai_flutter/blocs/auth/auth_bloc.dart';
@@ -1661,15 +1662,30 @@ class _RegisterCravingSheetBlocState extends State<RegisterCravingSheetBloc> {
       }
     }
     
-    // Close the sheet immediately for better UX with success result
-    Navigator.of(context).pop(true);
-    
     try {
       // Use CravingBloc to save the craving
       context.read<CravingBloc>().add(SaveCravingRequested(craving: craving));
       
       // Force update of tracking stats
-      context.read<TrackingBloc>().add(ForceUpdateStats());
+      final trackingBloc = context.read<TrackingBloc>();
+      trackingBloc.add(ForceUpdateStats());
+      
+      if (kDebugMode) {
+        print('💡 [RegisterCravingSheetBloc] Forced stats update after registering craving');
+      }
+      
+      // Get the current state values
+      final currentCravingsResisted = trackingBloc.state.cravingsResisted;
+      
+      if (kDebugMode) {
+        print('🔢 Current cravings resisted: $currentCravingsResisted');
+      }
+      
+      // Wait a moment to let the CravingBloc process the event
+      await Future.delayed(const Duration(milliseconds: 300));
+      
+      // Close the sheet after initiating the update for better UX
+      Navigator.of(context).pop(true);
       
       // Show a success snackbar
       scaffoldMessenger.showSnackBar(
