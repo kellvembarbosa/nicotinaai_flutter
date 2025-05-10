@@ -276,7 +276,7 @@ class CravingBloc extends Bloc<CravingEvent, CravingState> {
   void _updateTrackingStats() {
     if (_trackingBloc != null) {
       // Primeiro dispara o evento otimista de craving adicionado
-      _trackingBloc.add(const CravingAdded());
+      _trackingBloc.add(CravingAdded());
       
       // Em seguida, programa atualização completa com leve atraso para garantir persistência
       Future.delayed(const Duration(milliseconds: 300), () {

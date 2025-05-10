@@ -337,9 +337,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   if (state.isLoaded || !state.isStatsLoading) {
                     if (kDebugMode) {
                       print('🔄 [HomeScreen] TrackingBloc state changed, reloading data');
-                      if (previous.userStats?.cravingsResisted != current.userStats?.cravingsResisted) {
-                        print('📊 [HomeScreen] Cravings resistidos mudaram: ${previous.userStats?.cravingsResisted} -> ${current.userStats?.cravingsResisted}');
-                      }
+                      print('📊 [HomeScreen] Cravings resistidos: ${state.userStats?.cravingsResisted ?? 0}');
                     }
                     _loadData(state);
                   }

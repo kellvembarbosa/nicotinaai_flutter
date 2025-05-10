@@ -66,7 +66,8 @@ class UpdateCraving extends TrackingEvent {
 }
 
 class CravingAdded extends TrackingEvent {
-  const CravingAdded();
+  // Removendo "const" para evitar erro com super constructor
+  CravingAdded();
 }
 
 // Health Recoveries events
