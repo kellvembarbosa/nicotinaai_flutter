@@ -493,22 +493,44 @@ class TrackingBloc extends Bloc<TrackingEvent, TrackingState> {
     }
   }
   
-  /// Handler para o evento CravingAdded - atualização otimista imediata do contador de cravings
+  /// Handler para o evento CravingAdded - atualização otimista imediata de todos os valores relacionados
   Future<void> _onCravingAdded(CravingAdded event, Emitter<TrackingState> emit) async {
     if (kDebugMode) {
       print('🔄 [TrackingBloc] Atualização otimista para craving adicionado');
     }
     
-    // Atualização otimista - incrementa imediatamente o contador de cravings
+    // Atualização otimista - incrementa imediatamente todos os valores relacionados
     final currentStats = state.userStats;
     if (currentStats != null) {
+      // Valores padrão para cálculos em caso de valores faltantes
+      const int defaultPackPriceInCents = 1200; // R$12,00
+      const int defaultCigarettesPerPack = 20;
+      const int defaultCigarettesPerDay = 20;
+      
+      // Calcular o preço por cigarro
+      final double pricePerCigarette = 
+        (currentStats.packPrice ?? defaultPackPriceInCents) / 
+        (currentStats.cigarettesPerPack ?? defaultCigarettesPerPack);
+      
+      // Incrementar valores relevantes
+      final int newCravingsResisted = (currentStats.cravingsResisted ?? 0) + 1;
+      final int newCigarettesAvoided = (currentStats.cigarettesAvoided) + 1;
+      final int newMoneySaved = currentStats.moneySaved + pricePerCigarette.round();
+      
       if (kDebugMode) {
-        print('✅ [TrackingBloc] Incrementando cravings resisted de ${currentStats.cravingsResisted ?? 0} para ${(currentStats.cravingsResisted ?? 0) + 1}');
+        print('✅ [TrackingBloc] Atualizando otimisticamente:');
+        print('  - Cravings resistidos: ${currentStats.cravingsResisted} -> $newCravingsResisted');
+        print('  - Cigarros evitados: ${currentStats.cigarettesAvoided} -> $newCigarettesAvoided');
+        print('  - Economia: ${currentStats.moneySaved} -> $newMoneySaved centavos');
+        print('  - Minutos de vida ganhos: ${currentStats.cigarettesAvoided * 6} -> ${newCigarettesAvoided * 6}');
       }
       
+      // Emitir um novo estado com todos os valores atualizados
       emit(state.copyWith(
         userStats: currentStats.copyWith(
-          cravingsResisted: (currentStats.cravingsResisted ?? 0) + 1
+          cravingsResisted: newCravingsResisted,
+          cigarettesAvoided: newCigarettesAvoided,
+          moneySaved: newMoneySaved
         ),
         lastUpdated: DateTime.now().millisecondsSinceEpoch
       ));
