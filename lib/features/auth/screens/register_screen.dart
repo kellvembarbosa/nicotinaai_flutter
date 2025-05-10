@@ -5,6 +5,7 @@ import 'package:nicotinaai_flutter/blocs/auth/auth_bloc.dart';
 import 'package:nicotinaai_flutter/blocs/auth/auth_event.dart';
 import 'package:nicotinaai_flutter/blocs/auth/auth_state.dart';
 import 'package:nicotinaai_flutter/core/constants/app_constants.dart';
+import 'package:nicotinaai_flutter/core/routes/app_routes.dart';
 import 'package:nicotinaai_flutter/features/auth/screens/login_screen.dart';
 import 'package:nicotinaai_flutter/widgets/app_icon_widget.dart';
 import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
@@ -295,7 +296,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       }
       
       // Dispatch register event
-      context.read<AuthBloc>().add(RegisterRequested(
+      context.read<AuthBloc>().add(SignUpRequested(
         name: _nameController.text.trim(),
         email: _emailController.text.trim(),
         password: _passwordController.text,

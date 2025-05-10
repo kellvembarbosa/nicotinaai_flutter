@@ -14,4 +14,7 @@ class AppConstants {
   
   /// Tamanho mínimo da senha
   static const int minPasswordLength = 8;
+  
+  /// Rota inicial da aplicação após o login
+  static const String initialRoute = '/main';
 }

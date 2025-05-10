@@ -2031,5 +2031,90 @@
   "errorOccurred": "An error occurred",
   "@errorOccurred": {
     "description": "Generic error message displayed when an unknown error occurs"
+  },
+  
+  "pageNotFound": "Page not found",
+  "@pageNotFound": {
+    "description": "Message shown when a page is not found"
+  },
+  
+  "resetLinkSent": "Reset link sent!",
+  "@resetLinkSent": {
+    "description": "Message shown when password reset link is sent"
+  },
+  
+  "checkEmailInstructions": "Check your email for instructions to reset your password.",
+  "@checkEmailInstructions": {
+    "description": "Instructions to check email after password reset request"
+  },
+  
+  "backToLogin": "Back to login",
+  "@backToLogin": {
+    "description": "Button text to go back to login screen"
+  },
+  
+  "forgotPasswordInstructions": "Enter your email address and we'll send you instructions to reset your password.",
+  "@forgotPasswordInstructions": {
+    "description": "Instructions on forgot password screen"
+  },
+  
+  "sendResetLink": "Send reset link",
+  "@sendResetLink": {
+    "description": "Button text to send password reset link"
+  },
+  
+  "createAccount": "Create Account",
+  "@createAccount": {
+    "description": "Title for registration screen"
+  },
+  
+  "fillInformation": "Fill in your information to create an account",
+  "@fillInformation": {
+    "description": "Subtitle for registration screen"
+  },
+  
+  "name": "Name",
+  "@name": {
+    "description": "Label for name field"
+  },
+  
+  "nameRequired": "Please enter your name",
+  "@nameRequired": {
+    "description": "Error message when name is empty"
+  },
+  
+  "passwordTooShort": "Password must be at least 6 characters",
+  "@passwordTooShort": {
+    "description": "Error message when password is too short"
+  },
+  
+  "confirmPassword": "Confirm Password",
+  "@confirmPassword": {
+    "description": "Label for confirm password field"
+  },
+  
+  "confirmPasswordRequired": "Please confirm your password",
+  "@confirmPasswordRequired": {
+    "description": "Error message when confirm password is empty"
+  },
+  
+  "passwordsDoNotMatch": "Passwords do not match",
+  "@passwordsDoNotMatch": {
+    "description": "Error message when passwords don't match"
+  },
+  
+  "termsConditionsAgree": "I agree to the Terms and Conditions",
+  "@termsConditionsAgree": {
+    "description": "Text for terms and conditions agreement checkbox"
+  },
+  
+  "termsConditionsRequired": "Please accept the Terms and Conditions to continue",
+  "@termsConditionsRequired": {
+    "description": "Error message when terms not accepted"
+  },
+  
+  "alreadyAccount": "Already have an account?",
+  "@alreadyAccount": {
+    "description": "Text for users who already have an account"
   }
 }
