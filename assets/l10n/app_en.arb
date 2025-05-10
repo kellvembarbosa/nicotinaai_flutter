@@ -2026,5 +2026,10 @@
   "registerFirstCigarette": "Register your first cigarette to see health recovery",
   "@registerFirstCigarette": {
     "description": "Message prompting users to register their first cigarette to see health recovery data"
+  },
+  
+  "errorOccurred": "An error occurred",
+  "@errorOccurred": {
+    "description": "Generic error message displayed when an unknown error occurs"
   }
 }

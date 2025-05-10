@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import '../providers/achievement_provider.dart';
+import 'package:nicotinaai_flutter/blocs/achievement/achievement_bloc.dart';
+import 'package:nicotinaai_flutter/blocs/achievement/achievement_event.dart';
+import 'package:nicotinaai_flutter/blocs/achievement/achievement_state.dart';
 import '../triggers/achievement_triggers.dart';
 import '../models/user_achievement.dart';
 import '../services/achievement_notification_service.dart';
@@ -27,18 +29,22 @@ class AchievementHelper {
     debugPrint('✅ AchievementHelper: Starting initialization');
     
     try {
-      final achievementProvider = Provider.of<AchievementProvider>(context, listen: false);
+      final achievementBloc = context.read<AchievementBloc>();
+      final achievementState = achievementBloc.state;
       
       // Only load if not already loaded
-      if (achievementProvider.state.status == AchievementStatus.initial) {
-        debugPrint('🔄 AchievementHelper: Loading achievements from provider');
-        await achievementProvider.loadAchievements();
+      if (achievementState.status == AchievementStatus.initial) {
+        debugPrint('🔄 AchievementHelper: Loading achievements from bloc');
+        achievementBloc.add(InitializeAchievements());
+        
+        // Wait a bit for the event to process
+        await Future.delayed(const Duration(milliseconds: 500));
       } else {
         debugPrint('🔄 AchievementHelper: Achievements already loaded, skipping load');
       }
       
       // Create triggers and check for new achievements
-      final triggers = AchievementTriggers(achievementProvider);
+      final triggers = AchievementTriggers(achievementBloc);
       final newAchievements = await triggers.onAppStart();
       
       // Display notifications if needed and context is still valid
@@ -57,8 +63,8 @@ class AchievementHelper {
   
   /// Check for achievements after a smoking record is added or updated
   static Future<void> checkAfterSmokingRecord(BuildContext context) async {
-    final achievementProvider = Provider.of<AchievementProvider>(context, listen: false);
-    final triggers = AchievementTriggers(achievementProvider);
+    final achievementBloc = context.read<AchievementBloc>();
+    final triggers = AchievementTriggers(achievementBloc);
     
     final newAchievements = await triggers.onSmokingRecordChanged();
     _showAchievementNotifications(context, newAchievements);
@@ -66,8 +72,8 @@ class AchievementHelper {
   
   /// Check for achievements after a craving is recorded
   /// Use this method without requiring a BuildContext
-  static Future<void> checkAfterCravingRecorded(AchievementProvider achievementProvider, bool wasResisted) async {
-    final triggers = AchievementTriggers(achievementProvider);
+  static Future<void> checkAfterCravingRecorded(AchievementBloc achievementBloc, bool wasResisted) async {
+    final triggers = AchievementTriggers(achievementBloc);
     
     final newAchievements = await triggers.onCravingRecorded(wasResisted);
     // Return achievements for later handling since we don't have context here
@@ -79,8 +85,8 @@ class AchievementHelper {
   static Future<void> checkAfterCravingRecordedWithNotifications(BuildContext context, bool wasResisted) async {
     if (!context.mounted) return;
     
-    final achievementProvider = Provider.of<AchievementProvider>(context, listen: false);
-    final triggers = AchievementTriggers(achievementProvider);
+    final achievementBloc = context.read<AchievementBloc>();
+    final triggers = AchievementTriggers(achievementBloc);
     
     final newAchievements = await triggers.onCravingRecorded(wasResisted);
     
@@ -91,8 +97,8 @@ class AchievementHelper {
   
   /// Check for achievements after a health recovery is achieved
   static Future<void> checkAfterHealthRecovery(BuildContext context) async {
-    final achievementProvider = Provider.of<AchievementProvider>(context, listen: false);
-    final triggers = AchievementTriggers(achievementProvider);
+    final achievementBloc = context.read<AchievementBloc>();
+    final triggers = AchievementTriggers(achievementBloc);
     
     final newAchievements = await triggers.onHealthRecoveryAchieved();
     _showAchievementNotifications(context, newAchievements);
@@ -100,8 +106,8 @@ class AchievementHelper {
   
   /// Check for achievements on login
   static Future<void> checkOnLogin(BuildContext context) async {
-    final achievementProvider = Provider.of<AchievementProvider>(context, listen: false);
-    final triggers = AchievementTriggers(achievementProvider);
+    final achievementBloc = context.read<AchievementBloc>();
+    final triggers = AchievementTriggers(achievementBloc);
     
     final newAchievements = await triggers.onLogin();
     _showAchievementNotifications(context, newAchievements);
@@ -109,8 +115,8 @@ class AchievementHelper {
   
   /// Perform daily check for time-based achievements
   static Future<void> performDailyCheck(BuildContext context) async {
-    final achievementProvider = Provider.of<AchievementProvider>(context, listen: false);
-    final triggers = AchievementTriggers(achievementProvider);
+    final achievementBloc = context.read<AchievementBloc>();
+    final triggers = AchievementTriggers(achievementBloc);
     
     final newAchievements = await triggers.onDailyCheck();
     _showAchievementNotifications(context, newAchievements);

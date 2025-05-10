@@ -1203,4 +1203,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get registerFirstCigarette => 'Registra tu primer cigarrillo para ver la recuperación de salud';
+
+  @override
+  String get errorOccurred => 'Ocurrió un error';
 }

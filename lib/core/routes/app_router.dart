@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:nicotinaai_flutter/features/auth/models/auth_state.dart';
-import 'package:nicotinaai_flutter/features/auth/providers/auth_provider.dart';
+import 'package:nicotinaai_flutter/blocs/auth/auth_bloc.dart';
+import 'package:nicotinaai_flutter/blocs/onboarding/onboarding_bloc.dart';
+import 'package:nicotinaai_flutter/core/routes/router_refresh_stream.dart';
 import 'package:nicotinaai_flutter/features/auth/screens/forgot_password_screen.dart';
 import 'package:nicotinaai_flutter/features/auth/screens/login_screen.dart';
 import 'package:nicotinaai_flutter/features/auth/screens/register_screen.dart';
@@ -12,9 +13,12 @@ import 'package:nicotinaai_flutter/features/achievements/screens/updated_achieve
 import 'package:nicotinaai_flutter/features/achievements/screens/achievement_detail_screen.dart';
 import 'package:nicotinaai_flutter/features/settings/screens/settings_screen.dart';
 import 'package:nicotinaai_flutter/features/settings/screens/language_selection_screen.dart';
+import 'package:nicotinaai_flutter/features/settings/screens/language_selection_screen_bloc.dart';
 import 'package:nicotinaai_flutter/features/settings/screens/currency_selection_screen.dart';
+import 'package:nicotinaai_flutter/features/settings/screens/currency_selection_screen_bloc.dart';
+import 'package:nicotinaai_flutter/features/settings/screens/theme_selection_screen_bloc.dart';
+import 'package:nicotinaai_flutter/features/settings/screens/developer_mode_screen_bloc.dart';
 import 'package:nicotinaai_flutter/features/onboarding/screens/onboarding_screen.dart';
-import 'package:nicotinaai_flutter/features/onboarding/providers/onboarding_provider.dart';
 import 'package:nicotinaai_flutter/features/tracking/screens/dashboard_screen.dart';
 import 'package:nicotinaai_flutter/features/tracking/screens/statistics_dashboard_screen.dart';
 import 'package:nicotinaai_flutter/features/tracking/screens/add_smoking_log_screen.dart';
@@ -26,17 +30,17 @@ import 'package:nicotinaai_flutter/core/routes/app_routes.dart';
 
 /// Router para configuração de rotas da aplicação com proteção de autenticação
 class AppRouter {
-  final AuthProvider authProvider;
-  final OnboardingProvider onboardingProvider;
+  final AuthBloc authBloc;
+  final OnboardingBloc onboardingBloc;
   
   AppRouter({
-    required this.authProvider,
-    required this.onboardingProvider,
+    required this.authBloc,
+    required this.onboardingBloc,
   });
   
   late final GoRouter router = GoRouter(
     debugLogDiagnostics: true,
-    refreshListenable: authProvider,
+    refreshListenable: RouterRefreshStream(authBloc),
     initialLocation: SplashScreen.routeName,
     redirect: _handleRedirect,
     routes: [
@@ -112,6 +116,24 @@ class AppRouter {
         builder: (context, state) => const CurrencySelectionScreen(),
       ),
       
+      // BLoC screens routes
+      GoRoute(
+        path: AppRoutes.currencyBloc.path,
+        builder: (context, state) => const CurrencySelectionScreenBloc(),
+      ),
+      GoRoute(
+        path: AppRoutes.themeBloc.path,
+        builder: (context, state) => const ThemeSelectionScreenBloc(),
+      ),
+      GoRoute(
+        path: AppRoutes.languageBloc.path,
+        builder: (context, state) => const LanguageSelectionScreenBloc(),
+      ),
+      GoRoute(
+        path: AppRoutes.developerModeBloc.path,
+        builder: (context, state) => const DeveloperModeScreenBloc(),
+      ),
+      
       // Health recovery routes
       GoRoute(
         path: AppRoutes.healthRecovery.path,
@@ -137,6 +159,7 @@ class AppRouter {
           return AchievementDetailScreen(achievementId: achievementId);
         },
       ),
+      
     ],
     errorBuilder: (context, state) => Scaffold(
       body: Center(
@@ -164,8 +187,8 @@ class AppRouter {
       return null;
     }
     
-    final isAuthenticated = authProvider.isAuthenticated;
-    final onboardingCompleted = onboardingProvider.state.isCompleted;
+    final isAuthenticated = authBloc.state.isAuthenticated;
+    final onboardingCompleted = onboardingBloc.state.isCompleted;
     
     // Log detalhado para diagnosticar problemas de redirecionamento
     print('🧭 [AppRouter] Navegação para: $currentLocation - Auth: $isAuthenticated, Onboarding completo: $onboardingCompleted');

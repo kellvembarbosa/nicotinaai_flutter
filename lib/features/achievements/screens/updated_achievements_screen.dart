@@ -1,15 +1,17 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
+import 'package:nicotinaai_flutter/blocs/achievement/achievement_bloc.dart';
+import 'package:nicotinaai_flutter/blocs/achievement/achievement_event.dart';
+import 'package:nicotinaai_flutter/blocs/achievement/achievement_state.dart';
 import 'package:nicotinaai_flutter/core/theme/app_theme.dart';
 import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
 import 'package:flutter/services.dart';
 import 'package:nicotinaai_flutter/core/routes/app_routes.dart';
 
-import '../providers/achievement_provider.dart';
 import '../models/user_achievement.dart';
 import '../models/time_period.dart';
 import '../models/achievement_definition.dart';
@@ -61,22 +63,23 @@ class _AchievementsScreenState extends State<AchievementsScreen> with SingleTick
     
     // Forçar carregamento de achievements quando a tela é aberta, mas com limites
     Future.microtask(() {
-      final provider = context.read<AchievementProvider>();
+      final achievementBloc = context.read<AchievementBloc>();
+      final state = achievementBloc.state;
       
       // Verificar o estado atual
-      if (provider.state.status == AchievementStatus.initial ||
-          provider.state.userAchievements.isEmpty) {
+      if (state.status == AchievementStatus.initial ||
+          state.userAchievements.isEmpty) {
         // Primeira carga - sempre executar
         debugPrint('🔄 [AchievementsScreen] Carregando achievements pela primeira vez');
         _hasLoadedAchievements = true;
-        provider.loadAchievements();
+        achievementBloc.add(InitializeAchievements());
       } else if (!_hasLoadedAchievements && _canReloadAchievements) {
         // Ainda não carregou nesta sessão e passou tempo suficiente
         debugPrint('🔄 [AchievementsScreen] Recarregando achievements após intervalo');
         _hasLoadedAchievements = true;
-        provider.loadAchievements();
+        achievementBloc.add(InitializeAchievements());
       } else {
-        debugPrint('ℹ️ [AchievementsScreen] Usando achievements em cache: ${provider.state.userAchievements.length}');
+        debugPrint('ℹ️ [AchievementsScreen] Usando achievements em cache: ${state.userAchievements.length}');
       }
     });
   }
@@ -99,8 +102,6 @@ class _AchievementsScreenState extends State<AchievementsScreen> with SingleTick
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final achievementProvider = Provider.of<AchievementProvider>(context);
-    final state = achievementProvider.state;
     
     _categories = [
       l10n.achievementCategoryAll,
@@ -110,39 +111,43 @@ class _AchievementsScreenState extends State<AchievementsScreen> with SingleTick
       l10n.achievementCategoryHabits
     ];
     
-    return Scaffold(
-      backgroundColor: context.backgroundColor,
-      body: state.status == AchievementStatus.loading 
-          ? _buildLoadingIndicator()
-          : state.status == AchievementStatus.error
-              ? _buildErrorView(state.errorMessage ?? 'Unknown error')
-              : CustomScrollView(
-                  physics: const BouncingScrollPhysics(),
-                  slivers: [
-                    _buildSliverAppBar(l10n),
-                    SliverToBoxAdapter(
-                      child: Column(
-                        children: [
-                          _buildSummarySection(l10n, state),
-                          const SizedBox(height: 16),
-                          const TimePeriodSelector(),
-                          const SizedBox(height: 16),
-                          _buildTabBar(),
-                        ],
-                      ),
+    return BlocBuilder<AchievementBloc, AchievementState>(
+      builder: (context, state) {
+        return Scaffold(
+          backgroundColor: context.backgroundColor,
+          body: state.status == AchievementStatus.loading 
+              ? _buildLoadingIndicator()
+              : state.status == AchievementStatus.error
+                  ? _buildErrorView(state.errorMessage ?? 'Unknown error')
+                  : CustomScrollView(
+                      physics: const BouncingScrollPhysics(),
+                      slivers: [
+                        _buildSliverAppBar(l10n),
+                        SliverToBoxAdapter(
+                          child: Column(
+                            children: [
+                              _buildSummarySection(l10n, state),
+                              const SizedBox(height: 16),
+                              const TimePeriodSelector(),
+                              const SizedBox(height: 16),
+                              _buildTabBar(),
+                            ],
+                          ),
+                        ),
+                        SliverPadding(
+                          padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+                          sliver: SliverList(
+                            delegate: SliverChildListDelegate([
+                              _buildProgressTracker(l10n, state),
+                              const SizedBox(height: 24),
+                              ..._buildAchievementsList(l10n, state),
+                            ]),
+                          ),
+                        ),
+                      ],
                     ),
-                    SliverPadding(
-                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
-                      sliver: SliverList(
-                        delegate: SliverChildListDelegate([
-                          _buildProgressTracker(l10n, state),
-                          const SizedBox(height: 24),
-                          ..._buildAchievementsList(l10n, state),
-                        ]),
-                      ),
-                    ),
-                  ],
-                ),
+        );
+      },
     );
   }
   
@@ -196,7 +201,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> with SingleTick
             const SizedBox(height: 24),
             ElevatedButton(
               onPressed: () {
-                context.read<AchievementProvider>().loadAchievements();
+                context.read<AchievementBloc>().add(InitializeAchievements());
               },
               child: const Text('Retry'),
             ),
@@ -569,8 +574,9 @@ class _AchievementsScreenState extends State<AchievementsScreen> with SingleTick
       level = 1;
     }
     
-    // Get the current time period filter
-    final timePeriod = Provider.of<AchievementProvider>(context).selectedTimePeriod;
+    // Get the current time period filter from bloc
+    final achievementBloc = context.read<AchievementBloc>();
+    final timePeriod = achievementBloc.state.selectedTimePeriod;
     final bool isFiltered = timePeriod != TimePeriod.allTime;
     
     return Column(
@@ -796,7 +802,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> with SingleTick
                 if (timePeriod != TimePeriod.allTime)
                   TextButton(
                     onPressed: () {
-                      context.read<AchievementProvider>().setTimePeriod(TimePeriod.allTime);
+                      context.read<AchievementBloc>().add(ChangeTimePeriod(TimePeriod.allTime));
                     },
                     child: Text('Show all achievements'),
                   ),

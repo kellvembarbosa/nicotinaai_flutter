@@ -2,21 +2,25 @@ import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:provider/provider.dart';
-import 'package:nicotinaai_flutter/core/theme/app_theme.dart';
-import 'package:nicotinaai_flutter/core/theme/theme_provider.dart';
-import 'package:nicotinaai_flutter/core/theme/theme_switch.dart';
+import 'package:nicotinaai_flutter/blocs/auth/auth_bloc.dart';
+import 'package:nicotinaai_flutter/blocs/auth/auth_state.dart' as bloc_auth;
+import 'package:nicotinaai_flutter/blocs/smoking_record/smoking_record_bloc.dart';
+import 'package:nicotinaai_flutter/blocs/smoking_record/smoking_record_event.dart';
+import 'package:nicotinaai_flutter/blocs/smoking_record/smoking_record_state.dart';
+import 'package:nicotinaai_flutter/blocs/theme/theme_bloc.dart';
+import 'package:nicotinaai_flutter/blocs/theme/theme_state.dart';
+import 'package:nicotinaai_flutter/blocs/tracking/tracking_bloc.dart';
+import 'package:nicotinaai_flutter/blocs/tracking/tracking_event.dart';
+import 'package:nicotinaai_flutter/blocs/tracking/tracking_state.dart';
 import 'package:nicotinaai_flutter/core/routes/app_routes.dart';
-import 'package:nicotinaai_flutter/features/auth/providers/auth_provider.dart';
-import 'package:nicotinaai_flutter/features/home/providers/craving_provider.dart';
-import 'package:nicotinaai_flutter/features/home/providers/smoking_record_provider.dart';
+import 'package:nicotinaai_flutter/core/theme/app_theme.dart';
+import 'package:nicotinaai_flutter/core/theme/theme_switch.dart';
 import 'package:nicotinaai_flutter/features/home/widgets/new_record_sheet.dart';
-import 'package:nicotinaai_flutter/features/home/widgets/register_craving_sheet.dart';
-import 'package:nicotinaai_flutter/features/tracking/models/user_stats.dart';
+import 'package:nicotinaai_flutter/features/home/widgets/register_craving_sheet_bloc.dart';
 import 'package:nicotinaai_flutter/features/tracking/models/health_recovery.dart';
-import 'package:nicotinaai_flutter/features/tracking/providers/tracking_provider.dart';
-import 'package:nicotinaai_flutter/features/tracking/screens/dashboard_screen.dart';
+import 'package:nicotinaai_flutter/features/tracking/models/user_stats.dart';
 import 'package:nicotinaai_flutter/features/tracking/widgets/health_recovery_widget.dart';
 import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
 import 'package:nicotinaai_flutter/utils/currency_utils.dart';
@@ -63,13 +67,31 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    // Evite chamar Provider.of() diretamente em initState
+    // Evite chamar BLoC diretamente em initState
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _loadData();
+      _initializeBlocs();
     });
   }
 
-  void _loadData() {
+  void _initializeBlocs() {
+    final authBloc = BlocProvider.of<AuthBloc>(context);
+    final authState = authBloc.state;
+    
+    if (authState.status == bloc_auth.AuthStatus.authenticated && authState.user != null) {
+      final userId = authState.user!.id;
+      
+      // Solicitar dados de registros de fumo
+      final recordBloc = BlocProvider.of<SmokingRecordBloc>(context);
+      recordBloc.add(LoadSmokingRecordsRequested(userId: userId));
+      
+      // Solicitar dados de estatísticas
+      final trackingBloc = BlocProvider.of<TrackingBloc>(context);
+      trackingBloc.add(LoadUserStats(forceRefresh: true));
+      trackingBloc.add(LoadHealthRecoveries());
+    }
+  }
+
+  void _loadData(TrackingState trackingState) {
     if (!mounted) return;
     
     // Evitar múltiplas chamadas simultâneas
@@ -100,16 +122,14 @@ class _HomeScreenState extends State<HomeScreen> {
     // Atualizar o timestamp da última atualização
     _lastUpdateTime = now;
     
-    final trackingProvider = Provider.of<TrackingProvider>(context, listen: false);
-    
     // Verificar explicitamente se a última data de fumo está atualizada
-    final hasLastSmokeDate = trackingProvider.state.userStats?.lastSmokeDate != null;
+    final hasLastSmokeDate = trackingState.userStats?.lastSmokeDate != null;
     
     if (kDebugMode) {
       if (hasLastSmokeDate) {
-        print('📅 Data do último cigarro no provider: ${trackingProvider.state.userStats!.lastSmokeDate}');
+        print('📅 Data do último cigarro no BLoC: ${trackingState.userStats!.lastSmokeDate}');
       } else {
-        print('⚠️ Data do último cigarro não disponível no provider');
+        print('⚠️ Data do último cigarro não disponível no BLoC');
       }
     }
     
@@ -124,11 +144,10 @@ class _HomeScreenState extends State<HomeScreen> {
       return;
     }
     
-    // Usamos um método simples de get sem força update
     try {
       // Get health recoveries
-      final userRecoveries = trackingProvider.state.userHealthRecoveries;
-      final allRecoveries = trackingProvider.state.healthRecoveries;
+      final userRecoveries = trackingState.userHealthRecoveries;
+      final allRecoveries = trackingState.healthRecoveries;
       
       // Map recovery IDs to their types
       Map<String, String> recoveryTypeMap = {};
@@ -167,10 +186,10 @@ class _HomeScreenState extends State<HomeScreen> {
         }
       }
       
-      // Update state variables from provider
+      // Update state variables from BLoC state
       if (mounted) {
-        // Obter estatísticas atualizadas diretamente do provider
-        final updatedStats = trackingProvider.state.userStats;
+        // Obter estatísticas atualizadas diretamente do BLoC state
+        final updatedStats = trackingState.userStats;
         final updatedCravingsResisted = updatedStats?.cravingsResisted ?? 0;
         final updatedDaysWithoutSmoking = updatedStats?.currentStreakDays ?? 0;
         final updatedMoneySaved = updatedStats?.moneySaved ?? 0;
@@ -224,8 +243,8 @@ class _HomeScreenState extends State<HomeScreen> {
     if (!mounted) return;
     
     // Se o usuário não tem dias sem fumar ou estatísticas, não tentamos carregar o próximo milestone
-    final trackingProvider = Provider.of<TrackingProvider>(context, listen: false);
-    final hasLastSmokeDate = trackingProvider.state.userStats?.lastSmokeDate != null;
+    final trackingBloc = BlocProvider.of<TrackingBloc>(context);
+    final hasLastSmokeDate = trackingBloc.state.userStats?.lastSmokeDate != null;
     
     if (!hasLastSmokeDate || _daysWithoutSmoking <= 0) {
       if (kDebugMode) {
@@ -254,426 +273,447 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // Nada aqui para evitar problemas com Provider durante o build
+    // Nada aqui para evitar problemas durante o build
   }
   
   @override
   Widget build(BuildContext context) {
-    final authProvider = Provider.of<AuthProvider>(context);
-    final user = authProvider.currentUser;
-    final l10n = AppLocalizations.of(context);
-    
-    // Use Selector em vez de Consumer para observar apenas mudanças específicas
-    // e evitar reconstruções e atualizações desnecessárias
-    return Selector<TrackingProvider, Map<String, dynamic>>(
-      // Seleciona apenas os dados específicos que interessam para esta tela
-      selector: (_, provider) => {
-        'userStats': provider.state.userStats,
-        'isLoaded': provider.state.isLoaded,
-        'healthRecoveriesCount': provider.state.userHealthRecoveries.length,
-        'cravingsResisted': provider.state.userStats?.cravingsResisted ?? 0,
-        'daysWithoutSmoking': provider.state.userStats?.currentStreakDays ?? 0,
-        'moneySaved': provider.state.userStats?.moneySaved ?? 0,
-        'lastSmokeDate': provider.state.userStats?.lastSmokeDate?.millisecondsSinceEpoch ?? 0,
-      },
-      // Só reconstrua se algo relevante mudar
-      builder: (_, data, child) {
-        // Verifica se passaram pelo menos 5 segundos desde a última atualização
-        bool canUpdate = true;
-        if (_lastUpdateTime != null) {
-          final timeSinceLastUpdate = DateTime.now().difference(_lastUpdateTime!);
-          canUpdate = timeSinceLastUpdate.inSeconds >= 5;
-        }
-        
-        // Detecta eventos reais de mudança para atualizar
-        final bool shouldUpdate = data['isLoaded'] && canUpdate && (
-          _stats?.cravingsResisted != data['cravingsResisted'] || 
-          _stats?.currentStreakDays != data['daysWithoutSmoking'] ||
-          _stats?.moneySaved != data['moneySaved'] ||
-          (_stats?.lastSmokeDate?.millisecondsSinceEpoch ?? 0) != data['lastSmokeDate'] ||
-          (_userRecoveryIds.isEmpty && data['healthRecoveriesCount'] > 0)
-        );
-        
-        // Atualiza apenas quando há mudanças reais nos dados
-        if (shouldUpdate && !_isUpdating) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (mounted && !_isUpdating) {
-              if (kDebugMode) {
-                print('🔄 Atualizando dados devido a mudanças reais nos dados');
-              }
-              _loadData();
-            }
-          });
-        }
-        
-        return child!;
-      },
-      child: Scaffold(
-      backgroundColor: context.backgroundColor,
-      appBar: AppBar(
-        title: Text(
-          l10n.appName,
-          style: context.titleStyle,
-        ),
-        backgroundColor: context.backgroundColor,
-        elevation: 0,
-        actions: const [
-          ThemeSwitch(useIcons: true),
-          SizedBox(width: 8),
-        ],
-      ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Cabeçalho com saudação e contador de dias
-              Padding(
-                padding: const EdgeInsets.fromLTRB(20, 20, 20, 10),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          l10n.homeGreeting(user?.name?.split(' ')[0] ?? 'Usuário'),
-                          style: context.headlineStyle,
-                        ),
-                        const SizedBox(height: 4),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              l10n.homeDaysWithoutSmoking(_daysWithoutSmoking),
-                              style: context.subtitleStyle,
-                            ),
-                            if (_stats?.lastSmokeDate != null)
-                              Text(
-                                'Último: ${_formatLastSmokeDate(_stats!.lastSmokeDate!)}',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: context.subtitleColor.withOpacity(0.8),
-                                ),
-                              ),
-                          ],
-                        ),
-                      ],
-                    ),
-                    CircleAvatar(
-                      radius: 26,
-                      backgroundColor: context.primaryColor.withOpacity(0.2),
-                      child: Text(
-                        user?.name?.substring(0, 1).toUpperCase() ?? 'U',
-                        style: TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                          color: context.primaryColor,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              
-              // Estatísticas diárias
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      l10n.homeTodayStats,
-                      style: context.titleStyle,
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        // Navigate to statistics dashboard
-                        context.go(AppRoutes.statisticsDashboard.path);
-                      },
-                      style: TextButton.styleFrom(
-                        foregroundColor: context.primaryColor,
-                      ),
-                      child: Text(
-                        'View All',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              
-              const SizedBox(height: 16),
-              
-              // Cards de estatísticas diárias
-              Padding(
-                padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: _buildDailyStatCard(
-                        context,
-                        '$_cravingsResisted',
-                        l10n.homeCravingsResisted,
-                        Colors.orange,
-                        Icons.smoke_free,
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: _buildDailyStatCard(
-                        context,
-                        _dailyMinutesGained > 0 ? '$_dailyMinutesGained min' : '0',
-                        l10n.homeMinutesGainedToday,
-                        Colors.teal,
-                        Icons.favorite,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              
-              // Botões de registro
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: _buildActionButton(
-                        context,
-                        l10n.registerCraving,
-                        l10n.registerCravingSubtitle,
-                        Colors.redAccent,
-                        Icons.air,
-                        () {
-                          RegisterCravingSheet.show(context).then((registered) {
-                            // Só atualiza se um craving foi realmente registrado
-                            if (registered) {
-                              if (kDebugMode) {
-                                print("🔄 Atualizando após registrar craving");
-                              }
-                              // Trigger immediate update
-                              _loadData();
-                            }
-                          });
-                        },
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: _buildActionButton(
-                        context,
-                        l10n.newRecord,
-                        l10n.newRecordSubtitle,
-                        Colors.blueAccent,
-                        Icons.smoking_rooms,
-                        () {
-                          NewRecordSheet.show(context).then((registered) {
-                            // Só atualiza se um record foi realmente registrado
-                            if (registered) {
-                              if (kDebugMode) {
-                                print("🔄 Atualizando após registrar cigarro");
-                              }
-                              // Resetar o flag de atualização para permitir nova atualização
-                              setState(() {
-                                _isUpdating = false;
-                              });
-                              
-                              // Forçar atualização completa das estatísticas para atualizar última data de fumo
-                              final trackingProvider = Provider.of<TrackingProvider>(context, listen: false);
-                              trackingProvider.refreshUserStats().then((_) {
-                                // Depois de atualizar as estatísticas, carregar todos os dados na UI
-                                if (mounted) {
-                                  _loadData();
-                                }
-                              });
-                            }
-                          });
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              
-              // Health Recovery Section
-              Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          l10n.healthRecovery,
-                          style: context.titleStyle,
-                        ),
-                        TextButton(
-                          onPressed: () {
-                            // Navigate to health recovery screen
-                            context.push(AppRoutes.healthRecovery.path);
-                          },
-                          child: Text(
-                            l10n.seeAll,
-                            style: TextStyle(
-                              fontWeight: FontWeight.w600,
-                              color: context.primaryColor,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  
-                  // Health Recovery Widget ou Placeholder
-                  Consumer<TrackingProvider>(
-                    builder: (context, trackingProvider, _) {
-                      final hasLastSmokeDate = trackingProvider.state.userStats?.lastSmokeDate != null;
-                      
-                      // Se não tem data do último cigarro, mostramos um widget de placeholder
-                      if (!hasLastSmokeDate) {
-                        return _buildHealthRecoveryPlaceholder(context, l10n);
-                      }
-                      
-                      // Se tem data, mostramos o widget normal
-                      return HealthRecoveryWidget(
-                        showAllRecoveries: false,
-                        autoRefresh: true,
-                        showHeader: false,
-                        onRecoveryTap: (recovery, isAchieved) {
-                          if (recovery.id == 'all') {
-                            context.push(AppRoutes.healthRecovery.path);
-                          } else {
-                            context.push(AppRoutes.healthRecoveryDetail.withParams(
-                              params: {'recoveryId': recovery.id},
-                            ));
-                          }
-                        },
-                      );
-                    },
-                  ),
-                ],
-              ),
-              
-              const SizedBox(height: 24),
-              
-              // Cards de estatísticas
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: _buildStatisticCard(
-                        context,
-                        '$_minutesLifeGained',
-                        l10n.homeMinutesLifeGained,
-                        Colors.green,
-                        Icons.access_time,
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: _buildStatisticCard(
-                        context,
-                        '$_breathCapacityPercent%',
-                        l10n.homeLungCapacity,
-                        Colors.blue,
-                        Icons.air,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              
-              const SizedBox(height: 16),
-              
-              // Money saved card
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: _buildMoneyStatisticCard(
-                  context,
-                  _moneySavedInCents,
-                  l10n.savingsCalculator,
-                  Colors.amber,
-                  Icons.savings,
-                  user,
-                ),
-              ),
-              
-              const SizedBox(height: 24),
-              
-              // Próximo marco - só exibir se temos dias sem fumar
-              if (_stats?.lastSmokeDate != null)
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: context.isDarkMode 
-                      ? _buildGlassMorphicNextMilestone(context, l10n)
-                      : _buildNextMilestone(context, l10n),
-                ),
-              
-              const SizedBox(height: 24),
-              
-              // Conquistas recentes
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      l10n.homeRecentAchievements,
-                      style: context.titleStyle,
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        // Navigate to achievements screen
-                        context.go(AppRoutes.achievements.path);
-                      },
-                      style: TextButton.styleFrom(
-                        foregroundColor: context.primaryColor,
-                      ),
-                      child: Text(
-                        l10n.homeSeeAll,
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              
-              const SizedBox(height: 12),
-              
-              // Cards de conquistas
-              Consumer<TrackingProvider>(
-                builder: (context, trackingProvider, _) {
-                  // Verifica se o provider está carregado e temos conquistas
-                  bool hasRecoveries = trackingProvider.state.isLoaded && 
-                    trackingProvider.state.userHealthRecoveries.isNotEmpty;
-                    
-                  return hasRecoveries
-                      // Mostrar conquistas reais do usuário quando disponíveis
-                      ? SizedBox(
-                          height: 140,
-                          child: ListView(
-                            scrollDirection: Axis.horizontal,
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            children: _buildRecentAchievements(context, l10n),
-                          ),
-                        )
-                      // Mostrar card motivacional quando não temos conquistas ou estamos carregando
-                      : _buildMotivationalCard(context, l10n);
+    // Obter dados do usuário do AuthBloc
+    return BlocBuilder<AuthBloc, bloc_auth.AuthState>(
+      builder: (context, authState) {
+        if (authState.status == bloc_auth.AuthStatus.authenticated && authState.user != null) {
+          final user = authState.user!;
+          final l10n = AppLocalizations.of(context);
+          
+          // Usar BlocListener para reagir a mudanças de estado
+          return MultiBlocListener(
+            listeners: [
+              // Listener para TrackingBloc
+              BlocListener<TrackingBloc, TrackingState>(
+                listener: (context, state) {
+                  // Atualizar dados locais quando o estado do TrackingBloc mudar
+                  if (state.isLoaded) {
+                    _loadData(state);
+                  }
                 },
               ),
-              
-              const SizedBox(height: 24),
+              // Listener para SmokingRecordBloc
+              BlocListener<SmokingRecordBloc, SmokingRecordState>(
+                listener: (context, state) {
+                  // Reagir a mudanças no estado do SmokingRecordBloc
+                  if (state.status == SmokingRecordStatus.loaded) {
+                    // Quando um novo registro for salvo, atualize os dados de tracking
+                    if (state.records.isNotEmpty) {
+                      final trackingBloc = BlocProvider.of<TrackingBloc>(context);
+                      trackingBloc.add(ForceUpdateStats());
+                    }
+                  }
+                },
+              ),
             ],
+            child: BlocBuilder<TrackingBloc, TrackingState>(
+              builder: (context, trackingState) {
+                // Verifica se passaram pelo menos 5 segundos desde a última atualização
+                bool canUpdate = true;
+                if (_lastUpdateTime != null) {
+                  final timeSinceLastUpdate = DateTime.now().difference(_lastUpdateTime!);
+                  canUpdate = timeSinceLastUpdate.inSeconds >= 5;
+                }
+                
+                // Detecta eventos reais de mudança para atualizar
+                final bool shouldUpdate = trackingState.isLoaded && canUpdate && (
+                  _stats?.cravingsResisted != trackingState.userStats?.cravingsResisted || 
+                  _stats?.currentStreakDays != trackingState.userStats?.currentStreakDays ||
+                  _stats?.moneySaved != trackingState.userStats?.moneySaved ||
+                  (_stats?.lastSmokeDate?.millisecondsSinceEpoch ?? 0) != (trackingState.userStats?.lastSmokeDate?.millisecondsSinceEpoch ?? 0) ||
+                  (_userRecoveryIds.isEmpty && trackingState.userHealthRecoveries.isNotEmpty)
+                );
+                
+                // Atualiza apenas quando há mudanças reais nos dados
+                if (shouldUpdate && !_isUpdating) {
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    if (mounted && !_isUpdating) {
+                      if (kDebugMode) {
+                        print('🔄 Atualizando dados devido a mudanças reais nos dados');
+                      }
+                      _loadData(trackingState);
+                    }
+                  });
+                }
+                
+                return Scaffold(
+                  backgroundColor: context.backgroundColor,
+                  appBar: AppBar(
+                    title: Text(
+                      l10n.appName,
+                      style: context.titleStyle,
+                    ),
+                    backgroundColor: context.backgroundColor,
+                    elevation: 0,
+                    actions: const [
+                      ThemeSwitch(useIcons: true),
+                      SizedBox(width: 8),
+                    ],
+                  ),
+                  body: SafeArea(
+                    child: SingleChildScrollView(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Cabeçalho com saudação e contador de dias
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(20, 20, 20, 10),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      l10n.homeGreeting(user.name?.split(' ')[0] ?? 'Usuário'),
+                                      style: context.headlineStyle,
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          l10n.homeDaysWithoutSmoking(_daysWithoutSmoking),
+                                          style: context.subtitleStyle,
+                                        ),
+                                        if (_stats?.lastSmokeDate != null)
+                                          Text(
+                                            'Último: ${_formatLastSmokeDate(_stats!.lastSmokeDate!)}',
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              color: context.subtitleColor.withOpacity(0.8),
+                                            ),
+                                          ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                                CircleAvatar(
+                                  radius: 26,
+                                  backgroundColor: context.primaryColor.withOpacity(0.2),
+                                  child: Text(
+                                    user.name?.substring(0, 1).toUpperCase() ?? 'U',
+                                    style: TextStyle(
+                                      fontSize: 22,
+                                      fontWeight: FontWeight.bold,
+                                      color: context.primaryColor,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          
+                          // Estatísticas diárias
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  l10n.homeTodayStats,
+                                  style: context.titleStyle,
+                                ),
+                                TextButton(
+                                  onPressed: () {
+                                    // Navigate to statistics dashboard
+                                    context.go(AppRoutes.statisticsDashboard.path);
+                                  },
+                                  style: TextButton.styleFrom(
+                                    foregroundColor: context.primaryColor,
+                                  ),
+                                  child: const Text(
+                                    'View All',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          
+                          const SizedBox(height: 16),
+                          
+                          // Cards de estatísticas diárias
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: _buildDailyStatCard(
+                                    context,
+                                    '$_cravingsResisted',
+                                    l10n.homeCravingsResisted,
+                                    Colors.orange,
+                                    Icons.smoke_free,
+                                  ),
+                                ),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: _buildDailyStatCard(
+                                    context,
+                                    _dailyMinutesGained > 0 ? '$_dailyMinutesGained min' : '0',
+                                    l10n.homeMinutesGainedToday,
+                                    Colors.teal,
+                                    Icons.favorite,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          
+                          // Botões de registro
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: _buildActionButton(
+                                    context,
+                                    l10n.registerCraving,
+                                    l10n.registerCravingSubtitle,
+                                    Colors.redAccent,
+                                    Icons.air,
+                                    () {
+                                      // Use the BLoC version of RegisterCravingSheet
+                                      RegisterCravingSheetBloc.show(context).then((registered) {
+                                        // Only update if a craving was actually registered
+                                        if (registered) {
+                                          if (kDebugMode) {
+                                            print("🔄 Updating after registering craving with BLoC");
+                                          }
+                                          
+                                          // Force full update of statistics (via BLoC)
+                                          final trackingBloc = BlocProvider.of<TrackingBloc>(context);
+                                          trackingBloc.add(ForceUpdateStats());
+                                        }
+                                      });
+                                    },
+                                  ),
+                                ),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: _buildActionButton(
+                                    context,
+                                    l10n.newRecord,
+                                    l10n.newRecordSubtitle,
+                                    Colors.blueAccent,
+                                    Icons.smoking_rooms,
+                                    () {
+                                      // Usar a versão BLoC da sheet
+                                      NewRecordSheet.show(context).then((registered) {
+                                        // Só atualiza se um record foi realmente registrado
+                                        if (registered) {
+                                          if (kDebugMode) {
+                                            print("🔄 Atualizando após registrar cigarro com BLoC");
+                                          }
+                                          
+                                          // Forçar atualização completa das estatísticas (via BLoC)
+                                          final trackingBloc = BlocProvider.of<TrackingBloc>(context);
+                                          trackingBloc.add(ForceUpdateStats());
+                                        }
+                                      });
+                                    },
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          
+                          // Health Recovery Section
+                          Column(
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      l10n.healthRecovery,
+                                      style: context.titleStyle,
+                                    ),
+                                    TextButton(
+                                      onPressed: () {
+                                        // Navigate to health recovery screen
+                                        context.push(AppRoutes.healthRecovery.path);
+                                      },
+                                      child: Text(
+                                        l10n.seeAll,
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                          color: context.primaryColor,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              
+                              // Health Recovery Widget or Placeholder
+                              BlocBuilder<TrackingBloc, TrackingState>(
+                                builder: (context, state) {
+                                  final hasLastSmokeDate = state.userStats?.lastSmokeDate != null;
+                                  
+                                  // Se não tem data do último cigarro, mostramos um widget de placeholder
+                                  if (!hasLastSmokeDate) {
+                                    return _buildHealthRecoveryPlaceholder(context, l10n);
+                                  }
+                                  
+                                  // Se tem data, mostramos o widget normal
+                                  return HealthRecoveryWidget(
+                                    showAllRecoveries: false,
+                                    autoRefresh: true,
+                                    showHeader: false,
+                                    onRecoveryTap: (recovery, isAchieved) {
+                                      if (recovery.id == 'all') {
+                                        context.push(AppRoutes.healthRecovery.path);
+                                      } else {
+                                        context.push(AppRoutes.healthRecoveryDetail.withParams(
+                                          params: {'recoveryId': recovery.id},
+                                        ));
+                                      }
+                                    },
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
+                          
+                          const SizedBox(height: 24),
+                          
+                          // Cards de estatísticas
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: _buildStatisticCard(
+                                    context,
+                                    '$_minutesLifeGained',
+                                    l10n.homeMinutesLifeGained,
+                                    Colors.green,
+                                    Icons.access_time,
+                                  ),
+                                ),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: _buildStatisticCard(
+                                    context,
+                                    '$_breathCapacityPercent%',
+                                    l10n.homeLungCapacity,
+                                    Colors.blue,
+                                    Icons.air,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          
+                          const SizedBox(height: 16),
+                          
+                          // Money saved card
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            child: _buildMoneyStatisticCard(
+                              context,
+                              _moneySavedInCents,
+                              l10n.savingsCalculator,
+                              Colors.amber,
+                              Icons.savings,
+                              user,
+                            ),
+                          ),
+                          
+                          const SizedBox(height: 24),
+                          
+                          // Next milestone - only show if we have days without smoking
+                          if (_stats?.lastSmokeDate != null)
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 20),
+                              child: context.isDarkMode 
+                                  ? _buildGlassMorphicNextMilestone(context, l10n)
+                                  : _buildNextMilestone(context, l10n),
+                            ),
+                          
+                          const SizedBox(height: 24),
+                          
+                          // Recent achievements
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  l10n.homeRecentAchievements,
+                                  style: context.titleStyle,
+                                ),
+                                TextButton(
+                                  onPressed: () {
+                                    // Navigate to achievements screen
+                                    context.go(AppRoutes.achievements.path);
+                                  },
+                                  style: TextButton.styleFrom(
+                                    foregroundColor: context.primaryColor,
+                                  ),
+                                  child: Text(
+                                    l10n.homeSeeAll,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          
+                          const SizedBox(height: 12),
+                          
+                          // Achievement cards
+                          BlocBuilder<TrackingBloc, TrackingState>(
+                            builder: (context, state) {
+                              // Check if BLoC is loaded and we have achievements
+                              bool hasRecoveries = state.isLoaded && 
+                                state.userHealthRecoveries.isNotEmpty;
+                                
+                              return hasRecoveries
+                                  // Show real user achievements when available
+                                  ? SizedBox(
+                                      height: 140,
+                                      child: ListView(
+                                        scrollDirection: Axis.horizontal,
+                                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                                        children: _buildRecentAchievements(context, l10n),
+                                      ),
+                                    )
+                                  // Show motivational card when we don't have achievements or we're loading
+                                  : _buildMotivationalCard(context, l10n);
+                            },
+                          ),
+                          
+                          const SizedBox(height: 24),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+          );
+        }
+        
+        // Fallback for non-authenticated state
+        return const Scaffold(
+          body: Center(
+            child: CircularProgressIndicator(),
           ),
-        ),
-      ),
-    ),
+        );
+      },
     );
   }
   
@@ -925,6 +965,7 @@ class _HomeScreenState extends State<HomeScreen> {
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min, // Keep the column as small as possible
         children: [
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -941,23 +982,28 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 8), // Reduced spacing
           Text(
             title,
             style: context.textTheme.titleMedium!.copyWith(
               fontWeight: FontWeight.bold,
               color: context.contentColor,
-              fontSize: 16,
+              fontSize: 15, // Slightly smaller font
             ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            description,
-            style: context.textTheme.bodySmall!.copyWith(
-              color: context.subtitleColor,
-            ),
-            maxLines: 2,
+            maxLines: 1, // Limit to 1 line
             overflow: TextOverflow.ellipsis,
+          ),
+          const SizedBox(height: 2), // Reduced spacing
+          Flexible(
+            child: Text(
+              description,
+              style: context.textTheme.bodySmall!.copyWith(
+                color: context.subtitleColor,
+                fontSize: 11, // Smaller font size
+              ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
         ],
       ),
@@ -1001,7 +1047,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               const Spacer(),
-              Icon(
+              const Icon(
                 Icons.arrow_upward,
                 color: Colors.green,
                 size: 16,
@@ -1113,40 +1159,40 @@ class _HomeScreenState extends State<HomeScreen> {
     return "$percentage%";
   }
   
-  // Formata a data do último cigarro de forma legível
+  // Format the date of the last cigarette in a readable way
   String _formatLastSmokeDate(DateTime date) {
-    // Hoje
+    // Today
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     
-    // Data do último cigarro sem horário
+    // Last cigarette date without time
     final smokeDate = DateTime(date.year, date.month, date.day);
     
-    // Diferença em dias
+    // Difference in days
     final difference = today.difference(smokeDate).inDays;
     
     if (difference == 0) {
-      // Se for hoje, mostrar "Hoje às HH:MM"
+      // If today, show "Today at HH:MM"
       return 'Hoje às ${_formatTime(date)}';
     } else if (difference == 1) {
-      // Se for ontem
+      // If yesterday
       return 'Ontem às ${_formatTime(date)}';
     } else if (difference < 7) {
-      // Se for nos últimos 7 dias, mostrar o dia da semana
+      // If in the last 7 days, show the day of the week
       final weekday = _getDayOfWeek(date.weekday);
       return '$weekday às ${_formatTime(date)}';
     } else {
-      // Formato completo para datas mais antigas
+      // Complete format for older dates
       return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year} às ${_formatTime(date)}';
     }
   }
   
-  // Formata hora e minuto
+  // Format time
   String _formatTime(DateTime date) {
     return '${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
   }
   
-  // Retorna o nome do dia da semana
+  // Return the name of the day of the week
   String _getDayOfWeek(int weekday) {
     switch (weekday) {
       case 1: return 'Segunda';
@@ -1160,7 +1206,7 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
   
-  // Constrói um card motivacional quando não há conquistas
+  // Build a motivational card when there are no achievements
   Widget _buildMotivationalCard(BuildContext context, AppLocalizations l10n) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -1231,8 +1277,8 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
   
-  // Constrói uma lista de conquistas reais baseadas nos recoveries do usuário
-  /// Widget placeholder para recuperação de saúde quando o usuário ainda não tem dados
+  // Builds a list of real achievements based on the user's health recoveries
+  /// Health recovery placeholder widget when the user doesn't have data yet
   Widget _buildHealthRecoveryPlaceholder(BuildContext context, AppLocalizations l10n) {
     return SizedBox(
       height: 140,
@@ -1243,7 +1289,7 @@ class _HomeScreenState extends State<HomeScreen> {
         itemBuilder: (context, index) {
           return Container(
             width: 110,
-            margin: EdgeInsets.only(right: 12, bottom: 8),
+            margin: const EdgeInsets.only(right: 12, bottom: 8),
             decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.surface,
               borderRadius: BorderRadius.circular(16),
@@ -1251,7 +1297,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 BoxShadow(
                   color: Colors.black.withOpacity(0.05),
                   blurRadius: 8,
-                  offset: Offset(0, 2),
+                  offset: const Offset(0, 2),
                 ),
               ],
             ),
@@ -1272,7 +1318,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     size: 24,
                   ),
                 ),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 8),
                   child: Text(
@@ -1308,21 +1354,21 @@ class _HomeScreenState extends State<HomeScreen> {
   
   List<Widget> _buildRecentAchievements(BuildContext context, AppLocalizations l10n) {
     final achievements = <Widget>[];
-    final trackingProvider = Provider.of<TrackingProvider>(context, listen: false);
-    final userRecoveries = trackingProvider.state.userHealthRecoveries;
-    final allRecoveries = trackingProvider.state.healthRecoveries;
+    final trackingBloc = BlocProvider.of<TrackingBloc>(context);
+    final userRecoveries = trackingBloc.state.userHealthRecoveries;
+    final allRecoveries = trackingBloc.state.healthRecoveries;
     
-    // Map para armazenar detalhes dos recoveries pelo ID
+    // Map to store recovery details by ID
     Map<String, HealthRecovery> recoveryDetailsMap = {};
     for (var recovery in allRecoveries) {
       recoveryDetailsMap[recovery.id] = recovery;
     }
     
-    // Lista de conquistas baseadas nos health recoveries do usuário
+    // List of achievements based on the user's health recoveries
     for (var userRecovery in userRecoveries) {
       final recoveryDetails = recoveryDetailsMap[userRecovery.recoveryId];
       if (recoveryDetails != null) {
-        // Determinar cor baseada no tipo de recovery
+        // Determine color based on recovery type
         Color cardColor = context.primaryColor;
         if (recoveryDetails.name.toLowerCase().contains('taste')) {
           cardColor = Colors.purple;
@@ -1337,7 +1383,7 @@ class _HomeScreenState extends State<HomeScreen> {
           cardColor = Colors.pink;
         }
         
-        // Criar card de conquista
+        // Create achievement card
         achievements.add(
           _buildAchievementCard(
             context,
@@ -1350,7 +1396,7 @@ class _HomeScreenState extends State<HomeScreen> {
       }
     }
     
-    // Lista de conquistas básicas baseadas nos dias sem fumar
+    // List of basic achievements based on days without smoking
     if (_daysWithoutSmoking >= 1) {
       achievements.add(
         _buildAchievementCard(
@@ -1387,7 +1433,7 @@ class _HomeScreenState extends State<HomeScreen> {
       );
     }
     
-    // Conquistas de economia baseadas no dinheiro economizado
+    // Savings achievements based on money saved
     if (_moneySavedInCents >= 2500) {
       achievements.add(
         _buildAchievementCard(
@@ -1400,7 +1446,7 @@ class _HomeScreenState extends State<HomeScreen> {
       );
     }
     
-    // Se não houver conquistas específicas, adicione no mínimo uma mensagem motivacional
+    // If there are no specific achievements, add at least one motivational message
     if (achievements.isEmpty) {
       achievements.add(
         _buildAchievementCard(
@@ -1462,7 +1508,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               const Spacer(),
               if (_daysWithoutSmoking > 0) ...[
-                Icon(
+                const Icon(
                   Icons.arrow_upward,
                   color: Colors.green,
                   size: 16,

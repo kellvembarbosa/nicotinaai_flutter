@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nicotinaai_flutter/core/theme/app_theme.dart';
 import 'package:nicotinaai_flutter/features/achievements/screens/updated_achievements_screen.dart';
 import 'package:nicotinaai_flutter/features/achievements/helpers/achievement_helper.dart';
 import 'package:nicotinaai_flutter/features/home/screens/home_screen.dart';
 import 'package:nicotinaai_flutter/features/settings/screens/settings_screen.dart';
 import 'package:nicotinaai_flutter/features/tracking/screens/dashboard_screen.dart';
-import 'package:provider/provider.dart';
-import 'package:nicotinaai_flutter/features/auth/providers/auth_provider.dart';
+import 'package:nicotinaai_flutter/blocs/auth/auth_bloc.dart';
+import 'package:nicotinaai_flutter/blocs/auth/auth_state.dart';
 import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
 
 /// MainScreen with tab navigation
@@ -55,8 +56,8 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final authProvider = Provider.of<AuthProvider>(context);
-    final userName = authProvider.currentUser?.name ?? 'User';
+    final authState = context.watch<AuthBloc>().state;
+    final userName = authState.user?.name ?? 'User';
     
     return Scaffold(
       body: IndexedStack(

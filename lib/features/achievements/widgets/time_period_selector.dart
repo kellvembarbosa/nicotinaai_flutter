@@ -1,52 +1,57 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:nicotinaai_flutter/blocs/achievement/achievement_bloc.dart';
+import 'package:nicotinaai_flutter/blocs/achievement/achievement_event.dart';
+import 'package:nicotinaai_flutter/blocs/achievement/achievement_state.dart';
 import 'package:nicotinaai_flutter/core/theme/app_theme.dart';
-import 'package:provider/provider.dart';
 
 import '../models/time_period.dart';
-import '../providers/achievement_provider.dart';
 
 class TimePeriodSelector extends StatelessWidget {
   const TimePeriodSelector({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final achievementProvider = Provider.of<AchievementProvider>(context);
-    final selectedPeriod = achievementProvider.selectedTimePeriod;
-    
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: BoxDecoration(
-        color: context.cardColor,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: context.borderColor),
-        boxShadow: context.isDarkMode 
-            ? null 
-            : [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  blurRadius: 8,
-                  offset: const Offset(0, 3),
-                ),
-              ],
-      ),
-      child: Row(
-        children: [
-          _buildLabel(context),
-          const SizedBox(width: 12),
-          Expanded(
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                children: TimePeriod.values.map((period) => 
-                  _buildPeriodOption(context, period, period == selectedPeriod)
-                ).toList(),
-              ),
-            ),
+    return BlocBuilder<AchievementBloc, AchievementState>(
+      builder: (context, state) {
+        final selectedPeriod = state.selectedTimePeriod;
+        
+        return Container(
+          margin: const EdgeInsets.symmetric(horizontal: 16),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: BoxDecoration(
+            color: context.cardColor,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: context.borderColor),
+            boxShadow: context.isDarkMode 
+                ? null 
+                : [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 8,
+                      offset: const Offset(0, 3),
+                    ),
+                  ],
           ),
-        ],
-      ),
+          child: Row(
+            children: [
+              _buildLabel(context),
+              const SizedBox(width: 12),
+              Expanded(
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: TimePeriod.values.map((period) => 
+                      _buildPeriodOption(context, period, period == selectedPeriod)
+                    ).toList(),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
   
@@ -100,7 +105,7 @@ class TimePeriodSelector extends StatelessWidget {
         ),
         onSelected: (selected) {
           if (selected) {
-            context.read<AchievementProvider>().setTimePeriod(period);
+            context.read<AchievementBloc>().add(ChangeTimePeriod(period));
           }
         },
       ),

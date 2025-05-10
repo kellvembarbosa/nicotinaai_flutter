@@ -1203,4 +1203,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get registerFirstCigarette => 'Register your first cigarette to see health recovery';
+
+  @override
+  String get errorOccurred => 'An error occurred';
 }

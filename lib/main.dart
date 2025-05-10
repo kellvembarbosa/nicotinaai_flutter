@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -9,28 +9,42 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:nicotinaai_flutter/config/firebase_options.dart';
 import 'package:nicotinaai_flutter/config/supabase_config.dart';
 import 'package:nicotinaai_flutter/core/routes/app_router.dart';
-import 'package:nicotinaai_flutter/core/theme/theme_provider.dart';
-import 'package:nicotinaai_flutter/core/localization/locale_provider.dart';
-import 'package:nicotinaai_flutter/core/providers/developer_mode_provider.dart';
-import 'package:nicotinaai_flutter/core/providers/currency_provider.dart';
 import 'package:nicotinaai_flutter/core/services/db_check_service.dart';
-import 'package:nicotinaai_flutter/features/auth/providers/auth_provider.dart';
 import 'package:nicotinaai_flutter/features/auth/repositories/auth_repository.dart';
-import 'package:nicotinaai_flutter/features/home/providers/craving_provider.dart';
-import 'package:nicotinaai_flutter/features/home/providers/smoking_record_provider.dart';
-import 'package:nicotinaai_flutter/features/onboarding/providers/onboarding_provider.dart';
+import 'package:nicotinaai_flutter/features/home/repositories/craving_repository.dart';
+import 'package:nicotinaai_flutter/features/home/repositories/smoking_record_repository.dart';
 import 'package:nicotinaai_flutter/features/onboarding/repositories/onboarding_repository.dart';
-import 'package:nicotinaai_flutter/features/tracking/providers/tracking_provider.dart';
 import 'package:nicotinaai_flutter/features/tracking/repositories/tracking_repository.dart';
-import 'package:nicotinaai_flutter/features/achievements/providers/achievement_provider.dart';
 import 'package:nicotinaai_flutter/features/achievements/services/achievement_service.dart';
 import 'package:nicotinaai_flutter/features/achievements/services/achievement_notification_service.dart';
-import 'package:nicotinaai_flutter/features/achievements/helpers/achievement_helper.dart';
 import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
 import 'package:nicotinaai_flutter/services/analytics_service.dart';
 import 'package:nicotinaai_flutter/services/notification_service.dart';
 import 'package:nicotinaai_flutter/services/supabase_diagnostic.dart';
-import 'package:nicotinaai_flutter/services/migration_service.dart';
+
+// BLoC imports
+import 'package:nicotinaai_flutter/blocs/app_bloc_observer.dart';
+import 'package:nicotinaai_flutter/blocs/auth/auth_bloc.dart';
+import 'package:nicotinaai_flutter/blocs/auth/auth_event.dart';
+import 'package:nicotinaai_flutter/blocs/achievement/achievement_bloc.dart';
+import 'package:nicotinaai_flutter/blocs/achievement/achievement_event.dart';
+import 'package:nicotinaai_flutter/blocs/craving/craving_bloc.dart';
+import 'package:nicotinaai_flutter/blocs/currency/currency_bloc.dart';
+import 'package:nicotinaai_flutter/blocs/currency/currency_event.dart';
+import 'package:nicotinaai_flutter/blocs/developer_mode/developer_mode_bloc.dart';
+import 'package:nicotinaai_flutter/blocs/developer_mode/developer_mode_event.dart';
+import 'package:nicotinaai_flutter/blocs/locale/locale_bloc.dart';
+import 'package:nicotinaai_flutter/blocs/locale/locale_event.dart';
+import 'package:nicotinaai_flutter/blocs/locale/locale_state.dart';
+import 'package:nicotinaai_flutter/blocs/onboarding/onboarding_bloc.dart';
+import 'package:nicotinaai_flutter/blocs/onboarding/onboarding_event.dart';
+import 'package:nicotinaai_flutter/blocs/skeleton/skeleton_bloc.dart';
+import 'package:nicotinaai_flutter/blocs/smoking_record/smoking_record_bloc.dart';
+import 'package:nicotinaai_flutter/blocs/theme/theme_bloc.dart';
+import 'package:nicotinaai_flutter/blocs/theme/theme_event.dart';
+import 'package:nicotinaai_flutter/blocs/theme/theme_state.dart' as theme_state;
+import 'package:nicotinaai_flutter/blocs/tracking/tracking_bloc.dart';
+import 'package:nicotinaai_flutter/blocs/tracking/tracking_event.dart';
 
 void main() async {
   // Garante que os widgets estão iniciados antes de chamar código nativo
@@ -41,18 +55,26 @@ void main() async {
     statusBarColor: Colors.transparent,
   ));
   
+  // Initialize BlocObserver for debugging
+  Bloc.observer = AppBlocObserver();
+  
   // Carrega as variáveis de ambiente primeiro
   await dotenv.load();
   
   // Inicializa o Supabase
   await SupabaseConfig.initialize();
   
-  // Inicializa o Firebase
+  // Inicializa o Firebase (apenas se ainda não estiver inicializado)
   try {
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
-    debugPrint('✅ Firebase initialized successfully');
+    // Verifica se o Firebase já está inicializado
+    if (Firebase.apps.isEmpty) {
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
+      debugPrint('✅ Firebase initialized successfully');
+    } else {
+      debugPrint('✅ Firebase was already initialized, skipping');
+    }
   } catch (e) {
     debugPrint('⚠️ Firebase initialization error: $e');
     // Continue without Firebase if it fails
@@ -118,6 +140,8 @@ void main() async {
   final authRepository = AuthRepository();
   final onboardingRepository = OnboardingRepository();
   final trackingRepository = TrackingRepository();
+  final cravingRepository = CravingRepository();
+  final smokingRecordRepository = SmokingRecordRepository();
   
   // Initialize achievement notification service
   final achievementNotifications = AchievementNotificationService(
@@ -128,6 +152,8 @@ void main() async {
     authRepository: authRepository,
     onboardingRepository: onboardingRepository,
     trackingRepository: trackingRepository,
+    cravingRepository: cravingRepository,
+    smokingRecordRepository: smokingRecordRepository,
     achievementNotifications: achievementNotifications,
   ));
 }
@@ -136,201 +162,187 @@ class MyApp extends StatelessWidget {
   final AuthRepository authRepository;
   final OnboardingRepository onboardingRepository;
   final TrackingRepository trackingRepository;
+  final CravingRepository cravingRepository;
+  final SmokingRecordRepository smokingRecordRepository;
   final AchievementNotificationService achievementNotifications;
   
   const MyApp({
     required this.authRepository,
     required this.onboardingRepository,
     required this.trackingRepository,
+    required this.cravingRepository,
+    required this.smokingRecordRepository,
     required this.achievementNotifications,
     super.key,
   });
 
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        // Provider de tema
-        ChangeNotifierProvider(
-          create: (_) {
-            final themeProvider = ThemeProvider();
-            // Inicializa o provider de tema
-            themeProvider.initialize();
-            return themeProvider;
-          },
-        ),
-        
-        // Provider de localização
-        ChangeNotifierProvider(
-          create: (_) => LocaleProvider(),
-        ),
-        
-        // Provider de modo desenvolvedor
-        ChangeNotifierProvider(
-          create: (_) {
-            final developerModeProvider = DeveloperModeProvider();
-            developerModeProvider.initialize();
-            return developerModeProvider;
-          },
-        ),
-        
-        // Provider de autenticação
-        ChangeNotifierProvider(
-          create: (_) => AuthProvider(
-            authRepository: authRepository,
-          ),
-        ),
-        
-        // Provider de onboarding que depende do estado de autenticação
-        ChangeNotifierProxyProvider<AuthProvider, OnboardingProvider>(
-          create: (_) => OnboardingProvider(
-            repository: onboardingRepository,
-          ),
-          update: (_, authProvider, previousOnboardingProvider) {
-            final provider = previousOnboardingProvider ?? 
-                OnboardingProvider(repository: onboardingRepository);
-                
-            // NÃO inicializamos o onboarding aqui para evitar corrida com SplashScreen
-            // A SplashScreen tem total controle sobre a inicialização e verificação
-            // do onboarding para garantir sequência correta de navegação
-            print('🔒 [MyApp] Provider criado, mas SplashScreen controlará inicialização');
-            
-            // Apenas para modo de desenvolvimento, verificar o estado atual
-            if (authProvider.isAuthenticated) {
-              print('👤 [MyApp] DEBUG: Usuário autenticado, status onboarding: ${provider.state.isCompleted ? "COMPLETO" : "INCOMPLETO"}');
-            } else {
-              print('🔒 [MyApp] DEBUG: Usuário não autenticado');
-            }
-            
-            return provider;
-          },
-        ),
-        
-        // Provider para registro de fissuras
-        ChangeNotifierProxyProvider<AuthProvider, CravingProvider>(
-          create: (_) => CravingProvider(),
-          update: (_, authProvider, previousProvider) {
-            final provider = previousProvider ?? CravingProvider();
-            return provider;
-          },
-        ),
-        
-        // Provider para o sistema de tracking
-        ChangeNotifierProxyProvider<AuthProvider, TrackingProvider>(
-          create: (_) => TrackingProvider(
-            repository: trackingRepository,
-          ),
-          update: (_, authProvider, previousProvider) {
-            final provider = previousProvider ?? 
-                TrackingProvider(repository: trackingRepository);
-                
-            // Inicializa apenas se o usuário estiver autenticado
-            if (authProvider.isAuthenticated) {
-              // Agenda a inicialização para o próximo ciclo de frame
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                provider.initialize();
-              });
-            }
-            
-            return provider;
-          },
-        ),
-        
-        // Provider para registro de cigarros fumados
-        ChangeNotifierProxyProvider2<AuthProvider, TrackingProvider, SmokingRecordProvider>(
-          create: (_) => SmokingRecordProvider(),
-          update: (_, authProvider, trackingProvider, previousProvider) {
-            final provider = previousProvider ?? SmokingRecordProvider();
-            
-            // Configura a referência ao TrackingProvider para permitir atualizações de última data de fumo
-            if (trackingProvider != null) {
-              provider.trackingProvider = trackingProvider;
-            }
-            
-            return provider;
-          },
-        ),
-        
-        // Provider para o sistema de moedas
-        ChangeNotifierProxyProvider<AuthProvider, CurrencyProvider>(
-          create: (context) => CurrencyProvider(
-            authProvider: Provider.of<AuthProvider>(context, listen: false),
-          ),
-          update: (_, authProvider, previousProvider) {
-            final provider = previousProvider ?? 
-                CurrencyProvider(authProvider: authProvider);
-                
-            // Inicializa o provider
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              provider.initialize();
-            });
-            
-            return provider;
-          },
-        ),
-        
-        // Provider para o sistema de achievements
-        ChangeNotifierProxyProvider2<AuthProvider, TrackingProvider, AchievementProvider>(
-          create: (context) => AchievementProvider(
-            AchievementService(
-              SupabaseConfig.client,
-              trackingRepository,
+    return MultiBlocProvider(
+        providers: [
+          // Auth BLoC
+          BlocProvider<AuthBloc>(
+            create: (context) => AuthBloc(
+              authRepository: authRepository,
             ),
           ),
-          update: (_, authProvider, trackingProvider, previousProvider) {
-            // Reutilizar sempre o provider anterior para evitar recriações desnecessárias
-            final provider = previousProvider ?? AchievementProvider(
-              AchievementService(
+          
+          // Skeleton BLoC for testing
+          BlocProvider<SkeletonBloc>(
+            create: (context) => SkeletonBloc(
+              fetchData: () async => "Test data",
+            ),
+          ),
+          
+          // TrackingBloc
+          BlocProvider<TrackingBloc>(
+            create: (context) => TrackingBloc(
+              repository: trackingRepository,
+            )..add(InitializeTracking()),
+          ),
+          
+          // CravingBloc
+          BlocProvider<CravingBloc>(
+            create: (context) {
+              // Obtém referência ao TrackingBloc para atualizações
+              final trackingBloc = context.read<TrackingBloc>();
+              return CravingBloc(
+                repository: cravingRepository,
+                trackingBloc: trackingBloc,
+              );
+            },
+          ),
+          
+          // SmokingRecordBloc
+          BlocProvider<SmokingRecordBloc>(
+            create: (context) {
+              // Obtém referência ao TrackingBloc para atualizações
+              final trackingBloc = context.read<TrackingBloc>();
+              return SmokingRecordBloc(
+                repository: smokingRecordRepository,
+                trackingBloc: trackingBloc,
+              );
+            },
+          ),
+          
+          // Os Providers legados foram removidos, usando apenas BLoCs
+          
+          // CurrencyBloc - Substitui o CurrencyProvider
+          BlocProvider<CurrencyBloc>(
+            create: (context) {
+              final authBloc = context.read<AuthBloc>();
+              return CurrencyBloc(
+                authBloc: authBloc,
+                authRepository: authRepository,
+              )..add(InitializeCurrency());
+            },
+          ),
+          
+          // ThemeBloc - Substitui o ThemeProvider
+          BlocProvider<ThemeBloc>(
+            create: (context) {
+              final themeBloc = ThemeBloc();
+              // Inicializa o tema
+              themeBloc.add(InitializeTheme());
+              return themeBloc;
+            },
+          ),
+          
+          // LocaleBloc - Substitui o LocaleProvider
+          BlocProvider<LocaleBloc>(
+            create: (context) {
+              final localeBloc = LocaleBloc();
+              // Inicializa o locale
+              localeBloc.add(InitializeLocale());
+              return localeBloc;
+            },
+          ),
+          
+          // DeveloperModeBloc - Substitui o DeveloperModeProvider
+          BlocProvider<DeveloperModeBloc>(
+            create: (context) {
+              final developerModeBloc = DeveloperModeBloc();
+              // Inicializa o modo desenvolvedor
+              developerModeBloc.add(InitializeDeveloperMode());
+              return developerModeBloc;
+            },
+          ),
+          
+          // OnboardingBloc - Substitui o OnboardingProvider
+          BlocProvider<OnboardingBloc>(
+            create: (context) {
+              // Usar o repositório já criado anteriormente
+              final onboardingRepo = onboardingRepository;
+              
+              final onboardingBloc = OnboardingBloc(
+                repository: onboardingRepo,
+              );
+              // A inicialização será controlada pela SplashScreen
+              return onboardingBloc;
+            },
+          ),
+          
+          // AchievementBloc - Substitui o AchievementProvider
+          BlocProvider<AchievementBloc>(
+            create: (context) {
+              final achievementService = AchievementService(
                 SupabaseConfig.client,
                 trackingRepository,
-              ),
+              );
+              
+              final achievementBloc = AchievementBloc(
+                service: achievementService,
+                notificationService: achievementNotifications,
+              );
+              
+              // Inicializa o bloc 
+              achievementBloc.add(InitializeAchievements());
+              
+              return achievementBloc;
+            },
+          ),
+          
+          // Todos os providers legados foram removidos
+        ],
+        child: Builder(
+          builder: (context) {
+            // Inicializar o router usando os BLoCs
+            final authBloc = context.read<AuthBloc>();
+            final onboardingBloc = context.read<OnboardingBloc>();
+              
+            // Criar router usando BLoCs para evitar loop de reconstrução
+            final appRouter = AppRouter(
+              authBloc: authBloc,
+              onboardingBloc: onboardingBloc,
             );
-            
-            // Inicializar apenas uma vez e somente se o usuário estiver autenticado
-            if (authProvider.isAuthenticated && 
-                provider.state.status == AchievementStatus.initial) {
-              // Agendar para próximo frame para evitar loops
-              Future.microtask(() {
-                provider.loadAchievements();
-              });
-            }
-            
-            return provider;
+              
+            // Use BlocBuilder para obter o tema e locale atuais
+            return BlocBuilder<LocaleBloc, LocaleState>(
+              builder: (context, localeState) {
+                return BlocBuilder<ThemeBloc, theme_state.ThemeState>(
+                  builder: (context, themeState) {
+                    return MaterialApp.router(
+                      title: 'NicotinaAI',
+                      debugShowCheckedModeBanner: false,
+                      
+                      // Configuração de temas usando ThemeBloc
+                      themeMode: themeState.themeMode,
+                      theme: themeState.lightTheme,
+                      darkTheme: themeState.darkTheme,
+                  
+                      // Configuração de localização usando LocaleBloc
+                      locale: localeState.locale,
+                      localizationsDelegates: AppLocalizations.localizationsDelegates,
+                      supportedLocales: localeState.supportedLocales,
+                      
+                      routerConfig: appRouter.router,
+                    );
+                  },
+                );
+              },
+            );
           },
         ),
-      ],
-      builder: (context, child) {
-        // Inicializar o router fora do consumer para evitar reconstruções
-        final authProvider = Provider.of<AuthProvider>(context, listen: false);
-        final onboardingProvider = Provider.of<OnboardingProvider>(context, listen: false);
-          
-        // Criar router apenas uma vez para evitar loop de reconstrução
-        final appRouter = AppRouter(
-          authProvider: authProvider,
-          onboardingProvider: onboardingProvider,
-        );
-          
-        return Consumer2<ThemeProvider, LocaleProvider>(
-          builder: (context, themeProvider, localeProvider, _) {
-            return MaterialApp.router(
-              title: 'NicotinaAI',
-              debugShowCheckedModeBanner: false,
-              
-              // Configuração de temas
-              themeMode: themeProvider.themeMode,
-              theme: themeProvider.lightTheme,
-              darkTheme: themeProvider.darkTheme,
-              
-              // Configuração de localização
-              locale: localeProvider.locale,
-              localizationsDelegates: AppLocalizations.localizationsDelegates,
-              supportedLocales: localeProvider.supportedLocales,
-              
-              routerConfig: appRouter.router,
-            );
-          },
-        );
-      },
-    );
+      );
   }
 }

@@ -93,8 +93,9 @@ class AchievementNotificationService {
     
     await _notificationsPlugin.show(
       _achievementUnlockedId + achievement.id.hashCode, // Use unique ID for each achievement
-      'Achievement Unlocked! 🎯',
-      achievement.definition.name,
+      'Unlocked!', // Title without trophy emoji
+      // Forçar quebra de linha após cada 20-25 caracteres para garantir visibilidade
+      _formatTitleWithLineBreaks(achievement.definition.name),
       details,
       payload: achievement.id, // Pass achievement ID as payload
     );
@@ -129,7 +130,7 @@ class AchievementNotificationService {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   const Text(
-                    'Achievement Unlocked!',
+                    'Unlocked!',
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                   Text(
@@ -152,8 +153,8 @@ class AchievementNotificationService {
           label: 'View',
           textColor: Colors.amber,
           onPressed: () {
-            // Navigate to achievement detail
-            context.go('/achievement/${achievement.id}');
+            // Navigate to achievement detail with push para manter histórico de navegação
+            context.push('/achievement/${achievement.id}');
             
             // Mark as viewed
             context.read<AchievementProvider>().markAchievementAsViewed(achievement.id);
@@ -185,7 +186,7 @@ class AchievementNotificationService {
             const SizedBox(width: 8),
             const Flexible(
               child: Text(
-                'Achievement Unlocked!',
+                'Unlocked!',
                 overflow: TextOverflow.ellipsis,
               ),
             ),
@@ -216,6 +217,8 @@ class AchievementNotificationService {
                 fontWeight: FontWeight.bold,
               ),
               textAlign: TextAlign.center,
+              overflow: TextOverflow.visible, // Garante que o texto seja totalmente visível
+              softWrap: true, // Permite quebra de linha
             ),
             const SizedBox(height: 8),
             Text(
@@ -244,7 +247,7 @@ class AchievementNotificationService {
               Navigator.of(context).pop();
               
               // Navigate to achievement detail
-              context.go('/achievement/${achievement.id}');
+              context.push('/achievement/${achievement.id}');
               
               // Mark as viewed
               context.read<AchievementProvider>().markAchievementAsViewed(achievement.id);
@@ -304,8 +307,8 @@ class AchievementNotificationService {
           onDismiss: () {
             Navigator.of(context).pop();
             
-            // Navigate to achievement detail
-            context.go('/achievement/${achievement.id}');
+            // Navigate to achievement detail with push para manter histórico de navegação
+            context.push('/achievement/${achievement.id}');
             
             // Mark as viewed
             context.read<AchievementProvider>().markAchievementAsViewed(achievement.id);
@@ -348,5 +351,44 @@ class AchievementNotificationService {
       default:
         return Icons.emoji_events;
     }
+  }
+
+  /// Formata o título da conquista com quebras de linha para melhor visualização
+  String _formatTitleWithLineBreaks(String title) {
+    // Se o título for curto, não precisa formatá-lo
+    if (title.length <= 20) return title;
+
+    // Encontrar um bom ponto para quebrar (depois de um espaço, se possível)
+    final midPoint = title.length ~/ 2;
+    int breakIndex = midPoint;
+
+    // Procurar o espaço mais próximo do meio para quebrar
+    for (int i = midPoint; i < title.length; i++) {
+      if (title[i] == ' ') {
+        breakIndex = i;
+        break;
+      }
+    }
+    
+    // Se não encontrou um espaço depois do meio, tenta antes
+    if (breakIndex == midPoint) {
+      for (int i = midPoint; i >= 0; i--) {
+        if (title[i] == ' ') {
+          breakIndex = i;
+          break;
+        }
+      }
+    }
+    
+    // Se ainda assim não encontrou um espaço, corta no meio mesmo
+    if (breakIndex == midPoint && title.length > 25) {
+      return '${title.substring(0, breakIndex)}\n${title.substring(breakIndex)}';
+    } else if (breakIndex != midPoint) {
+      // Se encontrou um espaço, quebra nele
+      return '${title.substring(0, breakIndex)}\n${title.substring(breakIndex + 1)}';
+    }
+    
+    // Se o título não é tão longo, apenas retorna ele
+    return title;
   }
 }

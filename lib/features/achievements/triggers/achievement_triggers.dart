@@ -1,16 +1,17 @@
 import 'package:flutter/foundation.dart';
-import '../providers/achievement_provider.dart';
+import 'package:nicotinaai_flutter/blocs/achievement/achievement_bloc.dart';
+import 'package:nicotinaai_flutter/blocs/achievement/achievement_event.dart';
 import '../models/user_achievement.dart';
 
 /// Utility class to handle achievement check triggers at various app events
 class AchievementTriggers {
-  final AchievementProvider _achievementProvider;
+  final AchievementBloc _achievementBloc;
   
   // Flag to prevent too frequent checks
   DateTime? _lastCheckTime;
   static const Duration _minimumCheckInterval = Duration(minutes: 5);
   
-  AchievementTriggers(this._achievementProvider);
+  AchievementTriggers(this._achievementBloc);
   
   // Flag to prevent concurrent checks
   bool _isChecking = false;
@@ -29,8 +30,15 @@ class AchievementTriggers {
     _lastCheckTime = now;
     
     try {
-      // This might trigger a state update via the achievement provider
-      return await _achievementProvider.checkForNewAchievements();
+      // Dispatch event to check for new achievements
+      _achievementBloc.add(CheckForNewAchievements());
+      
+      // Wait a bit for the event to process
+      await Future.delayed(const Duration(milliseconds: 300));
+      
+      // Get the latest state to see if any new achievements were unlocked
+      final state = _achievementBloc.state;
+      return state.newlyUnlockedAchievements ?? [];
     } catch (e) {
       debugPrint('Error checking achievements: $e');
       return [];
@@ -71,7 +79,16 @@ class AchievementTriggers {
   Future<List<UserAchievement>> onDailyCheck() async {
     // No throttling for daily checks
     _lastCheckTime = DateTime.now();
-    return await _achievementProvider.checkForNewAchievements();
+    
+    // Dispatch daily check event
+    _achievementBloc.add(CheckForNewAchievements(forceDailyCheck: true));
+    
+    // Wait a bit for the event to process
+    await Future.delayed(const Duration(milliseconds: 300));
+    
+    // Get the latest state
+    final state = _achievementBloc.state;
+    return state.newlyUnlockedAchievements ?? [];
   }
   
   /// Helper to print debug info about newly unlocked achievements

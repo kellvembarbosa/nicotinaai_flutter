@@ -1,11 +1,13 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:provider/provider.dart';
+import 'package:nicotinaai_flutter/blocs/achievement/achievement_bloc.dart';
+import 'package:nicotinaai_flutter/blocs/achievement/achievement_event.dart';
+import 'package:nicotinaai_flutter/blocs/achievement/achievement_state.dart';
 import 'package:nicotinaai_flutter/core/theme/app_theme.dart';
 import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
-import 'package:nicotinaai_flutter/features/achievements/providers/achievement_provider.dart';
 
 class AchievementsScreen extends StatefulWidget {
   static const String routeName = '/achievements';
@@ -33,10 +35,10 @@ class _AchievementsScreenState extends State<AchievementsScreen> with SingleTick
       // Usa microtask para carregar após montagem da UI
       Future.microtask(() {
         // Verifica se já não está carregando achievements em outro lugar
-        final achievementProvider = context.read<AchievementProvider>();
+        final achievementBloc = context.read<AchievementBloc>();
         // Só carrega se o estado ainda estiver em initial para evitar recargas desnecessárias
-        if (achievementProvider.state.status == AchievementStatus.initial) {
-          achievementProvider.loadAchievements();
+        if (achievementBloc.state.status == AchievementStatus.initial) {
+          achievementBloc.add(InitializeAchievements());
         }
       });
     }

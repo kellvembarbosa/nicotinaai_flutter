@@ -69,6 +69,12 @@ class UserStats {
     final dollars = moneySaved / 100;
     return 'R\$ ${dollars.toStringAsFixed(2)}';
   }
+  
+  // Calculate the money saved percentage (based on a default target)
+  double get moneySavedPercentage {
+    const targetSavings = 100000; // R$1000,00 as target savings
+    return moneySaved / targetSavings;
+  }
 
   // Days since last smoke
   int get daysSinceLastSmoke {

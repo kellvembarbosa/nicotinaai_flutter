@@ -1,14 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:provider/provider.dart';
+import 'package:nicotinaai_flutter/blocs/auth/auth_bloc.dart';
+import 'package:nicotinaai_flutter/blocs/auth/auth_event.dart';
+import 'package:nicotinaai_flutter/blocs/auth/auth_state.dart';
+import 'package:nicotinaai_flutter/blocs/currency/currency_bloc.dart';
+import 'package:nicotinaai_flutter/blocs/currency/currency_state.dart';
+import 'package:nicotinaai_flutter/blocs/developer_mode/developer_mode_bloc.dart';
+import 'package:nicotinaai_flutter/blocs/developer_mode/developer_mode_event.dart';
+import 'package:nicotinaai_flutter/blocs/developer_mode/developer_mode_state.dart';
+import 'package:nicotinaai_flutter/blocs/locale/locale_bloc.dart';
+import 'package:nicotinaai_flutter/blocs/locale/locale_state.dart' as locale_state;
+import 'package:nicotinaai_flutter/blocs/theme/theme_bloc.dart';
+import 'package:nicotinaai_flutter/blocs/theme/theme_state.dart' as theme_state;
 import 'package:nicotinaai_flutter/core/routes/app_routes.dart';
 import 'package:nicotinaai_flutter/core/theme/app_theme.dart';
-import 'package:nicotinaai_flutter/core/theme/theme_provider.dart';
 import 'package:nicotinaai_flutter/core/theme/theme_settings.dart';
-import 'package:nicotinaai_flutter/core/localization/locale_provider.dart';
-import 'package:nicotinaai_flutter/core/providers/developer_mode_provider.dart';
-import 'package:nicotinaai_flutter/core/providers/currency_provider.dart';
-import 'package:nicotinaai_flutter/features/auth/providers/auth_provider.dart';
 import 'package:nicotinaai_flutter/features/tracking/screens/dashboard_screen.dart';
 import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
 import 'package:nicotinaai_flutter/services/notification_service.dart';
@@ -40,12 +47,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
   
   @override
   Widget build(BuildContext context) {
-    final authProvider = Provider.of<AuthProvider>(context);
-    final themeProvider = Provider.of<ThemeProvider>(context);
-    final localeProvider = Provider.of<LocaleProvider>(context);
-    final developerModeProvider = Provider.of<DeveloperModeProvider>(context);
     final localizations = AppLocalizations.of(context);
-    final user = authProvider.currentUser;
+    // Usar BLoCs em vez de Providers
+    final authState = context.watch<AuthBloc>().state;
+    final themeState = context.watch<ThemeBloc>().state;
+    final localeState = context.watch<LocaleBloc>().state;
+    final developerModeState = context.watch<DeveloperModeBloc>().state;
+    final user = authState.user;
 
     return Scaffold(
       backgroundColor: context.backgroundColor,
@@ -171,9 +179,43 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 context.push(AppRoutes.language.path);
               },
               trailing: Text(
-                localeProvider.currentLanguageName,
+                localeState.currentLanguageName,
                 style: context.textTheme.bodySmall!.copyWith(
                   color: context.subtitleColor,
+                ),
+              ),
+            ),
+            _buildSettingItem(
+              context,
+              "${localizations.theme} (BLoC)",
+              localizations.theme,
+              Icons.color_lens_outlined,
+              onTap: () {
+                context.push(AppRoutes.themeBloc.path);
+              },
+              trailing: BlocBuilder<ThemeBloc, theme_state.ThemeState>(
+                builder: (context, state) => Text(
+                  _getThemeModeName(state.themeMode, localizations),
+                  style: context.textTheme.bodySmall!.copyWith(
+                    color: context.subtitleColor,
+                  ),
+                ),
+              ),
+            ),
+            _buildSettingItem(
+              context,
+              "${localizations.language} (BLoC)",
+              "${localizations.changeLanguage} - BLoC version",
+              Icons.language_outlined,
+              onTap: () {
+                context.push(AppRoutes.languageBloc.path);
+              },
+              trailing: BlocBuilder<LocaleBloc, locale_state.LocaleState>(
+                builder: (context, state) => Text(
+                  state.currentLanguageName,
+                  style: context.textTheme.bodySmall!.copyWith(
+                    color: context.subtitleColor,
+                  ),
                 ),
               ),
             ),
@@ -208,9 +250,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
               onTap: () {
                 context.push(AppRoutes.currency.path);
               },
-              trailing: Consumer<CurrencyProvider>(
-                builder: (context, provider, child) => Text(
-                  provider.currencyCode,
+              trailing: BlocBuilder<CurrencyBloc, CurrencyState>(
+                builder: (context, state) => Text(
+                  state.currencyCode,
+                  style: context.textTheme.bodySmall!.copyWith(
+                    color: context.subtitleColor,
+                  ),
+                ),
+              ),
+            ),
+            _buildSettingItem(
+              context,
+              "${localizations.currency} (BLoC)",
+              "${localizations.setCurrencyForCalculations} - BLoC version",
+              Icons.currency_exchange,
+              onTap: () {
+                context.push(AppRoutes.currencyBloc.path);
+              },
+              trailing: BlocBuilder<CurrencyBloc, CurrencyState>(
+                builder: (context, state) => Text(
+                  state.currencyCode,
                   style: context.textTheme.bodySmall!.copyWith(
                     color: context.subtitleColor,
                   ),
@@ -288,7 +347,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           ElevatedButton(
                             onPressed: () async {
                               Navigator.of(context).pop();
-                              await authProvider.signOut();
+                              context.read<AuthBloc>().add(const LogoutRequested());
                               if (context.mounted) {
                                 context.go('/login');
                               }
@@ -311,24 +370,41 @@ class _SettingsScreenState extends State<SettingsScreen> {
             const SizedBox(height: 24),
             
             // Seção de desenvolvedor (aparece apenas em modo de desenvolvimento)
-            if (developerModeProvider.isInDevelopmentMode) ...[
+            if (developerModeState.isInDevelopmentMode) ...[
               _buildSectionHeader(context, localizations.developer),
               _buildSettingItem(
                 context,
                 localizations.developerMode,
                 localizations.enableDebugging,
                 Icons.developer_mode,
-                onTap: () async {
-                  await developerModeProvider.toggleDeveloperMode();
+                onTap: () {
+                  context.read<DeveloperModeBloc>().add(ToggleDeveloperMode());
                 },
                 trailing: Switch(
-                  value: developerModeProvider.isDeveloperModeEnabled,
-                  onChanged: (_) async {
-                    await developerModeProvider.toggleDeveloperMode();
+                  value: developerModeState.isDeveloperModeEnabled,
+                  onChanged: (_) {
+                    context.read<DeveloperModeBloc>().add(ToggleDeveloperMode());
                   },
                 ),
               ),
-              if (developerModeProvider.isDeveloperModeEnabled)
+              _buildSettingItem(
+                context,
+                "${localizations.developerMode} (BLoC)",
+                "${localizations.enableDebugging} - BLoC version",
+                Icons.developer_mode,
+                onTap: () {
+                  context.push(AppRoutes.developerModeBloc.path);
+                },
+                trailing: BlocBuilder<DeveloperModeBloc, DeveloperModeState>(
+                  builder: (context, state) => Switch(
+                    value: state.isDeveloperModeEnabled,
+                    onChanged: (_) {
+                      context.read<DeveloperModeBloc>().add(ToggleDeveloperMode());
+                    },
+                  ),
+                ),
+              ),
+              if (developerModeState.isDeveloperModeEnabled)
                 _buildSettingItem(
                   context,
                   localizations.developer,
@@ -493,6 +569,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
+  // Retorna o nome localizado do modo de tema
+  String _getThemeModeName(ThemeMode mode, AppLocalizations localizations) {
+    switch (mode) {
+      case ThemeMode.light:
+        return localizations.light;
+      case ThemeMode.dark:
+        return localizations.dark;
+      case ThemeMode.system:
+        return localizations.system;
+    }
+  }
+  
   void _showAboutDialog(BuildContext context) {
     final localizations = AppLocalizations.of(context);
     

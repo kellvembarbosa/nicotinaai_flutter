@@ -296,7 +296,7 @@ class _AchievementCelebrationState extends State<AchievementCelebration> with Si
             
             // Achievement unlocked header
             Text(
-              'Achievement Unlocked!',
+              'Unlocked!',
               style: GoogleFonts.poppins(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
@@ -314,6 +314,9 @@ class _AchievementCelebrationState extends State<AchievementCelebration> with Si
                 color: context.contentColor,
               ),
               textAlign: TextAlign.center,
+              overflow: TextOverflow.visible,
+              softWrap: true, 
+              maxLines: 2, // Permite até duas linhas para títulos longos
             ),
             const SizedBox(height: 8),
             Text(
