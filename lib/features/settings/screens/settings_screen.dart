@@ -310,7 +310,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           ElevatedButton(
                             onPressed: () async {
                               Navigator.of(context).pop();
-                              context.read<AuthBloc>().add(const LogoutRequested());
+                              context.read<AuthBloc>().add(LogoutRequested(context: context));
                               if (context.mounted) {
                                 context.go('/login');
                               }

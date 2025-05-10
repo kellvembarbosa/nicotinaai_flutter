@@ -45,7 +45,12 @@ class SignUpRequested extends AuthEvent {
 
 /// Evento para o logout
 class LogoutRequested extends AuthEvent {
-  const LogoutRequested();
+  final BuildContext? context;
+  
+  const LogoutRequested({this.context});
+  
+  @override
+  List<Object?> get props => [context];
 }
 
 /// Evento para atualizar o estado de autenticação

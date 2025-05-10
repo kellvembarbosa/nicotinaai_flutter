@@ -39,6 +39,7 @@ class AchievementBloc extends Bloc<AchievementEvent, AchievementState> {
     on<CheckForNewAchievements>(_onCheckForNewAchievements);
     on<ChangeTimePeriod>(_onChangeTimePeriod);
     on<ClearAchievementError>(_onClearAchievementError);
+    on<ResetAchievements>(_onResetAchievements);
   }
   
   /// Verifica se podemos recarregar achievements baseado no tempo decorrido
@@ -252,5 +253,23 @@ class AchievementBloc extends Bloc<AchievementEvent, AchievementState> {
         clearError: true,
       ));
     }
+  }
+  
+  /// Manipulador do evento ResetAchievements (usado no logout)
+  void _onResetAchievements(
+    ResetAchievements event,
+    Emitter<AchievementState> emit,
+  ) {
+    debugPrint('🧹 [AchievementBloc] Resetando todos os achievements');
+    
+    // Reset all state variables
+    _isLoadingAchievements = false;
+    _lastLoadTime = null;
+    _isCheckingAchievements = false;
+    _lastCheckTime = null;
+    _consecutiveCheckFailures = 0;
+    
+    // Reset the state to initial
+    emit(AchievementState.initial());
   }
 }

@@ -7,6 +7,7 @@ import 'package:nicotinaai_flutter/blocs/auth/auth_state.dart';
 import 'package:nicotinaai_flutter/core/routes/app_routes.dart';
 import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
 import 'package:nicotinaai_flutter/widgets/app_icon_widget.dart';
+import 'package:nicotinaai_flutter/widgets/platform_loading_indicator.dart';
 
 class LoginScreen extends StatefulWidget {
   // Rota definida no AppRoutes
@@ -167,7 +168,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ? null 
                         : _handleLogin,
                       child: state.isLoading
-                        ? const CircularProgressIndicator()
+                        ? const PlatformLoadingIndicator(size: 24)
                         : Text(l10n.login),
                     ),
                   ),

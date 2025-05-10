@@ -47,3 +47,6 @@ class ChangeTimePeriod extends AchievementEvent {
 
 /// Evento para limpar erros
 class ClearAchievementError extends AchievementEvent {}
+
+/// Evento para resetar todos os achievements (usado no logout)
+class ResetAchievements extends AchievementEvent {}

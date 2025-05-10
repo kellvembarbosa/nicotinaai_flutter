@@ -1,12 +1,12 @@
+import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:nicotinaai_flutter/core/exceptions/auth_exception.dart' as app_exceptions;
 import 'package:nicotinaai_flutter/features/auth/repositories/auth_repository.dart';
-import 'package:nicotinaai_flutter/features/home/providers/craving_provider.dart';
-import 'package:nicotinaai_flutter/features/home/providers/smoking_record_provider.dart';
-import 'package:nicotinaai_flutter/features/tracking/providers/tracking_provider.dart';
 import 'package:nicotinaai_flutter/services/analytics_service.dart';
 import 'package:nicotinaai_flutter/services/notification_service.dart';
 import 'package:nicotinaai_flutter/services/storage_service.dart';
+import 'package:nicotinaai_flutter/core/routes/router_events.dart';
 
 import 'auth_event.dart';
 import 'auth_state.dart';
@@ -175,29 +175,13 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         print('⚠️ [AuthBloc] Failed to clear analytics data: $analyticsError');
       }
       
-      // Limpar dados locais dos providers
+      // Limpar dados de armazenamento local usando SharedPreferences
       try {
-        // Importar os providers necessários
-        final cravingProvider = _getCravingProvider();
-        final smokingRecordProvider = _getSmokingRecordProvider();
-        final trackingProvider = _getTrackingProvider();
-        
-        if (cravingProvider != null) {
-          cravingProvider.clearCravings();
-          print('🧹 [AuthBloc] Cravings data cleared');
-        }
-        
-        if (smokingRecordProvider != null) {
-          smokingRecordProvider.clearRecords();
-          print('🧹 [AuthBloc] Smoking records data cleared');
-        }
-        
-        if (trackingProvider != null) {
-          trackingProvider.resetStats();
-          print('🧹 [AuthBloc] Tracking stats reset');
-        }
-      } catch (providersError) {
-        print('⚠️ [AuthBloc] Failed to clear providers data: $providersError');
+        final SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.clear();
+        print('🧹 [AuthBloc] SharedPreferences cleared');
+      } catch (prefsError) {
+        print('⚠️ [AuthBloc] Failed to clear SharedPreferences: $prefsError');
       }
       
       // Limpar dados do storage seguro
@@ -209,9 +193,29 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         print('⚠️ [AuthBloc] Failed to clear secure storage: $storageError');
       }
       
+      // Usar RouterEvents para limpar dados em todos os BLoCs se o contexto estiver disponível
+      if (event.context != null) {
+        try {
+          RouterEvents.clearAllUserData(event.context!);
+          print('🧹 [AuthBloc] Todos os dados de BLoCs foram limpos');
+        } catch (routerEventsError) {
+          print('⚠️ [AuthBloc] Erro ao usar RouterEvents: $routerEventsError');
+        }
+      } else {
+        print('⚠️ [AuthBloc] Context não disponível para usar RouterEvents');
+      }
+      
+      // Efetuar o logout no Supabase
       await _authRepository.signOut();
       print('✅ [AuthBloc] Logout realizado com sucesso');
+      
+      // Emitir o estado de não autenticado
       emit(AuthState.unauthenticated());
+      
+      // Força uma atualização do estado para garantir que a UI responda
+      Future.delayed(const Duration(milliseconds: 100), () {
+        emit(AuthState.unauthenticated());
+      });
     } catch (e) {
       final error = e is app_exceptions.AuthException
           ? e
@@ -321,33 +325,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     }
   }
   
-  // Métodos auxiliares para obter instâncias dos providers
-  // Nota: Estes métodos são simplificados e devem ser adaptados para uma
-  // solução de injeção de dependência adequada no futuro
-  CravingProvider? _getCravingProvider() {
-    try {
-      return null; // Deve ser implementado com uma solução real de DI
-    } catch (e) {
-      print('⚠️ [AuthBloc] Erro ao obter CravingProvider: $e');
-      return null;
-    }
-  }
-  
-  SmokingRecordProvider? _getSmokingRecordProvider() {
-    try {
-      return null; // Deve ser implementado com uma solução real de DI
-    } catch (e) {
-      print('⚠️ [AuthBloc] Erro ao obter SmokingRecordProvider: $e');
-      return null;
-    }
-  }
-  
-  TrackingProvider? _getTrackingProvider() {
-    try {
-      return null; // Deve ser implementado com uma solução real de DI
-    } catch (e) {
-      print('⚠️ [AuthBloc] Erro ao obter TrackingProvider: $e');
-      return null;
-    }
-  }
+  // Os métodos auxiliares para obter instâncias dos providers foram removidos
+  // pois não são mais necessários com a migração para BLoCs
 }

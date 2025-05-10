@@ -92,6 +92,12 @@ void main() async {
   final prefs = await SharedPreferences.getInstance();
   await prefs.setString('app_locale', 'en_US');
   
+  // Adiciona um listener para debugar alterações no SharedPreferences
+  print("🔍 SharedPreferences values at startup:");
+  prefs.getKeys().forEach((key) {
+    print("   📌 $key: ${prefs.get(key)}");
+  });
+  
   // Verificar a disponibilidade das tabelas do banco de dados
   final dbCheckService = DbCheckService();
   final allTablesAvailable = await dbCheckService.checkAllEssentialTables();

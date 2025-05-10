@@ -8,6 +8,7 @@ import 'package:nicotinaai_flutter/core/constants/app_constants.dart';
 import 'package:nicotinaai_flutter/core/routes/app_routes.dart';
 import 'package:nicotinaai_flutter/features/auth/screens/login_screen.dart';
 import 'package:nicotinaai_flutter/widgets/app_icon_widget.dart';
+import 'package:nicotinaai_flutter/widgets/platform_loading_indicator.dart';
 import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -251,7 +252,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ? null 
                         : _handleRegister,
                       child: state.isLoading
-                        ? const CircularProgressIndicator()
+                        ? const PlatformLoadingIndicator(size: 24)
                         : Text(l10n.createAccount),
                     ),
                   ),

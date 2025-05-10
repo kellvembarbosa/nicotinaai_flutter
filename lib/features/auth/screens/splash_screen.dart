@@ -6,6 +6,7 @@ import 'package:nicotinaai_flutter/blocs/onboarding/onboarding_bloc.dart';
 import 'package:nicotinaai_flutter/blocs/onboarding/onboarding_event.dart';
 import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
 import 'package:nicotinaai_flutter/core/routes/app_routes.dart';
+import 'package:nicotinaai_flutter/widgets/platform_loading_indicator.dart';
 
 class SplashScreen extends StatefulWidget {
   static const String routeName = '/splash';
@@ -129,7 +130,7 @@ class _SplashScreenState extends State<SplashScreen> {
             const SizedBox(height: 32),
             
             // Loading indicator
-            const CircularProgressIndicator(),
+            const PlatformLoadingIndicator(size: 32),
             const SizedBox(height: 16),
             
             // Loading message
