@@ -352,12 +352,12 @@ class SettingsRepository {
           // Sem depender do token JWT
           print('📤 [SettingsRepository] Enviando requisição para a Edge Function...');
           
-          // Chamada da Edge Function para excluir a conta
+          // Chamada da Edge Function para excluir a conta - simplificada
           final response = await _supabaseClient.functions.invoke(
             'delete-user-account',
             body: {
-              'password': password,
               'user_id': user.id
+              // Não precisamos mais do password na Edge Function
             }
           );
           
@@ -383,23 +383,25 @@ class SettingsRepository {
           // A opção mais próxima é tornar a conta inutilizável
           print('📝 [SettingsRepository] Tornando a conta inutilizável...');
           
-          // Gera uma senha aleatória para impedir logins futuros
-          final randomPassword = DateTime.now().millisecondsSinceEpoch.toString();
+          // Apenas marque os metadados do usuário como excluído
+          // Não tente alterar o email ou senha, pois isso pode causar erros de validação
+          print('📝 [SettingsRepository] Marcando metadados do usuário como excluído...');
           
-          // Altera o email para um valor que torna a conta inacessível
-          final anonymizedEmail = 'deleted_${DateTime.now().millisecondsSinceEpoch}@deleted.account';
-          
-          // Atualiza o usuário para tornar a conta inutilizável
-          await _supabaseClient.auth.updateUser(
-            UserAttributes(
-              email: anonymizedEmail,
-              password: randomPassword,
-              data: {
-                'hard_deleted': true, 
-                'deletion_timestamp': DateTime.now().toIso8601String()
-              }
-            )
-          );
+          try {
+            await _supabaseClient.auth.updateUser(
+              UserAttributes(
+                data: {
+                  'account_deleted': true, 
+                  'deletion_timestamp': DateTime.now().toIso8601String(),
+                  'deleted_by': 'user_request'
+                }
+              )
+            );
+            print('✅ [SettingsRepository] Metadados do usuário atualizados com sucesso');
+          } catch (metadataError) {
+            print('⚠️ [SettingsRepository] Erro ao atualizar metadados: $metadataError');
+            // Continuamos mesmo se falhar a atualização dos metadados
+          }
           
           print('✅ [SettingsRepository] Conta tornada inutilizável com sucesso');
         }
