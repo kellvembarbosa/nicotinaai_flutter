@@ -294,20 +294,44 @@ class SettingsRepository {
         await _supabaseClient.from('daily_motivation_logs').delete().eq('user_id', user.id);
         await _supabaseClient.from(_profilesTable).delete().eq('id', user.id);
         
-        // Hard delete: tenta excluir o usuário totalmente
-        print('🗑️ [SettingsRepository] Executando hard delete do usuário...');
+        // Hard delete: chama a Edge Function para excluir o usuário totalmente
+        print('🗑️ [SettingsRepository] Executando hard delete via Edge Function...');
         
         try {
-          // Tenta remover a conta do usuário completamente
-          // Como este método requer permissões administrativas, pode falhar
-          // Mas tentamos mesmo assim caso as permissões permitam
-          await _supabaseClient.auth.admin.deleteUser(user.id);
-          print('✅ [SettingsRepository] Usuário excluído com sucesso via admin.deleteUser');
-        } catch (adminError) {
-          print('⚠️ [SettingsRepository] Não foi possível excluir o usuário via admin.deleteUser: $adminError');
+          // Obtém o token de acesso da sessão atual
+          final token = _supabaseClient.auth.currentSession?.accessToken;
           
-          // Já que não podemos excluir o usuário com permissões de admin, 
-          // a opção mais próxima é tornar a conta inutilizável
+          if (token == null) {
+            throw app_exceptions.AuthException('Token de acesso não disponível');
+          }
+          
+          // Chamada da Edge Function para excluir a conta
+          final response = await _supabaseClient.functions.invoke(
+            'delete-user-account',
+            body: {'password': password},
+            headers: {'Authorization': 'Bearer $token'}
+          );
+          
+          // Verifica se a resposta foi bem-sucedida
+          if (response.status != 200) {
+            // Se a resposta contiver uma mensagem de erro, use-a
+            if (response.data != null && response.data['error'] != null) {
+              print('⚠️ [SettingsRepository] Erro da Edge Function: ${response.data['error']}');
+              throw app_exceptions.AuthException(
+                'Erro ao excluir conta: ${response.data['error']} - ${response.data['details'] ?? ''}'
+              );
+            }
+            
+            // Caso contrário, use o código de status
+            throw app_exceptions.AuthException('Erro ao excluir conta. Código: ${response.status}');
+          }
+          
+          print('✅ [SettingsRepository] Usuário excluído com sucesso via Edge Function');
+        } catch (edgeFunctionError) {
+          print('⚠️ [SettingsRepository] Edge Function falhou: $edgeFunctionError');
+          
+          // Já que a Edge Function falhou, usamos o plano B
+          // A opção mais próxima é tornar a conta inutilizável
           print('📝 [SettingsRepository] Tornando a conta inutilizável...');
           
           // Gera uma senha aleatória para impedir logins futuros
