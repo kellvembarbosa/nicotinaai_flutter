@@ -291,16 +291,45 @@ class SettingsRepository {
         await _supabaseClient.from('user_achievements').delete().eq('user_id', user.id);
         await _supabaseClient.from('user_health_recoveries').delete().eq('user_id', user.id);
         await _supabaseClient.from('user_fcm_tokens').delete().eq('user_id', user.id);
+        await _supabaseClient.from('daily_motivation_logs').delete().eq('user_id', user.id);
         await _supabaseClient.from(_profilesTable).delete().eq('id', user.id);
         
-        // Marca o usuário como excluído nos metadados
-        print('📝 [SettingsRepository] Marcando usuário como excluído nos metadados...');
-        await _supabaseClient.auth.updateUser(
-          UserAttributes(data: {
-            'deleted': true, 
-            'deletion_requested': DateTime.now().toIso8601String()
-          })
-        );
+        // Hard delete: tenta excluir o usuário totalmente
+        print('🗑️ [SettingsRepository] Executando hard delete do usuário...');
+        
+        try {
+          // Tenta remover a conta do usuário completamente
+          // Como este método requer permissões administrativas, pode falhar
+          // Mas tentamos mesmo assim caso as permissões permitam
+          await _supabaseClient.auth.admin.deleteUser(user.id);
+          print('✅ [SettingsRepository] Usuário excluído com sucesso via admin.deleteUser');
+        } catch (adminError) {
+          print('⚠️ [SettingsRepository] Não foi possível excluir o usuário via admin.deleteUser: $adminError');
+          
+          // Já que não podemos excluir o usuário com permissões de admin, 
+          // a opção mais próxima é tornar a conta inutilizável
+          print('📝 [SettingsRepository] Tornando a conta inutilizável...');
+          
+          // Gera uma senha aleatória para impedir logins futuros
+          final randomPassword = DateTime.now().millisecondsSinceEpoch.toString();
+          
+          // Altera o email para um valor que torna a conta inacessível
+          final anonymizedEmail = 'deleted_${DateTime.now().millisecondsSinceEpoch}@deleted.account';
+          
+          // Atualiza o usuário para tornar a conta inutilizável
+          await _supabaseClient.auth.updateUser(
+            UserAttributes(
+              email: anonymizedEmail,
+              password: randomPassword,
+              data: {
+                'hard_deleted': true, 
+                'deletion_timestamp': DateTime.now().toIso8601String()
+              }
+            )
+          );
+          
+          print('✅ [SettingsRepository] Conta tornada inutilizável com sucesso');
+        }
         
         // Procedimento de limpeza final
         print('🧹 [SettingsRepository] Realizando limpeza final...');
