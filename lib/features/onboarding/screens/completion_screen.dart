@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:nicotinaai_flutter/blocs/onboarding/onboarding_bloc.dart';
+import 'package:nicotinaai_flutter/blocs/onboarding/onboarding_event.dart';
+import 'package:nicotinaai_flutter/blocs/onboarding/onboarding_state.dart';
 import 'package:nicotinaai_flutter/core/theme/app_theme.dart';
 import 'package:nicotinaai_flutter/features/onboarding/models/onboarding_model.dart';
-import 'package:nicotinaai_flutter/features/onboarding/providers/onboarding_provider.dart';
 import 'package:nicotinaai_flutter/features/onboarding/screens/onboarding_container.dart';
 import 'package:go_router/go_router.dart';
 import 'package:nicotinaai_flutter/core/routes/app_routes.dart';
@@ -57,143 +59,149 @@ class _CompletionScreenState extends State<CompletionScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final provider = Provider.of<OnboardingProvider>(context);
-    final onboarding = provider.state.onboarding;
     final localizations = AppLocalizations.of(context);
     
-    if (onboarding == null) {
-      return const Center(child: CircularProgressIndicator());
-    }
-    
-    // Calcular economia mensal
-    final cigarettesPerDay = onboarding.cigarettesPerDayCount ?? 0;
-    final packPrice = onboarding.packPrice ?? 0;
-    final cigarettesPerPack = onboarding.cigarettesPerPack ?? 20;
-    
-    // Calcular o gasto diário em centavos
-    final dailyCost = cigarettesPerDay * (packPrice / cigarettesPerPack);
-    // Calcular o gasto mensal em reais
-    final monthlyCost = (dailyCost * 30) / 100;
-    
-    // Texto para o objetivo
-    final goalText = onboarding.goal == GoalType.reduce 
-        ? localizations.reduceConsumption
-        : localizations.quitSmoking;
-    
-    // Texto para o prazo
-    String timelineText = localizations.atYourOwnPace;
-    if (onboarding.goalTimeline == GoalTimeline.sevenDays) {
-      timelineText = localizations.nextSevenDays;
-    } else if (onboarding.goalTimeline == GoalTimeline.fourteenDays) {
-      timelineText = localizations.nextTwoWeeks;
-    } else if (onboarding.goalTimeline == GoalTimeline.thirtyDays) {
-      timelineText = localizations.nextMonth;
-    }
-
-    return OnboardingContainer(
-      title: localizations.allDone,
-      subtitle: localizations.personalizedJourney,
-      showBackButton: false,
-      nextButtonText: localizations.startMyJourney,
-      contentType: OnboardingContentType.scrollable,
-      content: Column(
-        children: [
-          const SizedBox(height: 16), // Reduzido para 16
-          
-          // Imagem de sucesso com glassmorphism
-          _buildSuccessIcon(context),
-          
-          const SizedBox(height: 20), // Reduzido para 20
-          
-          // Título centralizado sem alternância de layout
-          Text(
-            localizations.congratulations,
-            style: GoogleFonts.poppins(
-              fontSize: 17, // Reduzido para 17
-              fontWeight: FontWeight.bold,
-              color: context.primaryColor,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          
-          const SizedBox(height: 10), // Reduzido para 10
-          
-          // Resumo personalizado - mais compacto
-          Text(
-            onboarding.goal == GoalType.reduce 
-                ? localizations.personalizedPlanReduce(timelineText)
-                : localizations.personalizedPlanQuit(timelineText),
-            style: context.textTheme.bodyMedium?.copyWith(
-              color: context.subtitleColor,
-              height: 1.3, // Reduzido para 1.3
-              fontSize: 14, // Tamanho reduzido
-            ),
-            textAlign: TextAlign.center,
-          ),
-          
-          const SizedBox(height: 16), // Reduzido para 16
-          
-          // Painel de resumo
-          _buildSummaryPanel(context, cigarettesPerDay, monthlyCost, goalText, onboarding),
-          
-          const SizedBox(height: 20), // Reduzido para 20
-          
-          // Sempre mostra benefícios em grid, sem opção de lista
-          _buildBenefitsGrid(context),
-          
-          // Ajustar para deixar espaço para o botão no bottom
-          const SizedBox(height: 24), // Reduzido para 24
-        ],
-      ),
-      onNext: () async {
-        // Mostrar indicador de carregamento
-        // ignore: use_build_context_synchronously
-        showDialog(
-          context: context,
-          barrierDismissible: false,
-          builder: (context) => Center(
-            child: CircularProgressIndicator(
-              color: context.primaryColor,
-            ),
-          ),
-        );
+    return BlocBuilder<OnboardingBloc, OnboardingState>(
+      builder: (context, state) {
+        final onboarding = state.onboarding;
         
-        try {
-          // Abordagem simplificada: completar onboarding com foco na UI
-          print('✅ [CompletionScreen] Completando onboarding');
-          await provider.completeOnboarding();
-          
-          // Pequeno delay para garantir que o estado seja propagado
-          await Future.delayed(const Duration(milliseconds: 300));
-          
-          // Fechar o diálogo de carregamento e navegar
-          if (context.mounted) {
-            Navigator.of(context).pop();
-            
-            // Navegar imediatamente para a tela principal
-            print('🚀 [CompletionScreen] Navegando para a tela principal');
-            context.go(AppRoutes.main.path);
-          }
-        } catch (e) {
-          print('❌ [CompletionScreen] Erro ao completar onboarding: $e');
-          
-          // Mesmo com erro, tentar realizar a navegação
-          if (context.mounted) {
-            Navigator.of(context).pop();
-            
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(localizations.somethingWentWrong),
-                duration: const Duration(seconds: 2),
-                behavior: SnackBarBehavior.floating,
+        if (onboarding == null) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        
+        // Calcular economia mensal
+        final cigarettesPerDay = onboarding.cigarettesPerDayCount ?? 0;
+        final packPrice = onboarding.packPrice ?? 0;
+        final cigarettesPerPack = onboarding.cigarettesPerPack ?? 20;
+        
+        // Calcular o gasto diário em centavos
+        final dailyCost = cigarettesPerDay * (packPrice / cigarettesPerPack);
+        // Calcular o gasto mensal em reais
+        final monthlyCost = (dailyCost * 30) / 100;
+        
+        // Texto para o objetivo
+        final goalText = onboarding.goal == GoalType.reduce 
+            ? localizations.reduceConsumption
+            : localizations.quitSmoking;
+        
+        // Texto para o prazo
+        String timelineText = localizations.atYourOwnPace;
+        if (onboarding.goalTimeline == GoalTimeline.sevenDays) {
+          timelineText = localizations.nextSevenDays;
+        } else if (onboarding.goalTimeline == GoalTimeline.fourteenDays) {
+          timelineText = localizations.nextTwoWeeks;
+        } else if (onboarding.goalTimeline == GoalTimeline.thirtyDays) {
+          timelineText = localizations.nextMonth;
+        }
+
+        return OnboardingContainer(
+          title: localizations.allDone,
+          subtitle: localizations.personalizedJourney,
+          showBackButton: false,
+          nextButtonText: localizations.startMyJourney,
+          contentType: OnboardingContentType.scrollable,
+          content: Column(
+            children: [
+              const SizedBox(height: 16), // Reduzido para 16
+              
+              // Imagem de sucesso com glassmorphism
+              _buildSuccessIcon(context),
+              
+              const SizedBox(height: 20), // Reduzido para 20
+              
+              // Título centralizado sem alternância de layout
+              Text(
+                localizations.congratulations,
+                style: GoogleFonts.poppins(
+                  fontSize: 17, // Reduzido para 17
+                  fontWeight: FontWeight.bold,
+                  color: context.primaryColor,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              
+              const SizedBox(height: 10), // Reduzido para 10
+              
+              // Resumo personalizado - mais compacto
+              Text(
+                onboarding.goal == GoalType.reduce 
+                    ? localizations.personalizedPlanReduce(timelineText)
+                    : localizations.personalizedPlanQuit(timelineText),
+                style: context.textTheme.bodyMedium?.copyWith(
+                  color: context.subtitleColor,
+                  height: 1.3, // Reduzido para 1.3
+                  fontSize: 14, // Tamanho reduzido
+                ),
+                textAlign: TextAlign.center,
+              ),
+              
+              const SizedBox(height: 16), // Reduzido para 16
+              
+              // Painel de resumo
+              _buildSummaryPanel(context, cigarettesPerDay, monthlyCost, goalText, onboarding),
+              
+              const SizedBox(height: 20), // Reduzido para 20
+              
+              // Sempre mostra benefícios em grid, sem opção de lista
+              _buildBenefitsGrid(context),
+              
+              // Ajustar para deixar espaço para o botão no bottom
+              const SizedBox(height: 24), // Reduzido para 24
+            ],
+          ),
+          onNext: () async {
+            // Mostrar indicador de carregamento
+            // ignore: use_build_context_synchronously
+            showDialog(
+              context: context,
+              barrierDismissible: false,
+              builder: (context) => Center(
+                child: CircularProgressIndicator(
+                  color: context.primaryColor,
+                ),
               ),
             );
             
-            // Navegação de fallback mesmo com erro
-            print('⚠️ [CompletionScreen] Navegando com fallback');
-            context.go(AppRoutes.main.path);
-          }
-        }
+            try {
+              // Abordagem simplificada: completar onboarding com foco na UI
+              print('✅ [CompletionScreen] Completando onboarding');
+              
+              // Usando o BLoC para completar o onboarding
+              context.read<OnboardingBloc>().add(CompleteOnboarding());
+              
+              // Pequeno delay para garantir que o estado seja propagado
+              await Future.delayed(const Duration(milliseconds: 300));
+              
+              // Fechar o diálogo de carregamento e navegar
+              if (context.mounted) {
+                Navigator.of(context).pop();
+                
+                // Navegar imediatamente para a tela principal
+                print('🚀 [CompletionScreen] Navegando para a tela principal');
+                context.go(AppRoutes.main.path);
+              }
+            } catch (e) {
+              print('❌ [CompletionScreen] Erro ao completar onboarding: $e');
+              
+              // Mesmo com erro, tentar realizar a navegação
+              if (context.mounted) {
+                Navigator.of(context).pop();
+                
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(localizations.somethingWentWrong),
+                    duration: const Duration(seconds: 2),
+                    behavior: SnackBarBehavior.floating,
+                  ),
+                );
+                
+                // Navegação de fallback mesmo com erro
+                print('⚠️ [CompletionScreen] Navegando com fallback');
+                context.go(AppRoutes.main.path);
+              }
+            }
+          },
+        );
       },
     );
   }
