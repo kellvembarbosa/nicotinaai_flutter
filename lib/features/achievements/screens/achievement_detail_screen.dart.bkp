@@ -1,13 +1,13 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:nicotinaai_flutter/core/theme/app_theme.dart';
 import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
-import 'package:nicotinaai_flutter/blocs/achievement/achievement_bloc.dart';
-import 'package:nicotinaai_flutter/blocs/achievement/achievement_event.dart';
-import 'package:nicotinaai_flutter/blocs/achievement/achievement_state.dart';
 
+import '../providers/achievement_provider.dart';
 import '../models/user_achievement.dart';
 import '../models/achievement_definition.dart';
 
@@ -15,68 +15,52 @@ class AchievementDetailScreen extends StatelessWidget {
   static const String routeName = '/achievement-detail';
   final String achievementId;
   
-  const AchievementDetailScreen({required this.achievementId, super.key});
+  const AchievementDetailScreen({required this.achievementId, Key? key}) : super(key: key);
   
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final achievementProvider = Provider.of<AchievementProvider>(context);
+    final state = achievementProvider.state;
     
-    return BlocBuilder<AchievementBloc, AchievementState>(
-      builder: (context, state) {
-        // Find the achievement
-        final achievement = state.getAchievementById(achievementId);
-        
-        if (achievement == null) {
-          return Scaffold(
-            appBar: AppBar(
-              title: Text(l10n.achievements),
-              leading: IconButton(
-                icon: const Icon(Icons.arrow_back),
-                onPressed: () => context.pop(),
-              ),
+    // Find the achievement
+    final achievement = state.userAchievements.firstWhere(
+      (a) => a.id == achievementId,
+      orElse: () => throw Exception('Achievement not found'),
+    );
+    
+    final isUnlocked = achievement.isUnlocked;
+    
+    // Mark as viewed if unlocked
+    if (isUnlocked && !achievement.isViewed) {
+      // Use Future.microtask to avoid build-time side effects
+      Future.microtask(() {
+        achievementProvider.markAchievementAsViewed(achievementId);
+      });
+    }
+    
+    return Scaffold(
+      backgroundColor: context.backgroundColor,
+      body: CustomScrollView(
+        physics: const BouncingScrollPhysics(),
+        slivers: [
+          _buildSliverAppBar(context, achievement, l10n),
+          SliverToBoxAdapter(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildAchievementCard(context, achievement, l10n),
+                _buildProgressSection(context, achievement, l10n),
+                _buildRequirementSection(context, achievement, l10n),
+                if (achievement.definition.xpReward > 0) 
+                  _buildRewardSection(context, achievement, l10n),
+                if (!isUnlocked) 
+                  _buildTipsSection(context, achievement, l10n),
+              ],
             ),
-            body: Center(
-              child: Text('Achievement not found'),
-            ),
-          );
-        }
-        
-        final isUnlocked = achievement.isUnlocked;
-        
-        // Mark as viewed if unlocked
-        if (isUnlocked && !achievement.isViewed) {
-          // Use addPostFrameCallback to avoid build-time side effects
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (context.mounted) {
-              context.read<AchievementBloc>().add(MarkAchievementAsViewed(achievementId));
-            }
-          });
-        }
-        
-        return Scaffold(
-          backgroundColor: context.backgroundColor,
-          body: CustomScrollView(
-            physics: const BouncingScrollPhysics(),
-            slivers: [
-              _buildSliverAppBar(context, achievement, l10n),
-              SliverToBoxAdapter(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildAchievementCard(context, achievement, l10n),
-                    _buildProgressSection(context, achievement, l10n),
-                    _buildRequirementSection(context, achievement, l10n),
-                    if (achievement.definition.xpReward > 0) 
-                      _buildRewardSection(context, achievement, l10n),
-                    if (!isUnlocked) 
-                      _buildTipsSection(context, achievement, l10n),
-                  ],
-                ),
-              ),
-            ],
           ),
-        );
-      },
+        ],
+      ),
     );
   }
   
@@ -89,8 +73,8 @@ class AchievementDetailScreen extends StatelessWidget {
           ? Colors.black.withOpacity(0.8) 
           : context.primaryColor,
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back, color: Colors.white),
-        onPressed: () => context.pop(), // Use context.pop for GoRouter
+        icon: Icon(Icons.arrow_back, color: Colors.white),
+        onPressed: () => Navigator.pop(context), // Use Navigator.pop to go back in history
       ),
       flexibleSpace: FlexibleSpaceBar(
         title: Text(
