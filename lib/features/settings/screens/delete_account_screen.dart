@@ -78,8 +78,15 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
               ),
             );
             
-            // Navega para tela de login
-            context.go(AppRoutes.login.path);
+            // Garantir que a navegação para login aconteça após um pequeno delay
+            // para dar tempo ao SnackBar aparecer
+            Future.delayed(const Duration(milliseconds: 500), () {
+              // Força navegação para tela de login e limpa a pilha de navegação
+              if (context.mounted) {
+                print('🔄 [DeleteAccountScreen] Redirecionando para tela de login');
+                context.go(AppRoutes.login.path);
+              }
+            });
           }
           
           // Mostra erro se houver
