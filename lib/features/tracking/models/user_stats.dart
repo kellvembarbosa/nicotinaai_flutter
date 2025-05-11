@@ -19,6 +19,9 @@ class UserStats {
   final int? cigarettesPerPack;
   final int? packPrice;
   final String? currencyCode;
+  
+  // Novos campos para o sistema centralizado
+  final int? cigarettesSmoked;
   final int? smokingRecordsCount; // Number of smoking records
 
   const UserStats({
@@ -40,7 +43,8 @@ class UserStats {
     this.cigarettesPerPack,
     this.packPrice,
     this.currencyCode,
-    this.smokingRecordsCount,
+    this.cigarettesSmoked = 0,
+    this.smokingRecordsCount = 0,
   });
 
   // Copy constructor
@@ -63,6 +67,7 @@ class UserStats {
     int? cigarettesPerPack,
     int? packPrice,
     String? currencyCode,
+    int? cigarettesSmoked,
     int? smokingRecordsCount,
   }) {
     return UserStats(
@@ -84,6 +89,7 @@ class UserStats {
       cigarettesPerPack: cigarettesPerPack ?? this.cigarettesPerPack,
       packPrice: packPrice ?? this.packPrice,
       currencyCode: currencyCode ?? this.currencyCode,
+      cigarettesSmoked: cigarettesSmoked ?? this.cigarettesSmoked,
       smokingRecordsCount: smokingRecordsCount ?? this.smokingRecordsCount,
     );
   }
@@ -144,7 +150,8 @@ class UserStats {
       cigarettesPerPack: json['cigarettes_per_pack'],
       packPrice: json['pack_price'],
       currencyCode: json['currency_code'],
-      smokingRecordsCount: json['smoking_records_count'],
+      cigarettesSmoked: json['cigarettes_smoked'] ?? 0,
+      smokingRecordsCount: json['smoking_records_count'] ?? 0,
     );
   }
 
@@ -169,6 +176,7 @@ class UserStats {
       if (cigarettesPerPack != null) 'cigarettes_per_pack': cigarettesPerPack,
       if (packPrice != null) 'pack_price': packPrice,
       if (currencyCode != null) 'currency_code': currencyCode,
+      if (cigarettesSmoked != null) 'cigarettes_smoked': cigarettesSmoked,
       if (smokingRecordsCount != null) 'smoking_records_count': smokingRecordsCount,
     };
   }
@@ -194,6 +202,7 @@ class UserStats {
       other.cigarettesPerPack == cigarettesPerPack &&
       other.packPrice == packPrice &&
       other.currencyCode == currencyCode &&
+      other.cigarettesSmoked == cigarettesSmoked &&
       other.smokingRecordsCount == smokingRecordsCount;
   }
 
@@ -215,6 +224,7 @@ class UserStats {
       cigarettesPerPack.hashCode ^
       packPrice.hashCode ^
       currencyCode.hashCode ^
+      cigarettesSmoked.hashCode ^
       smokingRecordsCount.hashCode;
   }
 }

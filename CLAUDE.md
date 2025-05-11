@@ -106,44 +106,162 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
   - `<feature>_bloc.dart`: Contains BLoC implementation
   - `<feature>_event.dart`: Contains all events for the feature
   - `<feature>_state.dart`: Contains state classes for the feature
-- Example implementation:
-  ```dart
-  // Event
-  abstract class CounterEvent {}
-  class IncrementEvent extends CounterEvent {}
-  
-  // State
-  class CounterState {
-    final int count;
-    const CounterState({this.count = 0});
-    
-    CounterState copyWith({int? count}) {
-      return CounterState(count: count ?? this.count);
-    }
+
+## Example: Shopping Cart with BLoC Pattern
+
+### Business Logic Service: lib/services/cart_service.dart
+```dart
+import 'package:your_app/models/cart_item.dart';
+
+class CartService {
+  final List<CartItem> _items = [];
+
+  List<CartItem> get items => List.unmodifiable(_items);
+
+  void addItem(CartItem item) {
+    _items.add(item);
   }
-  
-  // BLoC
-  class CounterBloc extends Bloc<CounterEvent, CounterState> {
-    CounterBloc() : super(const CounterState()) {
-      on<IncrementEvent>(_onIncrement);
-    }
-    
-    void _onIncrement(IncrementEvent event, Emitter<CounterState> emit) {
-      emit(state.copyWith(count: state.count + 1));
-    }
+
+  void removeItem(String id) {
+    _items.removeWhere((item) => item.id == id);
   }
-  
-  // UI usage with BlocBuilder
-  BlocBuilder<CounterBloc, CounterState>(
-    builder: (context, state) {
-      return Text('${state.count}');
-    },
-  )
-  
-  // Dispatch events
-  context.read<CounterBloc>().add(IncrementEvent());
-  ```
-  
+
+  double get totalPrice =>
+    _items.fold(0, (sum, item) => sum + item.price * item.quantity);
+}
+```
+
+### Model: lib/models/cart_item.dart
+```dart
+import 'package:freezed_annotation/freezed_annotation.dart';
+
+part 'cart_item.freezed.dart';
+part 'cart_item.g.dart';
+
+@freezed
+class CartItem with _$CartItem {
+  const factory CartItem({
+    required String id,
+    required String name,
+    required double price,
+    required int quantity,
+  }) = _CartItem;
+
+  factory CartItem.fromJson(Map<String, dynamic> json) => _$CartItemFromJson(json);
+}
+```
+
+### CartBloc: lib/blocs/cart_bloc.dart
+```dart
+import 'package:bloc/bloc.dart';
+import 'package:your_app/models/cart_item.dart';
+import 'package:your_app/services/cart_service.dart';
+
+// Events
+abstract class CartEvent {}
+class LoadCart extends CartEvent {}
+class AddToCart extends CartEvent {
+  final CartItem item;
+  AddToCart(this.item);
+}
+class RemoveFromCart extends CartEvent {
+  final String itemId;
+  RemoveFromCart(this.itemId);
+}
+
+// State
+class CartState {
+  final List<CartItem> items;
+  final double total;
+  const CartState({required this.items, required this.total});
+}
+
+// BLoC
+class CartBloc extends Bloc<CartEvent, CartState> {
+  final CartService _service;
+
+  CartBloc(this._service) : super(CartState(items: [], total: 0)) {
+    on<LoadCart>((_, emit) {
+      emit(CartState(items: _service.items, total: _service.totalPrice));
+    });
+    on<AddToCart>((event, emit) {
+      _service.addItem(event.item);
+      emit(CartState(items: _service.items, total: _service.totalPrice));
+    });
+    on<RemoveFromCart>((event, emit) {
+      _service.removeItem(event.itemId);
+      emit(CartState(items: _service.items, total: _service.totalPrice));
+    });
+  }
+}
+```
+
+### UI: CartScreen
+```dart
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:your_app/blocs/cart_bloc.dart';
+import 'package:your_app/services/cart_service.dart';
+import 'package:get_it/get_it.dart';
+
+final getIt = GetIt.instance;
+// Registrar em main.dart:
+// getIt.registerLazySingleton<CartService>(() => CartService());
+// getIt.registerFactory<CartBloc>(() => CartBloc(getIt()));
+
+class CartScreen extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (_) => CartBloc(getIt())..add(LoadCart()),
+      child: Scaffold(
+        appBar: AppBar(title: const Text('Seu Carrinho')),
+        body: BlocBuilder<CartBloc, CartState>(
+          builder: (_, state) {
+            if (state.items.isEmpty) {
+              return const Center(child: Text('Carrinho vazio'));  
+            }
+            return Column(
+              children: [
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: state.items.length,
+                    itemBuilder: (_, i) {
+                      final item = state.items[i];
+                      return ListTile(
+                        title: Text(item.name),
+                        subtitle: Text('x${item.quantity}'),
+                        trailing: Text('R\$ ${item.price * item.quantity}'),
+                        onLongPress: () => context.read<CartBloc>().add(RemoveFromCart(item.id)),
+                      );
+                    },
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Text(
+                    'Total: R\$ ${state.total}',
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                ),
+              ],
+            );
+          },
+        ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            // Exemplo de item adicionado
+            final item = CartItem(id: '1', name: 'Produto Exemplo', price: 29.90, quantity: 1);
+            context.read<CartBloc>().add(AddToCart(item));
+          },
+          child: const Icon(Icons.add_shopping_cart),
+        ),
+      ),
+    );
+  }
+}
+```
+
 ## Optimistic Updates with BLoC
 - Implement optimistic updates by:
   1. Emitting an immediate state change with expected result

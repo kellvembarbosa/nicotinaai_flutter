@@ -65,6 +65,17 @@ class UpdateCraving extends TrackingEvent {
   UpdateCraving({required this.craving});
 }
 
+class CravingAdded extends TrackingEvent {
+  // Removendo "const" para evitar erro com super constructor
+  CravingAdded();
+}
+
+class SmokingRecordAdded extends TrackingEvent {
+  final int amount;
+  
+  SmokingRecordAdded({required this.amount});
+}
+
 // Health Recoveries events
 class LoadHealthRecoveries extends TrackingEvent {
   final bool forceRefresh;

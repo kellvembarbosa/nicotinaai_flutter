@@ -7,23 +7,26 @@ import 'package:nicotinaai_flutter/blocs/auth/auth_state.dart' as bloc_auth;
 import 'package:nicotinaai_flutter/blocs/smoking_record/smoking_record_bloc.dart';
 import 'package:nicotinaai_flutter/blocs/smoking_record/smoking_record_event.dart';
 import 'package:nicotinaai_flutter/blocs/smoking_record/smoking_record_state.dart';
+import 'package:nicotinaai_flutter/blocs/tracking/tracking_bloc.dart';
+import 'package:nicotinaai_flutter/blocs/tracking/tracking_event.dart';
 import 'package:nicotinaai_flutter/core/theme/app_theme.dart';
 import 'package:nicotinaai_flutter/features/home/models/smoking_record_model.dart';
 import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
+import 'package:nicotinaai_flutter/utils/stats_calculator.dart';
 
 class NewRecordSheet extends StatefulWidget {
   const NewRecordSheet({super.key});
 
-  static Future<bool> show(BuildContext context) async {
-    final result = await showModalBottomSheet<bool>(
+  static Future<Map<String, dynamic>?> show(BuildContext context) async {
+    final result = await showModalBottomSheet<Map<String, dynamic>>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       barrierColor: Colors.black.withOpacity(0.6),
       builder: (context) => const NewRecordSheet(),
     );
-    // Returns true if a record was successfully registered
-    return result ?? false;
+    // Returns data if a record was successfully registered
+    return result;
   }
 
   @override
@@ -124,8 +127,59 @@ class _NewRecordSheetState extends State<NewRecordSheet> {
             print('✅ Smoking record saved successfully!');
           }
           
-          // Close the sheet with success result
-          Navigator.of(context).pop(true);
+          // Obter dados para atualização otimista usando o StatsCalculator
+          final smokingRecordBloc = BlocProvider.of<SmokingRecordBloc>(context);
+          final trackingBloc = BlocProvider.of<TrackingBloc>(context);
+          final currentStats = trackingBloc.state.userStats;
+          
+          // Calcular quantidade de cigarros fumados com base na seleção
+          int cigarettesSmoked = 1; // Valor padrão
+          switch (_selectedAmount) {
+            case 'one_or_less':
+              cigarettesSmoked = 1;
+              break;
+            case 'two_to_five':
+              cigarettesSmoked = 3; // Valor médio entre 2 e 5
+              break;
+            case 'more_than_five':
+              cigarettesSmoked = 7; // Valor estimado para mais de 5
+              break;
+          }
+          
+          if (kDebugMode) {
+            print('💡 [NewRecordSheet] Usando StatsCalculator para atualização otimista');
+          }
+          
+          // Disparar o evento SmokingRecordAdded para o TrackingBloc
+          trackingBloc.add(SmokingRecordAdded(amount: cigarettesSmoked));
+          
+          // Valores atualizados para retornar na interface (apenas para atualização imediata)
+          int currentStreakDays = 0; // Reinicia quando fuma
+          int moneySaved = 0;
+          
+          // Aplicar StatsCalculator para obter os valores atualizados
+          if (currentStats != null) {
+            final updatedStats = StatsCalculator.calculateAddSmoking(currentStats, cigarettesSmoked);
+            currentStreakDays = updatedStats.currentStreakDays ?? 0;
+            moneySaved = updatedStats.moneySaved;
+            
+            if (kDebugMode) {
+              print('💡 [NewRecordSheet] Valores calculados pelo StatsCalculator:');
+              print('  - Cigarros fumados: $cigarettesSmoked');
+              print('  - Dias sem fumar: $currentStreakDays (reiniciado)');
+              print('  - Economia: ${currentStats.moneySaved} -> ${updatedStats.moneySaved} centavos');
+            }
+          }
+          
+          // Close the sheet with data for optimistic update
+          Navigator.of(context).pop({
+            'registered': true,
+            'stats': {
+              'currentStreakDays': currentStreakDays,
+              'cigarettesAvoided': 0, // Reinicia quando fuma
+              'moneySaved': moneySaved,
+            }
+          });
         } else if (state.status == SmokingRecordStatus.error) {
           // The save operation failed
           if (kDebugMode) {

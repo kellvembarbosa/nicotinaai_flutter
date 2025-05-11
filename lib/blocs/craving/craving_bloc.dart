@@ -6,6 +6,7 @@ import 'package:nicotinaai_flutter/blocs/tracking/tracking_event.dart';
 import 'package:nicotinaai_flutter/features/home/models/craving_model.dart';
 import 'package:nicotinaai_flutter/features/home/repositories/craving_repository.dart';
 import 'package:nicotinaai_flutter/features/tracking/repositories/tracking_repository.dart';
+import 'package:nicotinaai_flutter/utils/stats_calculator.dart';
 
 import 'craving_event.dart';
 import 'craving_state.dart';
@@ -275,8 +276,15 @@ class CravingBloc extends Bloc<CravingEvent, CravingState> {
   // Update tracking stats after changes to cravings
   void _updateTrackingStats() {
     if (_trackingBloc != null) {
-      _trackingBloc.add(ForceUpdateStats());
-      debugPrint('✅ [CravingBloc] Updated tracking stats');
+      // Primeiro dispara o evento otimista de craving adicionado
+      _trackingBloc.add(CravingAdded());
+      
+      // Em seguida, programa atualização completa com leve atraso para garantir persistência
+      Future.delayed(const Duration(milliseconds: 300), () {
+        _trackingBloc.add(ForceUpdateStats());
+      });
+      
+      debugPrint('✅ [CravingBloc] Updated tracking stats with optimistic update');
     } else {
       debugPrint('⚠️ [CravingBloc] TrackingBloc not available to update stats');
     }

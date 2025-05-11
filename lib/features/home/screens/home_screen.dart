@@ -25,6 +25,7 @@ import 'package:nicotinaai_flutter/features/tracking/widgets/health_recovery_wid
 import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
 import 'package:nicotinaai_flutter/utils/currency_utils.dart';
 import 'package:nicotinaai_flutter/utils/health_recovery_utils.dart';
+import 'package:nicotinaai_flutter/utils/stats_calculator.dart';
 
 class HomeScreen extends StatefulWidget {
   static const String routeName = '/home';
@@ -106,8 +107,8 @@ class _HomeScreenState extends State<HomeScreen> {
     final now = DateTime.now();
     if (_lastUpdateTime != null) {
       final timeSinceLastUpdate = now.difference(_lastUpdateTime!);
-      // Se a última atualização foi há menos de 2 segundos, ignorar
-      // Reduzido de 10 segundos para 2 segundos para maior responsividade
+      // Mais responsivo: Se a última atualização foi há menos de 2 segundos, ignorar
+      // (reduzido de 10 segundos para 2 segundos para maior responsividade)
       if (timeSinceLastUpdate.inSeconds < 2) {
         if (kDebugMode) {
           print('🕒 Última atualização foi há apenas ${timeSinceLastUpdate.inSeconds} segundos, ignorando');
@@ -209,7 +210,7 @@ class _HomeScreenState extends State<HomeScreen> {
           _healthRecoveryStatus = newHealthRecoveryStatus;
           _stats = updatedStats;
           _daysWithoutSmoking = updatedDaysWithoutSmoking;
-          _minutesLifeGained = (_stats?.cigarettesAvoided ?? 0) * 6; // Each cigarette not smoked gives ~6 minutes
+          _minutesLifeGained = StatsCalculator.calculateMinutesGained(_stats?.cigarettesAvoided ?? 0); // Usando cálculo centralizado
           _breathCapacityPercent = _daysWithoutSmoking > 30 ? 40 : (_daysWithoutSmoking > 7 ? 20 : 10);
           _cravingsResisted = updatedCravingsResisted;
           _dailyMinutesGained = _daysWithoutSmoking == 0 ? 0 : _minutesLifeGained ~/ _daysWithoutSmoking;
@@ -219,29 +220,31 @@ class _HomeScreenState extends State<HomeScreen> {
             print('💰 Dias sem fumar: $_daysWithoutSmoking, Cigarros evitados: ${_stats?.cigarettesAvoided}');
           }
           
-          // Verificar se o valor do servidor é válido - se for próximo de 247 centavos consistentemente,
-          // há um problema no cálculo do servidor
+          // Usar o StatsCalculator para calcular o valor de economia localmente e garantir consistência
           if (updatedMoneySaved > 0 && updatedMoneySaved != 247) {
-            // Use o valor do servidor se parecer válido
+            // Usar o valor do servidor se parecer válido
             _moneySavedInCents = updatedMoneySaved;
           } else {
-            // SOLUÇÃO TEMPORÁRIA: Calcular o valor localmente se o servidor retornar zero ou 247 centavos
-            // Assumindo preço médio de R$12,00 por maço com 20 cigarros
-            const int defaultPackPriceInCents = 1200; // R$12,00
-            const int defaultCigarettesPerPack = 20;
-            const int defaultCigarettesPerDay = 20; // Se não temos o valor real, assumimos 1 maço por dia
-            
-            // Cálculo: dias sem fumar * cigarros por dia * (preço do maço / cigarros por maço)
-            final int cigarettesAvoided = _stats?.cigarettesAvoided ?? (_daysWithoutSmoking * defaultCigarettesPerDay);
-            final double pricePerCigarette = defaultPackPriceInCents / defaultCigarettesPerPack;
-            final int calculatedMoneySaved = (cigarettesAvoided * pricePerCigarette).round();
-            
-            if (kDebugMode) {
-              print('💰 CALCULANDO LOCALMENTE: dias=$_daysWithoutSmoking, cigarros evitados=$cigarettesAvoided');
-              print('💰 Preço por cigarro=$pricePerCigarette centavos, economia calculada=$calculatedMoneySaved centavos');
+            // Usar o StatsCalculator para calcular o valor localmente
+            // Não precisamos dos valores padrão pois o StatsCalculator já os fornece
+            if (_stats != null) {
+              final int cigarettesAvoided = _stats!.cigarettesAvoided;
+              // Usar mesmo cálculo que no StatsCalculator para garantir consistência
+              final double pricePerCigarette = 
+                (_stats!.packPrice ?? StatsCalculator.DEFAULT_PACK_PRICE_CENTS) / 
+                (_stats!.cigarettesPerPack ?? StatsCalculator.DEFAULT_CIGARETTES_PER_PACK);
+              
+              final int calculatedMoneySaved = (cigarettesAvoided * pricePerCigarette).round();
+              
+              if (kDebugMode) {
+                print('💰 CALCULANDO LOCALMENTE (StatsCalculator): dias=$_daysWithoutSmoking, cigarros evitados=$cigarettesAvoided');
+                print('💰 Preço por cigarro=$pricePerCigarette centavos, economia calculada=$calculatedMoneySaved centavos');
+              }
+              
+              _moneySavedInCents = calculatedMoneySaved > 0 ? calculatedMoneySaved : updatedMoneySaved;
+            } else {
+              _moneySavedInCents = updatedMoneySaved;
             }
-            
-            _moneySavedInCents = calculatedMoneySaved > 0 ? calculatedMoneySaved : updatedMoneySaved;
           }
           
           // Load the next health milestone
@@ -321,6 +324,9 @@ class _HomeScreenState extends State<HomeScreen> {
               // Listener para TrackingBloc
               BlocListener<TrackingBloc, TrackingState>(
                 listenWhen: (previous, current) => 
+                  // Adicionar verificação específica para o caso de estado inicial
+                  previous.lastUpdated != current.lastUpdated || 
+                  (previous.userStats == null && current.userStats != null) ||
                   // Listen specifically for changes in key stats values
                   previous.userStats?.cravingsResisted != current.userStats?.cravingsResisted || 
                   previous.userStats?.currentStreakDays != current.userStats?.currentStreakDays ||
@@ -328,13 +334,13 @@ class _HomeScreenState extends State<HomeScreen> {
                   (previous.userStats?.lastSmokeDate?.millisecondsSinceEpoch ?? 0) != 
                   (current.userStats?.lastSmokeDate?.millisecondsSinceEpoch ?? 0) ||
                   // Also listen for changes in loading state or update timestamp
-                  previous.isStatsLoading != current.isStatsLoading ||
-                  previous.lastUpdated != current.lastUpdated,
+                  previous.isStatsLoading != current.isStatsLoading,
                 listener: (context, state) {
                   // Atualizar dados locais quando o estado do TrackingBloc mudar
                   if (state.isLoaded || !state.isStatsLoading) {
                     if (kDebugMode) {
                       print('🔄 [HomeScreen] TrackingBloc state changed, reloading data');
+                      print('📊 [HomeScreen] Cravings resistidos: ${state.userStats?.cravingsResisted ?? 0}');
                     }
                     _loadData(state);
                   }
@@ -343,19 +349,23 @@ class _HomeScreenState extends State<HomeScreen> {
               // Listener para SmokingRecordBloc - com detecção melhorada de mudanças
               BlocListener<SmokingRecordBloc, SmokingRecordState>(
                 listenWhen: (previous, current) {
-                  // Detectar mudanças na quantidade de registros ou no status
+                  // Importante: detectar mudanças na quantidade de registros ou status
                   return previous.records.length != current.records.length ||
                          previous.status != current.status ||
                          (previous.status == SmokingRecordStatus.saving && 
                           current.status == SmokingRecordStatus.loaded);
                 },
                 listener: (context, state) {
-                  // Reagir a mudanças no estado do SmokingRecordBloc
-                  // Forçar atualização das estatísticas quando houver mudanças nos registros
+                  if (kDebugMode) {
+                    print('🔄 [HomeScreen] SmokingRecordBloc state mudou: ${state.status}');
+                    print('📊 [HomeScreen] Número de registros: ${state.records.length}');
+                  }
+                  
+                  // Sempre forçar atualização quando o estado mudar significativamente
                   final trackingBloc = BlocProvider.of<TrackingBloc>(context);
                   trackingBloc.add(ForceUpdateStats());
                   
-                  // Forçar atualização imediata da UI
+                  // Forçar a UI a atualizar imediatamente
                   WidgetsBinding.instance.addPostFrameCallback((_) {
                     if (mounted && !_isUpdating) {
                       _loadData(trackingBloc.state);
@@ -366,8 +376,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ],
             child: BlocBuilder<TrackingBloc, TrackingState>(
               builder: (context, trackingState) {
-                // Verifica se passou pelo menos 1 segundo desde a última atualização
-                // Reduzido de 5 segundos para 1 segundo para maior responsividade
+                // Reduzido para 1 segundo (em vez de 5) para maior responsividade
                 bool canUpdate = true;
                 if (_lastUpdateTime != null) {
                   final timeSinceLastUpdate = DateTime.now().difference(_lastUpdateTime!);
@@ -383,10 +392,11 @@ class _HomeScreenState extends State<HomeScreen> {
                   _stats?.moneySaved != trackingState.userStats?.moneySaved ||
                   (_stats?.lastSmokeDate?.millisecondsSinceEpoch ?? 0) != (trackingState.userStats?.lastSmokeDate?.millisecondsSinceEpoch ?? 0) ||
                   (_userRecoveryIds.isEmpty && trackingState.userHealthRecoveries.isNotEmpty) ||
-                  // Condições adicionais para melhor detecção
+                  // Importante: usar timestamp como inteiro e comparar valores
                   (trackingState.lastUpdated != null && 
                    _lastUpdateTime != null && 
                    trackingState.lastUpdated! > _lastUpdateTime!.millisecondsSinceEpoch) ||
+                  // Mesmo sem alterações de valores, podemos ter novas entradas 
                   (_stats != null && trackingState.userStats != null && 
                    (_stats!.smokingRecordsCount != trackingState.userStats!.smokingRecordsCount))
                 );
@@ -544,40 +554,24 @@ class _HomeScreenState extends State<HomeScreen> {
                                     Icons.air,
                                     () {
                                       // Use the BLoC version of RegisterCravingSheet
-                                      RegisterCravingSheetBloc.show(context).then((registered) {
-                                        // Only update if a craving was actually registered
-                                        if (registered) {
+                                      RegisterCravingSheetBloc.show(context).then((result) {
+                                        // Only update if a craving was actually registered and we have data
+                                        if (result != null && result['registered'] == true) {
                                           if (kDebugMode) {
                                             print("🔄 Updating after registering craving with BLoC");
+                                            print("📊 Optimistic update data: ${result['stats']}");
                                           }
                                           
-                                          // Force full update of statistics (via BLoC)
+                                          // Agora apenas observamos as mudanças no BLoC via BlocListener
+                                          // em vez de atualizar diretamente a UI
+                                          
+                                          // Force full update of statistics (via BLoC) - isso vai acionar o BlocListener
                                           final trackingBloc = BlocProvider.of<TrackingBloc>(context);
-                                          trackingBloc.add(ForceUpdateStats());
                                           
-                                          // Force a UI refresh as well
-                                          setState(() {
-                                            _isUpdating = false;
-                                            _lastUpdateTime = null; // Clear update time to force refresh
-                                          });
-                                          
-                                          // Log current stats
+                                          // Já não precisamos definir explicitamente valores da UI, o BLoC cuidará disso
                                           if (kDebugMode) {
-                                            print('🔢 Current cravings resisted: ${trackingBloc.state.cravingsResisted}');
+                                            print('🔢 Delegando atualização para o TrackingBloc via CravingAdded event');
                                           }
-                                          
-                                          // Wait slightly to let changes propagate
-                                          Future.delayed(const Duration(milliseconds: 500), () {
-                                            // Force data reload directly after a delay
-                                            if (mounted) {
-                                              setState(() {}); // Trigger rebuild
-                                              _loadData(trackingBloc.state);
-                                              
-                                              if (kDebugMode) {
-                                                print('🔢 After refresh - cravings resisted: ${trackingBloc.state.cravingsResisted}');
-                                              }
-                                            }
-                                          });
                                         }
                                       });
                                     },
@@ -593,40 +587,25 @@ class _HomeScreenState extends State<HomeScreen> {
                                     Icons.smoking_rooms,
                                     () {
                                       // Usar a versão BLoC da sheet
-                                      NewRecordSheet.show(context).then((registered) {
+                                      NewRecordSheet.show(context).then((result) {
                                         // Só atualiza se um record foi realmente registrado
-                                        if (registered) {
+                                        if (result != null && result['registered'] == true) {
                                           if (kDebugMode) {
                                             print("🔄 Atualizando após registrar cigarro com BLoC");
+                                            print("📊 Dados para atualização otimista: ${result['stats']}");
                                           }
+                                          
+                                          // Agora apenas observamos as mudanças no BLoC via BlocListener
+                                          // em vez de atualizar diretamente a UI
                                           
                                           // Forçar atualização completa das estatísticas (via BLoC)
                                           final trackingBloc = BlocProvider.of<TrackingBloc>(context);
                                           trackingBloc.add(ForceUpdateStats());
                                           
-                                          // Force a UI refresh as well
-                                          setState(() {
-                                            _isUpdating = false;
-                                            _lastUpdateTime = null; // Clear update time to force refresh
-                                          });
-                                          
-                                          // Log current stats
+                                          // Já não precisamos definir explicitamente valores da UI, o BLoC cuidará disso
                                           if (kDebugMode) {
-                                            print('🔢 Current stats before refresh');
+                                            print('🔢 Delegando atualização para o TrackingBloc via SmokingRecordAdded event');
                                           }
-                                          
-                                          // Wait slightly to let changes propagate
-                                          Future.delayed(const Duration(milliseconds: 500), () {
-                                            // Force data reload directly after a delay
-                                            if (mounted) {
-                                              setState(() {}); // Trigger rebuild
-                                              _loadData(trackingBloc.state);
-                                              
-                                              if (kDebugMode) {
-                                                print('🔢 After refresh - stats updated');
-                                              }
-                                            }
-                                          });
                                         }
                                       });
                                     },
