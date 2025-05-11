@@ -409,35 +409,30 @@ class SettingsRepository {
         // Procedimento de limpeza final
         print('🧹 [SettingsRepository] Realizando limpeza final...');
         
-        // Se o hard delete via Edge Function falhou, precisamos desabilitar a conta
-        // usando um método mais agressivo para cumprir as exigências da Apple
+        // Se apenas quisermos desativar a conta sem impedir registro futuro
+        // Apenas marcamos os metadados e ignoramos qualquer operação na senha
         final wasHardDeleted = response?.status == 200;
         
         if (!wasHardDeleted) {
-          print('🔒 [SettingsRepository] Hard delete não foi bem-sucedido, desabilitando conta...');
+          print('🔒 [SettingsRepository] Hard delete não foi bem-sucedido, desabilitando conta via metadados...');
           
           try {
-            // Mudamos a senha para uma aleatória extremamente complexa que ninguém conhecerá
-            final secureRandomPassword = DateTime.now().millisecondsSinceEpoch.toString() + 
-                                         'X${user.id}X' + 
-                                         DateTime.now().microsecond.toString();
-            
-            // Atualiza a senha para algo impossível de adivinhar
+            // Apenas atualizamos os metadados marcando a conta como excluída
+            // Isso permitirá que o usuário use o mesmo email para se registrar no futuro
             await _supabaseClient.auth.updateUser(
               UserAttributes(
-                password: secureRandomPassword,
                 data: {
                   'account_deleted': true,
                   'deletion_timestamp': DateTime.now().toIso8601String(),
                   'deletion_complete': true,
-                  'deletion_method': 'soft_delete_with_password_change'
+                  'deletion_method': 'soft_delete_with_metadata'
                 }
               )
             );
             
-            print('🔑 [SettingsRepository] Senha alterada para impedir login futuro');
-          } catch (passwordError) {
-            print('⚠️ [SettingsRepository] Erro ao alterar senha: $passwordError');
+            print('📝 [SettingsRepository] Metadados atualizados para marcar conta como excluída');
+          } catch (metadataError) {
+            print('⚠️ [SettingsRepository] Erro ao atualizar metadados: $metadataError');
           }
         }
         
