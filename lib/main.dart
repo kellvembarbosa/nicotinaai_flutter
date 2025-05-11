@@ -17,7 +17,7 @@ import 'package:nicotinaai_flutter/features/tracking/repositories/tracking_repos
 import 'package:nicotinaai_flutter/features/achievements/services/achievement_service.dart';
 import 'package:nicotinaai_flutter/features/achievements/services/achievement_notification_service.dart';
 import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
-import 'package:nicotinaai_flutter/services/analytics_service.dart';
+import 'package:nicotinaai_flutter/services/analytics/analytics_service.dart';
 import 'package:nicotinaai_flutter/services/notification_service.dart';
 import 'package:nicotinaai_flutter/services/supabase_diagnostic.dart';
 import 'package:nicotinaai_flutter/features/settings/repositories/settings_repository.dart';
@@ -42,6 +42,8 @@ import 'package:nicotinaai_flutter/blocs/theme/theme_state.dart' as theme_state;
 import 'package:nicotinaai_flutter/blocs/settings/settings_bloc.dart';
 import 'package:nicotinaai_flutter/blocs/tracking/tracking_bloc.dart';
 import 'package:nicotinaai_flutter/blocs/tracking/tracking_event.dart';
+import 'package:nicotinaai_flutter/blocs/analytics/analytics_bloc.dart';
+import 'package:nicotinaai_flutter/blocs/analytics/analytics_event.dart';
 
 void main() async {
   // Garante que os widgets estão iniciados antes de chamar código nativo
@@ -80,11 +82,28 @@ void main() async {
   // Inicializa o serviço de notificações após Supabase e Firebase
   await NotificationService().initialize();
   
-  // Inicializa o serviço de analytics (Facebook App Events)
+  // Inicializa o serviço de analytics (novo sistema com PostHog)
   try {
-    await AnalyticsService().initialize();
-    debugPrint('✅ Analytics service initialized successfully');
-    await AnalyticsService().logAppOpen();
+    // API KEY do PostHog
+    const apiKey = 'phc_6p1aoXFElcMePRqaKvhQq7J55xisFMoc0tfQXezeq4c';
+    
+    // Primeiro inicializa o serviço (que adicionará Facebook por padrão)
+    final analyticsService = AnalyticsService();
+    await analyticsService.initialize();
+    
+    // Depois adiciona o PostHog
+    await analyticsService.addAdapter(
+      'PostHog',
+      config: {
+        'apiKey': apiKey,
+        'host': 'https://us.i.posthog.com', // Host correto
+      },
+    );
+    
+    // Registrar evento de abertura do app
+    await analyticsService.logAppOpen();
+    
+    debugPrint('✅ Analytics service with PostHog initialized successfully');
   } catch (e) {
     debugPrint('⚠️ Analytics initialization error: $e');
     // Continue without analytics if it fails
@@ -306,6 +325,11 @@ class MyApp extends StatelessWidget {
                 settingsRepository: settingsRepository,
               );
             },
+          ),
+
+          // AnalyticsBloc - Novo BLoC para analytics
+          BlocProvider<AnalyticsBloc>(
+            create: (context) => AnalyticsBloc()..add(const InitializeAnalyticsEvent()),
           ),
           
           // Todos os providers legados foram removidos
