@@ -36,12 +36,19 @@ class LocaleBloc extends Bloc<LocaleEvent, LocaleState> {
               .select('locale')
               .eq('user_id', user.id)
               .single()
-              .catchError((e) => null);
+              .catchError((e) {
+                print('⚠️ Supabase query error: $e');
+                return null;
+              });
           
           if (response != null && response['locale'] != null) {
             savedLocale = response['locale'] as String;
             print('✅ Loaded locale from Supabase: $savedLocale');
+          } else {
+            print('ℹ️ No locale found in Supabase for user ${user.id}');
           }
+        } else {
+          print('ℹ️ No authenticated user, skipping Supabase locale lookup');
         }
       } catch (supabaseError) {
         // Just log the error but continue with SharedPreferences
@@ -55,6 +62,8 @@ class LocaleBloc extends Bloc<LocaleEvent, LocaleState> {
         
         if (savedLocale != null) {
           print('✅ Loaded locale from SharedPreferences: $savedLocale');
+        } else {
+          print('ℹ️ No locale found in SharedPreferences');
         }
       }
 
@@ -105,6 +114,8 @@ class LocaleBloc extends Bloc<LocaleEvent, LocaleState> {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_localeKey, localeString);
     
+    print('💾 Saving locale to preferences: $localeString');
+    
     // Try to save to Supabase
     try {
       final supabase = Supabase.instance.client;
@@ -116,6 +127,9 @@ class LocaleBloc extends Bloc<LocaleEvent, LocaleState> {
           'locale': localeString,
           'updated_at': DateTime.now().toIso8601String(),
         }, onConflict: 'user_id');
+        print('✅ Saved locale to Supabase for user ${user.id}: $localeString');
+      } else {
+        print('ℹ️ No authenticated user, skipping Supabase locale save');
       }
     } catch (e) {
       // Just log the error

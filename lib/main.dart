@@ -88,9 +88,8 @@ void main() async {
     // Continue without analytics if it fails
   }
   
-  // Garante que a preferência de idioma está definida para inglês
+  // Obtém a instância do SharedPreferences para log
   final prefs = await SharedPreferences.getInstance();
-  await prefs.setString('app_locale', 'en_US');
   
   // Adiciona um listener para debugar alterações no SharedPreferences
   print("🔍 SharedPreferences values at startup:");
