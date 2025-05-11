@@ -19,6 +19,7 @@ class UserStats {
   final int? cigarettesPerPack;
   final int? packPrice;
   final String? currencyCode;
+  final int? smokingRecordsCount; // Number of smoking records
 
   const UserStats({
     this.id,
@@ -39,6 +40,7 @@ class UserStats {
     this.cigarettesPerPack,
     this.packPrice,
     this.currencyCode,
+    this.smokingRecordsCount,
   });
 
   // Copy constructor
@@ -61,6 +63,7 @@ class UserStats {
     int? cigarettesPerPack,
     int? packPrice,
     String? currencyCode,
+    int? smokingRecordsCount,
   }) {
     return UserStats(
       id: id ?? this.id,
@@ -81,6 +84,7 @@ class UserStats {
       cigarettesPerPack: cigarettesPerPack ?? this.cigarettesPerPack,
       packPrice: packPrice ?? this.packPrice,
       currencyCode: currencyCode ?? this.currencyCode,
+      smokingRecordsCount: smokingRecordsCount ?? this.smokingRecordsCount,
     );
   }
 
@@ -140,6 +144,7 @@ class UserStats {
       cigarettesPerPack: json['cigarettes_per_pack'],
       packPrice: json['pack_price'],
       currencyCode: json['currency_code'],
+      smokingRecordsCount: json['smoking_records_count'],
     );
   }
 
@@ -164,6 +169,7 @@ class UserStats {
       if (cigarettesPerPack != null) 'cigarettes_per_pack': cigarettesPerPack,
       if (packPrice != null) 'pack_price': packPrice,
       if (currencyCode != null) 'currency_code': currencyCode,
+      if (smokingRecordsCount != null) 'smoking_records_count': smokingRecordsCount,
     };
   }
 
@@ -187,7 +193,8 @@ class UserStats {
       other.cigarettesPerDay == cigarettesPerDay &&
       other.cigarettesPerPack == cigarettesPerPack &&
       other.packPrice == packPrice &&
-      other.currencyCode == currencyCode;
+      other.currencyCode == currencyCode &&
+      other.smokingRecordsCount == smokingRecordsCount;
   }
 
   @override
@@ -207,6 +214,7 @@ class UserStats {
       cigarettesPerDay.hashCode ^
       cigarettesPerPack.hashCode ^
       packPrice.hashCode ^
-      currencyCode.hashCode;
+      currencyCode.hashCode ^
+      smokingRecordsCount.hashCode;
   }
 }

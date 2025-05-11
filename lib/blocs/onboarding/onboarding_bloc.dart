@@ -6,6 +6,7 @@ import 'package:nicotinaai_flutter/config/supabase_config.dart';
 import 'package:nicotinaai_flutter/features/onboarding/models/onboarding_model.dart';
 import 'package:nicotinaai_flutter/features/onboarding/repositories/onboarding_repository.dart';
 import 'package:nicotinaai_flutter/services/analytics_service.dart';
+import 'package:nicotinaai_flutter/services/onboarding_sync_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'onboarding_event.dart';
@@ -260,6 +261,16 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
           if (savedOnboarding.id != null) {
             await _repository.completeOnboarding(savedOnboarding.id!);
             debugPrint('✅ [OnboardingBloc] Status salvo no Supabase com sucesso');
+            
+            // IMPORTANTE: Sincronizar dados do onboarding para UserStats
+            debugPrint('🔄 [OnboardingBloc] Sincronizando dados do onboarding para UserStats');
+            final syncService = OnboardingSyncService();
+            final syncSuccess = await syncService.syncOnboardingDataToUserStats();
+            if (syncSuccess) {
+              debugPrint('✅ [OnboardingBloc] Dados do onboarding sincronizados com UserStats');
+            } else {
+              debugPrint('⚠️ [OnboardingBloc] Falha ao sincronizar dados com UserStats');
+            }
           }
         } catch (e) {
           debugPrint('⚠️ [OnboardingBloc] Erro ao salvar no Supabase: $e');
