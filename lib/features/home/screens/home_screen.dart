@@ -43,7 +43,8 @@ class _HomeScreenState extends State<HomeScreen> {
   int? _minutesLifeGained;
   int? _breathCapacityPercent;
   int? _cravingsResisted;
-  int? _dailyMinutesGained;
+  // Não precisamos mais dessa variável de estado, usaremos o cálculo em tempo real
+  // int? _dailyMinutesGained;
   int? _moneySavedInCents;
   UserStats? _stats;
   // Health recovery IDs
@@ -213,13 +214,17 @@ class _HomeScreenState extends State<HomeScreen> {
           _healthRecoveryStatus = newHealthRecoveryStatus;
           _stats = updatedStats;
           _daysWithoutSmoking = updatedDaysWithoutSmoking;
-          _minutesLifeGained = updatedStats?.cigarettesAvoided != null ? 
-              StatsCalculator.calculateMinutesGained(updatedStats!.cigarettesAvoided) : null;
+          // Preferir usar o valor do banco de dados se disponível
+          _minutesLifeGained = updatedStats?.totalMinutesGained != null && updatedStats!.totalMinutesGained! > 0 
+              ? updatedStats.totalMinutesGained 
+              : updatedStats?.cigarettesAvoided != null 
+                ? StatsCalculator.calculateMinutesGained(updatedStats!.cigarettesAvoided) 
+                : null;
           _breathCapacityPercent = _daysWithoutSmoking != null ? 
               (_daysWithoutSmoking! > 30 ? 40 : (_daysWithoutSmoking! > 7 ? 20 : 10)) : null;
           _cravingsResisted = updatedCravingsResisted;
-          _dailyMinutesGained = _daysWithoutSmoking != null && _minutesLifeGained != null && _daysWithoutSmoking! > 0 ? 
-              _minutesLifeGained! ~/ _daysWithoutSmoking! : null;
+          // Removemos o cálculo incorreto de _dailyMinutesGained aqui
+          // Ele será calculado com mais precisão na função _calculateDailyMinutesGained()
           // Debug para analisar o valor da economia
           if (kDebugMode) {
             print('💰 Valor economizado recebido do servidor: $updatedMoneySaved centavos');
@@ -549,7 +554,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 Expanded(
                                   child: _buildDailyStatCard(
                                     context,
-                                    _dailyMinutesGained == null ? null : (_dailyMinutesGained! > 0 ? '$_dailyMinutesGained min' : '0'),
+                                    _calculateDailyMinutesGained(),
                                     l10n.homeMinutesGainedToday,
                                     Colors.teal,
                                     Icons.favorite,
@@ -1338,6 +1343,57 @@ class _HomeScreenState extends State<HomeScreen> {
       case 7: return 'Domingo';
       default: return '';
     }
+  }
+  
+  /// Calcula os minutos ganhos hoje (nas últimas 24 horas)
+  /// Retorna string formatada ou null se não existirem dados
+  String? _calculateDailyMinutesGained() {
+    if (_stats == null) {
+      return null;
+    }
+    
+    // Agora preferimos usar o valor já calculado no banco de dados
+    // que é atualizado pela Edge Function updateUserStats
+    if (_stats!.minutesGainedToday != null && _stats!.minutesGainedToday! > 0) {
+      final minutesToday = _stats!.minutesGainedToday!;
+      if (kDebugMode) {
+        print('📊 Usando minutesGainedToday do DB: $minutesToday min');
+      }
+      return '$minutesToday min';
+    }
+    
+    // Cálculo de fallback caso o campo no DB ainda não exista
+    if (_minutesLifeGained == null || _cravingsResisted == null) {
+      return null;
+    }
+    
+    final int cigarettesPerDay = _stats!.cigarettesPerDay ?? StatsCalculator.DEFAULT_CIGARETTES_PER_DAY;
+    
+    // Se o usuário tem menos de 1 dia sem fumar, os minutos ganhos hoje são 
+    // simplesmente o total de minutos ganhos
+    if ((_daysWithoutSmoking ?? 0) < 1) {
+      final minutesToday = _minutesLifeGained!;
+      return minutesToday > 0 ? '$minutesToday min' : '0';
+    }
+
+    // Para calcular os minutos ganhos hoje, usamos os cravings resistidos de hoje
+    // e o cálculo de minutos por cigarro
+    final int cravingsToday = _cravingsResisted!;
+    
+    // Se não há cravings registrados hoje, podemos estimar com base na média 
+    // de cigarros por dia que o usuário fumava antes
+    final int estimatedMinutesToday = cravingsToday > 0 
+        ? cravingsToday * StatsCalculator.MINUTES_PER_CIGARETTE
+        : cigarettesPerDay > 0 
+          ? StatsCalculator.MINUTES_PER_CIGARETTE * cigarettesPerDay ~/ 24
+          : 0;
+    
+    if (kDebugMode) {
+      print('📊 Minutos ganhos hoje (cálculo fallback): $estimatedMinutesToday (baseado em $cravingsToday cravings)');
+      print('📊 Cigarros por dia antes de parar: $cigarettesPerDay');
+    }
+    
+    return estimatedMinutesToday > 0 ? '$estimatedMinutesToday min' : '0';
   }
   
   // Build a motivational card when there are no achievements
