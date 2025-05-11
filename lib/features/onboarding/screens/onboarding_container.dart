@@ -1,10 +1,11 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:nicotinaai_flutter/blocs/onboarding/onboarding_bloc.dart';
+import 'package:nicotinaai_flutter/blocs/onboarding/onboarding_event.dart';
+import 'package:nicotinaai_flutter/blocs/onboarding/onboarding_state.dart';
 import 'package:nicotinaai_flutter/core/theme/app_theme.dart';
-import 'package:nicotinaai_flutter/features/onboarding/models/onboarding_state.dart';
-import 'package:nicotinaai_flutter/features/onboarding/providers/onboarding_provider.dart';
 import 'package:nicotinaai_flutter/features/onboarding/widgets/progress_bar.dart';
 import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
 
@@ -64,44 +65,45 @@ class _OnboardingContainerState extends State<OnboardingContainer> {
   
   @override
   Widget build(BuildContext context) {
-    final onboardingProvider = Provider.of<OnboardingProvider>(context);
-    final state = onboardingProvider.state;
-    
-    return Scaffold(
-      backgroundColor: context.backgroundColor,
-      body: SafeArea(
-        child: Column(
-          children: [
-            // Barra de progresso no topo com padding reduzido
-            Padding(
-              padding: const EdgeInsets.fromLTRB(24, 12, 24, 0),
-              child: ProgressBar(
-                current: state.currentStep,
-                total: state.totalSteps,
-              ),
+    return BlocBuilder<OnboardingBloc, OnboardingState>(
+      builder: (context, state) {
+        return Scaffold(
+          backgroundColor: context.backgroundColor,
+          body: SafeArea(
+            child: Column(
+              children: [
+                // Barra de progresso no topo com padding reduzido
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(24, 12, 24, 0),
+                  child: ProgressBar(
+                    current: state.currentStep,
+                    total: state.totalSteps,
+                  ),
+                ),
+                
+                // Conteúdo principal - ocupa toda a área disponível
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(24, 12, 24, 0),
+                    child: _buildContentArea(context, state),
+                  ),
+                ),
+                
+                // Botões de navegação com padding reduzido
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(24, 12, 24, 12),
+                  child: _buildNavigationButtons(context, state),
+                ),
+              ],
             ),
-            
-            // Conteúdo principal - ocupa toda a área disponível
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(24, 12, 24, 0),
-                child: _buildContentArea(context, state, onboardingProvider),
-              ),
-            ),
-            
-            // Botões de navegação com padding reduzido
-            Padding(
-              padding: const EdgeInsets.fromLTRB(24, 12, 24, 12),
-              child: _buildNavigationButtons(context, onboardingProvider),
-            ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
   
   /// Constrói a área de conteúdo com base no tipo selecionado
-  Widget _buildContentArea(BuildContext context, OnboardingState state, OnboardingProvider onboardingProvider) {
+  Widget _buildContentArea(BuildContext context, OnboardingState state) {
     switch (widget.contentType) {
       case OnboardingContentType.regular:
         return _buildRegularContent(context, state);
@@ -191,26 +193,26 @@ class _OnboardingContainerState extends State<OnboardingContainer> {
   }
   
   /// Constrói os botões de navegação diretamente, sem container adicional
-  Widget _buildNavigationButtons(BuildContext context, OnboardingProvider onboardingProvider) {
+  Widget _buildNavigationButtons(BuildContext context, OnboardingState state) {
     return context.isDarkMode
-        ? _buildBlurredNavigationRow(context, onboardingProvider)
-        : _buildNavigationRow(context, onboardingProvider);
+        ? _buildBlurredNavigationRow(context, state)
+        : _buildNavigationRow(context, state);
   }
   
-  Widget _buildBlurredNavigationRow(BuildContext context, OnboardingProvider onboardingProvider) {
+  Widget _buildBlurredNavigationRow(BuildContext context, OnboardingState state) {
     return ClipRRect(
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
         child: Container(
           padding: EdgeInsets.zero,
           color: Colors.transparent,
-          child: _buildNavigationRow(context, onboardingProvider),
+          child: _buildNavigationRow(context, state),
         ),
       ),
     );
   }
   
-  Widget _buildNavigationRow(BuildContext context, OnboardingProvider onboardingProvider) {
+  Widget _buildNavigationRow(BuildContext context, OnboardingState state) {
     // Se não tiver botão voltar, exibe apenas o botão próximo com largura completa
     if (!widget.showBackButton) {
       return SizedBox(
@@ -281,7 +283,7 @@ class _OnboardingContainerState extends State<OnboardingContainer> {
         // Botão voltar (compacto)
         OutlinedButton(
           onPressed: () {
-            onboardingProvider.previousStep();
+            context.read<OnboardingBloc>().add(PreviousOnboardingStep());
           },
           style: OutlinedButton.styleFrom(
             side: BorderSide(color: context.borderColor),

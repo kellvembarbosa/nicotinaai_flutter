@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:nicotinaai_flutter/features/onboarding/providers/onboarding_provider.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:nicotinaai_flutter/blocs/onboarding/onboarding_bloc.dart';
+import 'package:nicotinaai_flutter/blocs/onboarding/onboarding_event.dart';
 import 'package:nicotinaai_flutter/features/onboarding/screens/onboarding_container.dart';
 import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -118,7 +119,6 @@ class _IntroductionScreenState extends State<IntroductionScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final provider = Provider.of<OnboardingProvider>(context);
     final localizations = AppLocalizations.of(context);
 
     return OnboardingContainer(
@@ -183,8 +183,8 @@ class _IntroductionScreenState extends State<IntroductionScreen> {
         // Iniciar solicitação de notificações em segundo plano
         _requestFCMNotification(context);
         
-        // Avançar para a próxima tela imediatamente
-        provider.nextStep();
+        // Avançar para a próxima tela usando BLoC
+        context.read<OnboardingBloc>().add(NextOnboardingStep());
       },
       // Indicador de carregamento no botão
       isLoading: _isRequestingNotification,
