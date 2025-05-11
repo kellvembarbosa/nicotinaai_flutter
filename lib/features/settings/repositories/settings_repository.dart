@@ -348,18 +348,17 @@ class SettingsRepository {
         print('🗑️ [SettingsRepository] Executando hard delete via Edge Function...');
         
         try {
-          // Obtém o token de acesso da sessão atual
-          final token = _supabaseClient.auth.currentSession?.accessToken;
-          
-          if (token == null) {
-            throw app_exceptions.AuthException('Token de acesso não disponível');
-          }
+          // Agora enviamos diretamente o user_id e password para a Edge Function
+          // Sem depender do token JWT
+          print('📤 [SettingsRepository] Enviando requisição para a Edge Function...');
           
           // Chamada da Edge Function para excluir a conta
           final response = await _supabaseClient.functions.invoke(
             'delete-user-account',
-            body: {'password': password},
-            headers: {'Authorization': 'Bearer $token'}
+            body: {
+              'password': password,
+              'user_id': user.id
+            }
           );
           
           // Verifica se a resposta foi bem-sucedida
