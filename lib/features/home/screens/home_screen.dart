@@ -25,6 +25,7 @@ import 'package:nicotinaai_flutter/features/tracking/widgets/health_recovery_wid
 import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
 import 'package:nicotinaai_flutter/utils/currency_utils.dart';
 import 'package:nicotinaai_flutter/utils/health_recovery_utils.dart';
+import 'package:nicotinaai_flutter/utils/stats_calculator.dart';
 
 class HomeScreen extends StatefulWidget {
   static const String routeName = '/home';
@@ -209,7 +210,7 @@ class _HomeScreenState extends State<HomeScreen> {
           _healthRecoveryStatus = newHealthRecoveryStatus;
           _stats = updatedStats;
           _daysWithoutSmoking = updatedDaysWithoutSmoking;
-          _minutesLifeGained = (_stats?.cigarettesAvoided ?? 0) * 6; // Each cigarette not smoked gives ~6 minutes
+          _minutesLifeGained = StatsCalculator.calculateMinutesGained(_stats?.cigarettesAvoided ?? 0); // Usando cálculo centralizado
           _breathCapacityPercent = _daysWithoutSmoking > 30 ? 40 : (_daysWithoutSmoking > 7 ? 20 : 10);
           _cravingsResisted = updatedCravingsResisted;
           _dailyMinutesGained = _daysWithoutSmoking == 0 ? 0 : _minutesLifeGained ~/ _daysWithoutSmoking;
@@ -219,29 +220,31 @@ class _HomeScreenState extends State<HomeScreen> {
             print('💰 Dias sem fumar: $_daysWithoutSmoking, Cigarros evitados: ${_stats?.cigarettesAvoided}');
           }
           
-          // Verificar se o valor do servidor é válido - se for próximo de 247 centavos consistentemente,
-          // há um problema no cálculo do servidor
+          // Usar o StatsCalculator para calcular o valor de economia localmente e garantir consistência
           if (updatedMoneySaved > 0 && updatedMoneySaved != 247) {
-            // Use o valor do servidor se parecer válido
+            // Usar o valor do servidor se parecer válido
             _moneySavedInCents = updatedMoneySaved;
           } else {
-            // SOLUÇÃO TEMPORÁRIA: Calcular o valor localmente se o servidor retornar zero ou 247 centavos
-            // Assumindo preço médio de R$12,00 por maço com 20 cigarros
-            const int defaultPackPriceInCents = 1200; // R$12,00
-            const int defaultCigarettesPerPack = 20;
-            const int defaultCigarettesPerDay = 20; // Se não temos o valor real, assumimos 1 maço por dia
-            
-            // Cálculo: dias sem fumar * cigarros por dia * (preço do maço / cigarros por maço)
-            final int cigarettesAvoided = _stats?.cigarettesAvoided ?? (_daysWithoutSmoking * defaultCigarettesPerDay);
-            final double pricePerCigarette = defaultPackPriceInCents / defaultCigarettesPerPack;
-            final int calculatedMoneySaved = (cigarettesAvoided * pricePerCigarette).round();
-            
-            if (kDebugMode) {
-              print('💰 CALCULANDO LOCALMENTE: dias=$_daysWithoutSmoking, cigarros evitados=$cigarettesAvoided');
-              print('💰 Preço por cigarro=$pricePerCigarette centavos, economia calculada=$calculatedMoneySaved centavos');
+            // Usar o StatsCalculator para calcular o valor localmente
+            // Não precisamos dos valores padrão pois o StatsCalculator já os fornece
+            if (_stats != null) {
+              final int cigarettesAvoided = _stats!.cigarettesAvoided;
+              // Usar mesmo cálculo que no StatsCalculator para garantir consistência
+              final double pricePerCigarette = 
+                (_stats!.packPrice ?? StatsCalculator.DEFAULT_PACK_PRICE_CENTS) / 
+                (_stats!.cigarettesPerPack ?? StatsCalculator.DEFAULT_CIGARETTES_PER_PACK);
+              
+              final int calculatedMoneySaved = (cigarettesAvoided * pricePerCigarette).round();
+              
+              if (kDebugMode) {
+                print('💰 CALCULANDO LOCALMENTE (StatsCalculator): dias=$_daysWithoutSmoking, cigarros evitados=$cigarettesAvoided');
+                print('💰 Preço por cigarro=$pricePerCigarette centavos, economia calculada=$calculatedMoneySaved centavos');
+              }
+              
+              _moneySavedInCents = calculatedMoneySaved > 0 ? calculatedMoneySaved : updatedMoneySaved;
+            } else {
+              _moneySavedInCents = updatedMoneySaved;
             }
-            
-            _moneySavedInCents = calculatedMoneySaved > 0 ? calculatedMoneySaved : updatedMoneySaved;
           }
           
           // Load the next health milestone
@@ -555,27 +558,15 @@ class _HomeScreenState extends State<HomeScreen> {
                                             print("📊 Optimistic update data: ${result['stats']}");
                                           }
                                           
-                                          // Atualização otimista diretamente na UI
-                                          setState(() {
-                                            // Atualizar diretamente contando com os dados da sheet
-                                            _cravingsResisted = result['stats']['cravingsResisted'];
-                                            _minutesLifeGained = result['stats']['cigarettesAvoided'] * 6;
-                                            _moneySavedInCents = result['stats']['moneySaved'];
-                                            
-                                            // Limpar flags para forçar refresh ao receber dados do servidor
-                                            _isUpdating = false;
-                                            _lastUpdateTime = null;
-                                          });
+                                          // Agora apenas observamos as mudanças no BLoC via BlocListener
+                                          // em vez de atualizar diretamente a UI
                                           
-                                          // Force full update of statistics (via BLoC)
+                                          // Force full update of statistics (via BLoC) - isso vai acionar o BlocListener
                                           final trackingBloc = BlocProvider.of<TrackingBloc>(context);
-                                          trackingBloc.add(ForceUpdateStats());
                                           
+                                          // Já não precisamos definir explicitamente valores da UI, o BLoC cuidará disso
                                           if (kDebugMode) {
-                                            print('🔢 Dados atualizados otimisticamente:');
-                                            print('  - Cravings resistidos: $_cravingsResisted');
-                                            print('  - Minutos de vida ganhos: $_minutesLifeGained');
-                                            print('  - Economia: $_moneySavedInCents centavos');
+                                            print('🔢 Delegando atualização para o TrackingBloc via CravingAdded event');
                                           }
                                         }
                                       });
@@ -600,32 +591,16 @@ class _HomeScreenState extends State<HomeScreen> {
                                             print("📊 Dados para atualização otimista: ${result['stats']}");
                                           }
                                           
-                                          // Atualização otimista diretamente na UI
-                                          setState(() {
-                                            // Quando registra cigarro, reinicia contagem
-                                            _daysWithoutSmoking = result['stats']['currentStreakDays'] ?? 0;
-                                            _minutesLifeGained = result['stats']['cigarettesAvoided'] * 6;
-                                            _moneySavedInCents = result['stats']['moneySaved'];
-                                            
-                                            // Resetar a capacidade pulmonar com base nos dias
-                                            _breathCapacityPercent = _daysWithoutSmoking > 30 ? 40 : 
-                                                                     (_daysWithoutSmoking > 7 ? 20 : 10);
-                                            
-                                            // Limpar flags para forçar refresh ao receber dados do servidor
-                                            _isUpdating = false;
-                                            _lastUpdateTime = null;
-                                          });
+                                          // Agora apenas observamos as mudanças no BLoC via BlocListener
+                                          // em vez de atualizar diretamente a UI
                                           
                                           // Forçar atualização completa das estatísticas (via BLoC)
                                           final trackingBloc = BlocProvider.of<TrackingBloc>(context);
                                           trackingBloc.add(ForceUpdateStats());
                                           
+                                          // Já não precisamos definir explicitamente valores da UI, o BLoC cuidará disso
                                           if (kDebugMode) {
-                                            print('🔢 Dados atualizados otimisticamente:');
-                                            print('  - Dias sem fumar: $_daysWithoutSmoking');
-                                            print('  - Minutos de vida ganhos: $_minutesLifeGained');
-                                            print('  - Capacidade pulmonar: $_breathCapacityPercent%');
-                                            print('  - Economia: $_moneySavedInCents centavos');
+                                            print('🔢 Delegando atualização para o TrackingBloc via SmokingRecordAdded event');
                                           }
                                         }
                                       });

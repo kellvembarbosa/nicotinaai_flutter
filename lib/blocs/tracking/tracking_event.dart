@@ -70,6 +70,12 @@ class CravingAdded extends TrackingEvent {
   CravingAdded();
 }
 
+class SmokingRecordAdded extends TrackingEvent {
+  final int amount;
+  
+  SmokingRecordAdded({required this.amount});
+}
+
 // Health Recoveries events
 class LoadHealthRecoveries extends TrackingEvent {
   final bool forceRefresh;

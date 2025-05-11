@@ -7,6 +7,7 @@ import 'package:nicotinaai_flutter/features/tracking/repositories/tracking_repos
 import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
 import 'package:nicotinaai_flutter/services/analytics_service.dart';
 import 'package:nicotinaai_flutter/services/notification_service.dart';
+import 'package:nicotinaai_flutter/utils/stats_calculator.dart';
 
 import 'tracking_event.dart';
 import 'tracking_state.dart';
@@ -46,6 +47,7 @@ class TrackingBloc extends Bloc<TrackingEvent, TrackingState> {
     on<RefreshSmokingLogs>(_onRefreshSmokingLogs);
     on<AddSmokingLog>(_onAddSmokingLog);
     on<DeleteSmokingLog>(_onDeleteSmokingLog);
+    on<SmokingRecordAdded>(_onSmokingRecordAdded);
     
     // Cravings events
     on<LoadCravings>(_onLoadCravings);
@@ -493,45 +495,29 @@ class TrackingBloc extends Bloc<TrackingEvent, TrackingState> {
     }
   }
   
-  /// Handler para o evento CravingAdded - atualização otimista imediata de todos os valores relacionados
+  /// Handler para o evento CravingAdded - atualização otimista imediata usando o StatsCalculator
   Future<void> _onCravingAdded(CravingAdded event, Emitter<TrackingState> emit) async {
     if (kDebugMode) {
       print('🔄 [TrackingBloc] Atualização otimista para craving adicionado');
     }
     
-    // Atualização otimista - incrementa imediatamente todos os valores relacionados
+    // Atualização otimista usando o calculator centralizado
     final currentStats = state.userStats;
     if (currentStats != null) {
-      // Valores padrão para cálculos em caso de valores faltantes
-      const int defaultPackPriceInCents = 1200; // R$12,00
-      const int defaultCigarettesPerPack = 20;
-      const int defaultCigarettesPerDay = 20;
-      
-      // Calcular o preço por cigarro
-      final double pricePerCigarette = 
-        (currentStats.packPrice ?? defaultPackPriceInCents) / 
-        (currentStats.cigarettesPerPack ?? defaultCigarettesPerPack);
-      
-      // Incrementar valores relevantes
-      final int newCravingsResisted = (currentStats.cravingsResisted ?? 0) + 1;
-      final int newCigarettesAvoided = (currentStats.cigarettesAvoided) + 1;
-      final int newMoneySaved = currentStats.moneySaved + pricePerCigarette.round();
+      // Usar o serviço centralizado para calcular os novos valores
+      final updatedStats = StatsCalculator.calculateAddCraving(currentStats);
       
       if (kDebugMode) {
         print('✅ [TrackingBloc] Atualizando otimisticamente:');
-        print('  - Cravings resistidos: ${currentStats.cravingsResisted} -> $newCravingsResisted');
-        print('  - Cigarros evitados: ${currentStats.cigarettesAvoided} -> $newCigarettesAvoided');
-        print('  - Economia: ${currentStats.moneySaved} -> $newMoneySaved centavos');
-        print('  - Minutos de vida ganhos: ${currentStats.cigarettesAvoided * 6} -> ${newCigarettesAvoided * 6}');
+        print('  - Cravings resistidos: ${currentStats.cravingsResisted} -> ${updatedStats.cravingsResisted}');
+        print('  - Cigarros evitados: ${currentStats.cigarettesAvoided} -> ${updatedStats.cigarettesAvoided}');
+        print('  - Economia: ${currentStats.moneySaved} -> ${updatedStats.moneySaved} centavos');
+        print('  - Minutos de vida ganhos: ${StatsCalculator.calculateMinutesGained(currentStats.cigarettesAvoided)} -> ${StatsCalculator.calculateMinutesGained(updatedStats.cigarettesAvoided)}');
       }
       
       // Emitir um novo estado com todos os valores atualizados
       emit(state.copyWith(
-        userStats: currentStats.copyWith(
-          cravingsResisted: newCravingsResisted,
-          cigarettesAvoided: newCigarettesAvoided,
-          moneySaved: newMoneySaved
-        ),
+        userStats: updatedStats,
         lastUpdated: DateTime.now().millisecondsSinceEpoch
       ));
     } else if (kDebugMode) {
@@ -545,6 +531,51 @@ class TrackingBloc extends Bloc<TrackingEvent, TrackingState> {
       
       if (kDebugMode) {
         print('✅ [TrackingBloc] Atualização de fundo completa para craving adicionado');
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('❌ [TrackingBloc] Erro na atualização de fundo: $e');
+      }
+      // Não expomos o erro para o usuário já que a atualização otimista foi feita
+    }
+  }
+  
+  /// Handler para o evento SmokingRecordAdded - atualização otimista imediata usando o StatsCalculator
+  Future<void> _onSmokingRecordAdded(SmokingRecordAdded event, Emitter<TrackingState> emit) async {
+    if (kDebugMode) {
+      print('🔄 [TrackingBloc] Atualização otimista para registro de fumo adicionado');
+    }
+    
+    // Atualização otimista usando o calculator centralizado
+    final currentStats = state.userStats;
+    if (currentStats != null) {
+      // Usar o serviço centralizado para calcular os novos valores
+      final updatedStats = StatsCalculator.calculateAddSmoking(currentStats, event.amount);
+      
+      if (kDebugMode) {
+        print('✅ [TrackingBloc] Atualizando otimisticamente para fumo:');
+        print('  - Cigarros fumados: ${currentStats.cigarettesSmoked} -> ${updatedStats.cigarettesSmoked}');
+        print('  - Registros: ${currentStats.smokingRecordsCount} -> ${updatedStats.smokingRecordsCount}');
+        print('  - Cigarros evitados: ${currentStats.cigarettesAvoided} -> ${updatedStats.cigarettesAvoided} (reset)');
+        print('  - Sequência atual (dias): ${currentStats.currentStreakDays} -> ${updatedStats.currentStreakDays} (reset)');
+      }
+      
+      // Emitir um novo estado com todos os valores atualizados
+      emit(state.copyWith(
+        userStats: updatedStats,
+        lastUpdated: DateTime.now().millisecondsSinceEpoch
+      ));
+    } else if (kDebugMode) {
+      print('⚠️ [TrackingBloc] Não foi possível fazer atualização otimista - userStats é null');
+    }
+    
+    // Em segundo plano, busca os dados atualizados
+    try {
+      await _repository.updateUserStats();
+      await _loadUserStats(emit, forceRefresh: true);
+      
+      if (kDebugMode) {
+        print('✅ [TrackingBloc] Atualização de fundo completa para registro de fumo');
       }
     } catch (e) {
       if (kDebugMode) {

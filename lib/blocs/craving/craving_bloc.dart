@@ -6,6 +6,7 @@ import 'package:nicotinaai_flutter/blocs/tracking/tracking_event.dart';
 import 'package:nicotinaai_flutter/features/home/models/craving_model.dart';
 import 'package:nicotinaai_flutter/features/home/repositories/craving_repository.dart';
 import 'package:nicotinaai_flutter/features/tracking/repositories/tracking_repository.dart';
+import 'package:nicotinaai_flutter/utils/stats_calculator.dart';
 
 import 'craving_event.dart';
 import 'craving_state.dart';

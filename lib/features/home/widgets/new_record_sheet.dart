@@ -12,6 +12,7 @@ import 'package:nicotinaai_flutter/blocs/tracking/tracking_event.dart';
 import 'package:nicotinaai_flutter/core/theme/app_theme.dart';
 import 'package:nicotinaai_flutter/features/home/models/smoking_record_model.dart';
 import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
+import 'package:nicotinaai_flutter/utils/stats_calculator.dart';
 
 class NewRecordSheet extends StatefulWidget {
   const NewRecordSheet({super.key});
@@ -126,19 +127,12 @@ class _NewRecordSheetState extends State<NewRecordSheet> {
             print('✅ Smoking record saved successfully!');
           }
           
-          // Calcular valores para atualização otimista
+          // Obter dados para atualização otimista usando o StatsCalculator
           final smokingRecordBloc = BlocProvider.of<SmokingRecordBloc>(context);
-          const int defaultPackPriceInCents = 1200; // R$12,00
-          const int defaultCigarettesPerPack = 20;
-          
-          // Obter dados do TrackingBloc para atualização otimista
           final trackingBloc = BlocProvider.of<TrackingBloc>(context);
           final currentStats = trackingBloc.state.userStats;
           
-          // Obter dias sem fumar do userStats
-          final currentStreakDays = 0; // Reinicia contagem quando fuma
-          
-          // Calcular valor monetário com base na quantidade de cigarros
+          // Calcular quantidade de cigarros fumados com base na seleção
           int cigarettesSmoked = 1; // Valor padrão
           switch (_selectedAmount) {
             case 'one_or_less':
@@ -152,20 +146,29 @@ class _NewRecordSheetState extends State<NewRecordSheet> {
               break;
           }
           
-          // Preço por cigarro
-          final double pricePerCigarette = 
-            (currentStats?.packPrice ?? defaultPackPriceInCents) / 
-            (currentStats?.cigarettesPerPack ?? defaultCigarettesPerPack);
-          
-          // Variação nos valores - um cigarro fumado diminui os valores
-          final totalMoneySaved = (currentStats?.moneySaved ?? 0) - (cigarettesSmoked * pricePerCigarette).round();
-          final moneySaved = totalMoneySaved < 0 ? 0 : totalMoneySaved;
-          
           if (kDebugMode) {
-            print('💡 [NewRecordSheet] Calculando valores para atualização otimista:');
-            print('  - Cigarros fumados: $cigarettesSmoked');
-            print('  - Dias sem fumar: $currentStreakDays (reiniciado)');
-            print('  - Economia: ${currentStats?.moneySaved ?? 0} -> $moneySaved centavos');
+            print('💡 [NewRecordSheet] Usando StatsCalculator para atualização otimista');
+          }
+          
+          // Disparar o evento SmokingRecordAdded para o TrackingBloc
+          trackingBloc.add(SmokingRecordAdded(amount: cigarettesSmoked));
+          
+          // Valores atualizados para retornar na interface (apenas para atualização imediata)
+          int currentStreakDays = 0; // Reinicia quando fuma
+          int moneySaved = 0;
+          
+          // Aplicar StatsCalculator para obter os valores atualizados
+          if (currentStats != null) {
+            final updatedStats = StatsCalculator.calculateAddSmoking(currentStats, cigarettesSmoked);
+            currentStreakDays = updatedStats.currentStreakDays ?? 0;
+            moneySaved = updatedStats.moneySaved;
+            
+            if (kDebugMode) {
+              print('💡 [NewRecordSheet] Valores calculados pelo StatsCalculator:');
+              print('  - Cigarros fumados: $cigarettesSmoked');
+              print('  - Dias sem fumar: $currentStreakDays (reiniciado)');
+              print('  - Economia: ${currentStats.moneySaved} -> ${updatedStats.moneySaved} centavos');
+            }
           }
           
           // Close the sheet with data for optimistic update

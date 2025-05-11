@@ -13,6 +13,7 @@ import 'package:nicotinaai_flutter/core/theme/app_theme.dart';
 import 'package:nicotinaai_flutter/features/achievements/helpers/achievement_helper.dart';
 import 'package:nicotinaai_flutter/features/home/models/craving_model.dart';
 import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
+import 'package:nicotinaai_flutter/utils/stats_calculator.dart';
 
 class RegisterCravingSheetBloc extends StatefulWidget {
   const RegisterCravingSheetBloc({super.key});
@@ -1684,28 +1685,35 @@ class _RegisterCravingSheetBlocState extends State<RegisterCravingSheetBloc> {
       // Wait a moment to let the CravingBloc process the event
       await Future.delayed(const Duration(milliseconds: 300));
       
-      // Calcular valores para atualização otimista
-      const int defaultPackPriceInCents = 1200; // R$12,00
-      const int defaultCigarettesPerPack = 20;
-      
       // Obter dados atuais do usuário através do TrackingBloc
       final currentStats = trackingBloc.state.userStats;
       
-      // Preço por cigarro (usando valores padrão se não disponíveis)
-      final double pricePerCigarette = 
-        (currentStats?.packPrice ?? defaultPackPriceInCents) / 
-        (currentStats?.cigarettesPerPack ?? defaultCigarettesPerPack);
-      
-      // Valores atualizados para atualização otimista
-      final int newCravingsResisted = (currentStats?.cravingsResisted ?? 0) + 1;
-      final int newCigarettesAvoided = (currentStats?.cigarettesAvoided ?? 0) + 1;
-      final int newMoneySaved = (currentStats?.moneySaved ?? 0) + pricePerCigarette.round();
-      
       if (kDebugMode) {
-        print('💡 [RegisterCravingSheetBloc] Calculando valores para atualização otimista:');
-        print('  - Cravings resistidos: ${currentStats?.cravingsResisted ?? 0} -> $newCravingsResisted');
-        print('  - Cigarros evitados: ${currentStats?.cigarettesAvoided ?? 0} -> $newCigarettesAvoided');
-        print('  - Economia: ${currentStats?.moneySaved ?? 0} -> $newMoneySaved centavos');
+        print('💡 [RegisterCravingSheetBloc] Usando StatsCalculator para atualização otimista');
+      }
+      
+      // Simplesmente disparar o evento CravingAdded para o TrackingBloc
+      // e ele aplicará o cálculo apropriado via StatsCalculator
+      trackingBloc.add(CravingAdded());
+      
+      // Valores atualizados para retornar na interface (apenas para atualização imediata)
+      int newCravingsResisted = 0;
+      int newCigarettesAvoided = 0;
+      int newMoneySaved = 0;
+      
+      // Aplicar StatsCalculator para obter os valores atualizados
+      if (currentStats != null) {
+        final updatedStats = StatsCalculator.calculateAddCraving(currentStats);
+        newCravingsResisted = updatedStats.cravingsResisted ?? 0;
+        newCigarettesAvoided = updatedStats.cigarettesAvoided;
+        newMoneySaved = updatedStats.moneySaved;
+        
+        if (kDebugMode) {
+          print('💡 [RegisterCravingSheetBloc] Valores calculados pelo StatsCalculator:');
+          print('  - Cravings resistidos: ${currentStats.cravingsResisted ?? 0} -> $newCravingsResisted');
+          print('  - Cigarros evitados: ${currentStats.cigarettesAvoided} -> $newCigarettesAvoided');
+          print('  - Economia: ${currentStats.moneySaved} -> $newMoneySaved centavos');
+        }
       }
       
       // Close the sheet and pass optimistic update data
