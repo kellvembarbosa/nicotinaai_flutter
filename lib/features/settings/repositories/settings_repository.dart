@@ -312,7 +312,7 @@ class SettingsRepository {
             // Remove os dados do usuário das tabelas principais
             await _supabaseClient.from(_userStatsTable).delete().eq('user_id', user.id);
             await _supabaseClient.from('cravings').delete().eq('user_id', user.id);
-            await _supabaseClient.from('smoking_records').delete().eq('user_id', user.id);
+            await _supabaseClient.from('smoking_logs').delete().eq('user_id', user.id);
             await _supabaseClient.from(_profilesTable).delete().eq('id', user.id);
           }
           

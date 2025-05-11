@@ -41,17 +41,13 @@ Deno.serve(async (req: Request) => {
     // Cria um cliente Supabase com a chave de serviço (tem permissões administrativas)
     const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Cria um cliente Supabase com o token do usuário (para obter o usuário atual)
-    const supabaseClient = createClient(supabaseUrl, supabaseServiceKey, {
-      global: {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      },
-    });
+    // Criar um cliente Supabase com a chave de serviço para verificar o JWT
+    const supabaseClient = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Obtém o usuário atual
-    const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
+    // Decodificar o JWT para obter o ID do usuário
+    try {
+      // Verificar o JWT fornecido pelo token do usuário
+      const { data: { user }, error: userError } = await supabaseClient.auth.getUser(token);
 
     if (userError || !user) {
       return new Response(JSON.stringify({ error: 'Failed to get user', details: userError }), {
