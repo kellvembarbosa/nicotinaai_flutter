@@ -14,6 +14,8 @@ import 'package:nicotinaai_flutter/blocs/theme/theme_state.dart';
 import 'package:nicotinaai_flutter/blocs/tracking/tracking_bloc.dart';
 import 'package:nicotinaai_flutter/blocs/tracking/tracking_event.dart';
 import 'package:nicotinaai_flutter/blocs/tracking/tracking_state.dart';
+import 'package:nicotinaai_flutter/blocs/achievement/achievement_bloc.dart';
+import 'package:nicotinaai_flutter/blocs/achievement/achievement_state.dart';
 import 'package:nicotinaai_flutter/core/routes/app_routes.dart';
 import 'package:nicotinaai_flutter/core/theme/app_theme.dart';
 import 'package:nicotinaai_flutter/core/theme/theme_switch.dart';
@@ -793,23 +795,28 @@ class _HomeScreenState extends State<HomeScreen> {
                           
                           // Achievement cards
                           BlocBuilder<TrackingBloc, TrackingState>(
-                            builder: (context, state) {
-                              // Check if BLoC is loaded and we have achievements
-                              bool hasRecoveries = state.isLoaded && 
-                                state.userHealthRecoveries.isNotEmpty;
-                                
-                              return hasRecoveries
-                                  // Show real user achievements when available
-                                  ? SizedBox(
-                                      height: 140,
-                                      child: ListView(
-                                        scrollDirection: Axis.horizontal,
-                                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                                        children: _buildRecentAchievements(context, l10n),
-                                      ),
-                                    )
-                                  // Show motivational card when we don't have achievements or we're loading
-                                  : _buildMotivationalCard(context, l10n);
+                            builder: (context, trackingState) {
+                              return BlocBuilder<AchievementBloc, AchievementState>(
+                                builder: (context, achievementState) {
+                                  // Check if BLoCs are loaded and we have achievements
+                                  bool hasRecoveries = trackingState.isLoaded && 
+                                    trackingState.userHealthRecoveries.isNotEmpty;
+                                  bool hasAchievements = achievementState.userAchievements.isNotEmpty;
+                                    
+                                  return (hasRecoveries || hasAchievements)
+                                      // Show real user achievements when available
+                                      ? SizedBox(
+                                          height: 140,
+                                          child: ListView(
+                                            scrollDirection: Axis.horizontal,
+                                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                                            children: _buildRecentAchievements(context, l10n),
+                                          ),
+                                        )
+                                      // Show motivational card when we don't have achievements or we're loading
+                                      : _buildMotivationalCard(context, l10n);
+                                },
+                              );
                             },
                           ),
                           
@@ -1072,69 +1079,74 @@ class _HomeScreenState extends State<HomeScreen> {
   }
   
   Widget _buildAchievementCard(BuildContext context, String milestone, String title, String description, Color color) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 8),
-      width: 160,
-      decoration: BoxDecoration(
-        color: context.cardColor,
-        borderRadius: BorderRadius.circular(16),
-        border: context.isDarkMode 
-            ? Border.all(color: context.borderColor)
-            : null,
-        boxShadow: context.isDarkMode 
-            ? null
-            : [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
+    return GestureDetector(
+      onTap: () {
+        // Sem navegação, apenas exibe os detalhes da conquista no lugar atual
+      },
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 8),
+        width: 160,
+        decoration: BoxDecoration(
+          color: context.cardColor,
+          borderRadius: BorderRadius.circular(16),
+          border: context.isDarkMode 
+              ? Border.all(color: context.borderColor)
+              : null,
+          boxShadow: context.isDarkMode 
+              ? null
+              : [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+        ),
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min, // Keep the column as small as possible
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: color.withOpacity(context.isDarkMode ? 0.2 : 0.15),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Text(
+                milestone,
+                style: context.textTheme.labelSmall!.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: color.withOpacity(context.isDarkMode ? 0.9 : 1.0),
+                  fontSize: 12,
                 ),
-              ],
-      ),
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min, // Keep the column as small as possible
-        children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            decoration: BoxDecoration(
-              color: color.withOpacity(context.isDarkMode ? 0.2 : 0.15),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Text(
-              milestone,
-              style: context.textTheme.labelSmall!.copyWith(
-                fontWeight: FontWeight.w600,
-                color: color.withOpacity(context.isDarkMode ? 0.9 : 1.0),
-                fontSize: 12,
               ),
             ),
-          ),
-          const SizedBox(height: 8), // Reduced spacing
-          Text(
-            title,
-            style: context.textTheme.titleMedium!.copyWith(
-              fontWeight: FontWeight.bold,
-              color: context.contentColor,
-              fontSize: 15, // Slightly smaller font
-            ),
-            maxLines: 1, // Limit to 1 line
-            overflow: TextOverflow.ellipsis,
-          ),
-          const SizedBox(height: 2), // Reduced spacing
-          Flexible(
-            child: Text(
-              description,
-              style: context.textTheme.bodySmall!.copyWith(
-                color: context.subtitleColor,
-                fontSize: 11, // Smaller font size
+            const SizedBox(height: 8), // Reduced spacing
+            Text(
+              title,
+              style: context.textTheme.titleMedium!.copyWith(
+                fontWeight: FontWeight.bold,
+                color: context.contentColor,
+                fontSize: 15, // Slightly smaller font
               ),
-              maxLines: 2,
+              maxLines: 1, // Limit to 1 line
               overflow: TextOverflow.ellipsis,
             ),
-          ),
-        ],
+            const SizedBox(height: 2), // Reduced spacing
+            Flexible(
+              child: Text(
+                description,
+                style: context.textTheme.bodySmall!.copyWith(
+                  color: context.subtitleColor,
+                  fontSize: 11, // Smaller font size
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -1544,6 +1556,8 @@ class _HomeScreenState extends State<HomeScreen> {
   
   List<Widget> _buildRecentAchievements(BuildContext context, AppLocalizations l10n) {
     final achievements = <Widget>[];
+    
+    // 1. Get health recovery achievements
     final trackingBloc = BlocProvider.of<TrackingBloc>(context);
     final userRecoveries = trackingBloc.state.userHealthRecoveries;
     final allRecoveries = trackingBloc.state.healthRecoveries;
@@ -1586,54 +1600,231 @@ class _HomeScreenState extends State<HomeScreen> {
       }
     }
     
-    // List of basic achievements based on days without smoking
+    // 2. Get achievements from AchievementBloc
+    final achievementBloc = BlocProvider.of<AchievementBloc>(context);
+    final userAchievements = achievementBloc.state.userAchievements.where((a) => a.isUnlocked).toList();
+    
+    for (var achievement in userAchievements) {
+      // Verificar se já existe um card para esta conquista pelo nome
+      bool alreadyExists = false;
+      for (var widget in achievements) {
+        try {
+          // Navegar pela árvore de widgets para encontrar o Container que contém o Text com o título
+          final gestureDetector = widget as GestureDetector;
+          final container = gestureDetector.child as Container;
+          final column = container.child as Column;
+          
+          // O título está no terceiro elemento da coluna (índice 2, após o container do milestone e o SizedBox)
+          if (column.children.length > 2) {
+            final titleText = column.children[2] as Text;
+            if (titleText.data == achievement.definition.name) {
+              alreadyExists = true;
+              break;
+            }
+          }
+        } catch (e) {
+          // Ignorar erros de casting, apenas continuar o loop
+          continue;
+        }
+      }
+      
+      if (!alreadyExists) {
+        
+        // Determine color based on achievement category
+        Color cardColor = context.primaryColor;
+        switch (achievement.definition.category.toLowerCase()) {
+          case 'health':
+            cardColor = Colors.green;
+            break;
+          case 'progress':
+            cardColor = Colors.blue;
+            break;
+          case 'social':
+            cardColor = Colors.purple;
+            break;
+          case 'financial':
+            cardColor = Colors.amber.shade700;
+            break;
+          case 'milestone':
+            cardColor = Colors.teal;
+            break;
+        }
+        
+        // Adicionar o card da conquista
+        // Determinar valor para o milestone baseado no requirementValue
+        String milestone = '';
+        final reqValue = achievement.definition.requirementValue;
+        
+        if (reqValue is int) {
+          milestone = reqValue.toString();
+        } else if (reqValue is double) {
+          milestone = reqValue.toStringAsFixed(0);
+        } else if (reqValue is String && reqValue.isNotEmpty) {
+          milestone = reqValue;
+        } else {
+          milestone = '✓'; // Fallback para um check mark
+        }
+        
+        achievements.add(
+          _buildAchievementCard(
+            context,
+            milestone,
+            achievement.definition.name,
+            achievement.definition.description,
+            cardColor,
+          ),
+        );
+      }
+    }
+    
+    // 3. Add basic smoking milestone achievements
     if (_daysWithoutSmoking != null && (_daysWithoutSmoking ?? 0) >= 1) {
-      achievements.add(
-        _buildAchievementCard(
-          context,
-          '24h',
-          l10n.homeFirstDay,
-          l10n.homeFirstDayDescription,
-          Colors.amber,
-        ),
-      );
+      // Verificar se já existe um card para esta conquista pelo nome
+      bool alreadyExists = false;
+      for (var widget in achievements) {
+        try {
+          // Navegar pela árvore de widgets para encontrar o Container que contém o Text com o título
+          final gestureDetector = widget as GestureDetector;
+          final container = gestureDetector.child as Container;
+          final column = container.child as Column;
+          
+          // O título está no terceiro elemento da coluna (índice 2)
+          if (column.children.length > 2) {
+            final titleText = column.children[2] as Text;
+            if (titleText.data == l10n.homeFirstDay) {
+              alreadyExists = true;
+              break;
+            }
+          }
+        } catch (e) {
+          // Ignorar erros de casting, apenas continuar o loop
+          continue;
+        }
+      }
+      
+      if (!alreadyExists) {
+        achievements.add(
+          _buildAchievementCard(
+            context,
+            '24h',
+            l10n.homeFirstDay,
+            l10n.homeFirstDayDescription,
+            Colors.amber,
+          ),
+        );
+      }
     }
     
     if (_daysWithoutSmoking != null && (_daysWithoutSmoking ?? 0) >= 3) {
-      achievements.add(
-        _buildAchievementCard(
-          context,
-          '3 ${l10n.days}',
-          l10n.homeOvercoming,
-          l10n.homeOvercomingDescription,
-          Colors.green,
-        ),
-      );
+      // Verificar se já existe um card para esta conquista pelo nome
+      bool alreadyExists = false;
+      for (var widget in achievements) {
+        try {
+          // Navegar pela árvore de widgets para encontrar o Container que contém o Text com o título
+          final gestureDetector = widget as GestureDetector;
+          final container = gestureDetector.child as Container;
+          final column = container.child as Column;
+          
+          // O título está no terceiro elemento da coluna (índice 2)
+          if (column.children.length > 2) {
+            final titleText = column.children[2] as Text;
+            if (titleText.data == l10n.homeOvercoming) {
+              alreadyExists = true;
+              break;
+            }
+          }
+        } catch (e) {
+          // Ignorar erros de casting, apenas continuar o loop
+          continue;
+        }
+      }
+      
+      if (!alreadyExists) {
+        achievements.add(
+          _buildAchievementCard(
+            context,
+            '3 ${l10n.days}',
+            l10n.homeOvercoming,
+            l10n.homeOvercomingDescription,
+            Colors.green,
+          ),
+        );
+      }
     }
     
     if (_daysWithoutSmoking != null && (_daysWithoutSmoking ?? 0) >= 7) {
-      achievements.add(
-        _buildAchievementCard(
-          context,
-          '7 ${l10n.days}',
-          l10n.homePersistence,
-          l10n.homePersistenceDescription,
-          context.primaryColor,
-        ),
-      );
+      // Verificar se já existe um card para esta conquista pelo nome
+      bool alreadyExists = false;
+      for (var widget in achievements) {
+        try {
+          // Navegar pela árvore de widgets para encontrar o Container que contém o Text com o título
+          final gestureDetector = widget as GestureDetector;
+          final container = gestureDetector.child as Container;
+          final column = container.child as Column;
+          
+          // O título está no terceiro elemento da coluna (índice 2)
+          if (column.children.length > 2) {
+            final titleText = column.children[2] as Text;
+            if (titleText.data == l10n.homePersistence) {
+              alreadyExists = true;
+              break;
+            }
+          }
+        } catch (e) {
+          // Ignorar erros de casting, apenas continuar o loop
+          continue;
+        }
+      }
+      
+      if (!alreadyExists) {
+        achievements.add(
+          _buildAchievementCard(
+            context,
+            '7 ${l10n.days}',
+            l10n.homePersistence,
+            l10n.homePersistenceDescription,
+            context.primaryColor,
+          ),
+        );
+      }
     }
     
     // Savings achievements based on money saved
     if (_moneySavedInCents != null && (_moneySavedInCents ?? 0) >= 2500) {
-      achievements.add(
-        _buildAchievementCard(
-          context,
-          _currencyUtils.formatWithDeviceLocale(2500, context: context),
-          l10n.achievementInitialSavings,
-          l10n.achievementInitialSavingsDescription,
-          Colors.amber.shade700,
-        ),
-      );
+      // Verificar se já existe um card para esta conquista pelo nome
+      bool alreadyExists = false;
+      for (var widget in achievements) {
+        try {
+          // Navegar pela árvore de widgets para encontrar o Container que contém o Text com o título
+          final gestureDetector = widget as GestureDetector;
+          final container = gestureDetector.child as Container;
+          final column = container.child as Column;
+          
+          // O título está no terceiro elemento da coluna (índice 2)
+          if (column.children.length > 2) {
+            final titleText = column.children[2] as Text;
+            if (titleText.data == l10n.achievementInitialSavings) {
+              alreadyExists = true;
+              break;
+            }
+          }
+        } catch (e) {
+          // Ignorar erros de casting, apenas continuar o loop
+          continue;
+        }
+      }
+      
+      if (!alreadyExists) {
+        achievements.add(
+          _buildAchievementCard(
+            context,
+            _currencyUtils.formatWithDeviceLocale(2500, context: context),
+            l10n.achievementInitialSavings,
+            l10n.achievementInitialSavingsDescription,
+            Colors.amber.shade700,
+          ),
+        );
+      }
     }
     
     // If there are no specific achievements, add at least one motivational message

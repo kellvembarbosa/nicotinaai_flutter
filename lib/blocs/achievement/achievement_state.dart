@@ -143,6 +143,11 @@ class AchievementState extends Equatable {
       selectedTimePeriod.contains(a.unlockedAt)
     ).length;
   }
+  
+  /// Lista de achievements para exibição na home screen
+  List<UserAchievement> get achievements {
+    return userAchievements.where((a) => a.isUnlocked).toList();
+  }
 
   /// Obtém a quantidade de achievements em progresso
   int get inProgressCount => userAchievements.where((a) => a.progress > 0 && a.progress < 1.0).length;
