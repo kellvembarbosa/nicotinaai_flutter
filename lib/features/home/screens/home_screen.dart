@@ -106,8 +106,9 @@ class _HomeScreenState extends State<HomeScreen> {
     final now = DateTime.now();
     if (_lastUpdateTime != null) {
       final timeSinceLastUpdate = now.difference(_lastUpdateTime!);
-      // Se a última atualização foi há menos de 10 segundos, ignorar
-      if (timeSinceLastUpdate.inSeconds < 10) {
+      // Se a última atualização foi há menos de 2 segundos, ignorar
+      // Reduzido de 10 segundos para 2 segundos para maior responsividade
+      if (timeSinceLastUpdate.inSeconds < 2) {
         if (kDebugMode) {
           print('🕒 Última atualização foi há apenas ${timeSinceLastUpdate.inSeconds} segundos, ignorando');
         }
@@ -339,36 +340,55 @@ class _HomeScreenState extends State<HomeScreen> {
                   }
                 },
               ),
-              // Listener para SmokingRecordBloc
+              // Listener para SmokingRecordBloc - com detecção melhorada de mudanças
               BlocListener<SmokingRecordBloc, SmokingRecordState>(
+                listenWhen: (previous, current) {
+                  // Detectar mudanças na quantidade de registros ou no status
+                  return previous.records.length != current.records.length ||
+                         previous.status != current.status ||
+                         (previous.status == SmokingRecordStatus.saving && 
+                          current.status == SmokingRecordStatus.loaded);
+                },
                 listener: (context, state) {
                   // Reagir a mudanças no estado do SmokingRecordBloc
-                  if (state.status == SmokingRecordStatus.loaded) {
-                    // Quando um novo registro for salvo, atualize os dados de tracking
-                    if (state.records.isNotEmpty) {
-                      final trackingBloc = BlocProvider.of<TrackingBloc>(context);
-                      trackingBloc.add(ForceUpdateStats());
+                  // Forçar atualização das estatísticas quando houver mudanças nos registros
+                  final trackingBloc = BlocProvider.of<TrackingBloc>(context);
+                  trackingBloc.add(ForceUpdateStats());
+                  
+                  // Forçar atualização imediata da UI
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    if (mounted && !_isUpdating) {
+                      _loadData(trackingBloc.state);
                     }
-                  }
+                  });
                 },
               ),
             ],
             child: BlocBuilder<TrackingBloc, TrackingState>(
               builder: (context, trackingState) {
-                // Verifica se passaram pelo menos 5 segundos desde a última atualização
+                // Verifica se passou pelo menos 1 segundo desde a última atualização
+                // Reduzido de 5 segundos para 1 segundo para maior responsividade
                 bool canUpdate = true;
                 if (_lastUpdateTime != null) {
                   final timeSinceLastUpdate = DateTime.now().difference(_lastUpdateTime!);
-                  canUpdate = timeSinceLastUpdate.inSeconds >= 5;
+                  canUpdate = timeSinceLastUpdate.inSeconds >= 1;
                 }
                 
                 // Detecta eventos reais de mudança para atualizar
+                // Adicionadas mais condições de detecção para garantir que as atualizações sejam percebidas
                 final bool shouldUpdate = trackingState.isLoaded && canUpdate && (
+                  // Condições originais
                   _stats?.cravingsResisted != trackingState.userStats?.cravingsResisted || 
                   _stats?.currentStreakDays != trackingState.userStats?.currentStreakDays ||
                   _stats?.moneySaved != trackingState.userStats?.moneySaved ||
                   (_stats?.lastSmokeDate?.millisecondsSinceEpoch ?? 0) != (trackingState.userStats?.lastSmokeDate?.millisecondsSinceEpoch ?? 0) ||
-                  (_userRecoveryIds.isEmpty && trackingState.userHealthRecoveries.isNotEmpty)
+                  (_userRecoveryIds.isEmpty && trackingState.userHealthRecoveries.isNotEmpty) ||
+                  // Condições adicionais para melhor detecção
+                  (trackingState.lastUpdated != null && 
+                   _lastUpdateTime != null && 
+                   trackingState.lastUpdated! > _lastUpdateTime!.millisecondsSinceEpoch) ||
+                  (_stats != null && trackingState.userStats != null && 
+                   (_stats!.smokingRecordsCount != trackingState.userStats!.smokingRecordsCount))
                 );
                 
                 // Atualiza apenas quando há mudanças reais nos dados
