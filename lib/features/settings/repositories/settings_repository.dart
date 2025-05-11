@@ -284,15 +284,65 @@ class SettingsRepository {
       try {
         // Exclui os dados do usuário das tabelas principais
         print('🗑️ [SettingsRepository] Excluindo dados do usuário das tabelas...');
-        await _supabaseClient.from(_userStatsTable).delete().eq('user_id', user.id);
-        await _supabaseClient.from('cravings').delete().eq('user_id', user.id);
-        await _supabaseClient.from('smoking_logs').delete().eq('user_id', user.id);
-        await _supabaseClient.from('user_notifications').delete().eq('user_id', user.id);
-        await _supabaseClient.from('user_achievements').delete().eq('user_id', user.id);
-        await _supabaseClient.from('user_health_recoveries').delete().eq('user_id', user.id);
-        await _supabaseClient.from('user_fcm_tokens').delete().eq('user_id', user.id);
-        await _supabaseClient.from('daily_motivation_logs').delete().eq('user_id', user.id);
-        await _supabaseClient.from(_profilesTable).delete().eq('id', user.id);
+        
+        // Lista de tabelas a serem limpas - excluímos com try/catch para cada uma
+        // para garantir que uma tabela inexistente não interrompa o processo
+        
+        try {
+          await _supabaseClient.from(_userStatsTable).delete().eq('user_id', user.id);
+          print('✓ Excluído dados de user_stats');
+        } catch (e) {
+          print('⚠️ Erro ao excluir de user_stats: $e');
+        }
+        
+        try {
+          await _supabaseClient.from('cravings').delete().eq('user_id', user.id);
+          print('✓ Excluído dados de cravings');
+        } catch (e) {
+          print('⚠️ Erro ao excluir de cravings: $e');
+        }
+        
+        try {
+          await _supabaseClient.from('smoking_logs').delete().eq('user_id', user.id);
+          print('✓ Excluído dados de smoking_logs');
+        } catch (e) {
+          print('⚠️ Erro ao excluir de smoking_logs: $e');
+        }
+        
+        try {
+          await _supabaseClient.from('user_notifications').delete().eq('user_id', user.id);
+          print('✓ Excluído dados de user_notifications');
+        } catch (e) {
+          print('⚠️ Erro ao excluir de user_notifications: $e');
+        }
+        
+        try {
+          await _supabaseClient.from('user_achievements').delete().eq('user_id', user.id);
+          print('✓ Excluído dados de user_achievements');
+        } catch (e) {
+          print('⚠️ Erro ao excluir de user_achievements: $e');
+        }
+        
+        try {
+          await _supabaseClient.from('user_health_recoveries').delete().eq('user_id', user.id);
+          print('✓ Excluído dados de user_health_recoveries');
+        } catch (e) {
+          print('⚠️ Erro ao excluir de user_health_recoveries: $e');
+        }
+        
+        try {
+          await _supabaseClient.from('user_fcm_tokens').delete().eq('user_id', user.id);
+          print('✓ Excluído dados de user_fcm_tokens');
+        } catch (e) {
+          print('⚠️ Erro ao excluir de user_fcm_tokens: $e');
+        }
+        
+        try {
+          await _supabaseClient.from(_profilesTable).delete().eq('id', user.id);
+          print('✓ Excluído dados de profiles');
+        } catch (e) {
+          print('⚠️ Erro ao excluir de profiles: $e');
+        }
         
         // Hard delete: chama a Edge Function para excluir o usuário totalmente
         print('🗑️ [SettingsRepository] Executando hard delete via Edge Function...');
