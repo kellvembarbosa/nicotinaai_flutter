@@ -26,6 +26,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<PasswordResetRequested>(_onPasswordResetRequested);
     on<UpdateUserDataRequested>(_onUpdateUserDataRequested);
     on<UpdateProfileRequested>(_onUpdateProfileRequested);
+    on<UpdateProfile>(_onUpdateProfile);
     on<ClearAuthErrorRequested>(_onClearAuthErrorRequested);
     
     // Verificar autenticação ao iniciar o BLoC
@@ -310,6 +311,29 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     }
   }
   
+  /// Atualiza o perfil do usuário (alternativa simplificada)
+  Future<void> _onUpdateProfile(
+    UpdateProfile event,
+    Emitter<AuthState> emit,
+  ) async {
+    try {
+      print('🔄 [AuthBloc] Atualizando perfil do usuário via UpdateProfile');
+      emit(state.copyWith(isLoading: true));
+      
+      final updatedUser = await _authRepository.updateUserProfile(event.user);
+      
+      print('✅ [AuthBloc] Perfil atualizado com sucesso');
+      emit(AuthState.authenticated(updatedUser));
+    } catch (e) {
+      final error = e is app_exceptions.AuthException
+          ? e
+          : app_exceptions.AuthException.fromSupabaseError(e);
+          
+      print('❌ [AuthBloc] Erro ao atualizar perfil: ${error.message}');
+      emit(AuthState.error(error.message));
+    }
+  }
+
   /// Limpa uma mensagem de erro
   void _onClearAuthErrorRequested(
     ClearAuthErrorRequested event,

@@ -1621,6 +1621,22 @@
   "@somethingWentWrong": {
     "description": "Generic error message when an operation fails"
   },
+  "profileInformation": "Profile Information",
+  "@profileInformation": {
+    "description": "Title for profile information section"
+  },
+  "editProfileDescription": "Update your profile information below.",
+  "@editProfileDescription": {
+    "description": "Description for edit profile screen"
+  },
+  "enterName": "Enter your name",
+  "@enterName": {
+    "description": "Placeholder for name input field"
+  },
+  "profileUpdatedSuccessfully": "Profile updated successfully",
+  "@profileUpdatedSuccessfully": {
+    "description": "Success message when profile is updated"
+  },
   "comingSoon": "Coming Soon",
   "@comingSoon": {
     "description": "Text displayed for features that are not yet available"

@@ -105,6 +105,16 @@ class UpdateProfileRequested extends AuthEvent {
   List<Object?> get props => [user];
 }
 
+/// Evento para atualizar o perfil do usuário (alternativa simplificada)
+class UpdateProfile extends AuthEvent {
+  final UserModel user;
+
+  const UpdateProfile({required this.user});
+
+  @override
+  List<Object?> get props => [user];
+}
+
 /// Evento para limpar uma mensagem de erro
 class ClearAuthErrorRequested extends AuthEvent {
   const ClearAuthErrorRequested();

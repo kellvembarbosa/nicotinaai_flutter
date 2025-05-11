@@ -107,6 +107,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ElevatedButton.icon(
                       onPressed: () {
                         // Navegar para tela de edição de perfil
+                        context.push(AppRoutes.editProfile.path);
                       },
                       icon: const Icon(Icons.edit),
                       label: Text(localizations.editProfile),

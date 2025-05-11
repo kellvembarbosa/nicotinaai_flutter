@@ -15,6 +15,7 @@ import 'package:nicotinaai_flutter/features/settings/screens/cigarettes_per_day_
 import 'package:nicotinaai_flutter/features/settings/screens/currency_selection_screen.dart';
 import 'package:nicotinaai_flutter/features/settings/screens/currency_selection_screen_bloc.dart';
 import 'package:nicotinaai_flutter/features/settings/screens/delete_account_screen.dart';
+import 'package:nicotinaai_flutter/features/settings/screens/edit_profile_screen.dart';
 import 'package:nicotinaai_flutter/features/settings/screens/language_selection_screen.dart';
 import 'package:nicotinaai_flutter/features/settings/screens/language_selection_screen_bloc.dart';
 import 'package:nicotinaai_flutter/features/settings/screens/pack_price_screen_improved.dart';
@@ -176,6 +177,10 @@ class AppRouter {
       GoRoute(
         path: AppRoutes.deleteAccount.path,
         builder: (context, state) => const DeleteAccountScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.editProfile.path,
+        builder: (context, state) => const EditProfileScreen(),
       ),
       
     ],

@@ -2395,6 +2395,30 @@ abstract class AppLocalizations {
   /// **'Something went wrong, please try again'**
   String get somethingWentWrong;
 
+  /// Title for profile information section
+  ///
+  /// In en, this message translates to:
+  /// **'Profile Information'**
+  String get profileInformation;
+
+  /// Description for edit profile screen
+  ///
+  /// In en, this message translates to:
+  /// **'Update your profile information below.'**
+  String get editProfileDescription;
+
+  /// Placeholder for name input field
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your name'**
+  String get enterName;
+
+  /// Success message when profile is updated
+  ///
+  /// In en, this message translates to:
+  /// **'Profile updated successfully'**
+  String get profileUpdatedSuccessfully;
+
   /// Text displayed for features that are not yet available
   ///
   /// In en, this message translates to:

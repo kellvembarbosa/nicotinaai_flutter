@@ -1,5 +1,9 @@
 {
   "es": [
+    "profileInformation",
+    "editProfileDescription",
+    "enterName",
+    "profileUpdatedSuccessfully",
     "pageNotFound",
     "resetLinkSent",
     "checkEmailInstructions",
@@ -41,6 +45,10 @@
   ],
 
   "pt": [
+    "profileInformation",
+    "editProfileDescription",
+    "enterName",
+    "profileUpdatedSuccessfully",
     "pageNotFound",
     "resetLinkSent",
     "checkEmailInstructions",

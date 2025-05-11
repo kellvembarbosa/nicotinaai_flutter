@@ -1199,6 +1199,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get somethingWentWrong => 'Something went wrong, please try again';
 
   @override
+  String get profileInformation => 'Profile Information';
+
+  @override
+  String get editProfileDescription => 'Update your profile information below.';
+
+  @override
+  String get enterName => 'Enter your name';
+
+  @override
+  String get profileUpdatedSuccessfully => 'Profile updated successfully';
+
+  @override
   String get comingSoon => 'Coming Soon';
 
   @override
