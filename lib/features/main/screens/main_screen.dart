@@ -4,6 +4,7 @@ import 'package:nicotinaai_flutter/core/theme/app_theme.dart';
 import 'package:nicotinaai_flutter/features/achievements/screens/updated_achievements_screen.dart';
 import 'package:nicotinaai_flutter/features/achievements/helpers/achievement_helper.dart';
 import 'package:nicotinaai_flutter/features/home/screens/home_screen.dart';
+import 'package:nicotinaai_flutter/features/main/widgets/main_screen_tab.dart';
 import 'package:nicotinaai_flutter/features/settings/screens/settings_screen.dart';
 import 'package:nicotinaai_flutter/features/tracking/screens/dashboard_screen.dart';
 import 'package:nicotinaai_flutter/blocs/auth/auth_bloc.dart';
@@ -57,6 +58,13 @@ class _MainScreenState extends State<MainScreen> {
     }
   }
 
+  // Método para mudar para uma aba específica
+  void _changeTab(int index) {
+    setState(() {
+      _currentIndex = index;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final authState = context.watch<AuthBloc>().state;
@@ -65,15 +73,18 @@ class _MainScreenState extends State<MainScreen> {
     // Key for the home screen
     final Key homeKey = const ValueKey('home_screen');
     
-    return Scaffold(
-      body: IndexedStack(
-        key: homeKey,
-        index: _currentIndex,
-        children: _screens,
+    // Envolver todo o conteúdo com o MainScreenTab InheritedWidget
+    return MainScreenTab(
+      currentIndex: _currentIndex,
+      onTabChanged: _changeTab,
+      child: Scaffold(
+        body: IndexedStack(
+          key: homeKey,
+          index: _currentIndex,
+          children: _screens,
+        ),
+        bottomNavigationBar: _buildBottomNavigationBar(context),
       ),
-      bottomNavigationBar: _buildBottomNavigationBar(context),
-      
-      // Removed the floating action button for toggling home screen versions
     );
   }
   
@@ -101,9 +112,7 @@ class _MainScreenState extends State<MainScreen> {
       child: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
+          _changeTab(index);
         },
         items: [
           BottomNavigationBarItem(

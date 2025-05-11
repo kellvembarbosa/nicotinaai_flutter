@@ -48,7 +48,14 @@ enum AppRoutes {
   healthRecoveryTest('/health-recovery-test'),
   
   // Achievement routes
-  achievementDetail('/achievement/:achievementId');  
+  achievementDetail('/achievement/:achievementId'),
+  
+  // Settings routes
+  packPrice('/settings/pack-price'),
+  cigarettesPerDay('/settings/cigarettes-per-day'),
+  quitDate('/settings/quit-date'),
+  resetPassword('/settings/reset-password'),
+  deleteAccount('/settings/delete-account');  
 
   /// Caminho da rota
   final String path;

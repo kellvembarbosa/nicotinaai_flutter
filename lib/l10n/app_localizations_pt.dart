@@ -1257,4 +1257,67 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get alreadyAccount => 'Already have an account?';
+
+  @override
+  String get currentPassword => 'Current Password';
+
+  @override
+  String get newPassword => 'New Password';
+
+  @override
+  String get changePasswordDescription => 'Enter your current password and a new password to update your access credentials.';
+
+  @override
+  String get passwordChangedSuccessfully => 'Password changed successfully';
+
+  @override
+  String get forgotPasswordTitle => 'Forgot your password?';
+
+  @override
+  String get forgotPasswordSubtitle => 'We can send you a link to reset your password via email.';
+
+  @override
+  String get deleteAccountWarningTitle => 'This Action Cannot Be Undone';
+
+  @override
+  String get deleteAccountWarning => 'All your data, including tracking history, achievements, and settings will be permanently deleted. This action cannot be reversed.';
+
+  @override
+  String get confirmDeleteAccount => 'I understand this is permanent';
+
+  @override
+  String get confirmDeleteAccountSubtitle => 'I understand that all my data will be permanently deleted and cannot be recovered.';
+
+  @override
+  String get confirmDeleteRequired => 'Please confirm that you understand this action is permanent.';
+
+  @override
+  String get accountDeleted => 'Your account has been deleted successfully.';
+
+  @override
+  String get changeDate => 'Change date';
+
+  @override
+  String get selectDate => 'Select date';
+
+  @override
+  String get clearDate => 'Clear date';
+
+  @override
+  String get suggestedDates => 'Suggested dates';
+
+  @override
+  String get today => 'Today';
+
+  @override
+  String get yesterday => 'Yesterday';
+
+  @override
+  String get oneWeekAgo => 'One week ago';
+
+  @override
+  String get twoWeeksAgo => 'Two weeks ago';
+
+  @override
+  String get oneMonthAgo => 'One month ago';
 }

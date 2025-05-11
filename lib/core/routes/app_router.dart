@@ -11,11 +11,16 @@ import 'package:nicotinaai_flutter/features/main/screens/main_screen.dart';
 import 'package:nicotinaai_flutter/features/home/screens/home_screen.dart';
 import 'package:nicotinaai_flutter/features/achievements/screens/updated_achievements_screen.dart' as updated;
 import 'package:nicotinaai_flutter/features/achievements/screens/achievement_detail_screen.dart';
-import 'package:nicotinaai_flutter/features/settings/screens/settings_screen.dart';
-import 'package:nicotinaai_flutter/features/settings/screens/language_selection_screen.dart';
-import 'package:nicotinaai_flutter/features/settings/screens/language_selection_screen_bloc.dart';
+import 'package:nicotinaai_flutter/features/settings/screens/cigarettes_per_day_screen.dart';
 import 'package:nicotinaai_flutter/features/settings/screens/currency_selection_screen.dart';
 import 'package:nicotinaai_flutter/features/settings/screens/currency_selection_screen_bloc.dart';
+import 'package:nicotinaai_flutter/features/settings/screens/delete_account_screen.dart';
+import 'package:nicotinaai_flutter/features/settings/screens/language_selection_screen.dart';
+import 'package:nicotinaai_flutter/features/settings/screens/language_selection_screen_bloc.dart';
+import 'package:nicotinaai_flutter/features/settings/screens/pack_price_screen_improved.dart';
+import 'package:nicotinaai_flutter/features/settings/screens/quit_date_screen.dart';
+import 'package:nicotinaai_flutter/features/settings/screens/reset_password_screen.dart';
+import 'package:nicotinaai_flutter/features/settings/screens/settings_screen.dart';
 import 'package:nicotinaai_flutter/features/settings/screens/theme_selection_screen_bloc.dart';
 import 'package:nicotinaai_flutter/features/onboarding/screens/onboarding_screen.dart';
 import 'package:nicotinaai_flutter/features/tracking/screens/statistics_dashboard_screen.dart';
@@ -149,6 +154,28 @@ class AppRouter {
           final achievementId = state.pathParameters['achievementId'] ?? '';
           return AchievementDetailScreen(achievementId: achievementId);
         },
+      ),
+      
+      // Settings routes
+      GoRoute(
+        path: AppRoutes.packPrice.path,
+        builder: (context, state) => const PackPriceScreenImproved(),
+      ),
+      GoRoute(
+        path: AppRoutes.cigarettesPerDay.path,
+        builder: (context, state) => const CigarettesPerDayScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.quitDate.path,
+        builder: (context, state) => const QuitDateScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.resetPassword.path,
+        builder: (context, state) => const ResetPasswordScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.deleteAccount.path,
+        builder: (context, state) => const DeleteAccountScreen(),
       ),
       
     ],

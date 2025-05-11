@@ -210,7 +210,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
               localizations.configureHabits,
               Icons.smoking_rooms_outlined,
               onTap: () {
-                // Abrir diálogo para configurar cigarros por dia
+                // Navegar para tela de configuração de cigarros por dia
+                context.push(AppRoutes.cigarettesPerDay.path);
               },
             ),
             _buildSettingItem(
@@ -219,7 +220,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
               localizations.setPriceForCalculations,
               Icons.attach_money_outlined,
               onTap: () {
-                // Abrir diálogo para configurar preço
+                // Navegar para tela de configuração de preço do maço
+                context.push(AppRoutes.packPrice.path);
               },
             ),
             _buildSettingItem(
@@ -245,7 +247,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
               localizations.whenYouQuitSmoking,
               Icons.calendar_today_outlined,
               onTap: () {
-                // Abrir seletor de data
+                // Navegar para tela de configuração de data de parada
+                context.push(AppRoutes.quitDate.path);
               },
             ),
 
@@ -259,7 +262,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
               localizations.changePassword,
               Icons.lock_outline,
               onTap: () {
-                // Navegação para redefinição de senha
+                // Navegar para tela de redefinição de senha
+                context.push(AppRoutes.resetPassword.path);
               },
             ),
             _buildSettingItem(
@@ -268,8 +272,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
               localizations.permanentlyRemoveAccount,
               Icons.delete_outline,
               onTap: () {
-                // Mostrar diálogo de confirmação
-                _showDeleteAccountDialog(context);
+                // Navegar para tela de exclusão de conta
+                context.push(AppRoutes.deleteAccount.path);
               },
               textColor: Colors.red,
               iconColor: Colors.red,

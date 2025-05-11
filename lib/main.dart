@@ -20,6 +20,7 @@ import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
 import 'package:nicotinaai_flutter/services/analytics_service.dart';
 import 'package:nicotinaai_flutter/services/notification_service.dart';
 import 'package:nicotinaai_flutter/services/supabase_diagnostic.dart';
+import 'package:nicotinaai_flutter/features/settings/repositories/settings_repository.dart';
 
 // BLoC imports
 import 'package:nicotinaai_flutter/blocs/app_bloc_observer.dart';
@@ -38,6 +39,7 @@ import 'package:nicotinaai_flutter/blocs/smoking_record/smoking_record_bloc.dart
 import 'package:nicotinaai_flutter/blocs/theme/theme_bloc.dart';
 import 'package:nicotinaai_flutter/blocs/theme/theme_event.dart';
 import 'package:nicotinaai_flutter/blocs/theme/theme_state.dart' as theme_state;
+import 'package:nicotinaai_flutter/blocs/settings/settings_bloc.dart';
 import 'package:nicotinaai_flutter/blocs/tracking/tracking_bloc.dart';
 import 'package:nicotinaai_flutter/blocs/tracking/tracking_event.dart';
 
@@ -142,6 +144,7 @@ void main() async {
   final trackingRepository = TrackingRepository();
   final cravingRepository = CravingRepository();
   final smokingRecordRepository = SmokingRecordRepository();
+  final settingsRepository = SettingsRepository();
   
   // Initialize achievement notification service
   final achievementNotifications = AchievementNotificationService(
@@ -155,6 +158,7 @@ void main() async {
     cravingRepository: cravingRepository,
     smokingRecordRepository: smokingRecordRepository,
     achievementNotifications: achievementNotifications,
+    settingsRepository: settingsRepository,
   ));
 }
 
@@ -165,6 +169,7 @@ class MyApp extends StatelessWidget {
   final CravingRepository cravingRepository;
   final SmokingRecordRepository smokingRecordRepository;
   final AchievementNotificationService achievementNotifications;
+  final SettingsRepository settingsRepository;
   
   const MyApp({
     required this.authRepository,
@@ -173,6 +178,7 @@ class MyApp extends StatelessWidget {
     required this.cravingRepository,
     required this.smokingRecordRepository,
     required this.achievementNotifications,
+    required this.settingsRepository,
     super.key,
   });
 
@@ -290,6 +296,15 @@ class MyApp extends StatelessWidget {
               achievementBloc.add(InitializeAchievements());
               
               return achievementBloc;
+            },
+          ),
+          
+          // SettingsBloc
+          BlocProvider<SettingsBloc>(
+            create: (context) {
+              return SettingsBloc(
+                settingsRepository: settingsRepository,
+              );
             },
           ),
           

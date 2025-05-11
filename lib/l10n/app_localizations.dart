@@ -2514,6 +2514,132 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Already have an account?'**
   String get alreadyAccount;
+
+  /// No description provided for @currentPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Current Password'**
+  String get currentPassword;
+
+  /// No description provided for @newPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'New Password'**
+  String get newPassword;
+
+  /// No description provided for @changePasswordDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your current password and a new password to update your access credentials.'**
+  String get changePasswordDescription;
+
+  /// No description provided for @passwordChangedSuccessfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Password changed successfully'**
+  String get passwordChangedSuccessfully;
+
+  /// No description provided for @forgotPasswordTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Forgot your password?'**
+  String get forgotPasswordTitle;
+
+  /// No description provided for @forgotPasswordSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'We can send you a link to reset your password via email.'**
+  String get forgotPasswordSubtitle;
+
+  /// No description provided for @deleteAccountWarningTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'This Action Cannot Be Undone'**
+  String get deleteAccountWarningTitle;
+
+  /// No description provided for @deleteAccountWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'All your data, including tracking history, achievements, and settings will be permanently deleted. This action cannot be reversed.'**
+  String get deleteAccountWarning;
+
+  /// No description provided for @confirmDeleteAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'I understand this is permanent'**
+  String get confirmDeleteAccount;
+
+  /// No description provided for @confirmDeleteAccountSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'I understand that all my data will be permanently deleted and cannot be recovered.'**
+  String get confirmDeleteAccountSubtitle;
+
+  /// No description provided for @confirmDeleteRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Please confirm that you understand this action is permanent.'**
+  String get confirmDeleteRequired;
+
+  /// No description provided for @accountDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account has been deleted successfully.'**
+  String get accountDeleted;
+
+  /// No description provided for @changeDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Change date'**
+  String get changeDate;
+
+  /// No description provided for @selectDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Select date'**
+  String get selectDate;
+
+  /// No description provided for @clearDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear date'**
+  String get clearDate;
+
+  /// No description provided for @suggestedDates.
+  ///
+  /// In en, this message translates to:
+  /// **'Suggested dates'**
+  String get suggestedDates;
+
+  /// No description provided for @today.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get today;
+
+  /// No description provided for @yesterday.
+  ///
+  /// In en, this message translates to:
+  /// **'Yesterday'**
+  String get yesterday;
+
+  /// No description provided for @oneWeekAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'One week ago'**
+  String get oneWeekAgo;
+
+  /// No description provided for @twoWeeksAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'Two weeks ago'**
+  String get twoWeeksAgo;
+
+  /// No description provided for @oneMonthAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'One month ago'**
+  String get oneMonthAgo;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
