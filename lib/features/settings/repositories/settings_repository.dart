@@ -253,7 +253,7 @@ class SettingsRepository {
     }
   }
   
-  /// Exclui a conta do usuário usando a Edge Function
+  /// Exclui a conta do usuário diretamente no app
   Future<void> deleteAccount(String password) async {
     try {
       final user = _supabaseClient.auth.currentUser;
@@ -262,71 +262,57 @@ class SettingsRepository {
         throw app_exceptions.AuthException('Usuário não autenticado');
       }
       
-      // Obtém o token de acesso da sessão atual
-      final token = _supabaseClient.auth.currentSession?.accessToken;
+      final email = user.email;
       
-      if (token == null) {
-        throw app_exceptions.AuthException('Token de acesso não disponível');
+      if (email == null) {
+        throw app_exceptions.AuthException('Email do usuário não disponível');
       }
       
+      // Verifica a senha atual tentando fazer login
       try {
-        // Chamada da Edge Function para excluir a conta
-        final response = await _supabaseClient.functions.invoke(
-          'delete-user-account',
-          body: {'password': password},
-          headers: {'Authorization': 'Bearer $token'}
+        await _supabaseClient.auth.signInWithPassword(
+          email: email,
+          password: password,
+        );
+      } catch (signInError) {
+        throw app_exceptions.AuthException('Senha incorreta. Verifique sua senha e tente novamente.');
+      }
+      
+      print('✅ [SettingsRepository] Senha verificada, prosseguindo com exclusão de conta');
+      
+      // Realizar a exclusão de dados
+      try {
+        // Exclui os dados do usuário das tabelas principais
+        print('🗑️ [SettingsRepository] Excluindo dados do usuário das tabelas...');
+        await _supabaseClient.from(_userStatsTable).delete().eq('user_id', user.id);
+        await _supabaseClient.from('cravings').delete().eq('user_id', user.id);
+        await _supabaseClient.from('smoking_logs').delete().eq('user_id', user.id);
+        await _supabaseClient.from('user_notifications').delete().eq('user_id', user.id);
+        await _supabaseClient.from('user_achievements').delete().eq('user_id', user.id);
+        await _supabaseClient.from('user_health_recoveries').delete().eq('user_id', user.id);
+        await _supabaseClient.from('user_fcm_tokens').delete().eq('user_id', user.id);
+        await _supabaseClient.from(_profilesTable).delete().eq('id', user.id);
+        
+        // Marca o usuário como excluído nos metadados
+        print('📝 [SettingsRepository] Marcando usuário como excluído nos metadados...');
+        await _supabaseClient.auth.updateUser(
+          UserAttributes(data: {
+            'deleted': true, 
+            'deletion_requested': DateTime.now().toIso8601String()
+          })
         );
         
-        // Verifica se a resposta foi bem-sucedida
-        if (response.status != 200) {
-          // Se a resposta contiver uma mensagem de erro, use-a
-          if (response.data != null && response.data['error'] != null) {
-            throw app_exceptions.AuthException(
-              'Erro ao excluir conta: ${response.data['error']} - ${response.data['details'] ?? ''}'
-            );
-          }
-          
-          // Caso contrário, use o código de status
-          throw app_exceptions.AuthException('Erro ao excluir conta. Código: ${response.status}');
-        }
+        // Procedimento de limpeza final
+        print('🧹 [SettingsRepository] Realizando limpeza final...');
         
-        // Verifica se a resposta contém should_logout
-        final shouldLogout = response.data != null && response.data['should_logout'] == true;
-        
-        // Log para debug
-        print('👋 [SettingsRepository] Exclusão de conta bem-sucedida, fazendo logout...');
-        
-        // Faz logout após a exclusão bem-sucedida
+        // Executa logout em todos os dispositivos para encerrar todas as sessões
+        print('👋 [SettingsRepository] Fazendo logout global...');
         await _supabaseClient.auth.signOut(scope: AuthSignOutScope.global);
-      } catch (edgeFunctionError) {
-        print('⚠️ [SettingsRepository] Erro ao chamar Edge Function: $edgeFunctionError');
         
-        // Se a Edge Function falhar, use um plano B
-        try {
-          // Tenta apenas marcar o usuário para exclusão e excluir os dados relacionados
-          await _supabaseClient.auth.updateUser(
-            UserAttributes(data: {'deleted': true, 'deletion_requested': DateTime.now().toIso8601String()})
-          );
-          
-          // Exclui os dados do usuário (de forma mais segura, através de uma função RPC)
-          // Caso a função RPC não esteja disponível, usamos o método direto
-          try {
-            await _supabaseClient.rpc('delete_user_data', params: {'user_id_param': user.id});
-          } catch (rpcError) {
-            print('⚠️ [SettingsRepository] Erro ao chamar RPC, usando método direto: $rpcError');
-            
-            // Remove os dados do usuário das tabelas principais
-            await _supabaseClient.from(_userStatsTable).delete().eq('user_id', user.id);
-            await _supabaseClient.from('cravings').delete().eq('user_id', user.id);
-            await _supabaseClient.from('smoking_logs').delete().eq('user_id', user.id);
-            await _supabaseClient.from(_profilesTable).delete().eq('id', user.id);
-          }
-          
-          // Faz logout global (em todos os dispositivos)
-          await _supabaseClient.auth.signOut(scope: AuthSignOutScope.global);
-        } catch (fallbackError) {
-          throw app_exceptions.AuthException('Não foi possível excluir a conta: $fallbackError');
-        }
+        print('✅ [SettingsRepository] Processo de exclusão de conta concluído com sucesso');
+      } catch (error) {
+        print('⚠️ [SettingsRepository] Erro ao excluir dados: $error');
+        throw app_exceptions.AuthException('Falha ao excluir dados da conta: $error');
       }
     } catch (e) {
       print('⚠️ [SettingsRepository] Erro ao excluir conta: $e');
