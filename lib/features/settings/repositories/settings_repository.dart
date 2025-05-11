@@ -305,9 +305,9 @@ class SettingsRepository {
         // Procedimento de limpeza final
         print('🧹 [SettingsRepository] Realizando limpeza final...');
         
-        // Executa logout em todos os dispositivos para encerrar todas as sessões
-        print('👋 [SettingsRepository] Fazendo logout global...');
-        await _supabaseClient.auth.signOut(scope: AuthSignOutScope.global);
+        // Executa logout para encerrar a sessão atual
+        print('👋 [SettingsRepository] Fazendo logout...');
+        await _supabaseClient.auth.signOut();
         
         print('✅ [SettingsRepository] Processo de exclusão de conta concluído com sucesso');
       } catch (error) {
