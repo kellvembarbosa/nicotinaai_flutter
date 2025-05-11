@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:nicotinaai_flutter/features/onboarding/providers/onboarding_provider.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:nicotinaai_flutter/blocs/onboarding/onboarding_bloc.dart';
+import 'package:nicotinaai_flutter/blocs/onboarding/onboarding_event.dart';
+import 'package:nicotinaai_flutter/blocs/onboarding/onboarding_state.dart';
 import 'package:nicotinaai_flutter/features/onboarding/screens/onboarding_container.dart';
 import 'package:nicotinaai_flutter/features/onboarding/widgets/multi_select_option_card.dart';
 import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
@@ -20,8 +22,8 @@ class _PersonalizeScreenState extends State<PersonalizeScreen> {
     super.initState();
     
     // Load saved data if available
-    final provider = Provider.of<OnboardingProvider>(context, listen: false);
-    final onboarding = provider.state.onboarding;
+    final bloc = context.read<OnboardingBloc>();
+    final onboarding = bloc.state.onboarding;
     
     if (onboarding != null && onboarding.additionalData.containsKey('smoking_times')) {
       final savedTimes = onboarding.additionalData['smoking_times'] as List<dynamic>;
@@ -31,86 +33,92 @@ class _PersonalizeScreenState extends State<PersonalizeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final provider = Provider.of<OnboardingProvider>(context);
-    final onboarding = provider.state.onboarding;
     final localizations = AppLocalizations.of(context);
     
-    if (onboarding == null) {
-      return const Scaffold(
-        body: Center(
-          child: CircularProgressIndicator(),
-        ),
-      );
-    }
-    
-    return OnboardingContainer(
-      title: localizations.personalizeScreenTitle,
-      subtitle: localizations.personalizeScreenSubtitle,
-      contentType: OnboardingContentType.scrollable,
-      content: SingleChildScrollView(
-        physics: const BouncingScrollPhysics(),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 8),
-          
-          // Smoking time options
-          _buildOptionCard(
-            localizations.afterMeals, 
-            "after_meals",
-          ),
-          
-          const SizedBox(height: 12),
-          
-          _buildOptionCard(
-            localizations.duringWorkBreaks, 
-            "work_breaks",
-          ),
-          
-          const SizedBox(height: 12),
-          
-          _buildOptionCard(
-            localizations.inSocialEvents, 
-            "social_events",
-          ),
-          
-          const SizedBox(height: 12),
-          
-          _buildOptionCard(
-            localizations.whenStressed, 
-            "stress",
-          ),
-          
-          const SizedBox(height: 12),
-          
-          _buildOptionCard(
-            localizations.withCoffeeOrAlcohol, 
-            "drinking",
-          ),
-          
-          const SizedBox(height: 12),
-          
-          _buildOptionCard(
-            localizations.whenBored, 
-            "boredom",
-          ),
-          
-          // Espaço extra para evitar que o conteúdo fique atrás dos botões
-          const SizedBox(height: 20),
-        ],
-      ),
-      ),
-      canProceed: _selectedTimes.isNotEmpty,
-      onNext: () {
-        // Save data and proceed
-        final updatedData = Map<String, dynamic>.from(onboarding.additionalData);
-        updatedData['smoking_times'] = _selectedTimes;
+    return BlocBuilder<OnboardingBloc, OnboardingState>(
+      builder: (context, state) {
+        final onboarding = state.onboarding;
         
-        provider.updateOnboarding(
-          onboarding.copyWith(additionalData: updatedData),
-        ).then((_) {
-          provider.nextStep();
-        });
+        if (onboarding == null) {
+          return const Scaffold(
+            body: Center(
+              child: CircularProgressIndicator(),
+            ),
+          );
+        }
+        
+        return OnboardingContainer(
+          title: localizations.personalizeScreenTitle,
+          subtitle: localizations.personalizeScreenSubtitle,
+          contentType: OnboardingContentType.scrollable,
+          content: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 8),
+              
+              // Smoking time options
+              _buildOptionCard(
+                localizations.afterMeals, 
+                "after_meals",
+              ),
+              
+              const SizedBox(height: 12),
+              
+              _buildOptionCard(
+                localizations.duringWorkBreaks, 
+                "work_breaks",
+              ),
+              
+              const SizedBox(height: 12),
+              
+              _buildOptionCard(
+                localizations.inSocialEvents, 
+                "social_events",
+              ),
+              
+              const SizedBox(height: 12),
+              
+              _buildOptionCard(
+                localizations.whenStressed, 
+                "stress",
+              ),
+              
+              const SizedBox(height: 12),
+              
+              _buildOptionCard(
+                localizations.withCoffeeOrAlcohol, 
+                "drinking",
+              ),
+              
+              const SizedBox(height: 12),
+              
+              _buildOptionCard(
+                localizations.whenBored, 
+                "boredom",
+              ),
+              
+              // Espaço extra para evitar que o conteúdo fique atrás dos botões
+              const SizedBox(height: 20),
+            ],
+          ),
+          ),
+          canProceed: _selectedTimes.isNotEmpty,
+          onNext: () {
+            // Save data and proceed
+            final updatedData = Map<String, dynamic>.from(onboarding.additionalData);
+            updatedData['smoking_times'] = _selectedTimes;
+            
+            // Enviar evento de atualização do onboarding
+            context.read<OnboardingBloc>().add(UpdateOnboarding(
+              onboarding.copyWith(additionalData: updatedData),
+            ));
+            
+            // Avançar para o próximo passo
+            context.read<OnboardingBloc>().add(NextOnboardingStep());
+          },
+        );
       },
     );
   }

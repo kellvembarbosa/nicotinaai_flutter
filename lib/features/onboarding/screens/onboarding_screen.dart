@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:nicotinaai_flutter/features/onboarding/providers/onboarding_provider.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:nicotinaai_flutter/blocs/onboarding/onboarding_bloc.dart';
+import 'package:nicotinaai_flutter/blocs/onboarding/onboarding_event.dart';
+import 'package:nicotinaai_flutter/blocs/onboarding/onboarding_state.dart';
 import 'package:nicotinaai_flutter/features/onboarding/screens/introduction_screen.dart';
 import 'package:nicotinaai_flutter/features/onboarding/screens/cigarettes_per_day_screen.dart';
 import 'package:nicotinaai_flutter/features/onboarding/screens/pack_price_screen.dart';
@@ -29,91 +31,92 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   @override
   void initState() {
     super.initState();
-    // A inicialização do provider agora é controlada pelo ChangeNotifierProxyProvider no main.dart
+    // A inicialização do BLoC é controlada pelo BlocProvider no main.dart
   }
 
   @override
   Widget build(BuildContext context) {
-    final provider = Provider.of<OnboardingProvider>(context);
-    final state = provider.state;
-    
-    // Se estiver carregando, exibir indicador de progresso
-    if (state.isLoading || state.isInitial) {
-      return const Scaffold(
-        body: Center(
-          child: CircularProgressIndicator(),
-        ),
-      );
-    }
-    
-    // Se houver erro, exibir mensagem de erro
-    if (state.hasError) {
-      return Scaffold(
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(
-                Icons.error_outline,
-                color: Colors.red,
-                size: 48,
+    return BlocBuilder<OnboardingBloc, OnboardingState>(
+      builder: (context, state) {
+        // Se estiver carregando, exibir indicador de progresso
+        if (state.isLoading || state.isInitial) {
+          return const Scaffold(
+            body: Center(
+              child: CircularProgressIndicator(),
+            ),
+          );
+        }
+        
+        // Se houver erro, exibir mensagem de erro
+        if (state.hasError) {
+          return Scaffold(
+            body: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(
+                    Icons.error_outline,
+                    color: Colors.red,
+                    size: 48,
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Ocorreu um erro ao carregar o onboarding',
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    state.errorMessage ?? 'Erro desconhecido',
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                  const SizedBox(height: 24),
+                  ElevatedButton(
+                    onPressed: () {
+                      context.read<OnboardingBloc>().add(ClearOnboardingError());
+                      context.read<OnboardingBloc>().add(InitializeOnboarding());
+                    },
+                    child: const Text('Tentar novamente'),
+                  ),
+                ],
               ),
-              const SizedBox(height: 16),
-              Text(
-                'Ocorreu um erro ao carregar o onboarding',
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                state.errorMessage ?? 'Erro desconhecido',
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-              const SizedBox(height: 24),
-              ElevatedButton(
-                onPressed: () {
-                  provider.clearError();
-                  provider.initialize();
-                },
-                child: const Text('Tentar novamente'),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-    
-    // Escolher a tela apropriada conforme o passo atual
-    switch (state.currentStep) {
-      case 1:
-        return const IntroductionScreen();
-      case 2:
-        return const CurrencySelectionScreen(); // Movida para ser a primeira após introdução
-      case 3:
-        return const PersonalizeScreen();
-      case 4:
-        return const InterestsScreen();
-      case 5:
-        return const LocationsScreen();
-      case 6:
-        return const HelpScreen();
-      case 7:
-        return const CigarettesPerDayScreen();
-      case 8:
-        return const PackPriceScreen();
-      case 9:
-        return const CigarettesPerPackScreen();
-      case 10:
-        return const GoalScreen();
-      case 11:
-        return const TimelineScreen();
-      case 12:
-        return const ChallengeScreen();
-      case 13:
-        return const ProductTypeScreen();
-      case 14:
-        return const CompletionScreen();
-      default:
-        return const IntroductionScreen();
-    }
+            ),
+          );
+        }
+        
+        // Escolher a tela apropriada conforme o passo atual
+        switch (state.currentStep) {
+          case 1:
+            return const IntroductionScreen();
+          case 2:
+            return const CurrencySelectionScreen(); // Movida para ser a primeira após introdução
+          case 3:
+            return const PersonalizeScreen();
+          case 4:
+            return const InterestsScreen();
+          case 5:
+            return const LocationsScreen();
+          case 6:
+            return const HelpScreen();
+          case 7:
+            return const CigarettesPerDayScreen();
+          case 8:
+            return const PackPriceScreen();
+          case 9:
+            return const CigarettesPerPackScreen();
+          case 10:
+            return const GoalScreen();
+          case 11:
+            return const TimelineScreen();
+          case 12:
+            return const ChallengeScreen();
+          case 13:
+            return const ProductTypeScreen();
+          case 14:
+            return const CompletionScreen();
+          default:
+            return const IntroductionScreen();
+        }
+      },
+    );
   }
 }
