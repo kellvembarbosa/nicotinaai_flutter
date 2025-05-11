@@ -24,6 +24,8 @@ enum AppRoutes {
   
   // Rotas de tracking
   statisticsDashboard('/statistics-dashboard'),
+  // As rotas addSmokingLog e addCraving foram mantidas para compatibilidade com código legado
+  // Elas agora deveriam redirecionar para os novos componentes BLoC
   addSmokingLog('/tracking/add-smoking'),
   addCraving('/tracking/add-craving'),
   smokingLogs('/tracking/smoking-logs'),

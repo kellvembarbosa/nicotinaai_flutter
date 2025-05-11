@@ -4,13 +4,7 @@ import 'package:nicotinaai_flutter/features/tracking/models/health_recovery.dart
 import 'package:nicotinaai_flutter/features/tracking/models/smoking_log.dart';
 import 'package:nicotinaai_flutter/features/tracking/models/user_stats.dart';
 
-enum TrackingStatus {
-  initial,
-  loading,
-  loaded,
-  saving,
-  error,
-}
+enum TrackingStatus { initial, loading, loaded, saving, error }
 
 class TrackingState extends Equatable {
   final TrackingStatus status;
@@ -47,21 +41,18 @@ class TrackingState extends Equatable {
   bool get isLoaded => status == TrackingStatus.loaded;
   bool get isSaving => status == TrackingStatus.saving;
   bool get hasError => status == TrackingStatus.error;
-  
+
   // Stats analysis
   int get cravingsResisted => cravings.where((c) => c.outcome == CravingOutcome.resisted).length;
   int get cravingsYielded => cravings.where((c) => c.outcome == CravingOutcome.smoked).length;
   double get resistanceRate => cravings.isEmpty ? 0 : cravingsResisted / cravings.length;
-  
+
   // Recovery progress
-  List<UserHealthRecovery> get achievedRecoveries => 
-      userHealthRecoveries.where((r) => r.isAchieved).toList();
-  
-  List<UserHealthRecovery> get pendingRecoveries => 
-      userHealthRecoveries.where((r) => !r.isAchieved).toList();
-  
-  double get healthRecoveryProgress => 
-      userHealthRecoveries.isEmpty ? 0 : achievedRecoveries.length / userHealthRecoveries.length;
+  List<UserHealthRecovery> get achievedRecoveries => userHealthRecoveries.where((r) => r.isAchieved).toList();
+
+  List<UserHealthRecovery> get pendingRecoveries => userHealthRecoveries.where((r) => !r.isAchieved).toList();
+
+  double get healthRecoveryProgress => userHealthRecoveries.isEmpty ? 0 : achievedRecoveries.length / userHealthRecoveries.length;
 
   // Copy with
   TrackingState copyWith({
@@ -93,12 +84,12 @@ class TrackingState extends Equatable {
       lastUpdated: lastUpdated ?? this.lastUpdated,
     );
   }
-  
+
   @override
   List<Object?> get props => [
-    status, 
-    smokingLogs, 
-    cravings, 
+    status,
+    smokingLogs,
+    cravings,
     healthRecoveries,
     userHealthRecoveries,
     userStats,

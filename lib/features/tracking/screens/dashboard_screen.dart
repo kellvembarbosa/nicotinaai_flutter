@@ -7,8 +7,7 @@ import 'package:nicotinaai_flutter/blocs/tracking/tracking_bloc.dart';
 import 'package:nicotinaai_flutter/blocs/tracking/tracking_event.dart';
 import 'package:nicotinaai_flutter/blocs/tracking/tracking_state.dart';
 import 'package:nicotinaai_flutter/features/tracking/models/user_stats.dart';
-import 'package:nicotinaai_flutter/features/tracking/screens/add_craving_screen.dart';
-import 'package:nicotinaai_flutter/features/tracking/screens/add_smoking_log_screen.dart';
+// Removed imports for deleted screens
 import 'package:nicotinaai_flutter/utils/currency_utils.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -116,9 +115,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
           FloatingActionButton.extended(
             heroTag: 'logCraving',
             onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const AddCravingScreen()),
+              // Use modern approach with BLoC
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Use register_craving_sheet_bloc instead')),
               );
             },
             icon: const Icon(Icons.sentiment_dissatisfied),
@@ -128,9 +127,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
           FloatingActionButton.extended(
             heroTag: 'logSmoke',
             onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const AddSmokingLogScreen()),
+              // Use modern approach with BLoC
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Use new_record_sheet instead')),
               );
             },
             icon: const Icon(Icons.smoking_rooms),

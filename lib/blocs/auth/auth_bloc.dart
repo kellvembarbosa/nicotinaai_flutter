@@ -1,9 +1,9 @@
-import 'package:flutter/widgets.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:nicotinaai_flutter/core/exceptions/auth_exception.dart' as app_exceptions;
 import 'package:nicotinaai_flutter/features/auth/repositories/auth_repository.dart';
-import 'package:nicotinaai_flutter/services/analytics_service.dart';
+import 'package:nicotinaai_flutter/services/analytics/analytics_service.dart';
 import 'package:nicotinaai_flutter/services/notification_service.dart';
 import 'package:nicotinaai_flutter/services/storage_service.dart';
 import 'package:nicotinaai_flutter/core/routes/router_events.dart';
@@ -13,6 +13,7 @@ import 'auth_state.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final AuthRepository _authRepository;
+  final AnalyticsService _analyticsService = AnalyticsService();
   
   AuthBloc({
     required AuthRepository authRepository,
@@ -93,8 +94,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       
       // Track login event in analytics
       try {
-        await AnalyticsService().logLogin(method: 'email');
-        await AnalyticsService().setUserProperties(
+        await _analyticsService.logLogin(method: 'email');
+        await _analyticsService.setUserProperties(
           userId: user.id,
           email: user.email,
         );
@@ -138,8 +139,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       
       // Track signup event in analytics
       try {
-        await AnalyticsService().logSignUp(method: 'email');
-        await AnalyticsService().setUserProperties(
+        await _analyticsService.logSignUp(method: 'email');
+        await _analyticsService.setUserProperties(
           userId: user.id,
           email: user.email,
         );
@@ -170,7 +171,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       
       // Clear analytics data before signing out
       try {
-        await AnalyticsService().clearUserData();
+        await _analyticsService.clearUserData();
         print('🧹 [AuthBloc] Analytics data cleared');
       } catch (analyticsError) {
         print('⚠️ [AuthBloc] Failed to clear analytics data: $analyticsError');

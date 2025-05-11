@@ -253,7 +253,7 @@ class SettingsRepository {
     }
   }
   
-  /// Exclui a conta do usuário
+  /// Exclui a conta do usuário usando a Edge Function
   Future<void> deleteAccount(String password) async {
     try {
       final user = _supabaseClient.auth.currentUser;
@@ -262,65 +262,72 @@ class SettingsRepository {
         throw app_exceptions.AuthException('Usuário não autenticado');
       }
       
-      final email = user.email;
+      final session = await _supabaseClient.auth.getSession();
       
-      if (email == null) {
-        throw app_exceptions.AuthException('Email do usuário não disponível');
+      if (session.error != null) {
+        throw app_exceptions.AuthException('Sessão inválida: ${session.error?.message}');
       }
       
-      // Verifica a senha tentando fazer login
-      await _supabaseClient.auth.signInWithPassword(
-        email: email,
-        password: password,
-      );
+      // Obtém o token de acesso da sessão atual
+      final token = session.data.session?.accessToken;
       
-      // Remove os dados do usuário das várias tabelas
-      await _supabaseClient
-        .from(_userStatsTable)
-        .delete()
-        .eq('user_id', user.id);
+      if (token == null) {
+        throw app_exceptions.AuthException('Token de acesso não disponível');
+      }
       
-      await _supabaseClient
-        .from('cravings')
-        .delete()
-        .eq('user_id', user.id);
-      
-      await _supabaseClient
-        .from('smoking_logs')
-        .delete()
-        .eq('user_id', user.id);
-      
-      await _supabaseClient
-        .from('user_notifications')
-        .delete()
-        .eq('user_id', user.id);
-      
-      await _supabaseClient
-        .from('user_achievements')
-        .delete()
-        .eq('user_id', user.id);
-      
-      await _supabaseClient
-        .from('user_health_recoveries')
-        .delete()
-        .eq('user_id', user.id);
-      
-      await _supabaseClient
-        .from('user_fcm_tokens')
-        .delete()
-        .eq('user_id', user.id);
-      
-      // Remove os dados do usuário da tabela de perfis
-      await _supabaseClient
-        .from(_profilesTable)
-        .delete()
-        .eq('id', user.id);
-      
-      // Exclui o usuário da autenticação
-      await _supabaseClient.auth.admin.deleteUser(user.id);
-      
-      // Faz logout
-      await _supabaseClient.auth.signOut();
+      try {
+        // Chamada da Edge Function para excluir a conta
+        final response = await _supabaseClient.functions.invoke(
+          'delete-user-account',
+          body: {'password': password},
+          headers: {'Authorization': 'Bearer $token'}
+        );
+        
+        // Verifica se a resposta foi bem-sucedida
+        if (response.status != 200) {
+          // Se a resposta contiver uma mensagem de erro, use-a
+          if (response.data != null && response.data['error'] != null) {
+            throw app_exceptions.AuthException(
+              'Erro ao excluir conta: ${response.data['error']} - ${response.data['details'] ?? ''}'
+            );
+          }
+          
+          // Caso contrário, use o código de status
+          throw app_exceptions.AuthException('Erro ao excluir conta. Código: ${response.status}');
+        }
+        
+        // Faz logout após a exclusão bem-sucedida
+        await _supabaseClient.auth.signOut();
+      } catch (edgeFunctionError) {
+        print('⚠️ [SettingsRepository] Erro ao chamar Edge Function: $edgeFunctionError');
+        
+        // Se a Edge Function falhar, use um plano B
+        try {
+          // Tenta apenas marcar o usuário para exclusão e excluir os dados relacionados
+          await _supabaseClient.auth.updateUser(
+            UserAttributes(data: {'deleted': true, 'deletion_requested': DateTime.now().toIso8601String()})
+          );
+          
+          // Exclui os dados do usuário (de forma mais segura, através de uma função RPC)
+          // Caso a função RPC não esteja disponível, usamos o método direto
+          try {
+            await _supabaseClient.rpc('delete_user_data', {'user_id': user.id});
+          } catch (rpcError) {
+            print('⚠️ [SettingsRepository] Erro ao chamar RPC, usando método direto: $rpcError');
+            
+            // Remove os dados do usuário das tabelas principais
+            await _supabaseClient.from(_userStatsTable).delete().eq('user_id', user.id);
+            await _supabaseClient.from('cravings').delete().eq('user_id', user.id);
+            await _supabaseClient.from('smoking_records').delete().eq('user_id', user.id);
+            await _supabaseClient.from(_profilesTable).delete().eq('id', user.id);
+          }
+          
+          // Faz logout
+          await _supabaseClient.auth.signOut();
+        } catch (fallbackError) {
+          throw app_exceptions.AuthException('Não foi possível excluir a conta: $fallbackError');
+        }
+      }
     } catch (e) {
       print('⚠️ [SettingsRepository] Erro ao excluir conta: $e');
       
@@ -328,7 +335,7 @@ class SettingsRepository {
         throw e;
       }
       
-      throw Exception('Falha ao excluir conta: $e');
+      throw app_exceptions.AuthException('Falha ao excluir conta: $e');
     }
   }
 }

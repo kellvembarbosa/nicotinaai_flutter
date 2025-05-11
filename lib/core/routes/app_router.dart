@@ -24,8 +24,7 @@ import 'package:nicotinaai_flutter/features/settings/screens/settings_screen.dar
 import 'package:nicotinaai_flutter/features/settings/screens/theme_selection_screen_bloc.dart';
 import 'package:nicotinaai_flutter/features/onboarding/screens/onboarding_screen.dart';
 import 'package:nicotinaai_flutter/features/tracking/screens/statistics_dashboard_screen.dart';
-import 'package:nicotinaai_flutter/features/tracking/screens/add_smoking_log_screen.dart';
-import 'package:nicotinaai_flutter/features/tracking/screens/add_craving_screen.dart';
+// Removed imports for deleted screens
 import 'package:nicotinaai_flutter/features/tracking/screens/health_recovery_screen.dart';
 import 'package:nicotinaai_flutter/features/tracking/screens/health_recovery_detail_screen.dart';
 import 'package:nicotinaai_flutter/features/tracking/widgets/health_recovery_test.dart';
@@ -103,14 +102,7 @@ class AppRouter {
         path: AppRoutes.statisticsDashboard.path,
         builder: (context, state) => const StatisticsDashboardScreen(),
       ),
-      GoRoute(
-        path: AppRoutes.addSmokingLog.path,
-        builder: (context, state) => const AddSmokingLogScreen(),
-      ),
-      GoRoute(
-        path: AppRoutes.addCraving.path,
-        builder: (context, state) => const AddCravingScreen(),
-      ),
+      // Removed routes for AddSmokingLogScreen and AddCravingScreen which have been migrated to BLoC
       GoRoute(
         path: AppRoutes.currency.path,
         builder: (context, state) => const CurrencySelectionScreen(),
