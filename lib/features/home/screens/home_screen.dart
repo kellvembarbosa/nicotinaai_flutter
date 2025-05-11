@@ -392,14 +392,13 @@ class _HomeScreenState extends State<HomeScreen> {
                   _stats?.moneySaved != trackingState.userStats?.moneySaved ||
                   (_stats?.lastSmokeDate?.millisecondsSinceEpoch ?? 0) != (trackingState.userStats?.lastSmokeDate?.millisecondsSinceEpoch ?? 0) ||
                   (_userRecoveryIds.isEmpty && trackingState.userHealthRecoveries.isNotEmpty) ||
-                  // Importante: detectar alterações na timestamp de atualização
+                  // Importante: usar timestamp como inteiro e comparar valores
                   (trackingState.lastUpdated != null && 
                    _lastUpdateTime != null && 
-                   trackingState.lastUpdated!.isAfter(_lastUpdateTime!)) ||
+                   trackingState.lastUpdated! > _lastUpdateTime!.millisecondsSinceEpoch) ||
                   // Mesmo sem alterações de valores, podemos ter novas entradas 
                   (_stats != null && trackingState.userStats != null && 
-                   ((_stats!.cravingsCount ?? 0) != (trackingState.userStats!.cravingsCount ?? 0) ||
-                    (_stats!.smokingRecordsCount ?? 0) != (trackingState.userStats!.smokingRecordsCount ?? 0)))
+                   (_stats!.smokingRecordsCount != trackingState.userStats!.smokingRecordsCount))
                 );
                 
                 // Atualiza apenas quando há mudanças reais nos dados

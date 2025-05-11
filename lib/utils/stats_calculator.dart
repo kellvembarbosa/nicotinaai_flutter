@@ -42,8 +42,7 @@ class StatsCalculator {
     return currentStats.copyWith(
       cravingsResisted: newCravingsResisted,
       cigarettesAvoided: newCigarettesAvoided,
-      moneySaved: newMoneySaved,
-      cravingsCount: (currentStats.cravingsCount ?? 0) + 1
+      moneySaved: newMoneySaved
     );
   }
 
