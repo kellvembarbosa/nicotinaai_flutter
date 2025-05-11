@@ -1664,47 +1664,34 @@ class _RegisterCravingSheetBlocState extends State<RegisterCravingSheetBloc> {
     }
     
     try {
-      // Use CravingBloc to save the craving
-      context.read<CravingBloc>().add(SaveCravingRequested(craving: craving));
-      
-      // Force update of tracking stats
+      // Obter os BLOCs antes de qualquer operação
+      final cravingBloc = context.read<CravingBloc>();
       final trackingBloc = context.read<TrackingBloc>();
+      
+      // Obter estatísticas atuais do usuário (pode ser null para o primeiro craving)
+      final currentStats = trackingBloc.state.userStats;
+      
+      // Valores iniciais para atualização otimista
+      int newCravingsResisted = 1; // Assume pelo menos 1 para o primeiro craving
+      int newCigarettesAvoided = 1; // Assume pelo menos 1 para o primeiro craving
+      int newMoneySaved = 0;
+      
+      // Use CravingBloc to save the craving
+      cravingBloc.add(SaveCravingRequested(craving: craving));
+      
+      // Disparar eventos para atualizações imediatas e em segundo plano
+      trackingBloc.add(CravingAdded());
       trackingBloc.add(ForceUpdateStats());
       
       if (kDebugMode) {
-        print('💡 [RegisterCravingSheetBloc] Forced stats update after registering craving');
+        print('💡 [RegisterCravingSheetBloc] Disparou eventos de atualização otimista e forçada');
       }
       
-      // Get the current state values
-      final currentCravingsResisted = trackingBloc.state.cravingsResisted;
-      
-      if (kDebugMode) {
-        print('🔢 Current cravings resisted: $currentCravingsResisted');
-      }
-      
-      // Wait a moment to let the CravingBloc process the event
-      await Future.delayed(const Duration(milliseconds: 300));
-      
-      // Obter dados atuais do usuário através do TrackingBloc
-      final currentStats = trackingBloc.state.userStats;
-      
-      if (kDebugMode) {
-        print('💡 [RegisterCravingSheetBloc] Usando StatsCalculator para atualização otimista');
-      }
-      
-      // Simplesmente disparar o evento CravingAdded para o TrackingBloc
-      // e ele aplicará o cálculo apropriado via StatsCalculator
-      trackingBloc.add(CravingAdded());
-      
-      // Valores atualizados para retornar na interface (apenas para atualização imediata)
-      int newCravingsResisted = 0;
-      int newCigarettesAvoided = 0;
-      int newMoneySaved = 0;
-      
-      // Aplicar StatsCalculator para obter os valores atualizados
+      // Cálculo para atualização otimista
       if (currentStats != null) {
+        // Se temos estatísticas existentes, usar o StatsCalculator
         final updatedStats = StatsCalculator.calculateAddCraving(currentStats);
-        newCravingsResisted = updatedStats.cravingsResisted ?? 0;
+        newCravingsResisted = updatedStats.cravingsResisted ?? 1;
         newCigarettesAvoided = updatedStats.cigarettesAvoided;
         newMoneySaved = updatedStats.moneySaved;
         
@@ -1714,9 +1701,16 @@ class _RegisterCravingSheetBlocState extends State<RegisterCravingSheetBloc> {
           print('  - Cigarros evitados: ${currentStats.cigarettesAvoided} -> $newCigarettesAvoided');
           print('  - Economia: ${currentStats.moneySaved} -> $newMoneySaved centavos');
         }
+      } else if (kDebugMode) {
+        // Se não temos estatísticas atuais, mantemos os valores default
+        print('⚠️ [RegisterCravingSheetBloc] Nenhuma estatística disponível, usando valores padrão para atualização otimista');
+        print('  - Cravings resistidos: default -> $newCravingsResisted');
+        print('  - Cigarros evitados: default -> $newCigarettesAvoided');
+        print('  - Economia: default -> $newMoneySaved centavos');
       }
       
-      // Close the sheet and pass optimistic update data
+      // IMPORTANTE: Sempre retornar um Map com valores padrão mesmo para o primeiro craving
+      // Isso garante que mesmo sem estatísticas iniciais, a UI seja atualizada
       Navigator.of(context).pop({
         'registered': true,
         'stats': {
