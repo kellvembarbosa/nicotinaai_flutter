@@ -262,14 +262,8 @@ class SettingsRepository {
         throw app_exceptions.AuthException('Usuário não autenticado');
       }
       
-      final session = await _supabaseClient.auth.getSession();
-      
-      if (session.error != null) {
-        throw app_exceptions.AuthException('Sessão inválida: ${session.error?.message}');
-      }
-      
       // Obtém o token de acesso da sessão atual
-      final token = session.data.session?.accessToken;
+      final token = _supabaseClient.auth.currentSession?.accessToken;
       
       if (token == null) {
         throw app_exceptions.AuthException('Token de acesso não disponível');
@@ -311,7 +305,7 @@ class SettingsRepository {
           // Exclui os dados do usuário (de forma mais segura, através de uma função RPC)
           // Caso a função RPC não esteja disponível, usamos o método direto
           try {
-            await _supabaseClient.rpc('delete_user_data', {'user_id': user.id});
+            await _supabaseClient.rpc('delete_user_data', params: {'user_id': user.id});
           } catch (rpcError) {
             print('⚠️ [SettingsRepository] Erro ao chamar RPC, usando método direto: $rpcError');
             
