@@ -26,6 +26,7 @@ import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
 import 'package:nicotinaai_flutter/utils/currency_utils.dart';
 import 'package:nicotinaai_flutter/utils/health_recovery_utils.dart';
 import 'package:nicotinaai_flutter/utils/stats_calculator.dart';
+import 'package:nicotinaai_flutter/widgets/skeleton_loading.dart';
 
 class HomeScreen extends StatefulWidget {
   static const String routeName = '/home';
@@ -37,13 +38,13 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  // State variables to store stats
-  int _daysWithoutSmoking = 0;
-  int _minutesLifeGained = 0;
-  int _breathCapacityPercent = 0;
-  int _cravingsResisted = 0;
-  int _dailyMinutesGained = 0;
-  int _moneySavedInCents = 0;
+  // State variables to store stats - nullable to show skeleton loading initially
+  int? _daysWithoutSmoking;
+  int? _minutesLifeGained;
+  int? _breathCapacityPercent;
+  int? _cravingsResisted;
+  int? _dailyMinutesGained;
+  int? _moneySavedInCents;
   UserStats? _stats;
   // Health recovery IDs
   List<String> _userRecoveryIds = [];
@@ -62,6 +63,8 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _hasCheckedHealthData = false;
   // Timestamp da última atualização
   DateTime? _lastUpdateTime;
+  // Flag para controlar o carregamento inicial
+  bool _isInitialLoading = true;
   // Currency formatter
   final CurrencyUtils _currencyUtils = CurrencyUtils();
   
@@ -210,10 +213,13 @@ class _HomeScreenState extends State<HomeScreen> {
           _healthRecoveryStatus = newHealthRecoveryStatus;
           _stats = updatedStats;
           _daysWithoutSmoking = updatedDaysWithoutSmoking;
-          _minutesLifeGained = StatsCalculator.calculateMinutesGained(_stats?.cigarettesAvoided ?? 0); // Usando cálculo centralizado
-          _breathCapacityPercent = _daysWithoutSmoking > 30 ? 40 : (_daysWithoutSmoking > 7 ? 20 : 10);
+          _minutesLifeGained = updatedStats?.cigarettesAvoided != null ? 
+              StatsCalculator.calculateMinutesGained(updatedStats!.cigarettesAvoided) : null;
+          _breathCapacityPercent = _daysWithoutSmoking != null ? 
+              (_daysWithoutSmoking! > 30 ? 40 : (_daysWithoutSmoking! > 7 ? 20 : 10)) : null;
           _cravingsResisted = updatedCravingsResisted;
-          _dailyMinutesGained = _daysWithoutSmoking == 0 ? 0 : _minutesLifeGained ~/ _daysWithoutSmoking;
+          _dailyMinutesGained = _daysWithoutSmoking != null && _minutesLifeGained != null && _daysWithoutSmoking! > 0 ? 
+              _minutesLifeGained! ~/ _daysWithoutSmoking! : null;
           // Debug para analisar o valor da economia
           if (kDebugMode) {
             print('💰 Valor economizado recebido do servidor: $updatedMoneySaved centavos');
@@ -241,15 +247,18 @@ class _HomeScreenState extends State<HomeScreen> {
                 print('💰 Preço por cigarro=$pricePerCigarette centavos, economia calculada=$calculatedMoneySaved centavos');
               }
               
-              _moneySavedInCents = calculatedMoneySaved > 0 ? calculatedMoneySaved : updatedMoneySaved;
+              _moneySavedInCents = calculatedMoneySaved > 0 ? calculatedMoneySaved : null;
             } else {
-              _moneySavedInCents = updatedMoneySaved;
+              // If we don't have stats or cigarettes avoided yet, show skeleton by setting to null
+              _moneySavedInCents = null;
             }
           }
           
           // Load the next health milestone
           _loadNextHealthMilestone();
           
+          // Agora podemos definir que a carga inicial foi concluída
+          _isInitialLoading = false;
           _isUpdating = false;
           _hasCheckedHealthData = true; // Marcar que verificamos os dados de saúde
         });
@@ -279,7 +288,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final trackingBloc = BlocProvider.of<TrackingBloc>(context);
     final hasLastSmokeDate = trackingBloc.state.userStats?.lastSmokeDate != null;
     
-    if (!hasLastSmokeDate || _daysWithoutSmoking <= 0) {
+    if (!hasLastSmokeDate || _daysWithoutSmoking == null || (_daysWithoutSmoking ?? 0) <= 0) {
       if (kDebugMode) {
         print('⚠️ Skipping next health milestone load: no last smoke date or days without smoking');
       }
@@ -288,7 +297,7 @@ class _HomeScreenState extends State<HomeScreen> {
     
     try {
       // Get the next health milestone
-      final nextMilestone = await HealthRecoveryUtils.getNextHealthRecoveryMilestone(_daysWithoutSmoking);
+      final nextMilestone = await HealthRecoveryUtils.getNextHealthRecoveryMilestone(_daysWithoutSmoking ?? 0);
       
       if (mounted) {
         setState(() {
@@ -376,6 +385,9 @@ class _HomeScreenState extends State<HomeScreen> {
             ],
             child: BlocBuilder<TrackingBloc, TrackingState>(
               builder: (context, trackingState) {
+                // Verificar se está carregando os dados
+                bool isLoading = _isInitialLoading || trackingState.isStatsLoading || trackingState.isLogsLoading || _isUpdating;
+                
                 // Reduzido para 1 segundo (em vez de 5) para maior responsividade
                 bool canUpdate = true;
                 if (_lastUpdateTime != null) {
@@ -449,11 +461,17 @@ class _HomeScreenState extends State<HomeScreen> {
                                     Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        Text(
-                                          l10n.homeDaysWithoutSmoking(_daysWithoutSmoking),
-                                          style: context.subtitleStyle,
-                                        ),
-                                        if (_stats?.lastSmokeDate != null)
+                                        _daysWithoutSmoking == null || isLoading
+                                            ? SkeletonLoading(
+                                                width: 150,
+                                                height: 16,
+                                                borderRadius: 4,
+                                              )
+                                            : Text(
+                                                l10n.homeDaysWithoutSmoking(_daysWithoutSmoking!),
+                                                style: context.subtitleStyle,
+                                              ),
+                                        if (_stats?.lastSmokeDate != null && !isLoading)
                                           Text(
                                             'Último: ${_formatLastSmokeDate(_stats!.lastSmokeDate!)}',
                                             style: TextStyle(
@@ -520,20 +538,22 @@ class _HomeScreenState extends State<HomeScreen> {
                                 Expanded(
                                   child: _buildDailyStatCard(
                                     context,
-                                    '$_cravingsResisted',
+                                    _cravingsResisted == null ? null : '$_cravingsResisted',
                                     l10n.homeCravingsResisted,
                                     Colors.orange,
                                     Icons.smoke_free,
+                                    isLoading,
                                   ),
                                 ),
                                 const SizedBox(width: 16),
                                 Expanded(
                                   child: _buildDailyStatCard(
                                     context,
-                                    _dailyMinutesGained > 0 ? '$_dailyMinutesGained min' : '0',
+                                    _dailyMinutesGained == null ? null : (_dailyMinutesGained! > 0 ? '$_dailyMinutesGained min' : '0'),
                                     l10n.homeMinutesGainedToday,
                                     Colors.teal,
                                     Icons.favorite,
+                                    isLoading,
                                   ),
                                 ),
                               ],
@@ -684,20 +704,22 @@ class _HomeScreenState extends State<HomeScreen> {
                                 Expanded(
                                   child: _buildStatisticCard(
                                     context,
-                                    '$_minutesLifeGained',
+                                    _minutesLifeGained == null ? null : '$_minutesLifeGained',
                                     l10n.homeMinutesLifeGained,
                                     Colors.green,
                                     Icons.access_time,
+                                    isLoading,
                                   ),
                                 ),
                                 const SizedBox(width: 16),
                                 Expanded(
                                   child: _buildStatisticCard(
                                     context,
-                                    '$_breathCapacityPercent%',
+                                    _breathCapacityPercent == null ? null : '$_breathCapacityPercent%',
                                     l10n.homeLungCapacity,
                                     Colors.blue,
                                     Icons.air,
+                                    isLoading,
                                   ),
                                 ),
                               ],
@@ -716,6 +738,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               Colors.amber,
                               Icons.savings,
                               user,
+                              isLoading || _moneySavedInCents == null,
                             ),
                           ),
                           
@@ -859,7 +882,10 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
   
-  Widget _buildStatisticCard(BuildContext context, String value, String label, Color color, IconData icon) {
+  // Versão atualizada com skeleton loading
+  Widget _buildStatisticCard(BuildContext context, String? value, String label, Color color, IconData icon, bool isLoading) {
+    // Verificamos se o valor está carregando ou é nulo
+    final shouldShowSkeleton = isLoading || value == null;
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
       decoration: BoxDecoration(
@@ -894,14 +920,20 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
           const SizedBox(height: 12),
-          Text(
-            value,
-            style: context.textTheme.headlineMedium!.copyWith(
-              fontWeight: FontWeight.bold,
-              color: context.contentColor,
-              fontSize: 24,
-            ),
-          ),
+          shouldShowSkeleton
+              ? SkeletonLoading(
+                  width: 80,
+                  height: 24,
+                  borderRadius: 4,
+                )
+              : Text(
+                  value!,
+                  style: context.textTheme.headlineMedium!.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: context.contentColor,
+                    fontSize: 24,
+                  ),
+                ),
           const SizedBox(height: 4),
           Text(
             label,
@@ -1017,9 +1049,12 @@ class _HomeScreenState extends State<HomeScreen> {
                 )
               else
                 Text(
-                  l10n.homeNextMilestoneDescription(_daysWithoutSmoking < 7 ? (7 - _daysWithoutSmoking).toInt() : 
-                                             _daysWithoutSmoking < 14 ? (14 - _daysWithoutSmoking).toInt() : 
-                                             _daysWithoutSmoking < 30 ? (30 - _daysWithoutSmoking).toInt() : 1),
+                  _daysWithoutSmoking == null ? 
+                      l10n.homeNextMilestoneDescription(1) :
+                      l10n.homeNextMilestoneDescription(
+                          (_daysWithoutSmoking ?? 0) < 7 ? 7 - (_daysWithoutSmoking ?? 0) : 
+                          (_daysWithoutSmoking ?? 0) < 14 ? 14 - (_daysWithoutSmoking ?? 0) : 
+                          (_daysWithoutSmoking ?? 0) < 30 ? 30 - (_daysWithoutSmoking ?? 0) : 1),
                   style: context.textTheme.bodyMedium!.copyWith(
                     color: textColor.withOpacity(0.85),
                   ),
@@ -1099,7 +1134,9 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
   
-  Widget _buildDailyStatCard(BuildContext context, String value, String label, Color color, IconData icon) {
+  // Versão atualizada com skeleton loading
+  Widget _buildDailyStatCard(BuildContext context, String? value, String label, Color color, IconData icon, bool isLoading) {
+    final shouldShowSkeleton = isLoading || value == null;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -1136,31 +1173,39 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               const Spacer(),
-              const Icon(
-                Icons.arrow_upward,
-                color: Colors.green,
-                size: 16,
-              ),
-              const SizedBox(width: 2),
-              Text(
-                _getStreakPercentage(),
-                style: context.textTheme.labelSmall!.copyWith(
-                  fontWeight: FontWeight.w600,
+              if (!isLoading) ...[  // Só mostrar quando não estiver carregando
+                const Icon(
+                  Icons.arrow_upward,
                   color: Colors.green,
-                  fontSize: 12,
+                  size: 16,
                 ),
-              ),
+                const SizedBox(width: 2),
+                Text(
+                  _getStreakPercentage(),
+                  style: context.textTheme.labelSmall!.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: Colors.green,
+                    fontSize: 12,
+                  ),
+                ),
+              ],
             ],
           ),
           const SizedBox(height: 12),
-          Text(
-            value,
-            style: context.textTheme.headlineMedium!.copyWith(
-              fontWeight: FontWeight.bold,
-              color: context.contentColor,
-              fontSize: 24,
-            ),
-          ),
+          shouldShowSkeleton
+              ? SkeletonLoading(
+                  width: 60,
+                  height: 24,
+                  borderRadius: 4,
+                )
+              : Text(
+                  value!,
+                  style: context.textTheme.headlineMedium!.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: context.contentColor,
+                    fontSize: 24,
+                  ),
+                ),
           const SizedBox(height: 4),
           Text(
             label,
@@ -1239,10 +1284,10 @@ class _HomeScreenState extends State<HomeScreen> {
   
   // Helper method to safely calculate streak percentage
   String _getStreakPercentage() {
-    if (_stats == null) return "--";
+    if (_stats == null || _daysWithoutSmoking == null) return "--";
     
     final days = _stats!.currentStreakDays;
-    if (days <= 0) return "--";
+    if (days == null || days <= 0) return "--";
     
     final percentage = (days * 3).clamp(1, 30);
     return "$percentage%";
@@ -1486,7 +1531,7 @@ class _HomeScreenState extends State<HomeScreen> {
     }
     
     // List of basic achievements based on days without smoking
-    if (_daysWithoutSmoking >= 1) {
+    if (_daysWithoutSmoking != null && (_daysWithoutSmoking ?? 0) >= 1) {
       achievements.add(
         _buildAchievementCard(
           context,
@@ -1498,7 +1543,7 @@ class _HomeScreenState extends State<HomeScreen> {
       );
     }
     
-    if (_daysWithoutSmoking >= 3) {
+    if (_daysWithoutSmoking != null && (_daysWithoutSmoking ?? 0) >= 3) {
       achievements.add(
         _buildAchievementCard(
           context,
@@ -1510,7 +1555,7 @@ class _HomeScreenState extends State<HomeScreen> {
       );
     }
     
-    if (_daysWithoutSmoking >= 7) {
+    if (_daysWithoutSmoking != null && (_daysWithoutSmoking ?? 0) >= 7) {
       achievements.add(
         _buildAchievementCard(
           context,
@@ -1523,7 +1568,7 @@ class _HomeScreenState extends State<HomeScreen> {
     }
     
     // Savings achievements based on money saved
-    if (_moneySavedInCents >= 2500) {
+    if (_moneySavedInCents != null && (_moneySavedInCents ?? 0) >= 2500) {
       achievements.add(
         _buildAchievementCard(
           context,
@@ -1551,15 +1596,17 @@ class _HomeScreenState extends State<HomeScreen> {
     return achievements;
   }
   
-  // Money statistic card with proper currency formatting using device locale
+  // Versão atualizada com skeleton loading para valores monetários
   Widget _buildMoneyStatisticCard(
     BuildContext context, 
-    int valueInCents, 
+    int? valueInCents, 
     String label, 
     Color color, 
     IconData icon,
     dynamic user, // Can be null, will use device locale
+    bool isLoading,
   ) {
+    final shouldShowSkeleton = isLoading || valueInCents == null;
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -1596,7 +1643,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               const Spacer(),
-              if (_daysWithoutSmoking > 0) ...[
+              if (_daysWithoutSmoking != null && (_daysWithoutSmoking ?? 0) > 0 && !isLoading) ...[  // Só mostrar quando não estiver carregando
                 const Icon(
                   Icons.arrow_upward,
                   color: Colors.green,
@@ -1615,17 +1662,23 @@ class _HomeScreenState extends State<HomeScreen> {
             ],
           ),
           const SizedBox(height: 16),
-          Text(
-            // Use device locale if user is null
-            user == null 
-                ? _currencyUtils.formatWithDeviceLocale(valueInCents, context: context)
-                : _currencyUtils.format(valueInCents, user: user),
-            style: context.textTheme.headlineMedium!.copyWith(
-              fontWeight: FontWeight.bold,
-              color: context.contentColor,
-              fontSize: 28,
-            ),
-          ),
+          shouldShowSkeleton
+              ? SkeletonLoading(
+                  width: 120,
+                  height: 28,
+                  borderRadius: 4,
+                )
+              : Text(
+                  // Use device locale if user is null - valueInCents will never be null here due to shouldShowSkeleton check
+                  user == null 
+                      ? _currencyUtils.formatWithDeviceLocale(valueInCents!, context: context)
+                      : _currencyUtils.format(valueInCents!, user: user),
+                  style: context.textTheme.headlineMedium!.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: context.contentColor,
+                    fontSize: 28,
+                  ),
+                ),
           const SizedBox(height: 8),
           Text(
             label,
