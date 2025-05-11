@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:nicotinaai_flutter/blocs/tracking/tracking_bloc.dart';
-import 'package:nicotinaai_flutter/blocs/tracking/tracking_event.dart';
-import 'package:nicotinaai_flutter/blocs/tracking/tracking_state.dart';
 import 'package:nicotinaai_flutter/features/tracking/models/craving.dart';
+import 'package:nicotinaai_flutter/features/tracking/providers/tracking_provider.dart';
+import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 
 class AddCravingScreen extends StatefulWidget {
@@ -112,37 +110,15 @@ class _AddCravingScreenState extends State<AddCravingScreen> {
               const SizedBox(height: 30),
               
               // Submit Button
-              BlocConsumer<TrackingBloc, TrackingState>(
-                listener: (context, state) {
-                  if (state.status == TrackingStatus.success && _isSubmitting) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Craving logged successfully')),
-                    );
-                    Navigator.of(context).pop();
-                    setState(() {
-                      _isSubmitting = false;
-                    });
-                  } else if (state.status == TrackingStatus.failure && _isSubmitting) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Error logging craving: ${state.errorMessage}')),
-                    );
-                    setState(() {
-                      _isSubmitting = false;
-                    });
-                  }
-                },
-                builder: (context, state) {
-                  return SizedBox(
-                    width: double.infinity,
-                    height: 50,
-                    child: ElevatedButton(
-                      onPressed: _isSubmitting ? null : _submitForm,
-                      child: _isSubmitting 
-                        ? const CircularProgressIndicator()
-                        : const Text('Log Craving'),
-                    ),
-                  );
-                },
+              SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: ElevatedButton(
+                  onPressed: _isSubmitting ? null : _submitForm,
+                  child: _isSubmitting 
+                    ? const CircularProgressIndicator()
+                    : const Text('Log Craving'),
+                ),
               ),
             ],
           ),
@@ -329,8 +305,8 @@ class _AddCravingScreenState extends State<AddCravingScreen> {
       });
       
       try {
-        final trackingState = context.read<TrackingBloc>().state;
-        final userId = trackingState.userStats?.userId ?? 'unknown';
+        final userId = context.read<TrackingProvider>().state.userStats?.userId ??
+            'unknown';
             
         final craving = Craving(
           userId: userId,
@@ -344,17 +320,25 @@ class _AddCravingScreenState extends State<AddCravingScreen> {
           notes: _notes,
         );
         
-        // Dispatch event to TrackingBloc
-        context.read<TrackingBloc>().add(AddCravingEvent(craving));
-      } catch (e) {
-        setState(() {
-          _isSubmitting = false;
-        });
+        await context.read<TrackingProvider>().addCraving(craving);
         
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error preparing craving data: $e')),
+            const SnackBar(content: Text('Craving logged successfully')),
           );
+          Navigator.of(context).pop();
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error logging craving: $e')),
+          );
+        }
+      } finally {
+        if (mounted) {
+          setState(() {
+            _isSubmitting = false;
+          });
         }
       }
     }

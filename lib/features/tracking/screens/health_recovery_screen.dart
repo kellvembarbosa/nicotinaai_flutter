@@ -1,11 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:provider/provider.dart';
 import 'package:nicotinaai_flutter/core/routes/app_routes.dart';
 import 'package:nicotinaai_flutter/core/theme/app_theme.dart';
-import 'package:nicotinaai_flutter/features/tracking/models/health_recovery.dart';
-import 'package:nicotinaai_flutter/features/tracking/providers/tracking_provider.dart';
-import 'package:nicotinaai_flutter/features/tracking/widgets/health_recovery_widget.dart';
 import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
 import 'package:nicotinaai_flutter/utils/health_recovery_utils.dart';
 import 'package:nicotinaai_flutter/widgets/skeleton_loading.dart';
@@ -26,31 +22,31 @@ class _HealthRecoveryScreenState extends State<HealthRecoveryScreen> with Single
   List<dynamic> _inProgressRecoveries = [];
   String? _errorMessage;
   int _currentStreakDays = 0;
-  
+
   late TabController _tabController;
-  
+
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
-    
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadHealthRecoveries();
     });
   }
-  
+
   @override
   void dispose() {
     _tabController.dispose();
     super.dispose();
   }
-  
+
   Future<void> _loadHealthRecoveries() async {
     setState(() {
       _isLoading = true;
       _errorMessage = null;
     });
-    
+
     try {
       // Check for new health recoveries
       try {
@@ -59,19 +55,19 @@ class _HealthRecoveryScreenState extends State<HealthRecoveryScreen> with Single
         print('Error checking for new health recoveries: $e');
         // Continue even if checking fails
       }
-      
+
       // Get health recovery status
       final status = await HealthRecoveryUtils.getUserHealthRecoveryStatus();
-      
+
       // Split recoveries into achieved and in progress
       final recoveries = status['recoveries'] as List;
       final achieved = recoveries.where((r) => r['is_achieved'] == true).toList();
       final inProgress = recoveries.where((r) => r['is_achieved'] != true).toList();
-      
+
       // Sort by days to achieve
       achieved.sort((a, b) => a['days_to_achieve'].compareTo(b['days_to_achieve']));
       inProgress.sort((a, b) => a['days_to_achieve'].compareTo(b['days_to_achieve']));
-      
+
       setState(() {
         _allRecoveries = recoveries;
         _achievedRecoveries = achieved;
@@ -86,82 +82,57 @@ class _HealthRecoveryScreenState extends State<HealthRecoveryScreen> with Single
       });
     }
   }
-  
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    
+
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.healthRecovery),
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () => context.pop(),
-        ),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.refresh),
-            onPressed: _loadHealthRecoveries,
-            tooltip: l10n.refresh,
-          ),
-        ],
+        leading: IconButton(icon: Icon(Icons.arrow_back), onPressed: () => context.pop()),
+        actions: [IconButton(icon: Icon(Icons.refresh), onPressed: _loadHealthRecoveries, tooltip: l10n.refresh)],
         bottom: TabBar(
           controller: _tabController,
-          tabs: [
-            Tab(text: l10n.achievementCategoryAll),
-            Tab(text: l10n.achieved),
-            Tab(text: l10n.progress),
-          ],
+          tabs: [Tab(text: l10n.achievementCategoryAll), Tab(text: l10n.achieved), Tab(text: l10n.progress)],
         ),
       ),
-      body: _isLoading
-          ? _buildSkeletonLoading()
-          : _errorMessage != null
+      body:
+          _isLoading
+              ? _buildSkeletonLoading()
+              : _errorMessage != null
               ? Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.error_outline, color: Colors.red, size: 48),
-                      const SizedBox(height: 16),
-                      Text(
-                        _errorMessage!,
-                        style: Theme.of(context).textTheme.bodyLarge,
-                        textAlign: TextAlign.center,
-                      ),
-                      TextButton(
-                        onPressed: _loadHealthRecoveries,
-                        child: Text(l10n.tryAgain),
-                      ),
-                    ],
-                  ),
-                )
-              : TabBarView(
-                  controller: _tabController,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    // All Recoveries
-                    _buildRecoveriesList(_allRecoveries, l10n.noRecoveriesFound),
-                    
-                    // Achieved Recoveries
-                    _buildRecoveriesList(_achievedRecoveries, l10n.noRecoveriesFound),
-                    
-                    // In Progress Recoveries
-                    _buildRecoveriesList(_inProgressRecoveries, l10n.noRecoveriesFound),
+                    Icon(Icons.error_outline, color: Colors.red, size: 48),
+                    const SizedBox(height: 16),
+                    Text(_errorMessage!, style: Theme.of(context).textTheme.bodyLarge, textAlign: TextAlign.center),
+                    TextButton(onPressed: _loadHealthRecoveries, child: Text(l10n.tryAgain)),
                   ],
                 ),
+              )
+              : TabBarView(
+                controller: _tabController,
+                children: [
+                  // All Recoveries
+                  _buildRecoveriesList(_allRecoveries, l10n.noRecoveriesFound),
+
+                  // Achieved Recoveries
+                  _buildRecoveriesList(_achievedRecoveries, l10n.noRecoveriesFound),
+
+                  // In Progress Recoveries
+                  _buildRecoveriesList(_inProgressRecoveries, l10n.noRecoveriesFound),
+                ],
+              ),
     );
   }
-  
+
   Widget _buildRecoveriesList(List<dynamic> recoveries, String emptyMessage) {
     if (recoveries.isEmpty) {
-      return Center(
-        child: Text(
-          emptyMessage,
-          style: context.textTheme.bodyLarge,
-          textAlign: TextAlign.center,
-        ),
-      );
+      return Center(child: Text(emptyMessage, style: context.textTheme.bodyLarge, textAlign: TextAlign.center));
     }
-    
+
     return ListView.builder(
       itemCount: recoveries.length,
       padding: const EdgeInsets.all(16),
@@ -171,13 +142,13 @@ class _HealthRecoveryScreenState extends State<HealthRecoveryScreen> with Single
         final progress = (recovery['progress'] as num?)?.toDouble() ?? 0.0;
         final daysToAchieve = recovery['days_to_achieve'] as int;
         final daysRemaining = recovery['days_remaining'] as int? ?? 0;
-        
+
         return _buildRecoveryCard(
           context,
           recovery['id'],
-          recovery['name'], 
-          recovery['description'], 
-          daysToAchieve, 
+          recovery['name'],
+          recovery['description'],
+          daysToAchieve,
           progress,
           isAchieved,
           daysRemaining,
@@ -186,7 +157,7 @@ class _HealthRecoveryScreenState extends State<HealthRecoveryScreen> with Single
       },
     );
   }
-  
+
   Widget _buildRecoveryCard(
     BuildContext context,
     String id,
@@ -200,15 +171,13 @@ class _HealthRecoveryScreenState extends State<HealthRecoveryScreen> with Single
   ) {
     final l10n = AppLocalizations.of(context)!;
     final cardColor = context.cardColor;
-    
+
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
       child: InkWell(
         onTap: () {
           // Navigate to recovery detail screen
-          context.push(AppRoutes.healthRecoveryDetail.withParams(
-            params: {'recoveryId': id},
-          ));
+          context.push(AppRoutes.healthRecoveryDetail.withParams(params: {'recoveryId': id}));
         },
         borderRadius: BorderRadius.circular(12),
         child: Padding(
@@ -224,19 +193,10 @@ class _HealthRecoveryScreenState extends State<HealthRecoveryScreen> with Single
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        Text(name, style: context.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
                         Text(
-                          name,
-                          style: context.textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Text(
-                          isAchieved 
-                              ? l10n.achievementCompleted
-                              : l10n.daysToAchieve(daysToAchieve),
-                          style: context.textTheme.bodySmall?.copyWith(
-                            color: isAchieved ? Colors.green : context.subtitleColor,
-                          ),
+                          isAchieved ? l10n.achievementCompleted : l10n.daysToAchieve(daysToAchieve),
+                          style: context.textTheme.bodySmall?.copyWith(color: isAchieved ? Colors.green : context.subtitleColor),
                         ),
                       ],
                     ),
@@ -244,9 +204,7 @@ class _HealthRecoveryScreenState extends State<HealthRecoveryScreen> with Single
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
-                      color: isAchieved 
-                          ? Colors.green.withOpacity(0.1) 
-                          : context.primaryColor.withOpacity(0.1),
+                      color: isAchieved ? Colors.green.withOpacity(0.1) : context.primaryColor.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
@@ -268,26 +226,14 @@ class _HealthRecoveryScreenState extends State<HealthRecoveryScreen> with Single
                 color: isAchieved ? Colors.green : context.primaryColor,
               ),
               const SizedBox(height: 16),
-              Text(
-                description,
-                style: context.textTheme.bodyMedium,
-              ),
+              Text(description, style: context.textTheme.bodyMedium),
               if (!isAchieved && daysRemaining > 0) ...[
                 const SizedBox(height: 12),
                 Row(
                   children: [
-                    Icon(
-                      Icons.access_time,
-                      size: 16,
-                      color: context.primaryColor,
-                    ),
+                    Icon(Icons.access_time, size: 16, color: context.primaryColor),
                     const SizedBox(width: 4),
-                    Text(
-                      l10n.daysRemaining(daysRemaining),
-                      style: context.textTheme.bodySmall?.copyWith(
-                        color: context.primaryColor,
-                      ),
-                    ),
+                    Text(l10n.daysRemaining(daysRemaining), style: context.textTheme.bodySmall?.copyWith(color: context.primaryColor)),
                   ],
                 ),
               ],
@@ -297,7 +243,7 @@ class _HealthRecoveryScreenState extends State<HealthRecoveryScreen> with Single
       ),
     );
   }
-  
+
   Widget _getRecoveryIcon(BuildContext context, String? iconName, bool isAchieved) {
     final iconMap = {
       'taste': Icons.restaurant,
@@ -314,18 +260,11 @@ class _HealthRecoveryScreenState extends State<HealthRecoveryScreen> with Single
 
     return Container(
       padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: isAchieved ? Colors.green.withOpacity(0.1) : context.primaryColor.withOpacity(0.1),
-        shape: BoxShape.circle,
-      ),
-      child: Icon(
-        icon,
-        color: color,
-        size: 24,
-      ),
+      decoration: BoxDecoration(color: isAchieved ? Colors.green.withOpacity(0.1) : context.primaryColor.withOpacity(0.1), shape: BoxShape.circle),
+      child: Icon(icon, color: color, size: 24),
     );
   }
-  
+
   /// Build skeleton loading UI for health recovery screen
   Widget _buildSkeletonLoading() {
     return TabBarView(
@@ -333,16 +272,16 @@ class _HealthRecoveryScreenState extends State<HealthRecoveryScreen> with Single
       children: [
         // All Recoveries Tab Skeleton
         _buildRecoveriesListSkeleton(),
-        
+
         // Achieved Recoveries Tab Skeleton
         _buildRecoveriesListSkeleton(),
-        
+
         // In Progress Recoveries Tab Skeleton
         _buildRecoveriesListSkeleton(),
       ],
     );
   }
-  
+
   /// Build skeleton list for recoveries
   Widget _buildRecoveriesListSkeleton() {
     return ListView.builder(
@@ -364,52 +303,25 @@ class _HealthRecoveryScreenState extends State<HealthRecoveryScreen> with Single
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          SkeletonLoading(
-                            width: 120,
-                            height: 18,
-                            borderRadius: 4,
-                          ),
+                          SkeletonLoading(width: 120, height: 18, borderRadius: 4),
                           const SizedBox(height: 6),
-                          SkeletonLoading(
-                            width: 80,
-                            height: 14,
-                            borderRadius: 4,
-                          ),
+                          SkeletonLoading(width: 80, height: 14, borderRadius: 4),
                         ],
                       ),
                     ),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: Colors.grey.withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: SkeletonLoading(
-                        width: 40,
-                        height: 14,
-                        borderRadius: 4,
-                      ),
+                      decoration: BoxDecoration(color: Colors.grey.withOpacity(0.2), borderRadius: BorderRadius.circular(12)),
+                      child: SkeletonLoading(width: 40, height: 14, borderRadius: 4),
                     ),
                   ],
                 ),
                 const SizedBox(height: 16),
-                SkeletonLoading(
-                  width: double.infinity,
-                  height: 6,
-                  borderRadius: 3,
-                ),
+                SkeletonLoading(width: double.infinity, height: 6, borderRadius: 3),
                 const SizedBox(height: 16),
-                SkeletonLoading(
-                  width: double.infinity,
-                  height: 16,
-                  borderRadius: 4,
-                ),
+                SkeletonLoading(width: double.infinity, height: 16, borderRadius: 4),
                 const SizedBox(height: 8),
-                SkeletonLoading(
-                  width: double.infinity * 0.7,
-                  height: 16,
-                  borderRadius: 4,
-                ),
+                SkeletonLoading(width: double.infinity * 0.7, height: 16, borderRadius: 4),
               ],
             ),
           ),

@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:nicotinaai_flutter/blocs/auth/auth_bloc.dart';
-import 'package:nicotinaai_flutter/blocs/auth/auth_state.dart' as bloc_auth;
 import 'package:nicotinaai_flutter/config/supabase_config.dart';
+import 'package:provider/provider.dart';
+import 'package:nicotinaai_flutter/features/auth/providers/auth_provider.dart';
 
 /// A test widget to verify the health recovery edge function
 class HealthRecoveryTest extends StatefulWidget {
@@ -18,18 +17,16 @@ class _HealthRecoveryTestState extends State<HealthRecoveryTest> {
   String _error = '';
 
   Future<void> _testHealthRecoveryFunction() async {
-    final authBloc = BlocProvider.of<AuthBloc>(context);
-    final authState = authBloc.state;
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final userId = authProvider.currentUser?.id;
     
-    if (authState.status != bloc_auth.AuthStatus.authenticated || authState.user == null) {
+    if (userId == null) {
       setState(() {
         _error = 'User is not authenticated';
         _isLoading = false;
       });
       return;
     }
-    
-    final userId = authState.user!.id;
     
     setState(() {
       _isLoading = true;

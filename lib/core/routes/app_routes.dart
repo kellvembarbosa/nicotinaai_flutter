@@ -35,7 +35,8 @@ enum AppRoutes {
   notifications('/notifications'),
   language('/settings/language'),
   currency('/settings/currency'),
-  currencyBloc('/settings/currency_bloc'),
+  // currencyBloc substituído por currency regular
+  currencyBloc('/settings/currency'),
   themeBloc('/settings/theme_bloc'),
   languageBloc('/settings/language_bloc'),
   privacyPolicy('/privacy-policy'),

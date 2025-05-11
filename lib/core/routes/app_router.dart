@@ -13,7 +13,6 @@ import 'package:nicotinaai_flutter/features/achievements/screens/updated_achieve
 import 'package:nicotinaai_flutter/features/achievements/screens/achievement_detail_screen.dart';
 import 'package:nicotinaai_flutter/features/settings/screens/cigarettes_per_day_screen.dart';
 import 'package:nicotinaai_flutter/features/settings/screens/currency_selection_screen.dart';
-import 'package:nicotinaai_flutter/features/settings/screens/currency_selection_screen_bloc.dart';
 import 'package:nicotinaai_flutter/features/settings/screens/delete_account_screen.dart';
 import 'package:nicotinaai_flutter/features/settings/screens/edit_profile_screen.dart';
 import 'package:nicotinaai_flutter/features/settings/screens/language_selection_screen.dart';
@@ -118,10 +117,6 @@ class AppRouter {
       ),
       
       // BLoC screens routes
-      GoRoute(
-        path: AppRoutes.currencyBloc.path,
-        builder: (context, state) => const CurrencySelectionScreenBloc(),
-      ),
       GoRoute(
         path: AppRoutes.themeBloc.path,
         builder: (context, state) => const ThemeSelectionScreenBloc(),

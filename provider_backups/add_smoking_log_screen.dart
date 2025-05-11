@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:nicotinaai_flutter/blocs/tracking/tracking_bloc.dart';
-import 'package:nicotinaai_flutter/blocs/tracking/tracking_event.dart';
-import 'package:nicotinaai_flutter/blocs/tracking/tracking_state.dart';
 import 'package:nicotinaai_flutter/features/onboarding/models/onboarding_model.dart';
 import 'package:nicotinaai_flutter/features/tracking/models/smoking_log.dart';
+import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 
 class AddSmokingLogScreen extends StatefulWidget {
@@ -87,35 +84,13 @@ class _AddSmokingLogScreenState extends State<AddSmokingLogScreen> {
               const SizedBox(height: 30),
 
               // Submit Button
-              BlocConsumer<TrackingBloc, TrackingState>(
-                listener: (context, state) {
-                  if (state.status == TrackingStatus.success && _isSubmitting) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Smoking event logged successfully')),
-                    );
-                    Navigator.of(context).pop();
-                    setState(() {
-                      _isSubmitting = false;
-                    });
-                  } else if (state.status == TrackingStatus.failure && _isSubmitting) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Error logging smoking event: ${state.errorMessage}')),
-                    );
-                    setState(() {
-                      _isSubmitting = false;
-                    });
-                  }
-                },
-                builder: (context, state) {
-                  return SizedBox(
-                    width: double.infinity,
-                    height: 50,
-                    child: ElevatedButton(
-                      onPressed: _isSubmitting ? null : _submitForm,
-                      child: _isSubmitting ? const CircularProgressIndicator() : const Text('Log Smoking Event'),
-                    ),
-                  );
-                },
+              SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: ElevatedButton(
+                  onPressed: _isSubmitting ? null : _submitForm,
+                  child: _isSubmitting ? const CircularProgressIndicator() : const Text('Log Smoking Event'),
+                ),
               ),
             ],
           ),
@@ -213,8 +188,7 @@ class _AddSmokingLogScreenState extends State<AddSmokingLogScreen> {
       });
 
       try {
-        final trackingState = context.read<TrackingBloc>().state;
-        final userId = trackingState.userStats?.userId ?? 'unknown';
+        final userId = context.read<TrackingProvider>().state.userStats?.userId ?? 'unknown';
 
         final log = SmokingLog(
           userId: userId,
@@ -227,17 +201,21 @@ class _AddSmokingLogScreenState extends State<AddSmokingLogScreen> {
           notes: _notes,
         );
 
-        // Dispatch event to TrackingBloc
-        context.read<TrackingBloc>().add(AddSmokingLogEvent(log));
-      } catch (e) {
-        setState(() {
-          _isSubmitting = false;
-        });
-        
+        await context.read<TrackingProvider>().addSmokingLog(log);
+
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error preparing smoking log data: $e')),
-          );
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Smoking event logged successfully')));
+          Navigator.of(context).pop();
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error logging smoking event: $e')));
+        }
+      } finally {
+        if (mounted) {
+          setState(() {
+            _isSubmitting = false;
+          });
         }
       }
     }

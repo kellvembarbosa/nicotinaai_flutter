@@ -1,26 +1,33 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter/foundation.dart';
+import 'dart:ui';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:nicotinaai_flutter/blocs/auth/auth_bloc.dart';
+import 'package:nicotinaai_flutter/blocs/auth/auth_state.dart' as bloc_auth;
+import 'package:nicotinaai_flutter/blocs/craving/craving_bloc.dart';
+import 'package:nicotinaai_flutter/blocs/craving/craving_event.dart';
+import 'package:nicotinaai_flutter/blocs/craving/craving_state.dart';
+import 'package:nicotinaai_flutter/blocs/tracking/tracking_bloc.dart';
+import 'package:nicotinaai_flutter/blocs/tracking/tracking_event.dart';
 import 'package:nicotinaai_flutter/core/theme/app_theme.dart';
-import 'package:nicotinaai_flutter/features/auth/providers/auth_provider.dart';
-import 'package:nicotinaai_flutter/features/home/models/craving_model.dart';
-import 'package:nicotinaai_flutter/features/home/providers/craving_provider.dart';
-import 'package:nicotinaai_flutter/features/tracking/providers/tracking_provider.dart';
-import 'package:nicotinaai_flutter/features/achievements/providers/achievement_provider.dart';
 import 'package:nicotinaai_flutter/features/achievements/helpers/achievement_helper.dart';
+import 'package:nicotinaai_flutter/features/home/models/craving_model.dart';
 import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
+import 'package:nicotinaai_flutter/utils/stats_calculator.dart';
 
 class RegisterCravingSheet extends StatefulWidget {
   const RegisterCravingSheet({super.key});
 
-  static Future<bool> show(BuildContext context) async {
-    final result = await showModalBottomSheet<bool>(
+  static Future<Map<String, dynamic>?> show(BuildContext context) async {
+    final result = await showModalBottomSheet<Map<String, dynamic>>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
+      barrierColor: Colors.black.withOpacity(0.6),
       builder: (context) => const RegisterCravingSheet(),
     );
-    // Retorna true se um craving foi registrado com sucesso
-    return result ?? false;
+    // Return result data if a craving was successfully registered
+    return result;
   }
 
   @override
@@ -34,7 +41,7 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
   String? _selectedIntensity;
   bool? _didResist;
   
-  // Controles para as seções minimizáveis
+  // Controls for collapsible sections
   bool _isLocationSectionExpanded = true;
   bool _isTriggerSectionExpanded = true;
   bool _isIntensitySectionExpanded = true;
@@ -44,10 +51,10 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
   @override
   void initState() {
     super.initState();
-    // Adiciona listener para o controller de notas
+    // Add listener for notes controller
     _notesController.addListener(() {
       setState(() {
-        // Força reconstrução quando o texto muda para atualizar o resumo
+        // Force rebuild when text changes to update summary
       });
     });
   }
@@ -58,28 +65,28 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
     super.dispose();
   }
   
-  // Método para atualizar o estado de expansão das seções
+  // Method to update the expansion state of sections
   void _updateSectionStates() {
     setState(() {
-      // Quando o usuário seleciona uma localização, minimiza essa seção e expande a próxima
+      // When user selects a location, collapse that section and expand the next
       if (_selectedLocation != null && _isLocationSectionExpanded) {
         _isLocationSectionExpanded = false;
         _isTriggerSectionExpanded = true;
       }
       
-      // Quando o usuário seleciona um gatilho, minimiza essa seção e expande a próxima
+      // When user selects a trigger, collapse that section and expand the next
       if (_selectedTrigger != null && _isTriggerSectionExpanded) {
         _isTriggerSectionExpanded = false;
         _isIntensitySectionExpanded = true;
       }
       
-      // Quando o usuário seleciona uma intensidade, minimiza essa seção e expande a próxima
+      // When user selects an intensity, collapse that section and expand the next
       if (_selectedIntensity != null && _isIntensitySectionExpanded) {
         _isIntensitySectionExpanded = false;
         _isResistSectionExpanded = true;
       }
       
-      // Quando o usuário indica se resistiu, minimiza essa seção e expande a de notas
+      // When user indicates if they resisted, collapse that section and expand the notes section
       if (_didResist != null && _isResistSectionExpanded) {
         _isResistSectionExpanded = false;
         _isNotesSectionExpanded = true;
@@ -93,746 +100,811 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
     final screenHeight = MediaQuery.of(context).size.height;
     final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
     
-    // Tamanho ideal para mobile, equilibrando visibilidade e contexto da tela
-    const initialSize = 0.80; // Valor ideal para visualizar conteúdo mantendo contexto da tela
+    // Ideal size for mobile, balancing visibility and screen context
+    const initialSize = 0.80;
     
     return DraggableScrollableSheet(
       initialChildSize: initialSize,
       minChildSize: 0.5,
       maxChildSize: 0.95,
-      expand: false, // Permite que o conteúdo determine o tamanho natural
-      snap: true, // Facilita o ajuste para posições específicas
-      snapSizes: const [0.7, 0.85, 0.95], // Manter as opções de snap para dar flexibilidade ao usuário
+      expand: false,
+      snap: true,
+      snapSizes: const [0.7, 0.85, 0.95],
       builder: (context, scrollController) {
         return Container(
+          margin: EdgeInsets.zero,
           decoration: BoxDecoration(
-            color: context.backgroundColor,
             borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                blurRadius: 10,
+                spreadRadius: 2,
+              )
+            ],
           ),
-          child: Column(
-            children: [
-              // Scrollable content com layout otimizado
-              Expanded(
-                child: ListView(
-                  controller: scrollController,
-                  padding: const EdgeInsets.only(bottom: 16),
-                  children: [
-                    _buildHandle(context),
-                    
-                    // Título principal otimizado
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
-                      decoration: BoxDecoration(
-                        color: context.isDarkMode 
-                            ? context.primaryColor.withOpacity(0.15) 
-                            : context.primaryColor.withOpacity(0.08),
-                        borderRadius: const BorderRadius.only(
-                          bottomLeft: Radius.circular(16),
-                          bottomRight: Radius.circular(16),
+          child: Container(
+            decoration: BoxDecoration(
+              color: context.isDarkMode 
+                ? Color(0xFF1C1C1E) 
+                : context.backgroundColor,
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+            ),
+            child: Column(
+              children: [
+                // Scrollable content with optimized layout
+                Expanded(
+                  child: ListView(
+                    controller: scrollController,
+                    padding: const EdgeInsets.only(bottom: 16),
+                    children: [
+                      _buildHandle(context),
+                      
+                      // Optimized main title without background
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
+                        child: Column(
+                          children: [
+                            Text(
+                              l10n.registerCraving,
+                              style: context.titleStyle.copyWith(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: context.primaryColor,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            Text(
+                              l10n.registerCravingSubtitle,
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: context.isDarkMode 
+                                    ? Colors.white70 
+                                    : Colors.black54,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
                         ),
                       ),
-                      child: Column(
-                        children: [
-                          Text(
-                            l10n.registerCraving,
-                            style: context.titleStyle.copyWith(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: context.primaryColor,
+                      
+                      const SizedBox(height: 8),
+                      
+                      // Sections reorganized for optimized layout for mobile
+                      // Section 1: Location - Collapsible
+                      Container(
+                        margin: const EdgeInsets.fromLTRB(16, 4, 16, 12),
+                        decoration: BoxDecoration(
+                          color: context.isDarkMode 
+                              ? Color(0xFF2C2C2E) 
+                              : Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.03),
+                              blurRadius: 10,
+                              offset: const Offset(0, 2),
                             ),
-                            textAlign: TextAlign.center,
-                          ),
-                          Text(
-                            l10n.registerCravingSubtitle,
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: context.isDarkMode 
-                                  ? Colors.white70 
-                                  : Colors.black54,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ],
-                      ),
-                    ),
-                    
-                    const SizedBox(height: 8),
-                    
-                    // Seções reorganizadas para layout otimizado para mobile
-                    // Seção 1: Localização - Minimizável
-                    Container(
-                      margin: const EdgeInsets.fromLTRB(16, 4, 16, 12),
-                      decoration: BoxDecoration(
-                        color: context.isDarkMode 
-                            ? Colors.grey[850]!.withOpacity(0.8) 
-                            : Colors.white,
-                        borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.03),
-                            blurRadius: 10,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                        border: _selectedLocation != null ? Border.all(
-                          color: context.primaryColor.withOpacity(0.3),
-                          width: 1.5,
-                        ) : null,
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Cabeçalho clicável para expandir/colapsar
-                          InkWell(
-                            onTap: () {
-                              setState(() {
-                                _isLocationSectionExpanded = !_isLocationSectionExpanded;
-                              });
-                            },
-                            borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                              decoration: BoxDecoration(
-                                color: context.primaryColor.withOpacity(0.08),
-                                borderRadius: const BorderRadius.vertical(
-                                  top: Radius.circular(16),
+                          ],
+                          border: _selectedLocation != null ? Border.all(
+                            color: context.primaryColor.withOpacity(0.3),
+                            width: 1.5,
+                          ) : null,
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Clickable header to expand/collapse
+                            InkWell(
+                              onTap: () {
+                                setState(() {
+                                  _isLocationSectionExpanded = !_isLocationSectionExpanded;
+                                });
+                              },
+                              borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                decoration: BoxDecoration(
+                                  color: context.primaryColor.withOpacity(0.08),
+                                  borderRadius: const BorderRadius.vertical(
+                                    top: Radius.circular(16),
+                                  ),
                                 ),
-                              ),
-                              child: Row(
-                                children: [
-                                  Icon(
-                                    Icons.place_outlined, 
-                                    size: 18, 
-                                    color: context.primaryColor,
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Expanded(
-                                    child: Text(
-                                      l10n.whereAreYou,
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                        color: context.primaryColor,
-                                      ),
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.place_outlined, 
+                                      size: 18, 
+                                      color: context.primaryColor,
                                     ),
-                                  ),
-                                  if (_selectedLocation != null)
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                      decoration: BoxDecoration(
-                                        color: context.primaryColor.withOpacity(0.1),
-                                        borderRadius: BorderRadius.circular(12),
-                                        border: Border.all(color: context.primaryColor.withOpacity(0.3)),
-                                      ),
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Icon(
-                                            _getLocationIcon(_selectedLocation!),
-                                            size: 14,
-                                            color: context.primaryColor,
-                                          ),
-                                          const SizedBox(width: 4),
-                                          Text(
-                                            _getLocationLabel(_selectedLocation!),
-                                            style: TextStyle(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.bold,
-                                              color: context.primaryColor,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  const SizedBox(width: 4),
-                                  Icon(
-                                    _isLocationSectionExpanded ? Icons.expand_less : Icons.expand_more,
-                                    color: Colors.grey,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          
-                          // Conteúdo expansível
-                          if (_isLocationSectionExpanded)
-                            Padding(
-                              padding: const EdgeInsets.all(16),
-                              child: _buildLocationGrid(context, l10n),
-                            ),
-                        ],
-                      ),
-                    ),
-                    
-                    // Seção 2: Triggers - Minimizável
-                    Container(
-                      margin: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-                      decoration: BoxDecoration(
-                        color: context.isDarkMode 
-                            ? Colors.grey[850]!.withOpacity(0.8) 
-                            : Colors.white,
-                        borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.03),
-                            blurRadius: 10,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                        border: _selectedTrigger != null ? Border.all(
-                          color: context.primaryColor.withOpacity(0.3),
-                          width: 1.5,
-                        ) : null,
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Cabeçalho clicável para expandir/colapsar
-                          InkWell(
-                            onTap: () {
-                              setState(() {
-                                _isTriggerSectionExpanded = !_isTriggerSectionExpanded;
-                              });
-                            },
-                            borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                              decoration: BoxDecoration(
-                                color: context.primaryColor.withOpacity(0.08),
-                                borderRadius: const BorderRadius.vertical(
-                                  top: Radius.circular(16),
-                                ),
-                              ),
-                              child: Row(
-                                children: [
-                                  Icon(
-                                    Icons.psychology_outlined, 
-                                    size: 18, 
-                                    color: context.primaryColor,
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Expanded(
-                                    child: Text(
-                                      l10n.whatTriggeredCraving,
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                        color: context.primaryColor,
-                                      ),
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
-                                  if (_selectedTrigger != null)
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                      decoration: BoxDecoration(
-                                        color: context.primaryColor.withOpacity(0.1),
-                                        borderRadius: BorderRadius.circular(12),
-                                        border: Border.all(color: context.primaryColor.withOpacity(0.3)),
-                                      ),
+                                    const SizedBox(width: 8),
+                                    Expanded(
                                       child: Text(
-                                        _getTriggerLabel(_selectedTrigger!),
+                                        l10n.whereAreYou,
                                         style: TextStyle(
-                                          fontSize: 14,
+                                          fontSize: 16,
                                           fontWeight: FontWeight.bold,
                                           color: context.primaryColor,
                                         ),
                                       ),
                                     ),
-                                  const SizedBox(width: 4),
-                                  Icon(
-                                    _isTriggerSectionExpanded ? Icons.expand_less : Icons.expand_more,
-                                    color: Colors.grey,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          
-                          // Conteúdo expansível
-                          if (_isTriggerSectionExpanded)
-                            Padding(
-                              padding: const EdgeInsets.all(16),
-                              child: _buildTriggerOptions(context, l10n),
-                            ),
-                        ],
-                      ),
-                    ),
-                    
-                    const SizedBox(height: 8),
-                    
-                    // Seção 3: Intensidade - Minimizável
-                    Container(
-                      margin: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-                      decoration: BoxDecoration(
-                        color: context.isDarkMode 
-                            ? Colors.grey[850]!.withOpacity(0.8) 
-                            : Colors.white,
-                        borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.03),
-                            blurRadius: 10,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                        border: _selectedIntensity != null ? Border.all(
-                          color: _getIntensityColor(_selectedIntensity!).withOpacity(0.3),
-                          width: 1.5,
-                        ) : null,
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Cabeçalho clicável para expandir/colapsar
-                          InkWell(
-                            onTap: () {
-                              setState(() {
-                                _isIntensitySectionExpanded = !_isIntensitySectionExpanded;
-                              });
-                            },
-                            borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                              decoration: BoxDecoration(
-                                color: context.primaryColor.withOpacity(0.08),
-                                borderRadius: const BorderRadius.vertical(
-                                  top: Radius.circular(16),
-                                ),
-                              ),
-                              child: Row(
-                                children: [
-                                  Icon(
-                                    Icons.speed_outlined, 
-                                    size: 18, 
-                                    color: context.primaryColor,
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Expanded(
-                                    child: Text(
-                                      l10n.intensityLevel,
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                        color: context.primaryColor,
-                                      ),
-                                    ),
-                                  ),
-                                  if (_selectedIntensity != null)
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                      decoration: BoxDecoration(
-                                        color: _getIntensityColor(_selectedIntensity!).withOpacity(0.1),
-                                        borderRadius: BorderRadius.circular(12),
-                                        border: Border.all(
-                                          color: _getIntensityColor(_selectedIntensity!).withOpacity(0.3)
+                                    if (_selectedLocation != null)
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                        decoration: BoxDecoration(
+                                          color: context.primaryColor.withOpacity(0.1),
+                                          borderRadius: BorderRadius.circular(12),
+                                          border: Border.all(color: context.primaryColor.withOpacity(0.3)),
+                                        ),
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Icon(
+                                              _getLocationIcon(_selectedLocation!),
+                                              size: 14,
+                                              color: context.primaryColor,
+                                            ),
+                                            const SizedBox(width: 4),
+                                            Text(
+                                              _getLocationLabel(_selectedLocation!),
+                                              style: TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.bold,
+                                                color: context.primaryColor,
+                                              ),
+                                            ),
+                                          ],
                                         ),
                                       ),
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Icon(
-                                            _getIntensityIcon(_selectedIntensity!),
-                                            size: 14,
-                                            color: _getIntensityColor(_selectedIntensity!),
-                                          ),
-                                          const SizedBox(width: 4),
-                                          Text(
-                                            _getIntensityLabel(_selectedIntensity!),
-                                            style: TextStyle(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.bold,
-                                              color: _getIntensityColor(_selectedIntensity!),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
+                                    const SizedBox(width: 4),
+                                    Icon(
+                                      _isLocationSectionExpanded ? Icons.expand_less : Icons.expand_more,
+                                      color: Colors.grey,
                                     ),
-                                  const SizedBox(width: 4),
-                                  Icon(
-                                    _isIntensitySectionExpanded ? Icons.expand_less : Icons.expand_more,
-                                    color: Colors.grey,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          
-                          // Conteúdo expansível
-                          if (_isIntensitySectionExpanded)
-                            Padding(
-                              padding: const EdgeInsets.all(16),
-                              child: _buildIntensityOptions(context, l10n),
-                            ),
-                        ],
-                      ),
-                    ),
-                    
-                    // Seção 4: Resistência - Minimizável
-                    Container(
-                      margin: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-                      decoration: BoxDecoration(
-                        color: context.isDarkMode 
-                            ? Colors.grey[850]!.withOpacity(0.8) 
-                            : Colors.white,
-                        borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.03),
-                            blurRadius: 10,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                        border: _didResist != null ? Border.all(
-                          color: _didResist! ? Colors.green.withOpacity(0.3) : Colors.redAccent.withOpacity(0.3),
-                          width: 1.5,
-                        ) : null,
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Cabeçalho clicável para expandir/colapsar
-                          InkWell(
-                            onTap: () {
-                              setState(() {
-                                _isResistSectionExpanded = !_isResistSectionExpanded;
-                              });
-                            },
-                            borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                              decoration: BoxDecoration(
-                                color: context.primaryColor.withOpacity(0.08),
-                                borderRadius: const BorderRadius.vertical(
-                                  top: Radius.circular(16),
+                                  ],
                                 ),
                               ),
-                              child: Row(
-                                children: [
-                                  Icon(
-                                    Icons.fitness_center_outlined, 
-                                    size: 18, 
-                                    color: context.primaryColor,
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Expanded(
-                                    child: Text(
-                                      l10n.didYouResist,
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                        color: context.primaryColor,
-                                      ),
-                                    ),
-                                  ),
-                                  if (_didResist != null)
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                      decoration: BoxDecoration(
-                                        color: _didResist! 
-                                            ? Colors.green.withOpacity(0.1) 
-                                            : Colors.redAccent.withOpacity(0.1),
-                                        borderRadius: BorderRadius.circular(12),
-                                        border: Border.all(
-                                          color: _didResist! 
-                                              ? Colors.green.withOpacity(0.3) 
-                                              : Colors.redAccent.withOpacity(0.3),
-                                        ),
-                                      ),
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Icon(
-                                            _didResist! 
-                                                ? Icons.check_circle_outline 
-                                                : Icons.cancel_outlined,
-                                            size: 14,
-                                            color: _didResist! ? Colors.green : Colors.redAccent,
-                                          ),
-                                          const SizedBox(width: 4),
-                                          Text(
-                                            _getResistLabel(_didResist!),
-                                            style: TextStyle(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.bold,
-                                              color: _didResist! ? Colors.green : Colors.redAccent,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  const SizedBox(width: 4),
-                                  Icon(
-                                    _isResistSectionExpanded ? Icons.expand_less : Icons.expand_more,
-                                    color: Colors.grey,
-                                  ),
-                                ],
-                              ),
                             ),
-                          ),
-                          
-                          // Conteúdo expansível
-                          if (_isResistSectionExpanded)
-                            Padding(
-                              padding: const EdgeInsets.all(16),
-                              child: _buildResistOptions(context, l10n),
-                            ),
-                        ],
-                      ),
-                    ),
-                    
-                    // Seção 5: Notas - Minimizável
-                    Container(
-                      margin: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-                      decoration: BoxDecoration(
-                        color: context.isDarkMode 
-                            ? Colors.grey[850]!.withOpacity(0.8) 
-                            : Colors.white,
-                        borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.03),
-                            blurRadius: 10,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                        border: _notesController.text.isNotEmpty ? Border.all(
-                          color: context.primaryColor.withOpacity(0.3),
-                          width: 1.5,
-                        ) : null,
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Cabeçalho clicável para expandir/colapsar
-                          InkWell(
-                            onTap: () {
-                              setState(() {
-                                _isNotesSectionExpanded = !_isNotesSectionExpanded;
-                              });
-                            },
-                            borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                              decoration: BoxDecoration(
-                                color: context.primaryColor.withOpacity(0.08),
-                                borderRadius: const BorderRadius.vertical(
-                                  top: Radius.circular(16),
+                            
+                            // Expandable content
+                            if (_isLocationSectionExpanded)
+                              Padding(
+                                padding: const EdgeInsets.all(16),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(16),
+                                  child: BackdropFilter(
+                                    filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                                    child: _buildLocationGrid(context, l10n),
+                                  ),
                                 ),
                               ),
-                              child: Row(
-                                children: [
-                                  Icon(
-                                    Icons.note_outlined, 
-                                    size: 18, 
-                                    color: context.primaryColor,
+                          ],
+                        ),
+                      ),
+                      
+                      // Section 2: Triggers - Collapsible
+                      Container(
+                        margin: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                        decoration: BoxDecoration(
+                          color: context.isDarkMode 
+                              ? Color(0xFF2C2C2E) 
+                              : Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.03),
+                              blurRadius: 10,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                          border: _selectedTrigger != null ? Border.all(
+                            color: context.primaryColor.withOpacity(0.3),
+                            width: 1.5,
+                          ) : null,
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Clickable header to expand/collapse
+                            InkWell(
+                              onTap: () {
+                                setState(() {
+                                  _isTriggerSectionExpanded = !_isTriggerSectionExpanded;
+                                });
+                              },
+                              borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                decoration: BoxDecoration(
+                                  color: context.primaryColor.withOpacity(0.08),
+                                  borderRadius: const BorderRadius.vertical(
+                                    top: Radius.circular(16),
                                   ),
-                                  const SizedBox(width: 8),
-                                  Expanded(
-                                    child: Text(
-                                      l10n.notes,
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                        color: context.primaryColor,
-                                      ),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.psychology_outlined, 
+                                      size: 18, 
+                                      color: context.primaryColor,
                                     ),
-                                  ),
-                                  if (_notesController.text.isNotEmpty)
-                                    Container(
-                                      constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.3),
-                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                      decoration: BoxDecoration(
-                                        color: context.primaryColor.withOpacity(0.1),
-                                        borderRadius: BorderRadius.circular(12),
-                                        border: Border.all(color: context.primaryColor.withOpacity(0.3)),
-                                      ),
+                                    const SizedBox(width: 8),
+                                    Expanded(
                                       child: Text(
-                                        _notesController.text.length > 15 
-                                            ? "${_notesController.text.substring(0, 15)}..." 
-                                            : _notesController.text,
+                                        l10n.whatTriggeredCraving,
                                         style: TextStyle(
-                                          fontSize: 14,
+                                          fontSize: 16,
                                           fontWeight: FontWeight.bold,
                                           color: context.primaryColor,
                                         ),
                                         overflow: TextOverflow.ellipsis,
                                       ),
                                     ),
-                                  const SizedBox(width: 4),
-                                  Icon(
-                                    _isNotesSectionExpanded ? Icons.expand_less : Icons.expand_more,
-                                    color: Colors.grey,
-                                  ),
-                                ],
+                                    if (_selectedTrigger != null)
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                        decoration: BoxDecoration(
+                                          color: context.primaryColor.withOpacity(0.1),
+                                          borderRadius: BorderRadius.circular(12),
+                                          border: Border.all(color: context.primaryColor.withOpacity(0.3)),
+                                        ),
+                                        child: Text(
+                                          _getTriggerLabel(_selectedTrigger!),
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.bold,
+                                            color: context.primaryColor,
+                                          ),
+                                        ),
+                                      ),
+                                    const SizedBox(width: 4),
+                                    Icon(
+                                      _isTriggerSectionExpanded ? Icons.expand_less : Icons.expand_more,
+                                      color: Colors.grey,
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
-                          ),
-                          
-                          // Conteúdo expansível
-                          if (_isNotesSectionExpanded)
-                            Padding(
-                              padding: const EdgeInsets.all(16),
-                              child: _buildNotesField(context, l10n),
-                            ),
-                        ],
-                      ),
-                    ),
-                    
-                    // Extra space at the bottom
-                    const SizedBox(height: 70),
-                  ],
-                ),
-              ),
-              
-              // Botão de salvar otimizado
-              Container(
-                width: double.infinity,
-                padding: EdgeInsets.only(
-                  left: 20,
-                  right: 20,
-                  bottom: 16 + MediaQuery.of(context).padding.bottom,
-                  top: 8,
-                ),
-                decoration: BoxDecoration(
-                  color: context.backgroundColor,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.07),
-                      offset: const Offset(0, -3),
-                      blurRadius: 8,
-                    ),
-                  ],
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    // Mensagem de erro compacta
-                    if (!_isFormValid())
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 8),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-                          decoration: BoxDecoration(
-                            color: Colors.red.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(
-                              color: Colors.red.withOpacity(0.3),
-                              width: 1,
-                            ),
-                          ),
-                          child: Row(
-                            children: [
-                              Icon(
-                                Icons.error_outline,
-                                color: Colors.red,
-                                size: 16,
-                              ),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: Text(
-                                  _getValidationMessage(l10n),
-                                  style: TextStyle(
-                                    color: Colors.red,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w500,
+                            
+                            // Expandable content
+                            if (_isTriggerSectionExpanded)
+                              Padding(
+                                padding: const EdgeInsets.all(16),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(16),
+                                  child: BackdropFilter(
+                                    filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                                    child: _buildTriggerOptions(context, l10n),
                                   ),
                                 ),
                               ),
-                            ],
-                          ),
+                          ],
                         ),
                       ),
-                    
-                    // Botão de salvar com elevation
-                    SizedBox(
+                      
+                      const SizedBox(height: 8),
+                      
+                      // Section 3: Intensity - Collapsible
+                      Container(
+                        margin: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                        decoration: BoxDecoration(
+                          color: context.isDarkMode 
+                              ? Color(0xFF2C2C2E) 
+                              : Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.03),
+                              blurRadius: 10,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                          border: _selectedIntensity != null ? Border.all(
+                            color: _getIntensityColor(_selectedIntensity!).withOpacity(0.3),
+                            width: 1.5,
+                          ) : null,
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Clickable header to expand/collapse
+                            InkWell(
+                              onTap: () {
+                                setState(() {
+                                  _isIntensitySectionExpanded = !_isIntensitySectionExpanded;
+                                });
+                              },
+                              borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                decoration: BoxDecoration(
+                                  color: context.primaryColor.withOpacity(0.08),
+                                  borderRadius: const BorderRadius.vertical(
+                                    top: Radius.circular(16),
+                                  ),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.speed_outlined, 
+                                      size: 18, 
+                                      color: context.primaryColor,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text(
+                                        l10n.intensityLevel,
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                          color: context.primaryColor,
+                                        ),
+                                      ),
+                                    ),
+                                    if (_selectedIntensity != null)
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                        decoration: BoxDecoration(
+                                          color: _getIntensityColor(_selectedIntensity!).withOpacity(0.1),
+                                          borderRadius: BorderRadius.circular(12),
+                                          border: Border.all(
+                                            color: _getIntensityColor(_selectedIntensity!).withOpacity(0.3)
+                                          ),
+                                        ),
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Icon(
+                                              _getIntensityIcon(_selectedIntensity!),
+                                              size: 14,
+                                              color: _getIntensityColor(_selectedIntensity!),
+                                            ),
+                                            const SizedBox(width: 4),
+                                            Text(
+                                              _getIntensityLabel(_selectedIntensity!),
+                                              style: TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.bold,
+                                                color: _getIntensityColor(_selectedIntensity!),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    const SizedBox(width: 4),
+                                    Icon(
+                                      _isIntensitySectionExpanded ? Icons.expand_less : Icons.expand_more,
+                                      color: Colors.grey,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            
+                            // Expandable content
+                            if (_isIntensitySectionExpanded)
+                              Padding(
+                                padding: const EdgeInsets.all(16),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(16),
+                                  child: BackdropFilter(
+                                    filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                                    child: _buildIntensityOptions(context, l10n),
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                      
+                      // Section 4: Resistance - Collapsible
+                      Container(
+                        margin: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                        decoration: BoxDecoration(
+                          color: context.isDarkMode 
+                              ? Color(0xFF2C2C2E) 
+                              : Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.03),
+                              blurRadius: 10,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                          border: _didResist != null ? Border.all(
+                            color: _didResist! ? Colors.green.withOpacity(0.3) : Colors.redAccent.withOpacity(0.3),
+                            width: 1.5,
+                          ) : null,
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Clickable header to expand/collapse
+                            InkWell(
+                              onTap: () {
+                                setState(() {
+                                  _isResistSectionExpanded = !_isResistSectionExpanded;
+                                });
+                              },
+                              borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                decoration: BoxDecoration(
+                                  color: context.primaryColor.withOpacity(0.08),
+                                  borderRadius: const BorderRadius.vertical(
+                                    top: Radius.circular(16),
+                                  ),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.fitness_center_outlined, 
+                                      size: 18, 
+                                      color: context.primaryColor,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text(
+                                        l10n.didYouResist,
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                          color: context.primaryColor,
+                                        ),
+                                      ),
+                                    ),
+                                    if (_didResist != null)
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                        decoration: BoxDecoration(
+                                          color: _didResist! 
+                                              ? Colors.green.withOpacity(0.1) 
+                                              : Colors.redAccent.withOpacity(0.1),
+                                          borderRadius: BorderRadius.circular(12),
+                                          border: Border.all(
+                                            color: _didResist! 
+                                                ? Colors.green.withOpacity(0.3) 
+                                                : Colors.redAccent.withOpacity(0.3),
+                                          ),
+                                        ),
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Icon(
+                                              _didResist! 
+                                                  ? Icons.check_circle_outline 
+                                                  : Icons.cancel_outlined,
+                                              size: 14,
+                                              color: _didResist! ? Colors.green : Colors.redAccent,
+                                            ),
+                                            const SizedBox(width: 4),
+                                            Text(
+                                              _getResistLabel(_didResist!),
+                                              style: TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.bold,
+                                                color: _didResist! ? Colors.green : Colors.redAccent,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    const SizedBox(width: 4),
+                                    Icon(
+                                      _isResistSectionExpanded ? Icons.expand_less : Icons.expand_more,
+                                      color: Colors.grey,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            
+                            // Expandable content
+                            if (_isResistSectionExpanded)
+                              Padding(
+                                padding: const EdgeInsets.all(16),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(16),
+                                  child: BackdropFilter(
+                                    filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                                    child: _buildResistOptions(context, l10n),
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                      
+                      // Section 5: Notes - Collapsible
+                      Container(
+                        margin: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                        decoration: BoxDecoration(
+                          color: context.isDarkMode 
+                              ? Color(0xFF2C2C2E) 
+                              : Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.03),
+                              blurRadius: 10,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                          border: _notesController.text.isNotEmpty ? Border.all(
+                            color: context.primaryColor.withOpacity(0.3),
+                            width: 1.5,
+                          ) : null,
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Clickable header to expand/collapse
+                            InkWell(
+                              onTap: () {
+                                setState(() {
+                                  _isNotesSectionExpanded = !_isNotesSectionExpanded;
+                                });
+                              },
+                              borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                decoration: BoxDecoration(
+                                  color: context.primaryColor.withOpacity(0.08),
+                                  borderRadius: const BorderRadius.vertical(
+                                    top: Radius.circular(16),
+                                  ),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.note_outlined, 
+                                      size: 18, 
+                                      color: context.primaryColor,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text(
+                                        l10n.notes,
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                          color: context.primaryColor,
+                                        ),
+                                      ),
+                                    ),
+                                    if (_notesController.text.isNotEmpty)
+                                      Container(
+                                        constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.3),
+                                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                        decoration: BoxDecoration(
+                                          color: context.primaryColor.withOpacity(0.1),
+                                          borderRadius: BorderRadius.circular(12),
+                                          border: Border.all(color: context.primaryColor.withOpacity(0.3)),
+                                        ),
+                                        child: Text(
+                                          _notesController.text.length > 15 
+                                              ? "${_notesController.text.substring(0, 15)}..." 
+                                              : _notesController.text,
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.bold,
+                                            color: context.primaryColor,
+                                          ),
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                    const SizedBox(width: 4),
+                                    Icon(
+                                      _isNotesSectionExpanded ? Icons.expand_less : Icons.expand_more,
+                                      color: Colors.grey,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            
+                            // Expandable content
+                            if (_isNotesSectionExpanded)
+                              Padding(
+                                padding: const EdgeInsets.all(16),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(16),
+                                  child: BackdropFilter(
+                                    filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                                    child: _buildNotesField(context, l10n),
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                      
+                      // Extra space at the bottom
+                      const SizedBox(height: 70),
+                    ],
+                  ),
+                ),
+                
+                // Optimized save button with frosted glass effect
+                ClipRRect(
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+                    child: Container(
                       width: double.infinity,
-                      height: 52,
-                      child: ElevatedButton(
-                        onPressed: _isFormValid() ? _saveCraving : () {
-                          // Mensagem de erro em caso de formulário inválido
-                          final message = _getValidationMessage(l10n);
-                          
-                          // Verificar campos específicos
-                          String tipMessage = "";
-                          if (_selectedLocation == null) {
-                            tipMessage = "Por favor, selecione uma localização";
-                          } else if (_selectedTrigger == null) {
-                            tipMessage = "Por favor, selecione o que desencadeou o desejo";
-                          } else if (_selectedIntensity == null) {
-                            tipMessage = "Por favor, indique a intensidade do desejo";
-                          } else if (_didResist == null) {
-                            tipMessage = "Por favor, informe se resistiu ao desejo";
-                          }
-                          
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(message, style: const TextStyle(fontWeight: FontWeight.bold)),
-                                  if (tipMessage.isNotEmpty)
-                                    Text(tipMessage, style: const TextStyle(fontSize: 12)),
-                                ],
+                      padding: EdgeInsets.only(
+                        left: 20,
+                        right: 20,
+                        bottom: 16 + MediaQuery.of(context).padding.bottom,
+                        top: 8,
+                      ),
+                      decoration: BoxDecoration(
+                        color: context.isDarkMode 
+                            ? Colors.black.withOpacity(0.2)
+                            : Colors.white.withOpacity(0.2),
+                        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Color.fromRGBO(0, 0, 0, 0.1),
+                            offset: const Offset(0, -3),
+                            blurRadius: 10,
+                            spreadRadius: 1,
+                          ),
+                        ],
+                        // Add backdrop filter for glass effect
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            context.isDarkMode 
+                                ? Color.fromRGBO(255, 255, 255, 0.03) 
+                                : Color.fromRGBO(255, 255, 255, 0.7),
+                            context.isDarkMode 
+                                ? Color.fromRGBO(0, 0, 0, 0.3) 
+                                : Color.fromRGBO(255, 255, 255, 0.5),
+                          ],
+                        ),
+                      ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      // Compact error message
+                      if (!_isFormValid())
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 8),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: BackdropFilter(
+                              filter: ImageFilter.blur(sigmaX: 3, sigmaY: 3),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                                decoration: BoxDecoration(
+                                  color: Color.fromRGBO(255, 0, 0, 0.1),
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(
+                                    color: Color.fromRGBO(255, 0, 0, 0.3),
+                                    width: 1,
+                                  ),
+                                    ),
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.error_outline,
+                                      color: Colors.red,
+                                      size: 16,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text(
+                                        _getValidationMessage(l10n),
+                                        style: TextStyle(
+                                          color: Colors.red,
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
-                              backgroundColor: Colors.redAccent,
-                              behavior: SnackBarBehavior.floating,
-                              duration: const Duration(seconds: 3),
                             ),
-                          );
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: context.primaryColor,
-                          disabledBackgroundColor: Colors.grey[300],
-                          foregroundColor: Colors.white,
-                          padding: EdgeInsets.zero,
-                          elevation: 4,
-                          shadowColor: context.primaryColor.withOpacity(0.4),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
                           ),
                         ),
-                        child: Ink(
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [
-                                context.primaryColor,
-                                context.primaryColor.withRed((context.primaryColor.red + 25).clamp(0, 255)),
-                              ],
-                              begin: Alignment.centerLeft,
-                              end: Alignment.centerRight,
-                            ),
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: Container(
-                            width: double.infinity,
-                            height: 52,
-                            alignment: Alignment.center,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Icon(Icons.save_outlined, size: 20),
-                                const SizedBox(width: 8),
-                                Text(
-                                  l10n.save,
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                      
+                      // Save button with elevation
+                      SizedBox(
+                        width: double.infinity,
+                        height: 52,
+                        child: ElevatedButton(
+                          onPressed: _isFormValid() ? _saveCraving : () {
+                            // Error message when form is invalid
+                            final message = _getValidationMessage(l10n);
+                            
+                            // Check specific fields
+                            String tipMessage = "";
+                            if (_selectedLocation == null) {
+                              tipMessage = "Please select a location";
+                            } else if (_selectedTrigger == null) {
+                              tipMessage = "Please select what triggered the craving";
+                            } else if (_selectedIntensity == null) {
+                              tipMessage = "Please indicate the intensity of the craving";
+                            } else if (_didResist == null) {
+                              tipMessage = "Please indicate if you resisted the craving";
+                            }
+                            
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(message, style: const TextStyle(fontWeight: FontWeight.bold)),
+                                    if (tipMessage.isNotEmpty)
+                                      Text(tipMessage, style: const TextStyle(fontSize: 12)),
+                                  ],
                                 ),
-                              ],
+                                backgroundColor: Colors.redAccent,
+                                behavior: SnackBarBehavior.floating,
+                                duration: const Duration(seconds: 3),
+                              ),
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: context.primaryColor,
+                            disabledBackgroundColor: Colors.grey[300],
+                            foregroundColor: Colors.white,
+                            padding: EdgeInsets.zero,
+                            elevation: 4,
+                            shadowColor: context.primaryColor.withOpacity(0.4),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                          ),
+                          child: Ink(
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [
+                                  context.primaryColor,
+                                  context.primaryColor.withRed((context.primaryColor.red + 25).clamp(0, 255)),
+                                ],
+                                begin: Alignment.centerLeft,
+                                end: Alignment.centerRight,
+                              ),
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: Container(
+                              width: double.infinity,
+                              height: 52,
+                              alignment: Alignment.center,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Icon(Icons.save_outlined, size: 20),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    l10n.save,
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-            ],
+            ),
+              ],
+            ),
           ),
         );
       },
@@ -846,7 +918,7 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
            _didResist != null;
   }
   
-  // Método para obter o rótulo legível para um valor de localização selecionado
+  // Method to get readable label for selected location value
   String _getLocationLabel(String value) {
     final l10n = AppLocalizations.of(context);
     switch (value) {
@@ -871,7 +943,7 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
     }
   }
   
-  // Método para obter o ícone correspondente à localização
+  // Method to get icon for location
   IconData _getLocationIcon(String value) {
     switch (value) {
       case 'home':
@@ -895,7 +967,7 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
     }
   }
   
-  // Método para obter o rótulo legível para um valor de gatilho selecionado
+  // Method to get readable label for selected trigger value
   String _getTriggerLabel(String value) {
     final l10n = AppLocalizations.of(context);
     switch (value) {
@@ -920,7 +992,7 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
     }
   }
   
-  // Método para obter o rótulo legível para um valor de intensidade
+  // Method to get readable label for intensity value
   String _getIntensityLabel(String value) {
     final l10n = AppLocalizations.of(context);
     switch (value) {
@@ -937,7 +1009,7 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
     }
   }
   
-  // Método para obter a cor correspondente à intensidade
+  // Method to get color for intensity
   Color _getIntensityColor(String value) {
     switch (value) {
       case 'low':
@@ -953,7 +1025,7 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
     }
   }
   
-  // Método para obter o ícone correspondente à intensidade
+  // Method to get icon for intensity
   IconData _getIntensityIcon(String value) {
     switch (value) {
       case 'low':
@@ -969,7 +1041,7 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
     }
   }
   
-  // Método para obter o rótulo legível para resistência
+  // Method to get readable label for resistance
   String _getResistLabel(bool value) {
     final l10n = AppLocalizations.of(context);
     return value ? l10n.yes : l10n.no;
@@ -989,7 +1061,7 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
   }
 
   Widget _buildHandle(BuildContext context) {
-    return Container(
+    return SizedBox(
       height: 24,
       width: double.infinity,
       child: Stack(
@@ -1008,7 +1080,7 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
             ),
           ),
           
-          // Botão de fechar no canto direito
+          // Close button in the right corner
           Positioned(
             top: 0,
             right: 8,
@@ -1019,7 +1091,7 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
                 color: Colors.grey[600],
               ),
               padding: EdgeInsets.zero,
-              constraints: BoxConstraints(),
+              constraints: const BoxConstraints(),
               splashRadius: 20,
               onPressed: () => Navigator.of(context).pop(),
             ),
@@ -1078,7 +1150,7 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
       physics: const NeverScrollableScrollPhysics(),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 4,
-        childAspectRatio: MediaQuery.of(context).size.height < 700 ? 0.85 : 0.8, // Ajustado para telas menores
+        childAspectRatio: MediaQuery.of(context).size.height < 700 ? 0.85 : 0.8, // Adjusted for smaller screens
         crossAxisSpacing: 6,
         mainAxisSpacing: 8,
       ),
@@ -1119,25 +1191,27 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
           setState(() {
             _selectedTrigger = selected ? trigger.value : null;
           });
+          // Updates the sections state when user selects a trigger
+          _updateSectionStates();
         },
       )).toList(),
     );
   }
   
   Widget _buildIntensityOptions(BuildContext context, AppLocalizations l10n) {
-    // Mapeando para os valores do enum do banco de dados: ["LOW", "MODERATE", "HIGH", "VERY_HIGH"]
+    // Mapping to database enum values: ["LOW", "MODERATE", "HIGH", "VERY_HIGH"]
     final intensities = [
-      _IntensityOption(label: l10n.mild, value: 'low'), // "LOW" no banco de dados
-      _IntensityOption(label: l10n.moderate, value: 'moderate'), // "MODERATE" no banco de dados
-      _IntensityOption(label: l10n.intense, value: 'high'), // "HIGH" no banco de dados
-      _IntensityOption(label: l10n.veryIntense, value: 'very_high'), // "VERY_HIGH" no banco de dados
+      _IntensityOption(label: l10n.mild, value: 'low'), // "LOW" in database
+      _IntensityOption(label: l10n.moderate, value: 'moderate'), // "MODERATE" in database
+      _IntensityOption(label: l10n.intense, value: 'high'), // "HIGH" in database
+      _IntensityOption(label: l10n.veryIntense, value: 'very_high'), // "VERY_HIGH" in database
     ];
     
-    // Layout otimizado para mobile que adapta melhor para telas diferentes
+    // Optimized layout for mobile that adapts better to different screens
     return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 4,
         childAspectRatio: 1.0,
         crossAxisSpacing: 10,
@@ -1165,7 +1239,7 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
     final color = context.primaryColor;
     final screenHeight = MediaQuery.of(context).size.height;
     
-    // Ajustes adaptativos baseados na altura da tela
+    // Adaptive adjustments based on screen height
     final bool isSmallScreen = screenHeight < 700;
     final double iconSize = isSmallScreen ? 22 : 24;
     final double fontSize = isSmallScreen ? 10 : 11;
@@ -1175,7 +1249,7 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
       onTap: () {
         setState(() {
           _selectedLocation = value;
-          // Atualiza o estado das seções quando o usuário seleciona uma localização
+          // Updates the sections state when user selects a location
           _updateSectionStates();
         });
       },
@@ -1189,9 +1263,9 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
               color: isSelected 
                 ? color.withAlpha(51) 
                 : context.isDarkMode 
-                  ? Colors.grey.withAlpha(26) 
-                  : Colors.grey.withAlpha(13),
-              borderRadius: BorderRadius.circular(12),
+                    ? Colors.grey.withAlpha(26) 
+                    : Colors.grey.withAlpha(13),
+              shape: BoxShape.circle,
               border: Border.all(
                 color: isSelected 
                   ? color 
@@ -1204,8 +1278,8 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
               color: isSelected 
                 ? color 
                 : context.isDarkMode 
-                  ? Colors.white 
-                  : Colors.grey[800],
+                    ? Colors.white 
+                    : Colors.grey[800],
               size: iconSize,
             ),
           ),
@@ -1236,13 +1310,9 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
     return FilterChip(
       label: Text(label),
       selected: isSelected,
-      onSelected: (bool selected) {
-        onSelected(selected);
-        // Atualiza o estado das seções quando o usuário seleciona um gatilho
-        _updateSectionStates();
-      },
+      onSelected: onSelected,
       backgroundColor: context.isDarkMode 
-        ? Colors.grey.withAlpha(26) 
+        ? Color(0xFF383838) 
         : Colors.grey.withAlpha(13),
       selectedColor: context.primaryColor.withAlpha(51),
       checkmarkColor: context.primaryColor,
@@ -1272,7 +1342,7 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
     final screenHeight = MediaQuery.of(context).size.height;
     final isSmallScreen = screenHeight < 700;
     
-    // Colors para cada nível de intensidade
+    // Colors for each intensity level
     Color getColor() {
       switch (value) {
         case 'low':
@@ -1290,7 +1360,7 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
     
     final itemColor = getColor();
     
-    // Ícones para cada nível de intensidade
+    // Icons for each intensity level
     IconData getIcon() {
       switch (value) {
         case 'low':
@@ -1310,12 +1380,12 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
     final double iconSize = 24;
     final double fontSize = 12;
     
-    // Design moderno para seleção de intensidade
+    // Modern design for intensity selection
     return InkWell(
       onTap: () {
         setState(() {
           _selectedIntensity = value;
-          // Atualiza o estado das seções quando o usuário seleciona uma intensidade
+          // Updates the sections state when user selects an intensity
           _updateSectionStates();
         });
       },
@@ -1325,8 +1395,8 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
           color: isSelected 
             ? itemColor.withOpacity(0.1) 
             : context.isDarkMode 
-              ? Colors.grey.withOpacity(0.05) 
-              : Colors.grey.withOpacity(0.05),
+                ? Color(0xFF383838) 
+                : Colors.grey.withOpacity(0.05),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: isSelected 
@@ -1338,7 +1408,7 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Ícone com fundo circular
+            // Icon with circular background
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
@@ -1352,7 +1422,7 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
               ),
             ),
             const SizedBox(height: 4),
-            // Texto descritivo
+            // Descriptive text
             FittedBox(
               fit: BoxFit.scaleDown,
               child: Padding(
@@ -1400,8 +1470,7 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
           color: context.contentColor,
         ),
         onChanged: (text) {
-          // Não precisa fazer nada aqui já que o listener
-          // no initState vai cuidar de atualizar o estado
+          // No need to do anything here since the listener in initState will handle updating the state
         },
         decoration: InputDecoration(
           hintText: l10n.howAreYouFeeling,
@@ -1433,13 +1502,13 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
   }
   
   Widget _buildResistOptions(BuildContext context, AppLocalizations l10n) {
-    // Botões maiores e mais espaçados para melhor experiência tátil
+    // Larger and more spaced buttons for better touch experience
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         SizedBox(
-          width: MediaQuery.of(context).size.width * 0.38, // 38% da largura da tela
-          height: 60, // Altura fixa para melhor toque
+          width: MediaQuery.of(context).size.width * 0.38, // 38% of screen width
+          height: 60, // Fixed height for better touch
           child: _buildResistOption(
             context, 
             l10n.yes, 
@@ -1447,10 +1516,10 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
             Colors.green,
           ),
         ),
-        const SizedBox(width: 16), // Espaçamento entre os botões
+        const SizedBox(width: 16), // Spacing between buttons
         SizedBox(
-          width: MediaQuery.of(context).size.width * 0.38, // 38% da largura da tela
-          height: 60, // Altura fixa para melhor toque
+          width: MediaQuery.of(context).size.width * 0.38, // 38% of screen width
+          height: 60, // Fixed height for better touch
           child: _buildResistOption(
             context, 
             l10n.no, 
@@ -1472,7 +1541,7 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
     final screenHeight = MediaQuery.of(context).size.height;
     final isSmallScreen = screenHeight < 700;
     
-    // Ícone baseado na opção (sim/não)
+    // Icon based on option (yes/no)
     IconData getIcon() {
       return value ? Icons.check_circle_outline : Icons.cancel_outlined;
     }
@@ -1480,12 +1549,12 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
     final double fontSize = 16;
     final double iconSize = 22;
     
-    // Design moderno para botões de resistência
+    // Modern design for resist buttons
     return InkWell(
       onTap: () {
         setState(() {
           _didResist = value;
-          // Atualiza o estado das seções quando o usuário seleciona se resistiu
+          // Updates the sections state when user selects if they resisted
           _updateSectionStates();
         });
       },
@@ -1502,10 +1571,10 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
             end: Alignment.bottomRight,
           ) : null,
           color: isSelected 
-            ? null // Usamos gradiente quando selecionado
+            ? null // Use gradient when selected
             : context.isDarkMode 
-              ? Colors.grey.withOpacity(0.1) 
-              : Colors.grey.withOpacity(0.05),
+                ? Colors.grey.withOpacity(0.1) 
+                : Colors.grey.withOpacity(0.05),
           borderRadius: BorderRadius.circular(16),
           boxShadow: isSelected ? [
             BoxShadow(
@@ -1542,25 +1611,23 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
   void _saveCraving() async {
     if (!_isFormValid()) return;
     
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    final cravingProvider = Provider.of<CravingProvider>(context, listen: false);
-    final trackingProvider = Provider.of<TrackingProvider>(context, listen: false);
-    final l10n = AppLocalizations.of(context);
-    
-    final userId = authProvider.currentUser?.id ?? '';
-    if (userId.isEmpty) {
+    final authState = context.read<AuthBloc>().state;
+    if (authState.status != bloc_auth.AuthStatus.authenticated || authState.user == null) {
       // Cannot save if not authenticated
       Navigator.of(context).pop();
       return;
     }
     
-    // Verificar se todos os campos estão preenchidos corretamente
+    final userId = authState.user!.id;
+    final l10n = AppLocalizations.of(context);
+    
+    // Check if all fields are correctly filled
     assert(_selectedLocation != null, "Location is not selected");
     assert(_selectedTrigger != null, "Trigger is not selected");
     assert(_selectedIntensity != null, "Intensity is not selected");
     assert(_didResist != null, "Resist option is not selected");
     
-    // Logs para debug (serão removidos na produção)
+    // Debug logs
     debugPrint('Saving craving with:');
     debugPrint('- Location: $_selectedLocation');
     debugPrint('- Trigger: $_selectedTrigger');
@@ -1584,32 +1651,74 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
     final backgroundColor = didResist ? Colors.green : Colors.blue;
     final retryLabel = l10n.retry;
     
-    // Store current context's scaffold messenger and achievement provider
+    // Store current context's scaffold messenger
     final scaffoldMessenger = ScaffoldMessenger.of(context);
-    final achievementProvider = Provider.of<AchievementProvider>(context, listen: false);
     
-    // Check for achievements now while context is still valid
+    // Check for achievements while context is still valid
     if (_didResist != null) {
       try {
-        // This is safe because the context is still mounted
         AchievementHelper.checkAfterCravingRecordedWithNotifications(context, _didResist!);
       } catch (e) {
         debugPrint('Error checking for achievements in UI: $e');
       }
     }
     
-    // Close the sheet immediately for better UX with success result
-    Navigator.of(context).pop(true);
-    
     try {
-      // Optimistically update the UI and save in the background
-      await cravingProvider.saveCraving(craving);
+      // Obter os BLOCs antes de qualquer operação
+      final cravingBloc = context.read<CravingBloc>();
+      final trackingBloc = context.read<TrackingBloc>();
       
-      // Força a atualização das estatísticas no TrackingProvider
-      await trackingProvider.forceUpdateStats();
+      // Obter estatísticas atuais do usuário (pode ser null para o primeiro craving)
+      final currentStats = trackingBloc.state.userStats;
       
-      // Se resistiu ao craving, vamos exibir uma notificação motivacional
-      // Envio de notificação é feito no TrackingProvider
+      // Valores iniciais para atualização otimista
+      int newCravingsResisted = 1; // Assume pelo menos 1 para o primeiro craving
+      int newCigarettesAvoided = 1; // Assume pelo menos 1 para o primeiro craving
+      int newMoneySaved = 0;
+      
+      // Use CravingBloc to save the craving
+      cravingBloc.add(SaveCravingRequested(craving: craving));
+      
+      // Disparar eventos para atualizações imediatas e em segundo plano
+      trackingBloc.add(CravingAdded());
+      trackingBloc.add(ForceUpdateStats());
+      
+      if (kDebugMode) {
+        print('💡 [RegisterCravingSheetBloc] Disparou eventos de atualização otimista e forçada');
+      }
+      
+      // Cálculo para atualização otimista
+      if (currentStats != null) {
+        // Se temos estatísticas existentes, usar o StatsCalculator
+        final updatedStats = StatsCalculator.calculateAddCraving(currentStats);
+        newCravingsResisted = updatedStats.cravingsResisted ?? 1;
+        newCigarettesAvoided = updatedStats.cigarettesAvoided;
+        newMoneySaved = updatedStats.moneySaved;
+        
+        if (kDebugMode) {
+          print('💡 [RegisterCravingSheetBloc] Valores calculados pelo StatsCalculator:');
+          print('  - Cravings resistidos: ${currentStats.cravingsResisted ?? 0} -> $newCravingsResisted');
+          print('  - Cigarros evitados: ${currentStats.cigarettesAvoided} -> $newCigarettesAvoided');
+          print('  - Economia: ${currentStats.moneySaved} -> $newMoneySaved centavos');
+        }
+      } else if (kDebugMode) {
+        // Se não temos estatísticas atuais, mantemos os valores default
+        print('⚠️ [RegisterCravingSheetBloc] Nenhuma estatística disponível, usando valores padrão para atualização otimista');
+        print('  - Cravings resistidos: default -> $newCravingsResisted');
+        print('  - Cigarros evitados: default -> $newCigarettesAvoided');
+        print('  - Economia: default -> $newMoneySaved centavos');
+      }
+      
+      // IMPORTANTE: Sempre retornar um Map com valores padrão mesmo para o primeiro craving
+      // Isso garante que mesmo sem estatísticas iniciais, a UI seja atualizada
+      Navigator.of(context).pop({
+        'registered': true,
+        'stats': {
+          'cravingsResisted': newCravingsResisted,
+          'cigarettesAvoided': newCigarettesAvoided,
+          'moneySaved': newMoneySaved,
+        }
+      });
       
       // Show a success snackbar
       scaffoldMessenger.showSnackBar(
@@ -1617,23 +1726,10 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
           content: Text(successMessage),
           backgroundColor: backgroundColor,
           duration: const Duration(seconds: 3),
-          action: cravingProvider.error != null ? SnackBarAction(
-            label: retryLabel,
-            onPressed: () {
-              // Find the failed craving and retry
-              final failedCravings = cravingProvider.failedCravings;
-              if (failedCravings.isNotEmpty) {
-                final failedCraving = failedCravings.first;
-                if (failedCraving.id != null) {
-                  cravingProvider.retrySyncCraving(failedCraving.id!);
-                }
-              }
-            },
-          ) : null,
         ),
       );
     } catch (e) {
-      // Em caso de erro, mostrar mensagem de erro
+      // In case of error, show error message
       scaffoldMessenger.showSnackBar(
         SnackBar(
           content: Text('${l10n.errorSavingCraving}: $e'),
@@ -1643,11 +1739,13 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
             label: retryLabel,
             onPressed: () {
               // Find the failed craving and retry
-              final failedCravings = cravingProvider.failedCravings;
+              final failedCravings = context.read<CravingBloc>().state.failedCravings;
               if (failedCravings.isNotEmpty) {
                 final failedCraving = failedCravings.first;
                 if (failedCraving.id != null) {
-                  cravingProvider.retrySyncCraving(failedCraving.id!);
+                  context.read<CravingBloc>().add(
+                    RetrySyncCravingRequested(id: failedCraving.id!),
+                  );
                 }
               }
             },
