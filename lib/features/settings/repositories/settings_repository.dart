@@ -290,8 +290,14 @@ class SettingsRepository {
           throw app_exceptions.AuthException('Erro ao excluir conta. Código: ${response.status}');
         }
         
+        // Verifica se a resposta contém should_logout
+        final shouldLogout = response.data != null && response.data['should_logout'] == true;
+        
+        // Log para debug
+        print('👋 [SettingsRepository] Exclusão de conta bem-sucedida, fazendo logout...');
+        
         // Faz logout após a exclusão bem-sucedida
-        await _supabaseClient.auth.signOut();
+        await _supabaseClient.auth.signOut(scope: AuthSignOutScope.global);
       } catch (edgeFunctionError) {
         print('⚠️ [SettingsRepository] Erro ao chamar Edge Function: $edgeFunctionError');
         
@@ -316,8 +322,8 @@ class SettingsRepository {
             await _supabaseClient.from(_profilesTable).delete().eq('id', user.id);
           }
           
-          // Faz logout
-          await _supabaseClient.auth.signOut();
+          // Faz logout global (em todos os dispositivos)
+          await _supabaseClient.auth.signOut(scope: AuthSignOutScope.global);
         } catch (fallbackError) {
           throw app_exceptions.AuthException('Não foi possível excluir a conta: $fallbackError');
         }
