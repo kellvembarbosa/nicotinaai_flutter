@@ -276,6 +276,12 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
           debugPrint('⚠️ [OnboardingBloc] Erro ao salvar no Supabase: $e');
           // Erro no servidor não afeta a experiência do usuário
           // O estado local já está atualizado para completo
+          
+          // Tenta sincronizar mesmo em caso de erro
+          debugPrint('🔄 [OnboardingBloc] Tentando sincronizar dados do onboarding para UserStats mesmo após erro');
+          OnboardingSyncService().syncOnboardingDataToUserStats().catchError((_) {
+            debugPrint('⚠️ [OnboardingBloc] Falha na tentativa de sincronização após erro');
+          });
         }
       });
       

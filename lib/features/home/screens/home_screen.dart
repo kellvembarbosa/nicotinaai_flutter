@@ -107,8 +107,8 @@ class _HomeScreenState extends State<HomeScreen> {
     final now = DateTime.now();
     if (_lastUpdateTime != null) {
       final timeSinceLastUpdate = now.difference(_lastUpdateTime!);
-      // Se a última atualização foi há menos de 2 segundos, ignorar
-      // Reduzido de 10 segundos para 2 segundos para maior responsividade
+      // Mais responsivo: Se a última atualização foi há menos de 2 segundos, ignorar
+      // (reduzido de 10 segundos para 2 segundos para maior responsividade)
       if (timeSinceLastUpdate.inSeconds < 2) {
         if (kDebugMode) {
           print('🕒 Última atualização foi há apenas ${timeSinceLastUpdate.inSeconds} segundos, ignorando');
@@ -349,19 +349,23 @@ class _HomeScreenState extends State<HomeScreen> {
               // Listener para SmokingRecordBloc - com detecção melhorada de mudanças
               BlocListener<SmokingRecordBloc, SmokingRecordState>(
                 listenWhen: (previous, current) {
-                  // Detectar mudanças na quantidade de registros ou no status
+                  // Importante: detectar mudanças na quantidade de registros ou status
                   return previous.records.length != current.records.length ||
                          previous.status != current.status ||
                          (previous.status == SmokingRecordStatus.saving && 
                           current.status == SmokingRecordStatus.loaded);
                 },
                 listener: (context, state) {
-                  // Reagir a mudanças no estado do SmokingRecordBloc
-                  // Forçar atualização das estatísticas quando houver mudanças nos registros
+                  if (kDebugMode) {
+                    print('🔄 [HomeScreen] SmokingRecordBloc state mudou: ${state.status}');
+                    print('📊 [HomeScreen] Número de registros: ${state.records.length}');
+                  }
+                  
+                  // Sempre forçar atualização quando o estado mudar significativamente
                   final trackingBloc = BlocProvider.of<TrackingBloc>(context);
                   trackingBloc.add(ForceUpdateStats());
                   
-                  // Forçar atualização imediata da UI
+                  // Forçar a UI a atualizar imediatamente
                   WidgetsBinding.instance.addPostFrameCallback((_) {
                     if (mounted && !_isUpdating) {
                       _loadData(trackingBloc.state);
@@ -372,8 +376,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ],
             child: BlocBuilder<TrackingBloc, TrackingState>(
               builder: (context, trackingState) {
-                // Verifica se passou pelo menos 1 segundo desde a última atualização
-                // Reduzido de 5 segundos para 1 segundo para maior responsividade
+                // Reduzido para 1 segundo (em vez de 5) para maior responsividade
                 bool canUpdate = true;
                 if (_lastUpdateTime != null) {
                   final timeSinceLastUpdate = DateTime.now().difference(_lastUpdateTime!);
@@ -389,12 +392,14 @@ class _HomeScreenState extends State<HomeScreen> {
                   _stats?.moneySaved != trackingState.userStats?.moneySaved ||
                   (_stats?.lastSmokeDate?.millisecondsSinceEpoch ?? 0) != (trackingState.userStats?.lastSmokeDate?.millisecondsSinceEpoch ?? 0) ||
                   (_userRecoveryIds.isEmpty && trackingState.userHealthRecoveries.isNotEmpty) ||
-                  // Condições adicionais para melhor detecção
+                  // Importante: detectar alterações na timestamp de atualização
                   (trackingState.lastUpdated != null && 
                    _lastUpdateTime != null && 
-                   trackingState.lastUpdated! > _lastUpdateTime!.millisecondsSinceEpoch) ||
+                   trackingState.lastUpdated!.isAfter(_lastUpdateTime!)) ||
+                  // Mesmo sem alterações de valores, podemos ter novas entradas 
                   (_stats != null && trackingState.userStats != null && 
-                   (_stats!.smokingRecordsCount != trackingState.userStats!.smokingRecordsCount))
+                   ((_stats!.cravingsCount ?? 0) != (trackingState.userStats!.cravingsCount ?? 0) ||
+                    (_stats!.smokingRecordsCount ?? 0) != (trackingState.userStats!.smokingRecordsCount ?? 0)))
                 );
                 
                 // Atualiza apenas quando há mudanças reais nos dados
