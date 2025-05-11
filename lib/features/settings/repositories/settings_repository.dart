@@ -305,7 +305,7 @@ class SettingsRepository {
           // Exclui os dados do usuário (de forma mais segura, através de uma função RPC)
           // Caso a função RPC não esteja disponível, usamos o método direto
           try {
-            await _supabaseClient.rpc('delete_user_data', params: {'user_id': user.id});
+            await _supabaseClient.rpc('delete_user_data', params: {'user_id_param': user.id});
           } catch (rpcError) {
             print('⚠️ [SettingsRepository] Erro ao chamar RPC, usando método direto: $rpcError');
             
