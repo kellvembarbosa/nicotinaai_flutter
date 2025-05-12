@@ -28,7 +28,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _confirmPasswordController = TextEditingController();
   bool _passwordVisible = false;
   bool _confirmPasswordVisible = false;
-  bool _termsAccepted = false;
+  bool _termsAccepted = true;
 
   @override
   void dispose() {
