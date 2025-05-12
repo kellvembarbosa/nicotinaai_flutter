@@ -166,21 +166,58 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
   }
   
   /// Handler para o evento DeleteAccount
+  /// Executa a exclusão da conta e armazena o resultado no estado
+  /// para que a UI possa decidir quando disparar o evento AccountDeletedLogout
   Future<void> _onDeleteAccount(DeleteAccount event, Emitter<SettingsState> emit) async {
+    print('⏱️ [SettingsBloc] Iniciando processo de exclusão de conta');
+    print('🔍 [SettingsBloc] Estado anterior: status=${state.status}, isDeleteAccountLoading=${state.isDeleteAccountLoading}');
+    
     emit(state.copyWith(
       isDeleteAccountLoading: true,
+      status: SettingsStatus.loading,
       clearError: true,
+      clearSuccess: true,
     ));
     
+    print('🔄 [SettingsBloc] Estado atualizado para loading: status=${state.status}, isDeleteAccountLoading=${state.isDeleteAccountLoading}');
+    
     try {
-      await _settingsRepository.deleteAccount(event.password);
+      // Executa a exclusão da conta com feedback detalhado
+      // O método agora retorna um booleano indicando sucesso
+      final accountDeleted = await _settingsRepository.deleteAccount();
+      print('🔍 [SettingsBloc] Resultado da exclusão: $accountDeleted');
       
-      emit(state.copyWith(
-        isDeleteAccountLoading: false,
-      ));
+      if (accountDeleted) {
+        // Emite um estado de sucesso para indicar que a exclusão foi bem-sucedida
+        // É importante usar SettingsStatus.success para que a UI saiba redirecionar
+        print('✅ [SettingsBloc] Conta excluída com sucesso, emitindo estado de sucesso');
+        
+        final newState = state.copyWith(
+          isDeleteAccountLoading: false,
+          status: SettingsStatus.success,
+          successMessage: 'Sua conta foi excluída com sucesso.',
+        );
+        
+        print('📝 [SettingsBloc] Detalhes do novo estado: status=${newState.status}, isDeleteAccountLoading=${newState.isDeleteAccountLoading}, hasError=${newState.hasError}');
+        
+        emit(newState);
+        
+        print('✅ [SettingsBloc] Estado de sucesso emitido!');
+      } else {
+        // Se a exclusão não foi bem-sucedida (improvável neste ponto)
+        print('⚠️ [SettingsBloc] Exclusão retornou false, emitindo estado de falha');
+        emit(state.copyWith(
+          isDeleteAccountLoading: false,
+          status: SettingsStatus.failure,
+          errorMessage: 'Falha na exclusão da conta. Por favor, tente novamente.',
+        ));
+      }
     } catch (e) {
+      // Em caso de erro, emite um estado de falha detalhado
+      print('❌ [SettingsBloc] Erro ao excluir conta: $e');
       emit(state.copyWith(
         isDeleteAccountLoading: false,
+        status: SettingsStatus.failure,
         errorMessage: e.toString(),
       ));
     }

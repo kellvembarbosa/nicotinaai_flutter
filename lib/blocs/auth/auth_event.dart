@@ -119,3 +119,9 @@ class UpdateProfile extends AuthEvent {
 class ClearAuthErrorRequested extends AuthEvent {
   const ClearAuthErrorRequested();
 }
+
+/// Evento para forçar o logout após a exclusão da conta
+/// Usado quando a conta foi excluída com sucesso no servidor
+class AccountDeletedLogout extends AuthEvent {
+  const AccountDeletedLogout();
+}

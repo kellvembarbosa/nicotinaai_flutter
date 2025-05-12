@@ -69,10 +69,8 @@ class ChangePassword extends SettingsEvent {
 
 /// Evento para excluir a conta do usuário
 class DeleteAccount extends SettingsEvent {
-  final String password;
-  
-  const DeleteAccount({required this.password});
+  const DeleteAccount();
   
   @override
-  List<Object?> get props => [password];
+  List<Object?> get props => [];
 }

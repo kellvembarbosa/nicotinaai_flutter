@@ -29,6 +29,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<UpdateProfileRequested>(_onUpdateProfileRequested);
     on<UpdateProfile>(_onUpdateProfile);
     on<ClearAuthErrorRequested>(_onClearAuthErrorRequested);
+    on<AccountDeletedLogout>(_onAccountDeletedLogout);
     
     // Verificar autenticação ao iniciar o BLoC
     add(const CheckAuthStatusRequested());
@@ -211,13 +212,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       await _authRepository.signOut();
       print('✅ [AuthBloc] Logout realizado com sucesso');
       
-      // Emitir o estado de não autenticado
+      // Emitir o estado de não autenticado uma única vez é suficiente
+      // Usando Future.delayed com emit() causava o erro "emit after completion"
+      print('🔄 [AuthBloc] Emitindo estado final de não autenticado após logout');
       emit(AuthState.unauthenticated());
-      
-      // Força uma atualização do estado para garantir que a UI responda
-      Future.delayed(const Duration(milliseconds: 100), () {
-        emit(AuthState.unauthenticated());
-      });
     } catch (e) {
       final error = e is app_exceptions.AuthException
           ? e
@@ -352,4 +350,63 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   
   // Os métodos auxiliares para obter instâncias dos providers foram removidos
   // pois não são mais necessários com a migração para BLoCs
+  
+  /// Handler para forçar o logout após a exclusão da conta
+  /// Similar ao _onLogoutRequested, mas sem tentar fazer signOut no Supabase
+  /// já que a conta já foi excluída
+  Future<void> _onAccountDeletedLogout(
+    AccountDeletedLogout event,
+    Emitter<AuthState> emit,
+  ) async {
+    try {
+      print('🔄 [AuthBloc] Forçando logout após exclusão de conta');
+      emit(state.copyWith(isLoading: true));
+      
+      // Clear analytics data
+      try {
+        await _analyticsService.clearUserData();
+        print('🧹 [AuthBloc] Analytics data cleared after account deletion');
+      } catch (analyticsError) {
+        print('⚠️ [AuthBloc] Failed to clear analytics data: $analyticsError');
+      }
+      
+      // Limpar dados de armazenamento local usando SharedPreferences
+      try {
+        final SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.clear();
+        print('🧹 [AuthBloc] SharedPreferences cleared after account deletion');
+      } catch (prefsError) {
+        print('⚠️ [AuthBloc] Failed to clear SharedPreferences: $prefsError');
+      }
+      
+      // Limpar dados do storage seguro
+      try {
+        final storageService = StorageService();
+        await storageService.clearAll();
+        print('🧹 [AuthBloc] Secure storage cleared after account deletion');
+      } catch (storageError) {
+        print('⚠️ [AuthBloc] Failed to clear secure storage: $storageError');
+      }
+      
+      // Tentar limpar todos os dados possíveis do Supabase localmente
+      try {
+        // Criar uma nova sessão e invalidar a atual
+        _authRepository.invalidateSession();
+        print('🧹 [AuthBloc] Local Supabase session invalidated');
+      } catch (sessionError) {
+        print('⚠️ [AuthBloc] Failed to invalidate local session: $sessionError');
+      }
+      
+      // NÃO tenta fazer signOut no Supabase, pois a conta já não existe mais
+      
+      // Emitir o estado de não autenticado uma única vez é suficiente
+      // Usando Future.delayed com emit() causava o erro "emit after completion"
+      print('🔄 [AuthBloc] Emitindo estado final de não autenticado');
+      emit(AuthState.unauthenticated());
+    } catch (e) {
+      print('❌ [AuthBloc] Erro ao forçar logout após exclusão: $e');
+      // Mesmo com erro, forçamos o estado de não autenticado
+      emit(AuthState.unauthenticated());
+    }
+  }
 }

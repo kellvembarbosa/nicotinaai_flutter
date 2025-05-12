@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:nicotinaai_flutter/blocs/auth/auth_bloc.dart';
+import 'package:nicotinaai_flutter/blocs/auth/auth_event.dart';
 import 'package:nicotinaai_flutter/blocs/auth/auth_state.dart';
 import 'package:nicotinaai_flutter/blocs/settings/settings_bloc.dart';
 import 'package:nicotinaai_flutter/blocs/settings/settings_event.dart';
@@ -22,25 +25,26 @@ class DeleteAccountScreen extends StatefulWidget {
 }
 
 class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
-  /// Controlador do campo de senha
-  final TextEditingController _passwordController = TextEditingController();
-  
-  /// Formulário
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  
-  /// Flag para exibir/ocultar senha
-  bool _obscurePassword = true;
-  
   /// Flag para confirmação
   bool _confirmDelete = false;
   
+  // Variável para controlar se o diálogo já foi exibido
+  bool _successDialogShown = false;
+  
+  // Variável para controlar o estado de carregamento local (imediato)
+  bool _isLocalLoading = false;
+  
+  // Controlador de timer para verificação de segurança
+  Timer? _safetyTimer;
+  
   @override
   void dispose() {
-    _passwordController.dispose();
+    // Garantir que o timer seja cancelado quando o widget for descartado
+    _safetyTimer?.cancel();
     super.dispose();
   }
   
-  /// Valida o formulário e exclui a conta
+  /// Valida a confirmação e exclui a conta
   void _deleteAccount() {
     if (!_confirmDelete) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -52,11 +56,201 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
       return;
     }
     
-    if (_formKey.currentState?.validate() ?? false) {
-      context.read<SettingsBloc>().add(
-        DeleteAccount(password: _passwordController.text),
-      );
-    }
+    // Mostrar diálogo de confirmação final
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 320),
+          child: AlertDialog(
+            insetPadding: EdgeInsets.zero,
+            title: Text(AppLocalizations.of(context).confirmDeleteAccountTitle),
+            content: Text(
+              AppLocalizations.of(context).confirmDeleteAccountMessage,
+              style: const TextStyle(fontSize: 14),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text(AppLocalizations.of(context).cancel),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  
+                  // Ativar o estado de carregamento local imediatamente
+                  setState(() {
+                    _isLocalLoading = true;
+                    _successDialogShown = false;
+                  });
+                  
+                  // Pegar referências dos blocs antes de iniciar a operação assíncrona
+                  final settingsBloc = context.read<SettingsBloc>();
+                  final authBloc = context.read<AuthBloc>();
+                  
+                  // Pequeno atraso para garantir que o estado de carregamento seja exibido
+                  // antes mesmo que o processamento comece
+                  Future.microtask(() {
+                    // Executar a exclusão da conta após confirmação adicional
+                    settingsBloc.add(const DeleteAccount());
+                  });
+                  
+                  // Adicionar um fallback de segurança para garantir que o diálogo seja exibido
+                  // Esta é uma solução alternativa caso o BlocListener não seja acionado
+                  _safetyTimer = Timer(const Duration(seconds: 5), () {
+                    print('⏱️ [DeleteAccountScreen] Verificando se o diálogo de sucesso já foi exibido...');
+                    
+                    // Verificar se o widget ainda está montado
+                    if (!mounted) {
+                      print('⚠️ [DeleteAccountScreen] Widget não está mais montado, cancelando verificação');
+                      return;
+                    }
+                    
+                    // Verificar se o diálogo já foi exibido
+                    if (_successDialogShown) {
+                      print('✅ [DeleteAccountScreen] Diálogo já foi exibido, ignorando fallback');
+                      return;
+                    }
+                    
+                    // Obter o estado atual
+                    final currentState = settingsBloc.state;
+                    
+                    // Se não estiver mais carregando e não tiver erro, assumimos que houve sucesso
+                    if (!currentState.isDeleteAccountLoading && 
+                        !currentState.hasError) {
+                      
+                      print('🔄 [DeleteAccountScreen] Iniciando fluxo de logout forçado por fallback');
+                      
+                      // Forçar o logout
+                      authBloc.add(const AccountDeletedLogout());
+                      
+                      // Se for possível mostrar o diálogo de sucesso (widget ainda montado)
+                      if (mounted) {
+                        // Mostrar o diálogo de sucesso de forma segura
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          if (mounted) {
+                            _showSuccessDialog();
+                          }
+                        });
+                      } else {
+                        // Se o widget não estiver montado, redirecionar diretamente para a tela de login
+                        try {
+                          GoRouter.of(context).go(AppRoutes.login.path);
+                        } catch (e) {
+                          print('⚠️ [DeleteAccountScreen] Erro ao redirecionar para login: $e');
+                        }
+                      }
+                    }
+                  });
+                },
+                style: TextButton.styleFrom(
+                  foregroundColor: Colors.red,
+                ),
+                child: Text(AppLocalizations.of(context).delete),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+  
+  
+  /// Exibe o diálogo de sucesso após a exclusão da conta
+  void _showSuccessDialog() {
+    final localizations = AppLocalizations.of(context);
+    
+    // Verificar se o BuildContext ainda é válido
+    if (!mounted) return;
+    
+    // Marcar que o diálogo foi exibido para evitar duplicidade
+    _successDialogShown = true;
+    
+    print('🎯 [DeleteAccountScreen] Exibindo diálogo de sucesso de exclusão');
+    
+    // Mostrar um diálogo de sucesso e feedback sobre o tipo de exclusão
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 320),
+          child: AlertDialog(
+            insetPadding: EdgeInsets.zero,
+            title: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.check_circle, color: Colors.green),
+                const SizedBox(width: 8),
+                Flexible(
+                  child: Text(
+                    localizations.accountDeleted,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(fontSize: 18),
+                  ),
+                ),
+              ],
+            ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  localizations.accountDeletedMessage,
+                  style: const TextStyle(fontSize: 14),
+                  overflow: TextOverflow.clip,
+                ),
+                const SizedBox(height: 16),
+                // Aviso de que pode demorar alguns instantes para finalizar
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.blue.withAlpha(25),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.blue.shade300),
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Padding(
+                        padding: EdgeInsets.only(top: 2),
+                        child: Icon(Icons.info_outline, color: Colors.blue, size: 16),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          localizations.accountDeletionDelay,
+                          style: const TextStyle(color: Colors.blue, fontSize: 12),
+                          overflow: TextOverflow.clip,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            contentPadding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
+            titlePadding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  // Após fechar o diálogo, redirecionar para a tela de login
+                  context.go(AppRoutes.login.path);
+                },
+                child: Text(localizations.ok),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
   
   @override
@@ -69,24 +263,30 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
       ),
       child: BlocConsumer<SettingsBloc, SettingsState>(
         listener: (context, state) {
-          // Navega para login após exclusão da conta
+          print('👂 [DeleteAccountScreen] Estado detectado: status=${state.status}, isDeleteAccountLoading=${state.isDeleteAccountLoading}, hasError=${state.hasError}');
+          
+          // Verifica se a conta foi excluída com sucesso
           if (!state.isDeleteAccountLoading && !state.hasError && state.status == SettingsStatus.success) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(localizations.accountDeleted),
-                backgroundColor: Colors.green,
-              ),
-            );
+            print('🟢 [DeleteAccountScreen] Condição de sucesso atendida!');
             
-            // Garantir que a navegação para login aconteça após um pequeno delay
-            // para dar tempo ao SnackBar aparecer
-            Future.delayed(const Duration(milliseconds: 500), () {
-              // Força navegação para tela de login e limpa a pilha de navegação
-              if (context.mounted) {
-                print('🔄 [DeleteAccountScreen] Redirecionando para tela de login');
-                context.go(AppRoutes.login.path);
-              }
-            });
+            // Verifica se o diálogo já foi exibido para evitar duplicidade
+            if (!_successDialogShown) {
+              // Dispara o evento AccountDeletedLogout no AuthBloc para forçar o logout
+              // já que a conta foi excluída com sucesso no servidor
+              context.read<AuthBloc>().add(const AccountDeletedLogout());
+              
+              print('🔥 [DeleteAccountScreen] Conta excluída com sucesso, evento AccountDeletedLogout disparado');
+              
+              // Mostrar o diálogo de sucesso usando o método dedicado
+              // Usa addPostFrameCallback para garantir que a árvore de widgets esteja estável
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (mounted) {
+                  _showSuccessDialog();
+                }
+              });
+            } else {
+              print('⚠️ [DeleteAccountScreen] Diálogo já exibido, ignorando notificação');
+            }
           }
           
           // Mostra erro se houver
@@ -100,259 +300,278 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
           }
         },
         builder: (context, state) {
-          return Scaffold(
-            backgroundColor: context.backgroundColor,
-            appBar: AppBar(
-              backgroundColor: context.backgroundColor,
-              title: Text(
-                localizations.deleteAccount,
-                style: context.titleStyle,
-              ),
-              elevation: 0,
-              leading: IconButton(
-                icon: const Icon(Icons.arrow_back),
-                onPressed: () => Navigator.of(context).pop(),
-              ),
-            ),
-            body: SafeArea(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(16.0),
-                child: BlocBuilder<AuthBloc, AuthState>(
-                  builder: (context, authState) {
-                    final user = authState.user;
-                    
-                    return Form(
-                      key: _formKey,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Ícone de aviso
-                          Container(
-                            width: double.infinity,
-                            decoration: BoxDecoration(
-                              color: Colors.red.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(color: Colors.red),
-                            ),
-                            padding: const EdgeInsets.all(16),
-                            child: Column(
-                              children: [
-                                const Icon(
-                                  Icons.warning_amber_rounded,
-                                  color: Colors.red,
-                                  size: 48,
-                                ),
-                                
-                                const SizedBox(height: 16),
-                                
-                                Text(
-                                  localizations.deleteAccountWarningTitle,
-                                  style: context.textTheme.titleLarge!.copyWith(
-                                    fontWeight: FontWeight.bold,
+          // Desativar o carregamento local quando o BLoC começa a processar
+          if (state.isDeleteAccountLoading && _isLocalLoading) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (mounted) {
+                setState(() {
+                  _isLocalLoading = false;
+                });
+              }
+            });
+          }
+          
+          // Determinar se devemos mostrar carregamento (seja local ou do BLoC)
+          final bool showLoading = _isLocalLoading || state.isDeleteAccountLoading;
+          
+          return Stack(
+            children: [
+              Scaffold(
+                backgroundColor: context.backgroundColor,
+                appBar: AppBar(
+                  backgroundColor: context.backgroundColor,
+                  title: Text(
+                    localizations.deleteAccount,
+                    style: context.titleStyle,
+                  ),
+                  elevation: 0,
+                  leading: IconButton(
+                    icon: const Icon(Icons.arrow_back),
+                    onPressed: () => Navigator.of(context).pop(),
+                  ),
+                ),
+                body: SafeArea(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.all(16.0),
+                    child: BlocBuilder<AuthBloc, AuthState>(
+                      builder: (context, authState) {
+                        final user = authState.user;
+                        
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Ícone de aviso
+                            Container(
+                              width: double.infinity,
+                              decoration: BoxDecoration(
+                                color: Colors.red.withAlpha(25),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(color: Colors.red),
+                              ),
+                              padding: const EdgeInsets.all(16),
+                              child: Column(
+                                children: [
+                                  const Icon(
+                                    Icons.warning_amber_rounded,
                                     color: Colors.red,
+                                    size: 48,
                                   ),
-                                  textAlign: TextAlign.center,
-                                ),
-                                
-                                const SizedBox(height: 8),
-                                
-                                Text(
-                                  localizations.deleteAccountWarning,
-                                  style: context.textTheme.bodyMedium!.copyWith(
-                                    color: context.contentColor,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                ),
-                              ],
-                            ),
-                          ),
-                          
-                          const SizedBox(height: 24),
-                          
-                          // Email do usuário (não editável)
-                          Text(
-                            localizations.email,
-                            style: context.textTheme.titleMedium!.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: context.contentColor,
-                            ),
-                          ),
-                          
-                          const SizedBox(height: 8),
-                          
-                          Container(
-                            decoration: BoxDecoration(
-                              color: context.cardColor,
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(color: context.borderColor),
-                            ),
-                            padding: const EdgeInsets.all(16),
-                            width: double.infinity,
-                            child: Text(
-                              user?.email ?? localizations.notSpecified,
-                              style: context.textTheme.bodyLarge!.copyWith(
-                                color: context.contentColor,
-                              ),
-                            ),
-                          ),
-                          
-                          const SizedBox(height: 24),
-                          
-                          // Campo de senha
-                          Text(
-                            localizations.password,
-                            style: context.textTheme.titleMedium!.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: context.contentColor,
-                            ),
-                          ),
-                          
-                          const SizedBox(height: 8),
-                          
-                          TextFormField(
-                            controller: _passwordController,
-                            obscureText: _obscurePassword,
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return localizations.passwordRequired;
-                              }
-                              return null;
-                            },
-                            decoration: InputDecoration(
-                              hintText: '••••••••',
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(color: context.borderColor),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(color: context.borderColor),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(color: context.primaryColor, width: 2),
-                              ),
-                              filled: true,
-                              fillColor: context.cardColor,
-                              contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 16.0,
-                                vertical: 16.0,
-                              ),
-                              suffixIcon: IconButton(
-                                icon: Icon(
-                                  _obscurePassword
-                                      ? Icons.visibility_outlined
-                                      : Icons.visibility_off_outlined,
-                                  color: context.subtitleColor,
-                                ),
-                                onPressed: () {
-                                  setState(() {
-                                    _obscurePassword = !_obscurePassword;
-                                  });
-                                },
-                              ),
-                            ),
-                          ),
-                          
-                          const SizedBox(height: 24),
-                          
-                          // Checkbox para confirmação
-                          CheckboxListTile(
-                            value: _confirmDelete,
-                            onChanged: (value) {
-                              setState(() {
-                                _confirmDelete = value ?? false;
-                              });
-                            },
-                            title: Text(
-                              localizations.confirmDeleteAccount,
-                              style: context.textTheme.bodyMedium!.copyWith(
-                                color: context.contentColor,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            subtitle: Text(
-                              localizations.confirmDeleteAccountSubtitle,
-                              style: context.textTheme.bodySmall!.copyWith(
-                                color: context.subtitleColor,
-                              ),
-                            ),
-                            activeColor: Colors.red,
-                            contentPadding: EdgeInsets.zero,
-                            controlAffinity: ListTileControlAffinity.leading,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                          
-                          const SizedBox(height: 32),
-                          
-                          // Botão de exclusão de conta
-                          SizedBox(
-                            width: double.infinity,
-                            child: ElevatedButton(
-                              onPressed: state.isDeleteAccountLoading
-                                  ? null 
-                                  : _deleteAccount,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.red,
-                                foregroundColor: Colors.white,
-                                padding: const EdgeInsets.symmetric(vertical: 16),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                disabledBackgroundColor: Colors.red.withOpacity(0.6),
-                              ),
-                              child: state.isDeleteAccountLoading
-                                  ? const SizedBox(
-                                      width: 24,
-                                      height: 24,
-                                      child: CircularProgressIndicator(
-                                        color: Colors.white,
-                                        strokeWidth: 2,
-                                      ),
-                                    )
-                                  : Text(
-                                      localizations.deleteAccount,
-                                      style: const TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                      ),
+                                  
+                                  const SizedBox(height: 16),
+                                  
+                                  Text(
+                                    localizations.deleteAccountWarningTitle,
+                                    style: context.textTheme.titleLarge!.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.red,
                                     ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                  
+                                  const SizedBox(height: 8),
+                                  
+                                  Text(
+                                    localizations.deleteAccountWarning,
+                                    style: context.textTheme.bodyMedium!.copyWith(
+                                      color: context.contentColor,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
-                          
-                          const SizedBox(height: 16),
-                          
-                          // Botão para cancelar
-                          SizedBox(
-                            width: double.infinity,
-                            child: OutlinedButton(
-                              onPressed: () => Navigator.of(context).pop(),
-                              style: OutlinedButton.styleFrom(
-                                side: BorderSide(color: context.borderColor),
-                                padding: const EdgeInsets.symmetric(vertical: 16),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
+                            
+                            const SizedBox(height: 24),
+                            
+                            // Email do usuário (não editável)
+                            Text(
+                              localizations.email,
+                              style: context.textTheme.titleMedium!.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: context.contentColor,
+                              ),
+                            ),
+                            
+                            const SizedBox(height: 8),
+                            
+                            Container(
+                              decoration: BoxDecoration(
+                                color: context.cardColor,
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(color: context.borderColor),
+                              ),
+                              padding: const EdgeInsets.all(16),
+                              width: double.infinity,
+                              child: Text(
+                                user?.email ?? localizations.notSpecified,
+                                style: context.textTheme.bodyLarge!.copyWith(
+                                  color: context.contentColor,
                                 ),
                               ),
-                              child: Text(
-                                localizations.cancel,
-                                style: TextStyle(
-                                  fontSize: 16,
+                            ),
+                            
+                            const SizedBox(height: 24),
+                            
+                            // Checkbox para confirmação
+                            CheckboxListTile(
+                              value: _confirmDelete,
+                              onChanged: (value) {
+                                setState(() {
+                                  _confirmDelete = value ?? false;
+                                });
+                              },
+                              title: Text(
+                                localizations.confirmDeleteAccount,
+                                style: context.textTheme.bodyMedium!.copyWith(
+                                  color: context.contentColor,
                                   fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              subtitle: Text(
+                                localizations.confirmDeleteAccountSubtitle,
+                                style: context.textTheme.bodySmall!.copyWith(
                                   color: context.subtitleColor,
                                 ),
                               ),
+                              activeColor: Colors.red,
+                              contentPadding: EdgeInsets.zero,
+                              controlAffinity: ListTileControlAffinity.leading,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
                             ),
+                            
+                            const SizedBox(height: 32),
+                            
+                            // Botão de exclusão de conta
+                            SizedBox(
+                              width: double.infinity,
+                              child: ElevatedButton(
+                                onPressed: showLoading
+                                    ? null 
+                                    : _deleteAccount,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.red,
+                                  foregroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(vertical: 16),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  disabledBackgroundColor: Colors.red.withAlpha(150),
+                                ),
+                                child: showLoading
+                                    ? const SizedBox(
+                                        width: 24,
+                                        height: 24,
+                                        child: CircularProgressIndicator(
+                                          color: Colors.white,
+                                          strokeWidth: 2,
+                                        ),
+                                      )
+                                    : Text(
+                                        localizations.deleteAccount,
+                                        style: const TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                              ),
+                            ),
+                            
+                            const SizedBox(height: 16),
+                            
+                            // Botão para cancelar
+                            SizedBox(
+                              width: double.infinity,
+                              child: OutlinedButton(
+                                onPressed: () => Navigator.of(context).pop(),
+                                style: OutlinedButton.styleFrom(
+                                  side: BorderSide(color: context.borderColor),
+                                  padding: const EdgeInsets.symmetric(vertical: 16),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                                child: Text(
+                                  localizations.cancel,
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: context.subtitleColor,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    ),
+                  ),
+                ),
+              ),
+              
+              // Overlay de carregamento simplificado - apenas um indicador de carregamento circular
+              if (showLoading)
+                Container(
+                  color: Colors.black.withOpacity(0.7),
+                  width: double.infinity,
+                  height: double.infinity,
+                  child: Center(
+                    child: Container(
+                      width: 80,
+                      height: 80,
+                      decoration: BoxDecoration(
+                        color: context.cardColor,
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.2),
+                            spreadRadius: 1,
+                            blurRadius: 8,
+                            offset: const Offset(0, 4),
                           ),
                         ],
                       ),
-                    );
-                  },
+                      child: Center(
+                        child: Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            // Efeito de pulsar ao redor do indicador
+                            TweenAnimationBuilder<double>(
+                              tween: Tween<double>(begin: 0.0, end: 1.0),
+                              duration: const Duration(seconds: 1),
+                              builder: (context, value, child) {
+                                return Container(
+                                  width: 60,
+                                  height: 60,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: Colors.red.withOpacity(0.3 * (1 - value)),
+                                  ),
+                                );
+                              },
+                              onEnd: () {
+                                // Reiniciar a animação quando ela terminar
+                                if (mounted) setState(() {});
+                              },
+                            ),
+                            
+                            // Indicador de progresso principal
+                            const SizedBox(
+                              width: 40,
+                              height: 40,
+                              child: CircularProgressIndicator(
+                                valueColor: AlwaysStoppedAnimation<Color>(Colors.red),
+                                strokeWidth: 3,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
-              ),
-            ),
+            ],
           );
         },
       ),
@@ -367,5 +586,15 @@ extension _DeleteAccountLocalizations on AppLocalizations {
   String get confirmDeleteAccount => 'I understand this is permanent';
   String get confirmDeleteAccountSubtitle => 'I understand that all my data will be permanently deleted and cannot be recovered.';
   String get confirmDeleteRequired => 'Please confirm that you understand this action is permanent.';
-  String get accountDeleted => 'Your account has been deleted successfully.';
+  String get accountDeleted => 'Account Deleted Successfully';
+  String get accountDeletedMessage => 'Your account and all associated data have been permanently deleted. Thank you for using our app. You can always register again with the same email if you wish to return in the future.';
+  String get accountDeletionDelay => 'It may take a few moments for all your data to be completely removed from our systems. During this time, you won\'t be able to access your account.';
+  String get ok => 'OK';
+  String get delete => 'Delete';
+  String get confirmDeleteAccountTitle => 'Are You Sure?';
+  String get confirmDeleteAccountMessage => 'This will permanently delete your account and all of your data. You can always register again with the same email, but all your current progress and data will be lost.';
+  String get deletingAccount => 'Deleting...';
+  String get accountDeletionInProgress => 'Deleting Your Account';
+  String get accountDeletionExplanation => 'We are permanently deleting your account and all associated data from our systems. This process may take a few moments to complete.';
+  
 }

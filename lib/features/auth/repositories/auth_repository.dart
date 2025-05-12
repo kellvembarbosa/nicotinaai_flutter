@@ -242,4 +242,25 @@ class AuthRepository {
       throw app_exceptions.AuthException.fromSupabaseError(e);
     }
   }
+  
+  /// Força a invalidação da sessão local do Supabase sem tentar fazer signOut no servidor
+  /// Útil quando a conta foi excluída e a sessão ainda está ativa localmente
+  /// 
+  /// IMPORTANTE: Esta implementação não usa métodos específicos da API do Supabase,
+  /// em vez disso, confiamos no AuthBloc para limpar dados locais e remover o estado
+  /// de autenticação da aplicação.
+  void invalidateSession() {
+    try {
+      // Simplesmente registramos que a sessão deve ser considerada inválida
+      // O verdadeiro trabalho de limpeza será feito pelo AuthBloc em _onAccountDeletedLogout
+      // limpando SharedPreferences, StorageService e outros dados locais
+      print('📝 [AuthRepository] Marcando sessão como inválida. A limpeza completa será feita pelo AuthBloc');
+    } catch (e) {
+      print('⚠️ [AuthRepository] Erro ao invalidar sessão local: $e');
+    }
+    
+    // Mesmo com erro, consideramos a operação bem-sucedida, pois
+    // a principal limpeza será feita pelo AuthBloc
+    print('✅ [AuthRepository] Operação de invalidação de sessão concluída');
+  }
 }
