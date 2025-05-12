@@ -12,6 +12,7 @@ import 'package:nicotinaai_flutter/blocs/tracking/tracking_event.dart';
 import 'package:nicotinaai_flutter/blocs/tracking/tracking_state.dart';
 import 'package:nicotinaai_flutter/core/theme/app_theme.dart';
 import 'package:nicotinaai_flutter/features/home/models/craving_model.dart';
+import 'package:nicotinaai_flutter/features/tracking/repositories/tracking_repository.dart';
 import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
 import 'package:nicotinaai_flutter/utils/stats_calculator.dart';
 
