@@ -66,8 +66,11 @@ class UpdateCraving extends TrackingEvent {
 }
 
 class CravingAdded extends TrackingEvent {
+  // Include the resisted flag to correctly update statistics
+  final bool resisted;
+  
   // Removendo "const" para evitar erro com super constructor
-  CravingAdded();
+  CravingAdded({this.resisted = true});
 }
 
 class SmokingRecordAdded extends TrackingEvent {

@@ -26,6 +26,9 @@ class UserStats {
   final int? minutesGainedToday; // Minutos ganhos hoje
   final int? totalMinutesGained; // Total de minutos ganhos durante todo o período
 
+  // Campo adicional para controle de atualização em memória (não persistido no banco)
+  final int? lastUpdated;
+
   const UserStats({
     this.id,
     required this.userId,
@@ -49,7 +52,9 @@ class UserStats {
     this.smokingRecordsCount = 0,
     this.minutesGainedToday = 0,
     this.totalMinutesGained = 0,
+    this.lastUpdated,
   });
+
 
   // Copy constructor
   UserStats copyWith({
@@ -75,6 +80,7 @@ class UserStats {
     int? smokingRecordsCount,
     int? minutesGainedToday,
     int? totalMinutesGained,
+    int? lastUpdated,
   }) {
     return UserStats(
       id: id ?? this.id,
@@ -99,6 +105,7 @@ class UserStats {
       smokingRecordsCount: smokingRecordsCount ?? this.smokingRecordsCount,
       minutesGainedToday: minutesGainedToday ?? this.minutesGainedToday,
       totalMinutesGained: totalMinutesGained ?? this.totalMinutesGained,
+      lastUpdated: lastUpdated ?? this.lastUpdated ?? DateTime.now().millisecondsSinceEpoch,
     );
   }
 
@@ -217,7 +224,8 @@ class UserStats {
       other.cigarettesSmoked == cigarettesSmoked &&
       other.smokingRecordsCount == smokingRecordsCount &&
       other.minutesGainedToday == minutesGainedToday &&
-      other.totalMinutesGained == totalMinutesGained;
+      other.totalMinutesGained == totalMinutesGained &&
+      other.lastUpdated == lastUpdated;
   }
 
   @override
@@ -241,6 +249,7 @@ class UserStats {
       cigarettesSmoked.hashCode ^
       smokingRecordsCount.hashCode ^
       minutesGainedToday.hashCode ^
-      totalMinutesGained.hashCode;
+      totalMinutesGained.hashCode ^
+      lastUpdated.hashCode;
   }
 }

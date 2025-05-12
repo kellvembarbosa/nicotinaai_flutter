@@ -230,309 +230,408 @@ class _NewRecordSheetState extends State<NewRecordSheet> {
                 borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
               ),
               child: Column(
-                children: [
+                children: <Widget>[
                   // Scrollable content with optimized layout
                   Expanded(
-                    child: ListView(
-                      controller: scrollController,
-                      padding: const EdgeInsets.only(bottom: 16),
-                      children: [
-                        _buildHandle(context),
+                    child: GestureDetector(
+                      onTap: () => FocusScope.of(context).unfocus(),
+                      child: ListView(
+                        controller: scrollController,
+                        padding: const EdgeInsets.only(bottom: 16),
+                        children: <Widget>[
+                          _buildHandle(context),
 
-                        // Main title, optimized without background
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
-                          child: Column(
-                            children: [
-                              Text(
-                                l10n.newRecord,
-                                style: context.titleStyle.copyWith(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.blue,
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
-                              Text(
-                                l10n.newRecordSubtitle,
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color:
-                                      context.isDarkMode
-                                          ? Colors.white70
-                                          : Colors.black54,
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        const SizedBox(height: 12),
-
-                        // Reason Section - Collapsible
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          child: Card(
-                            margin: EdgeInsets.zero,
-                            elevation: 0,
-                            color:
-                                context.isDarkMode
-                                    ? Colors.grey[850]
-                                    : Colors.grey[50],
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              side: BorderSide(
-                                color:
-                                    _selectedReason != null
-                                        ? Colors.blue
-                                        : context.isDarkMode
-                                        ? Colors.grey[800]!
-                                        : Colors.grey[300]!,
-                                width: _selectedReason != null ? 1.5 : 0.5,
-                              ),
-                            ),
+                          // Main title, optimized without background
+                          Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
                             child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                // Clickable header for expand/collapse
-                                InkWell(
-                                  onTap: () {
-                                    setState(() {
-                                      _isReasonSectionExpanded =
-                                          !_isReasonSectionExpanded;
-                                    });
-                                  },
-                                  borderRadius: const BorderRadius.vertical(
-                                    top: Radius.circular(12),
+                              children: <Widget>[
+                                Text(
+                                  l10n.newRecord,
+                                  style: context.titleStyle.copyWith(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.blue,
                                   ),
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(12.0),
-                                    child: Row(
-                                      children: [
-                                        const Icon(
-                                          Icons.help_outline,
-                                          size: 20,
-                                          color: Colors.blue,
-                                        ),
-                                        const SizedBox(width: 8),
-                                        Expanded(
-                                          child: Text(
-                                            l10n.whatsTheReason,
-                                            style: const TextStyle(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.blue,
-                                            ),
+                                  textAlign: TextAlign.center,
+                                ),
+                                Text(
+                                  l10n.newRecordSubtitle,
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color:
+                                        context.isDarkMode
+                                            ? Colors.white70
+                                            : Colors.black54,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          const SizedBox(height: 12),
+
+                          // Reason Section - Collapsible
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            child: Card(
+                              margin: EdgeInsets.zero,
+                              elevation: 0,
+                              color:
+                                  context.isDarkMode
+                                      ? Colors.grey[850]
+                                      : Colors.grey[50],
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                side: BorderSide(
+                                  color:
+                                      _selectedReason != null
+                                          ? Colors.blue
+                                          : context.isDarkMode
+                                          ? Colors.grey[800]!
+                                          : Colors.grey[300]!,
+                                  width: _selectedReason != null ? 1.5 : 0.5,
+                                ),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: <Widget>[
+                                  // Clickable header for expand/collapse
+                                  InkWell(
+                                    onTap: () {
+                                      setState(() {
+                                        _isReasonSectionExpanded =
+                                            !_isReasonSectionExpanded;
+                                      });
+                                    },
+                                    borderRadius: const BorderRadius.vertical(
+                                      top: Radius.circular(12),
+                                    ),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(12.0),
+                                      child: Row(
+                                        children: <Widget>[
+                                          const Icon(
+                                            Icons.help_outline,
+                                            size: 20,
+                                            color: Colors.blue,
                                           ),
-                                        ),
-                                        if (_selectedReason != null)
-                                          Container(
-                                            padding: const EdgeInsets.symmetric(
-                                              horizontal: 8,
-                                              vertical: 4,
-                                            ),
-                                            decoration: BoxDecoration(
-                                              color: Colors.blue.withOpacity(0.1),
-                                              borderRadius: BorderRadius.circular(
-                                                12,
-                                              ),
-                                              border: Border.all(
-                                                color: Colors.blue.withOpacity(0.3),
-                                              ),
-                                            ),
+                                          const SizedBox(width: 8),
+                                          Expanded(
                                             child: Text(
-                                              _getReasonLabel(_selectedReason!),
+                                              l10n.whatsTheReason,
                                               style: const TextStyle(
-                                                fontSize: 14,
+                                                fontSize: 16,
                                                 fontWeight: FontWeight.bold,
                                                 color: Colors.blue,
                                               ),
                                             ),
                                           ),
-                                        const SizedBox(width: 4),
-                                        Icon(
-                                          _isReasonSectionExpanded
-                                              ? Icons.expand_less
-                                              : Icons.expand_more,
-                                          color: Colors.grey,
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-
-                                // Expandable content
-                                if (_isReasonSectionExpanded)
-                                  Padding(
-                                    padding: const EdgeInsets.fromLTRB(
-                                      12,
-                                      0,
-                                      12,
-                                      12,
-                                    ),
-                                    child: ClipRRect(
-                                      borderRadius: BorderRadius.circular(16),
-                                      child: BackdropFilter(
-                                        filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-                                        child: _buildReasonGrid(context, l10n),
+                                          if (_selectedReason != null)
+                                            Container(
+                                              padding: const EdgeInsets.symmetric(
+                                                horizontal: 8,
+                                                vertical: 4,
+                                              ),
+                                              decoration: BoxDecoration(
+                                                color: Colors.blue.withOpacity(0.1),
+                                                borderRadius: BorderRadius.circular(
+                                                  12,
+                                                ),
+                                                border: Border.all(
+                                                  color: Colors.blue.withOpacity(0.3),
+                                                ),
+                                              ),
+                                              child: Text(
+                                                _getReasonLabel(_selectedReason!),
+                                                style: const TextStyle(
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Colors.blue,
+                                                ),
+                                              ),
+                                            ),
+                                          const SizedBox(width: 4),
+                                          Icon(
+                                            _isReasonSectionExpanded
+                                                ? Icons.expand_less
+                                                : Icons.expand_more,
+                                            color: Colors.grey,
+                                          ),
+                                        ],
                                       ),
                                     ),
                                   ),
-                              ],
-                            ),
-                          ),
-                        ),
 
-                        const SizedBox(height: 12),
-
-                        // Amount and Duration Section - Collapsible
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          child: Card(
-                            margin: EdgeInsets.zero,
-                            elevation: 0,
-                            color:
-                                context.isDarkMode
-                                    ? Colors.grey[850]
-                                    : Colors.grey[50],
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              side: BorderSide(
-                                color:
-                                    (_selectedAmount != null &&
-                                            _selectedDuration != null)
-                                        ? Colors.blue
-                                        : context.isDarkMode
-                                        ? Colors.grey[800]!
-                                        : Colors.grey[300]!,
-                                width:
-                                    (_selectedAmount != null &&
-                                            _selectedDuration != null)
-                                        ? 1.5
-                                        : 0.5,
+                                  // Expandable content
+                                  if (_isReasonSectionExpanded)
+                                    Padding(
+                                      padding: const EdgeInsets.fromLTRB(
+                                        12,
+                                        0,
+                                        12,
+                                        12,
+                                      ),
+                                      child: ClipRRect(
+                                        borderRadius: BorderRadius.circular(16),
+                                        child: BackdropFilter(
+                                          filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                                          child: _buildReasonGrid(context, l10n),
+                                        ),
+                                      ),
+                                    ),
+                                ],
                               ),
                             ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                // Clickable header for expand/collapse
-                                InkWell(
-                                  onTap: () {
-                                    setState(() {
-                                      _isAmountDurationSectionExpanded =
-                                          !_isAmountDurationSectionExpanded;
-                                    });
-                                  },
-                                  borderRadius: const BorderRadius.vertical(
-                                    top: Radius.circular(12),
-                                  ),
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(12.0),
-                                    child: Row(
-                                      children: [
-                                        const Icon(
-                                          Icons.smoking_rooms_outlined,
-                                          size: 20,
-                                          color: Colors.blue,
-                                        ),
-                                        const SizedBox(width: 8),
-                                        Expanded(
-                                          child: Text(
-                                            "${l10n.howMuchDidYouSmoke} & ${l10n.howLongDidItLast}",
-                                            style: const TextStyle(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.blue,
+                          ),
+
+                          const SizedBox(height: 12),
+
+                          // Amount and Duration Section - Collapsible
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            child: Card(
+                              margin: EdgeInsets.zero,
+                              elevation: 0,
+                              color:
+                                  context.isDarkMode
+                                      ? Colors.grey[850]
+                                      : Colors.grey[50],
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                side: BorderSide(
+                                  color:
+                                      (_selectedAmount != null &&
+                                              _selectedDuration != null)
+                                          ? Colors.blue
+                                          : context.isDarkMode
+                                          ? Colors.grey[800]!
+                                          : Colors.grey[300]!,
+                                  width:
+                                      (_selectedAmount != null &&
+                                              _selectedDuration != null)
+                                          ? 1.5
+                                          : 0.5,
+                                ),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: <Widget>[
+                                  // Clickable header for expand/collapse
+                                  InkWell(
+                                    onTap: () {
+                                      setState(() {
+                                        _isAmountDurationSectionExpanded =
+                                            !_isAmountDurationSectionExpanded;
+                                      });
+                                    },
+                                    borderRadius: const BorderRadius.vertical(
+                                      top: Radius.circular(12),
+                                    ),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(12.0),
+                                      child: Row(
+                                        children: <Widget>[
+                                          const Icon(
+                                            Icons.smoking_rooms_outlined,
+                                            size: 20,
+                                            color: Colors.blue,
+                                          ),
+                                          const SizedBox(width: 8),
+                                          Expanded(
+                                            child: Text(
+                                              "${l10n.howMuchDidYouSmoke} & ${l10n.howLongDidItLast}",
+                                              style: const TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.blue,
+                                              ),
                                             ),
                                           ),
-                                        ),
-                                        if (_selectedAmount != null &&
-                                            _selectedDuration != null)
-                                          Container(
-                                            padding: const EdgeInsets.symmetric(
-                                              horizontal: 8,
-                                              vertical: 4,
-                                            ),
-                                            decoration: BoxDecoration(
-                                              color: Colors.blue.withOpacity(0.1),
-                                              borderRadius: BorderRadius.circular(
-                                                12,
+                                          if (_selectedAmount != null &&
+                                              _selectedDuration != null)
+                                            Container(
+                                              padding: const EdgeInsets.symmetric(
+                                                horizontal: 8,
+                                                vertical: 4,
                                               ),
-                                              border: Border.all(
-                                                color: Colors.blue.withOpacity(0.3),
+                                              decoration: BoxDecoration(
+                                                color: Colors.blue.withOpacity(0.1),
+                                                borderRadius: BorderRadius.circular(
+                                                  12,
+                                                ),
+                                                border: Border.all(
+                                                  color: Colors.blue.withOpacity(0.3),
+                                                ),
+                                              ),
+                                              child: Row(
+                                                children: <Widget>[
+                                                  Text(
+                                                    "${_getAmountLabel(_selectedAmount!)} • ${_getDurationLabel(_selectedDuration!)}",
+                                                    style: const TextStyle(
+                                                      fontSize: 14,
+                                                      fontWeight: FontWeight.bold,
+                                                      color: Colors.blue,
+                                                    ),
+                                                  ),
+                                                ],
                                               ),
                                             ),
-                                            child: Row(
-                                              children: [
-                                                Text(
-                                                  "${_getAmountLabel(_selectedAmount!)} • ${_getDurationLabel(_selectedDuration!)}",
-                                                  style: const TextStyle(
-                                                    fontSize: 14,
-                                                    fontWeight: FontWeight.bold,
-                                                    color: Colors.blue,
+                                          const SizedBox(width: 4),
+                                          Icon(
+                                            _isAmountDurationSectionExpanded
+                                                ? Icons.expand_less
+                                                : Icons.expand_more,
+                                            color: Colors.grey,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+
+                                  // Expandable content
+                                  if (_isAmountDurationSectionExpanded)
+                                    Padding(
+                                      padding: const EdgeInsets.fromLTRB(
+                                        12,
+                                        0,
+                                        12,
+                                        12,
+                                      ),
+                                      child: ClipRRect(
+                                        borderRadius: BorderRadius.circular(16),
+                                        child: BackdropFilter(
+                                          filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: <Widget>[
+                                              // Amount - Normal or minimized version
+                                              if (_isAmountSubSectionVisible)
+                                                // Full version of amount subsection
+                                                Padding(
+                                                  padding: const EdgeInsets.only(
+                                                    top: 8,
+                                                    bottom: 16,
+                                                  ),
+                                                  child: Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment.start,
+                                                    children: <Widget>[
+                                                      // Label for amount
+                                                      Row(
+                                                        children: <Widget>[
+                                                          const Icon(
+                                                            Icons.smoking_rooms_outlined,
+                                                            size: 18,
+                                                            color: Colors.blue,
+                                                          ),
+                                                          const SizedBox(width: 8),
+                                                          Expanded(
+                                                            child: Text(
+                                                              l10n.howMuchDidYouSmoke,
+                                                              style: const TextStyle(
+                                                                fontSize: 16,
+                                                                fontWeight:
+                                                                    FontWeight.bold,
+                                                                color: Colors.blue,
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                      const SizedBox(height: 12),
+                                                      _buildAmountOptionsVertical(
+                                                        context,
+                                                        l10n,
+                                                      ),
+                                                    ],
+                                                  ),
+                                                )
+                                              else if (_selectedAmount != null)
+                                                // Minimized version of amount subsection
+                                                GestureDetector(
+                                                  onTap: () {
+                                                    setState(() {
+                                                      _isAmountSubSectionVisible = true;
+                                                      _isDurationSubSectionVisible =
+                                                          false;
+                                                    });
+                                                  },
+                                                  child: Padding(
+                                                    padding: const EdgeInsets.only(
+                                                      top: 8,
+                                                      bottom: 8,
+                                                    ),
+                                                    child: Container(
+                                                      padding: const EdgeInsets.symmetric(
+                                                        horizontal: 12,
+                                                        vertical: 8,
+                                                      ),
+                                                      decoration: BoxDecoration(
+                                                        color: Colors.blue.withOpacity(
+                                                          0.1,
+                                                        ),
+                                                        borderRadius:
+                                                            BorderRadius.circular(8),
+                                                        border: Border.all(
+                                                          color: Colors.blue.withOpacity(
+                                                            0.3,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                      child: Row(
+                                                        mainAxisSize: MainAxisSize.min,
+                                                        children: <Widget>[
+                                                          const Icon(
+                                                            Icons.smoking_rooms_outlined,
+                                                            size: 16,
+                                                            color: Colors.blue,
+                                                          ),
+                                                          const SizedBox(width: 8),
+                                                          Text(
+                                                            "${l10n.howMuchDidYouSmoke}: ${_getAmountLabel(_selectedAmount!)}",
+                                                            style: const TextStyle(
+                                                              fontSize: 14,
+                                                              fontWeight: FontWeight.bold,
+                                                              color: Colors.blue,
+                                                            ),
+                                                          ),
+                                                          const SizedBox(width: 4),
+                                                          const Icon(
+                                                            Icons.edit,
+                                                            size: 14,
+                                                            color: Colors.blue,
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
                                                   ),
                                                 ),
-                                              ],
-                                            ),
-                                          ),
-                                        const SizedBox(width: 4),
-                                        Icon(
-                                          _isAmountDurationSectionExpanded
-                                              ? Icons.expand_less
-                                              : Icons.expand_more,
-                                          color: Colors.grey,
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
 
-                                // Expandable content
-                                if (_isAmountDurationSectionExpanded)
-                                  Padding(
-                                    padding: const EdgeInsets.fromLTRB(
-                                      12,
-                                      0,
-                                      12,
-                                      12,
-                                    ),
-                                    child: ClipRRect(
-                                      borderRadius: BorderRadius.circular(16),
-                                      child: BackdropFilter(
-                                        filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-                                        child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            // Amount - Normal or minimized version
-                                            if (_isAmountSubSectionVisible)
-                                              // Full version of amount subsection
-                                              Padding(
-                                                padding: const EdgeInsets.only(
-                                                  top: 8,
-                                                  bottom: 16,
-                                                ),
-                                                child: Column(
+                                              // Duration - Normal or minimized version
+                                              if (_isDurationSubSectionVisible)
+                                                // Full version of duration subsection
+                                                Column(
                                                   crossAxisAlignment:
                                                       CrossAxisAlignment.start,
-                                                  children: [
-                                                    // Label for amount
+                                                  children: <Widget>[
+                                                    // Label for duration
                                                     Row(
-                                                      children: [
+                                                      children: <Widget>[
                                                         const Icon(
-                                                          Icons.smoking_rooms_outlined,
+                                                          Icons.timer_outlined,
                                                           size: 18,
                                                           color: Colors.blue,
                                                         ),
                                                         const SizedBox(width: 8),
                                                         Expanded(
                                                           child: Text(
-                                                            l10n.howMuchDidYouSmoke,
+                                                            l10n.howLongDidItLast,
                                                             style: const TextStyle(
                                                               fontSize: 16,
-                                                              fontWeight:
-                                                                  FontWeight.bold,
+                                                              fontWeight: FontWeight.bold,
                                                               color: Colors.blue,
                                                             ),
                                                           ),
@@ -540,307 +639,211 @@ class _NewRecordSheetState extends State<NewRecordSheet> {
                                                       ],
                                                     ),
                                                     const SizedBox(height: 12),
-                                                    _buildAmountOptionsVertical(
+                                                    _buildDurationOptionsVertical(
                                                       context,
                                                       l10n,
                                                     ),
                                                   ],
-                                                ),
-                                              )
-                                            else if (_selectedAmount != null)
-                                              // Minimized version of amount subsection
-                                              GestureDetector(
-                                                onTap: () {
-                                                  setState(() {
-                                                    _isAmountSubSectionVisible = true;
-                                                    _isDurationSubSectionVisible =
-                                                        false;
-                                                  });
-                                                },
-                                                child: Padding(
-                                                  padding: const EdgeInsets.only(
-                                                    top: 8,
-                                                    bottom: 8,
-                                                  ),
-                                                  child: Container(
-                                                    padding: const EdgeInsets.symmetric(
-                                                      horizontal: 12,
-                                                      vertical: 8,
+                                                )
+                                              else if (_selectedDuration != null)
+                                                // Minimized version of duration subsection
+                                                GestureDetector(
+                                                  onTap: () {
+                                                    setState(() {
+                                                      _isDurationSubSectionVisible = true;
+                                                      _isAmountSubSectionVisible = false;
+                                                    });
+                                                  },
+                                                  child: Padding(
+                                                    padding: const EdgeInsets.only(
+                                                      top: 8,
+                                                      bottom: 8,
                                                     ),
-                                                    decoration: BoxDecoration(
-                                                      color: Colors.blue.withOpacity(
-                                                        0.1,
+                                                    child: Container(
+                                                      padding: const EdgeInsets.symmetric(
+                                                        horizontal: 12,
+                                                        vertical: 8,
                                                       ),
-                                                      borderRadius:
-                                                          BorderRadius.circular(8),
-                                                      border: Border.all(
+                                                      decoration: BoxDecoration(
                                                         color: Colors.blue.withOpacity(
-                                                          0.3,
+                                                          0.1,
                                                         ),
-                                                      ),
-                                                    ),
-                                                    child: Row(
-                                                      mainAxisSize: MainAxisSize.min,
-                                                      children: [
-                                                        const Icon(
-                                                          Icons.smoking_rooms_outlined,
-                                                          size: 16,
-                                                          color: Colors.blue,
-                                                        ),
-                                                        const SizedBox(width: 8),
-                                                        Text(
-                                                          "${l10n.howMuchDidYouSmoke}: ${_getAmountLabel(_selectedAmount!)}",
-                                                          style: const TextStyle(
-                                                            fontSize: 14,
-                                                            fontWeight: FontWeight.bold,
-                                                            color: Colors.blue,
+                                                        borderRadius:
+                                                            BorderRadius.circular(8),
+                                                        border: Border.all(
+                                                          color: Colors.blue.withOpacity(
+                                                            0.3,
                                                           ),
                                                         ),
-                                                        const SizedBox(width: 4),
-                                                        const Icon(
-                                                          Icons.edit,
-                                                          size: 14,
-                                                          color: Colors.blue,
-                                                        ),
-                                                      ],
+                                                      ),
+                                                      child: Row(
+                                                        mainAxisSize: MainAxisSize.min,
+                                                        children: <Widget>[
+                                                          const Icon(
+                                                            Icons.timer_outlined,
+                                                            size: 16,
+                                                            color: Colors.blue,
+                                                          ),
+                                                          const SizedBox(width: 8),
+                                                          Text(
+                                                            "${l10n.howLongDidItLast}: ${_getDurationLabel(_selectedDuration!)}",
+                                                            style: const TextStyle(
+                                                              fontSize: 14,
+                                                              fontWeight: FontWeight.bold,
+                                                              color: Colors.blue,
+                                                            ),
+                                                          ),
+                                                          const SizedBox(width: 4),
+                                                          const Icon(
+                                                            Icons.edit,
+                                                            size: 14,
+                                                            color: Colors.blue,
+                                                          ),
+                                                        ],
+                                                      ),
                                                     ),
                                                   ),
                                                 ),
-                                              ),
-
-                                            // Duration - Normal or minimized version
-                                            if (_isDurationSubSectionVisible)
-                                              // Full version of duration subsection
-                                              Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  // Label for duration
-                                                  Row(
-                                                    children: [
-                                                      const Icon(
-                                                        Icons.timer_outlined,
-                                                        size: 18,
-                                                        color: Colors.blue,
-                                                      ),
-                                                      const SizedBox(width: 8),
-                                                      Expanded(
-                                                        child: Text(
-                                                          l10n.howLongDidItLast,
-                                                          style: const TextStyle(
-                                                            fontSize: 16,
-                                                            fontWeight: FontWeight.bold,
-                                                            color: Colors.blue,
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                  const SizedBox(height: 12),
-                                                  _buildDurationOptionsVertical(
-                                                    context,
-                                                    l10n,
-                                                  ),
-                                                ],
-                                              )
-                                            else if (_selectedDuration != null)
-                                              // Minimized version of duration subsection
-                                              GestureDetector(
-                                                onTap: () {
-                                                  setState(() {
-                                                    _isDurationSubSectionVisible = true;
-                                                    _isAmountSubSectionVisible = false;
-                                                  });
-                                                },
-                                                child: Padding(
-                                                  padding: const EdgeInsets.only(
-                                                    top: 8,
-                                                    bottom: 8,
-                                                  ),
-                                                  child: Container(
-                                                    padding: const EdgeInsets.symmetric(
-                                                      horizontal: 12,
-                                                      vertical: 8,
-                                                    ),
-                                                    decoration: BoxDecoration(
-                                                      color: Colors.blue.withOpacity(
-                                                        0.1,
-                                                      ),
-                                                      borderRadius:
-                                                          BorderRadius.circular(8),
-                                                      border: Border.all(
-                                                        color: Colors.blue.withOpacity(
-                                                          0.3,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    child: Row(
-                                                      mainAxisSize: MainAxisSize.min,
-                                                      children: [
-                                                        const Icon(
-                                                          Icons.timer_outlined,
-                                                          size: 16,
-                                                          color: Colors.blue,
-                                                        ),
-                                                        const SizedBox(width: 8),
-                                                        Text(
-                                                          "${l10n.howLongDidItLast}: ${_getDurationLabel(_selectedDuration!)}",
-                                                          style: const TextStyle(
-                                                            fontSize: 14,
-                                                            fontWeight: FontWeight.bold,
-                                                            color: Colors.blue,
-                                                          ),
-                                                        ),
-                                                        const SizedBox(width: 4),
-                                                        const Icon(
-                                                          Icons.edit,
-                                                          size: 14,
-                                                          color: Colors.blue,
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                          ],
+                                            ],
+                                          ),
                                         ),
                                       ),
                                     ),
-                                  ),
-                              ],
-                            ),
-                          ),
-                        ),
-
-                        const SizedBox(height: 12),
-
-                        // Notes Section - Collapsible
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          child: Card(
-                            margin: EdgeInsets.zero,
-                            elevation: 0,
-                            color:
-                                context.isDarkMode
-                                    ? Colors.grey[850]
-                                    : Colors.grey[50],
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              side: BorderSide(
-                                color:
-                                    _notesController.text.isNotEmpty
-                                        ? Colors.blue
-                                        : context.isDarkMode
-                                        ? Colors.grey[800]!
-                                        : Colors.grey[300]!,
-                                width: _notesController.text.isNotEmpty ? 1.5 : 0.5,
+                                ],
                               ),
                             ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                // Clickable header for expand/collapse
-                                InkWell(
-                                  onTap: () {
-                                    setState(() {
-                                      _isNotesSectionExpanded =
-                                          !_isNotesSectionExpanded;
-                                    });
-                                  },
-                                  borderRadius: const BorderRadius.vertical(
-                                    top: Radius.circular(12),
-                                  ),
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(12.0),
-                                    child: Row(
-                                      children: [
-                                        const Icon(
-                                          Icons.note_outlined,
-                                          size: 20,
-                                          color: Colors.blue,
-                                        ),
-                                        const SizedBox(width: 8),
-                                        Expanded(
-                                          child: Text(
-                                            l10n.notes,
-                                            style: const TextStyle(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.blue,
-                                            ),
+                          ),
+
+                          const SizedBox(height: 12),
+
+                          // Notes Section - Collapsible
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            child: Card(
+                              margin: EdgeInsets.zero,
+                              elevation: 0,
+                              color:
+                                  context.isDarkMode
+                                      ? Colors.grey[850]
+                                      : Colors.grey[50],
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                side: BorderSide(
+                                  color:
+                                      _notesController.text.isNotEmpty
+                                          ? Colors.blue
+                                          : context.isDarkMode
+                                          ? Colors.grey[800]!
+                                          : Colors.grey[300]!,
+                                  width: _notesController.text.isNotEmpty ? 1.5 : 0.5,
+                                ),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: <Widget>[
+                                  // Clickable header for expand/collapse
+                                  InkWell(
+                                    onTap: () {
+                                      setState(() {
+                                        _isNotesSectionExpanded =
+                                            !_isNotesSectionExpanded;
+                                      });
+                                    },
+                                    borderRadius: const BorderRadius.vertical(
+                                      top: Radius.circular(12),
+                                    ),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(12.0),
+                                      child: Row(
+                                        children: <Widget>[
+                                          const Icon(
+                                            Icons.note_outlined,
+                                            size: 20,
+                                            color: Colors.blue,
                                           ),
-                                        ),
-                                        if (_notesController.text.isNotEmpty)
-                                          Container(
-                                            constraints: BoxConstraints(
-                                              maxWidth:
-                                                  MediaQuery.of(
-                                                    context,
-                                                  ).size.width *
-                                                  0.3,
-                                            ),
-                                            padding: const EdgeInsets.symmetric(
-                                              horizontal: 8,
-                                              vertical: 4,
-                                            ),
-                                            decoration: BoxDecoration(
-                                              color: Colors.blue.withOpacity(0.1),
-                                              borderRadius: BorderRadius.circular(
-                                                12,
-                                              ),
-                                              border: Border.all(
-                                                color: Colors.blue.withOpacity(0.3),
-                                              ),
-                                            ),
+                                          const SizedBox(width: 8),
+                                          Expanded(
                                             child: Text(
-                                              _notesController.text.length > 15
-                                                  ? "${_notesController.text.substring(0, 15)}..."
-                                                  : _notesController.text,
+                                              l10n.notes,
                                               style: const TextStyle(
-                                                fontSize: 14,
+                                                fontSize: 16,
                                                 fontWeight: FontWeight.bold,
                                                 color: Colors.blue,
                                               ),
-                                              overflow: TextOverflow.ellipsis,
                                             ),
                                           ),
-                                        const SizedBox(width: 4),
-                                        Icon(
-                                          _isNotesSectionExpanded
-                                              ? Icons.expand_less
-                                              : Icons.expand_more,
-                                          color: Colors.grey,
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-
-                                // Expandable content
-                                if (_isNotesSectionExpanded)
-                                  Padding(
-                                    padding: const EdgeInsets.fromLTRB(
-                                      12,
-                                      0,
-                                      12,
-                                      12,
-                                    ),
-                                    child: ClipRRect(
-                                      borderRadius: BorderRadius.circular(16),
-                                      child: BackdropFilter(
-                                        filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-                                        child: _buildNotesField(context, l10n),
+                                          if (_notesController.text.isNotEmpty)
+                                            Container(
+                                              constraints: BoxConstraints(
+                                                maxWidth:
+                                                    MediaQuery.of(
+                                                      context,
+                                                    ).size.width *
+                                                    0.3,
+                                              ),
+                                              padding: const EdgeInsets.symmetric(
+                                                horizontal: 8,
+                                                vertical: 4,
+                                              ),
+                                              decoration: BoxDecoration(
+                                                color: Colors.blue.withOpacity(0.1),
+                                                borderRadius: BorderRadius.circular(
+                                                  12,
+                                                ),
+                                                border: Border.all(
+                                                  color: Colors.blue.withOpacity(0.3),
+                                                ),
+                                              ),
+                                              child: Text(
+                                                _notesController.text.length > 15
+                                                    ? "${_notesController.text.substring(0, 15)}..."
+                                                    : _notesController.text,
+                                                style: const TextStyle(
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Colors.blue,
+                                                ),
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                            ),
+                                          const SizedBox(width: 4),
+                                          Icon(
+                                            _isNotesSectionExpanded
+                                                ? Icons.expand_less
+                                                : Icons.expand_more,
+                                            color: Colors.grey,
+                                          ),
+                                        ],
                                       ),
                                     ),
                                   ),
-                              ],
+
+                                  // Expandable content
+                                  if (_isNotesSectionExpanded)
+                                    Padding(
+                                      padding: const EdgeInsets.fromLTRB(
+                                        12,
+                                        0,
+                                        12,
+                                        12,
+                                      ),
+                                      child: ClipRRect(
+                                        borderRadius: BorderRadius.circular(16),
+                                        child: BackdropFilter(
+                                          filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                                          child: _buildNotesField(context, l10n),
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              ),
                             ),
                           ),
-                        ),
 
-                        // Extra space at bottom
-                        const SizedBox(height: 70), // Reduced from 90 to 70
-                      ],
+                          // Extra space at bottom
+                          const SizedBox(height: 70), // Reduced from 90 to 70
+                        ],
+                      ),
                     ),
                   ),
 
@@ -891,7 +894,7 @@ class _NewRecordSheetState extends State<NewRecordSheet> {
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
                               crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
+                              children: <Widget>[
                                 // Compact error message
                                 if (!_isFormValid())
                                   Padding(
@@ -914,7 +917,7 @@ class _NewRecordSheetState extends State<NewRecordSheet> {
                                             ),
                                           ),
                                           child: Row(
-                                            children: [
+                                            children: <Widget>[
                                               const Icon(
                                                 Icons.error_outline,
                                                 color: Colors.red,
@@ -981,7 +984,7 @@ class _NewRecordSheetState extends State<NewRecordSheet> {
                                               )
                                             : Row(
                                                 mainAxisAlignment: MainAxisAlignment.center,
-                                                children: [
+                                                children: <Widget>[
                                                   const Icon(
                                                     Icons.smoking_rooms_outlined,
                                                     size: 20,
@@ -1086,7 +1089,7 @@ class _NewRecordSheetState extends State<NewRecordSheet> {
       width: double.infinity,
       child: Stack(
         alignment: Alignment.topCenter,
-        children: [
+        children: <Widget>[
           // Handle bar
           Padding(
             padding: const EdgeInsets.only(top: 8),
@@ -1210,7 +1213,7 @@ class _NewRecordSheetState extends State<NewRecordSheet> {
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.start,
-          children: [
+          children: <Widget>[
             Icon(
               icon,
               color:
@@ -1242,33 +1245,62 @@ class _NewRecordSheetState extends State<NewRecordSheet> {
     final screenHeight = MediaQuery.of(context).size.height;
     final isSmallScreen = screenHeight < 700;
 
-    return Container(
-      decoration: BoxDecoration(
-        color:
-            context.isDarkMode
-                ? Colors.grey.withOpacity(0.1)
-                : Colors.grey.withOpacity(0.05),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color:
-              context.isDarkMode
-                  ? Colors.grey.withOpacity(0.3)
-                  : Colors.grey.withOpacity(0.2),
-        ),
-      ),
-      child: TextField(
-        controller: _notesController,
-        maxLines: isSmallScreen ? 2 : 3, // Adjusted for small screens
-        minLines: 1,
-        decoration: InputDecoration(
-          hintText: l10n.howDoYouFeel,
-          hintStyle: TextStyle(
-            color: context.subtitleColor,
-            fontSize: isSmallScreen ? 12 : 13,
+    return GestureDetector(
+      // Add tap handler to detect taps outside the text field
+      onTap: () {
+        // This will unfocus any text field when tapping on the container
+        FocusScope.of(context).unfocus();
+      },
+      child: Stack(
+        children: <Widget>[
+          Container(
+            decoration: BoxDecoration(
+              color:
+                  context.isDarkMode
+                      ? Colors.grey.withOpacity(0.1)
+                      : Colors.grey.withOpacity(0.05),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color:
+                    context.isDarkMode
+                        ? Colors.grey.withOpacity(0.3)
+                        : Colors.grey.withOpacity(0.2),
+              ),
+            ),
+            child: TextField(
+              controller: _notesController,
+              maxLines: isSmallScreen ? 2 : 3, // Adjusted for small screens
+              minLines: 1,
+              decoration: InputDecoration(
+                hintText: l10n.howDoYouFeel,
+                hintStyle: TextStyle(
+                  color: context.subtitleColor,
+                  fontSize: isSmallScreen ? 12 : 13,
+                ),
+                contentPadding: EdgeInsets.all(isSmallScreen ? 10 : 12),
+                border: InputBorder.none,
+                // Add "Done" button to keyboard toolbar
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    Icons.check_circle_outline,
+                    color: Colors.blue.withOpacity(0.7),
+                    size: 20,
+                  ),
+                  onPressed: () {
+                    // Hide keyboard when done button is pressed
+                    FocusScope.of(context).unfocus();
+                  },
+                ),
+              ),
+              // Add keyboard action configuration
+              textInputAction: TextInputAction.done,
+              onSubmitted: (_) {
+                // Hide keyboard when done button is pressed
+                FocusScope.of(context).unfocus();
+              },
+            ),
           ),
-          contentPadding: EdgeInsets.all(isSmallScreen ? 10 : 12),
-          border: InputBorder.none,
-        ),
+        ],
       ),
     );
   }
@@ -1379,7 +1411,7 @@ class _NewRecordSheetState extends State<NewRecordSheet> {
           ),
         ),
         child: Row(
-          children: [
+          children: <Widget>[
             // Selection indicator
             Container(
               width: 20,

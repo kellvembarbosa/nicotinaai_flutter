@@ -197,7 +197,7 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen> w
                   child: _buildStatsCard(
                     context,
                     l10n.cigarettesPerDay,
-                    stats.cigarettesAvoided.toString(),
+                    (stats.cigarettesPerDay ?? 0).toString(),
                     Icons.check_circle_outline,
                     Colors.purple,
                   ),

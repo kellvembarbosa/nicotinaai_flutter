@@ -62,18 +62,33 @@ class CravingBloc extends Bloc<CravingEvent, CravingState> {
     SaveCravingRequested event,
     Emitter<CravingState> emit,
   ) async {
+    // INÍCIO DO PROCESSAMENTO DO EVENTO
+    debugPrint('📣 [CravingBloc] EVENTO RECEBIDO: SaveCravingRequested');
+    debugPrint('⏱️ [CravingBloc] HORÁRIO DE INÍCIO: ${DateTime.now().toIso8601String()}');
+    
     // Generate a temporary ID for the new craving
     final temporaryId = 'temp_${_uuid.v4()}';
     
     // Debug logs
-    debugPrint('Creating craving with temporary ID: $temporaryId');
-    debugPrint('Craving details:');
-    debugPrint('- Location: ${event.craving.location}');
-    debugPrint('- Trigger: ${event.craving.trigger}');
-    debugPrint('- Intensity: ${event.craving.intensity}');
-    debugPrint('- Resisted: ${event.craving.resisted ? 'Yes' : 'No'}');
-    debugPrint('- Notes: ${event.craving.notes}');
+    debugPrint('🆕 [CravingBloc] Criando craving com ID temporário: $temporaryId');
+    debugPrint('📋 [CravingBloc] Detalhes do craving:');
+    debugPrint('- Location: "${event.craving.location}"');
+    debugPrint('- Trigger: "${event.craving.trigger}"');
+    debugPrint('- Intensity: "${event.craving.intensity}"');
+    debugPrint('- Resisted: ${event.craving.resisted}');
+    debugPrint('- Notes: ${event.craving.notes ?? "null"}');
     debugPrint('- User ID: ${event.craving.userId}');
+    debugPrint('- Timestamp: ${event.craving.timestamp}');
+    
+    // Visualiza o JSON que será enviado
+    if (kDebugMode) {
+      final jsonData = event.craving.toJson();
+      debugPrint('📦 [CravingBloc] JSON A SER ENVIADO AO REPOSITORY:');
+      jsonData.forEach((key, value) => debugPrint('- $key: $value'));
+    }
+    
+    // ETAPA 1: ATUALIZAÇÃO OTIMISTA DO ESTADO
+    debugPrint('🔄 [CravingBloc] ETAPA 1: Atualizando estado otimisticamente...');
     
     // Create an optimistic version with pending status
     final optimisticCraving = event.craving.copyWith(
@@ -85,11 +100,22 @@ class CravingBloc extends Bloc<CravingEvent, CravingState> {
     final updatedCravings = [optimisticCraving, ...state.cravings];
     emit(CravingState.saving(updatedCravings));
     
+    debugPrint('✅ [CravingBloc] Estado atualizado para SAVING com item otimista');
+    
+    // ETAPA 2: CHAMADA AO REPOSITÓRIO
+    debugPrint('🔄 [CravingBloc] ETAPA 2: Enviando dados ao repositório...');
+    
     try {
-      // Perform the actual API call
+      debugPrint('🔄 [CravingBloc] Chamando repository.saveCraving...');
+      
+      // Perform the actual API call 
+      // IMPORTANTE: Aqui é onde ocorre a comunicação com o Supabase
       final savedCraving = await _repository.saveCraving(event.craving);
       
-      debugPrint('Craving saved successfully with ID: ${savedCraving.id}');
+      debugPrint('✅ [CravingBloc] SUCESSO! Craving salvo com ID: ${savedCraving.id}');
+      
+      // ETAPA 3: ATUALIZAÇÃO DO ESTADO COM DADOS REAIS
+      debugPrint('🔄 [CravingBloc] ETAPA 3: Atualizando estado com dados do servidor...');
       
       // Update the temporary item with the real one
       final finalCravings = updatedCravings.map((c) => 
@@ -98,43 +124,56 @@ class CravingBloc extends Bloc<CravingEvent, CravingState> {
       
       emit(CravingState.loaded(finalCravings));
       
+      debugPrint('✅ [CravingBloc] Estado atualizado para LOADED com dados reais');
+      
+      // ETAPA 4: OPERAÇÕES PÓS-SALVAMENTO
+      debugPrint('🔄 [CravingBloc] ETAPA 4: Executando operações pós-salvamento...');
+      
       // Check if this is a new user (no smoking_logs or user_stats)
       // and explicitly initialize user_stats if needed
       try {
-        debugPrint('Checking and initializing health recoveries after craving...');
+        debugPrint('🏥 Checking and initializing health recoveries after craving...');
         final trackingRepository = TrackingRepository();
         final userStats = await trackingRepository.getUserStats();
 
         if (userStats == null) {
           // No user stats yet, explicitly initiate health recovery check
           // to trigger initialization
-          debugPrint('No user_stats found, initializing health recoveries...');
+          debugPrint('🆕 No user_stats found, initializing health recoveries...');
           await trackingRepository.checkHealthRecoveries(updateAchievements: true);
-          debugPrint('Health recoveries initialized successfully');
+          debugPrint('✅ Health recoveries initialized successfully');
         } else {
-          debugPrint('user_stats already exist, no need to initialize');
+          debugPrint('✓ user_stats already exist, no need to initialize');
         }
       } catch (e) {
         // Non-critical error, just log it
-        debugPrint('Error initializing health recoveries after craving: $e');
+        debugPrint('⚠️ Error initializing health recoveries after craving: $e');
       }
       
       // Update tracking stats
-      _updateTrackingStats();
+      debugPrint('📊 Atualizando estatísticas de tracking...');
+      _updateTrackingStats(resisted: event.craving.resisted);
       
       // Check for achievements
       try {
-        debugPrint('Checking for achievements after craving recorded');
+        debugPrint('🏆 Checking for achievements after craving recorded');
         // Try to get AchievementProvider if needed (this would require BuildContext)
         // For now, we skip the achievement check in the BLoC implementation
         // as it requires access to Provider which is not available in BLoC
         // This can be handled at the UI level instead
       } catch (e) {
-        debugPrint('Error checking achievements: $e');
+        debugPrint('⚠️ Error checking achievements: $e');
         // Non-critical error, don't rethrow
       }
+      
+      // CONCLUSÃO
+      debugPrint('🎉 [CravingBloc] PROCESSAMENTO COMPLETO DO EVENTO SaveCravingRequested');
+      debugPrint('⏱️ [CravingBloc] HORÁRIO DE CONCLUSÃO: ${DateTime.now().toIso8601String()}');
     } catch (e) {
-      debugPrint('Error saving craving: $e');
+      debugPrint('❌ [CravingBloc] ERRO AO SALVAR CRAVING: $e');
+      
+      // TRATAMENTO DE ERRO
+      debugPrint('🔄 [CravingBloc] Marcando craving como falho mas mantendo na lista...');
       
       // Mark as failed but keep in the list
       final failedCravings = updatedCravings.map((c) => 
@@ -145,6 +184,9 @@ class CravingBloc extends Bloc<CravingEvent, CravingState> {
         e.toString(),
         cravings: failedCravings,
       ));
+      
+      debugPrint('⚠️ [CravingBloc] Estado atualizado para ERROR');
+      debugPrint('⏱️ [CravingBloc] HORÁRIO DO ERRO: ${DateTime.now().toIso8601String()}');
       
       // Re-throw to allow caller to handle the error
       rethrow;
@@ -181,7 +223,7 @@ class CravingBloc extends Bloc<CravingEvent, CravingState> {
       emit(CravingState.loaded(updatedCravings));
       
       // Update the tracking stats
-      _updateTrackingStats();
+      _updateTrackingStats(resisted: syncedCraving.resisted);
     } catch (e) {
       // Mark as failed again
       updatedCravings[cravingIndex] = updatedCravings[cravingIndex].copyWith(
@@ -210,7 +252,8 @@ class CravingBloc extends Bloc<CravingEvent, CravingState> {
       // Perform the actual deletion
       await _repository.deleteCraving(event.id);
       
-      // Update the tracking stats
+      // Update the tracking stats - for deletion we don't need to pass resisted flag
+      // as we're just forcing a refresh of the stats
       _updateTrackingStats();
     } catch (e) {
       // Put the craving back on error
@@ -274,17 +317,22 @@ class CravingBloc extends Bloc<CravingEvent, CravingState> {
   }
   
   // Update tracking stats after changes to cravings
-  void _updateTrackingStats() {
+  void _updateTrackingStats({bool? resisted}) {
     if (_trackingBloc != null) {
+      final bool wasResisted = resisted ?? (state.cravings.isNotEmpty ? state.cravings.first.resisted : true);
+      
+      // Log to help debug
+      debugPrint('🔍 [CravingBloc] Updating tracking stats with resisted=${wasResisted}');
+      
       // Primeiro dispara o evento otimista de craving adicionado
-      _trackingBloc.add(CravingAdded());
+      _trackingBloc.add(CravingAdded(resisted: wasResisted));
       
       // Em seguida, programa atualização completa com leve atraso para garantir persistência
       Future.delayed(const Duration(milliseconds: 300), () {
         _trackingBloc.add(ForceUpdateStats());
       });
       
-      debugPrint('✅ [CravingBloc] Updated tracking stats with optimistic update');
+      debugPrint('✅ [CravingBloc] Updated tracking stats with optimistic update (resisted: $wasResisted)');
     } else {
       debugPrint('⚠️ [CravingBloc] TrackingBloc not available to update stats');
     }

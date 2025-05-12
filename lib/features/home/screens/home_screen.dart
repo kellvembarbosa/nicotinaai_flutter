@@ -210,24 +210,33 @@ class _HomeScreenState extends State<HomeScreen> {
           _daysWithoutSmoking = updatedDaysWithoutSmoking;
           // Preferir usar o valor do banco de dados se disponível
           _minutesLifeGained =
-              updatedStats?.totalMinutesGained != null && updatedStats!.totalMinutesGained! > 0
-                  ? updatedStats.totalMinutesGained
+              updatedStats?.totalMinutesGained != null
+                  ? updatedStats?.totalMinutesGained
                   : updatedStats?.cigarettesAvoided != null
-                  ? StatsCalculator.calculateMinutesGained(updatedStats!.cigarettesAvoided)
+                  ? StatsCalculator.calculateMinutesGained(updatedStats?.cigarettesAvoided ?? 0)
                   : null;
           _breathCapacityPercent = _daysWithoutSmoking != null ? (_daysWithoutSmoking! > 30 ? 40 : (_daysWithoutSmoking! > 7 ? 20 : 10)) : null;
           _cravingsResisted = updatedCravingsResisted;
           // Removemos o cálculo incorreto de _dailyMinutesGained aqui
           // Ele será calculado com mais precisão na função _calculateDailyMinutesGained()
-          // Debug para analisar o valor da economia
+          // Debug para analisar o valor da economia e minutos ganhos
           if (kDebugMode) {
             print('💰 Valor economizado recebido do servidor: $updatedMoneySaved centavos');
-            print('💰 Dias sem fumar: $_daysWithoutSmoking, Cigarros evitados: ${_stats?.cigarettesAvoided}');
+            print('⏱️ Minutos de vida ganhos do servidor: ${updatedStats?.totalMinutesGained}');
+            print('📊 Dias sem fumar: $_daysWithoutSmoking, Cigarros evitados: ${_stats?.cigarettesAvoided}');
+            
+            // Verificar explicitamente valores zero para facilitar a depuração
+            if (updatedMoneySaved == 0) {
+              print('⚠️ ALERTA: Valor de economia zero recebido do servidor!');
+            }
+            if (updatedStats?.totalMinutesGained == 0) {
+              print('⚠️ ALERTA: Valor de minutos ganhos zero recebido do servidor!');
+            }
           }
 
           // Usar o valor mais preciso para cálculo de economia
-          if (updatedMoneySaved > 0) {
-            // Usar o valor do servidor se estiver disponível e for válido
+          if (updatedMoneySaved != null) {
+            // Usar o valor do servidor se estiver disponível (mesmo que seja zero)
             _moneySavedInCents = updatedMoneySaved;
             
             if (kDebugMode) {
@@ -258,7 +267,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 print('💰 Preço por cigarro=$pricePerCigarette centavos, economia calculada=$calculatedMoneySaved centavos');
               }
 
-              _moneySavedInCents = calculatedMoneySaved > 0 ? calculatedMoneySaved : null;
+              _moneySavedInCents = calculatedMoneySaved;
             } else {
               // If we don't have stats yet, show skeleton by setting to null
               _moneySavedInCents = null;
@@ -840,7 +849,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // Versão atualizada com skeleton loading
   Widget _buildStatisticCard(BuildContext context, String? value, String label, Color color, IconData icon, bool isLoading) {
-    // Verificamos se o valor está carregando ou é nulo
+    // Verificamos apenas se o valor está carregando ou é nulo, permitindo zero
     final shouldShowSkeleton = isLoading || value == null;
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
@@ -1032,6 +1041,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // Versão atualizada com skeleton loading
   Widget _buildDailyStatCard(BuildContext context, String? value, String label, Color color, IconData icon, bool isLoading) {
+    // Apenas verifique se está carregando ou é nulo (permite zero)
     final shouldShowSkeleton = isLoading || value == null;
     return Container(
       padding: const EdgeInsets.all(16),
@@ -1181,7 +1191,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     // Agora preferimos usar o valor já calculado no banco de dados
     // que é atualizado pela Edge Function updateUserStats
-    if (_stats!.minutesGainedToday != null && _stats!.minutesGainedToday! > 0) {
+    if (_stats!.minutesGainedToday != null) {
       final minutesToday = _stats!.minutesGainedToday!;
       if (kDebugMode) {
         print('📊 Usando minutesGainedToday do DB: $minutesToday min');
@@ -1200,7 +1210,7 @@ class _HomeScreenState extends State<HomeScreen> {
     // simplesmente o total de minutos ganhos
     if ((_daysWithoutSmoking ?? 0) < 1) {
       final minutesToday = _minutesLifeGained!;
-      return minutesToday > 0 ? '$minutesToday min' : '0';
+      return '$minutesToday min';
     }
 
     // Para calcular os minutos ganhos hoje, usamos os cravings resistidos de hoje
@@ -1221,7 +1231,7 @@ class _HomeScreenState extends State<HomeScreen> {
       print('📊 Cigarros por dia antes de parar: $cigarettesPerDay');
     }
 
-    return estimatedMinutesToday > 0 ? '$estimatedMinutesToday min' : '0';
+    return '$estimatedMinutesToday min';
   }
 
   // Build a motivational card when there are no achievements
@@ -1595,6 +1605,7 @@ class _HomeScreenState extends State<HomeScreen> {
     dynamic user, // Can be null, will use device locale
     bool isLoading,
   ) {
+    // Apenas verifique se está carregando ou é nulo (permite zero)
     final shouldShowSkeleton = isLoading || valueInCents == null;
     return Container(
       padding: const EdgeInsets.all(20),

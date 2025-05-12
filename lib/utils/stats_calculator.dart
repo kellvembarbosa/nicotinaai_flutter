@@ -138,7 +138,9 @@ class StatsCalculator {
   /// Calcula minutos de vida ganhos com base nos cigarros evitados
   /// Nota: este é um cálculo estimado e aproximado
   static int calculateMinutesGained(int cigarettesAvoided) {
-    return cigarettesAvoided * MINUTES_PER_CIGARETTE;
+    // Garantir que sempre retornamos um valor positivo (maior que zero)
+    // ou zero como fallback para evitar valores negativos
+    return cigarettesAvoided > 0 ? cigarettesAvoided * MINUTES_PER_CIGARETTE : 0;
   }
   
   /// Converte minutos em uma representação de dias/horas/minutos

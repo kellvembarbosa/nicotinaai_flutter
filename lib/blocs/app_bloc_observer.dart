@@ -23,8 +23,16 @@ class AppBlocObserver extends BlocObserver {
   void onEvent(Bloc bloc, Object? event) {
     super.onEvent(bloc, event);
     if (kDebugMode) {
-      print('⏩ EVENT: ${bloc.runtimeType} - ${event.runtimeType}');
+      print('⏩ EVENT: ${bloc.runtimeType} - ${event.runtimeType} | ${DateTime.now().toIso8601String()}');
       print('    ${event.toString()}');
+      
+      // Logando detalhes específicos para SaveCravingRequested
+      if (event.toString().contains('SaveCravingRequested')) {
+        print('    🔍 IMPORTANTE: Evento de salvamento de craving detectado');
+        print('    🔍 TEMPO: ${DateTime.now().toIso8601String()}');
+        print('    🔍 BLOC ATUAL: ${bloc.runtimeType}');
+        print('    🔍 ESTADO ATUAL: ${bloc.state.runtimeType}');
+      }
     }
   }
 
@@ -32,9 +40,17 @@ class AppBlocObserver extends BlocObserver {
   void onChange(BlocBase bloc, Change change) {
     super.onChange(bloc, change);
     if (kDebugMode) {
-      print('🔄 STATE CHANGED: ${bloc.runtimeType}');
+      print('🔄 STATE CHANGED: ${bloc.runtimeType} | ${DateTime.now().toIso8601String()}');
       print('    From: ${change.currentState.runtimeType}');
       print('    To: ${change.nextState.runtimeType}');
+      
+      // Logando detalhes específicos para estados do CravingBloc
+      if (bloc.runtimeType.toString().contains('CravingBloc')) {
+        print('    🔍 MUDANÇA DE ESTADO DO CRAVINGBLOC DETECTADA');
+        print('    🔍 TEMPO: ${DateTime.now().toIso8601String()}');
+        print('    🔍 DE: ${change.currentState.toString().substring(0, change.currentState.toString().length.clamp(0, 100))}');
+        print('    🔍 PARA: ${change.nextState.toString().substring(0, change.nextState.toString().length.clamp(0, 100))}');
+      }
     }
   }
 
@@ -52,8 +68,22 @@ class AppBlocObserver extends BlocObserver {
   @override
   void onError(BlocBase bloc, Object error, StackTrace stackTrace) {
     if (kDebugMode) {
-      print('❌ ERROR: ${bloc.runtimeType} - $error');
+      print('❌ ERROR: ${bloc.runtimeType} - $error | ${DateTime.now().toIso8601String()}');
       print('    ${stackTrace.toString().split('\n').take(3).join('\n    ')}');
+      
+      // Logando detalhes específicos para erros no CravingBloc
+      if (bloc.runtimeType.toString().contains('CravingBloc')) {
+        print('❗️❗️❗️ ERRO CRÍTICO NO CRAVINGBLOC ❗️❗️❗️');
+        print('⏱️ TEMPO DO ERRO: ${DateTime.now().toIso8601String()}');
+        print('📋 DETALHES DO ERRO: $error');
+        print('📋 ESTADO ATUAL DO BLOC: ${bloc.state}');
+        print('📋 STACKTRACE COMPLETO:');
+        final st = stackTrace.toString().split('\n');
+        for (var i = 0; i < st.length.clamp(0, 20); i++) {
+          print('   ${i + 1}: ${st[i]}');
+        }
+        print('❗️❗️❗️ FIM DO ERRO CRÍTICO NO CRAVINGBLOC ❗️❗️❗️');
+      }
     }
     super.onError(bloc, error, stackTrace);
   }

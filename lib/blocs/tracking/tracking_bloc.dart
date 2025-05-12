@@ -96,6 +96,20 @@ class TrackingBloc extends Bloc<TrackingEvent, TrackingState> {
           print('Error loading user stats: $statsErr');
         }
       }
+      
+      // Verificar se temos valores nulos ou zero que precisam ser atualizados do servidor
+      // Valores zero serão tratados como inválidos para exibir o skeleton loader
+      if (state.userStats != null && 
+         (state.userStats!.totalMinutesGained == null || state.userStats!.totalMinutesGained == 0 || 
+          state.userStats!.moneySaved == null || state.userStats!.moneySaved == 0) &&
+         state.userStats!.lastSmokeDate != null) {
+        if (kDebugMode) {
+          print('🔄 Stats values missing or zero with valid last_smoke_date, forcing update from server...');
+          print('📊 Current values - minutes: ${state.userStats!.totalMinutesGained}, money: ${state.userStats!.moneySaved}');
+        }
+        await _repository.updateUserStats();
+        await _loadUserStats(emit, forceRefresh: true);
+      }
 
       // If we have smoking logs, make sure we have a last smoke date
       if (state.userStats != null && state.userStats!.lastSmokeDate == null && state.smokingLogs.isNotEmpty) {
@@ -449,21 +463,38 @@ class TrackingBloc extends Bloc<TrackingEvent, TrackingState> {
   Future<void> _onCravingAdded(CravingAdded event, Emitter<TrackingState> emit) async {
     if (kDebugMode) {
       print('🔄 [TrackingBloc] Atualização otimista para craving adicionado');
+      print('🔄 [TrackingBloc] Craving resistido: ${event.resisted}');
     }
 
     // Atualização otimista usando o calculator centralizado
     final currentStats = state.userStats;
     if (currentStats != null) {
-      // Usar o serviço centralizado para calcular os novos valores
-      final updatedStats = StatsCalculator.calculateAddCraving(currentStats);
-
-      if (kDebugMode) {
-        print('✅ [TrackingBloc] Atualizando otimisticamente:');
-        print('  - Cravings resistidos: ${currentStats.cravingsResisted} -> ${updatedStats.cravingsResisted}');
-        print('  - Cigarros evitados: ${currentStats.cigarettesAvoided} -> ${updatedStats.cigarettesAvoided}');
-        print('  - Economia: ${currentStats.moneySaved} -> ${updatedStats.moneySaved} centavos');
-        print(
-          '  - Minutos de vida ganhos: ${StatsCalculator.calculateMinutesGained(currentStats.cigarettesAvoided)} -> ${StatsCalculator.calculateMinutesGained(updatedStats.cigarettesAvoided)}',
+      // Só incrementar cravingsResisted se o craving foi realmente resistido
+      UserStats updatedStats;
+      
+      if (event.resisted) {
+        // Usar o serviço centralizado para calcular os novos valores quando resistiu
+        updatedStats = StatsCalculator.calculateAddCraving(currentStats);
+        
+        if (kDebugMode) {
+          print('✅ [TrackingBloc] Atualizando otimisticamente para craving RESISTIDO:');
+          print('  - Cravings resistidos: ${currentStats.cravingsResisted} -> ${updatedStats.cravingsResisted}');
+          print('  - Cigarros evitados: ${currentStats.cigarettesAvoided} -> ${updatedStats.cigarettesAvoided}');
+          print('  - Economia: ${currentStats.moneySaved} -> ${updatedStats.moneySaved} centavos');
+          print(
+            '  - Minutos de vida ganhos: ${StatsCalculator.calculateMinutesGained(currentStats.cigarettesAvoided)} -> ${StatsCalculator.calculateMinutesGained(updatedStats.cigarettesAvoided)}',
+          );
+        }
+      } else {
+        // Craving não foi resistido, não incrementar contador
+        if (kDebugMode) {
+          print('⚠️ [TrackingBloc] Craving NÃO foi resistido, não incrementando contador');
+        }
+        
+        // Para craving não resistido, garantir que os dados são persistidos no banco
+        // Uma cópia completa com incremento de lastUpdated para garantir detecção da mudança de estado
+        updatedStats = currentStats.copyWith(
+          lastUpdated: DateTime.now().millisecondsSinceEpoch
         );
       }
 
