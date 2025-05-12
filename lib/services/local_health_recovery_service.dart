@@ -247,7 +247,7 @@ class LocalHealthRecoveryService {
               'recovery_id': recovery.id,
               'name': recovery.name,
               'description': recovery.description,
-              'xp_reward': recovery.xpReward,
+              'xp_reward': json['xp_reward'] ?? 10, // Default to 10 XP
               'days_to_achieve': recovery.daysToAchieve
             });
             
@@ -256,13 +256,13 @@ class LocalHealthRecoveryService {
               try {
                 await SupabaseConfig.client.rpc('add_user_xp', {
                   'p_user_id': userIdToUse,
-                  'p_amount': recovery.xpReward,
+                  'p_amount': json['xp_reward'] ?? 10, // Default to 10 XP
                   'p_source': 'HEALTH_RECOVERY',
                   'p_reference_id': recovery.id
                 });
                 
                 if (kDebugMode) {
-                  print('💰 [LocalHealthRecoveryService] Concedidos ${recovery.xpReward} XP para recuperação ${recovery.name}');
+                  print('💰 [LocalHealthRecoveryService] Concedidos ${json['xp_reward'] ?? 10} XP para recuperação ${recovery.name}');
                 }
               } catch (e) {
                 if (kDebugMode) {
@@ -283,8 +283,8 @@ class LocalHealthRecoveryService {
                     .from('notifications')
                     .insert({
                       'user_id': userIdToUse,
-                      'title': `Health Recovery: ${recovery.name}`,
-                      'message': `Your ${recovery.name.toLowerCase()} has improved after ${recovery.daysToAchieve} days without smoking.`,
+                      'title': 'Health Recovery: ${recovery.name}',
+                      'message': 'Your ${recovery.name.toLowerCase()} has improved after ${recovery.daysToAchieve} days without smoking.',
                       'type': 'HEALTH_RECOVERY',
                       'reference_id': newRecoveryResponse['id'],
                       'is_read': false
