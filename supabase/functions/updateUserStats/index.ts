@@ -69,12 +69,12 @@ serve(async (req) => {
       );
     }
 
-    // Get cravings
+    // Get cravings - using the correct enum value "RESISTED" (uppercase)
     const { data: cravings, error: cravingsError } = await supabase
       .from("cravings")
       .select("*")
       .eq("user_id", userId)
-      .eq("outcome", "resisted");
+      .eq("outcome", "RESISTED");
 
     if (cravingsError) {
       console.error("Error fetching cravings:", cravingsError);
