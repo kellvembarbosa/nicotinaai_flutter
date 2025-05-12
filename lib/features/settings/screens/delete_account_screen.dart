@@ -59,23 +59,34 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
     // Mostrar diálogo de confirmação final
     showDialog(
       context: context,
-      builder: (context) => Dialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 320),
-          child: AlertDialog(
-            insetPadding: EdgeInsets.zero,
-            title: Text(AppLocalizations.of(context).confirmDeleteAccountTitle),
+      builder: (context) => AlertDialog(
+            titlePadding: const EdgeInsets.fromLTRB(24, 24, 24, 8),
+            contentPadding: const EdgeInsets.fromLTRB(24, 8, 24, 0),
+            actionsPadding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            title: Text(
+              AppLocalizations.of(context).confirmDeleteAccountTitle,
+              style: const TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
             content: Text(
               AppLocalizations.of(context).confirmDeleteAccountMessage,
-              style: const TextStyle(fontSize: 14),
+              style: const TextStyle(fontSize: 15),
             ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(context).pop(),
-                child: Text(AppLocalizations.of(context).cancel),
+                style: TextButton.styleFrom(
+                  foregroundColor: Colors.blue,
+                ),
+                child: Text(
+                  AppLocalizations.of(context).cancel,
+                  style: const TextStyle(fontSize: 16),
+                ),
               ),
               TextButton(
                 onPressed: () {
@@ -149,12 +160,13 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
                 style: TextButton.styleFrom(
                   foregroundColor: Colors.red,
                 ),
-                child: Text(AppLocalizations.of(context).delete),
+                child: Text(
+                  AppLocalizations.of(context).delete,
+                  style: const TextStyle(fontSize: 16),
+                ),
               ),
             ],
           ),
-        ),
-      ),
     );
   }
   
@@ -175,68 +187,34 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) => Dialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 320),
-          child: AlertDialog(
-            insetPadding: EdgeInsets.zero,
+      builder: (context) => AlertDialog(
+            titlePadding: const EdgeInsets.fromLTRB(24, 24, 24, 8),
+            contentPadding: const EdgeInsets.fromLTRB(24, 8, 24, 0),
+            actionsPadding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
             title: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.check_circle, color: Colors.green),
+                const Icon(Icons.check_circle, color: Colors.green, size: 24),
                 const SizedBox(width: 8),
                 Flexible(
                   child: Text(
                     localizations.accountDeleted,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(fontSize: 18),
+                    style: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
               ],
             ),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  localizations.accountDeletedMessage,
-                  style: const TextStyle(fontSize: 14),
-                  overflow: TextOverflow.clip,
-                ),
-                const SizedBox(height: 16),
-                // Aviso de que pode demorar alguns instantes para finalizar
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Colors.blue.withAlpha(25),
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.blue.shade300),
-                  ),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Padding(
-                        padding: EdgeInsets.only(top: 2),
-                        child: Icon(Icons.info_outline, color: Colors.blue, size: 16),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          localizations.accountDeletionDelay,
-                          style: const TextStyle(color: Colors.blue, fontSize: 12),
-                          overflow: TextOverflow.clip,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+            content: Text(
+              localizations.accountDeletedMessage,
+              style: const TextStyle(fontSize: 15),
             ),
-            contentPadding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
-            titlePadding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
             actions: [
               TextButton(
                 onPressed: () {
@@ -244,12 +222,16 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
                   // Após fechar o diálogo, redirecionar para a tela de login
                   context.go(AppRoutes.login.path);
                 },
-                child: Text(localizations.ok),
+                style: TextButton.styleFrom(
+                  foregroundColor: Colors.blue,
+                ),
+                child: Text(
+                  localizations.ok,
+                  style: const TextStyle(fontSize: 16),
+                ),
               ),
             ],
           ),
-        ),
-      ),
     );
   }
   
@@ -587,12 +569,11 @@ extension _DeleteAccountLocalizations on AppLocalizations {
   String get confirmDeleteAccountSubtitle => 'I understand that all my data will be permanently deleted and cannot be recovered.';
   String get confirmDeleteRequired => 'Please confirm that you understand this action is permanent.';
   String get accountDeleted => 'Account Deleted Successfully';
-  String get accountDeletedMessage => 'Your account and all associated data have been permanently deleted. Thank you for using our app. You can always register again with the same email if you wish to return in the future.';
-  String get accountDeletionDelay => 'It may take a few moments for all your data to be completely removed from our systems. During this time, you won\'t be able to access your account.';
+  String get accountDeletedMessage => 'Your account and all associated data have been permanently deleted. You can always register again with the same email if you wish to return in the future.';
   String get ok => 'OK';
   String get delete => 'Delete';
   String get confirmDeleteAccountTitle => 'Are You Sure?';
-  String get confirmDeleteAccountMessage => 'This will permanently delete your account and all of your data. You can always register again with the same email, but all your current progress and data will be lost.';
+  String get confirmDeleteAccountMessage => 'This will permanently delete your account and all of your data. You can always register again with the same email, but all your current progress will be lost.';
   String get deletingAccount => 'Deleting...';
   String get accountDeletionInProgress => 'Deleting Your Account';
   String get accountDeletionExplanation => 'We are permanently deleting your account and all associated data from our systems. This process may take a few moments to complete.';
