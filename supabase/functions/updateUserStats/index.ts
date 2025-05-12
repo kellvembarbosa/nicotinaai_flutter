@@ -140,8 +140,22 @@ serve(async (req) => {
     // Calculate total smoke-free days (simplified - counts all days since first record)
     const totalSmokeFreedays = currentStreakDays;
 
-    // Calculate cigarettes avoided (based on daily consumption and days without smoking)
-    const cigarettesAvoided = cravingsResisted;
+    // Get the existing cigarettes avoided count from previous stats
+    let cigarettesAvoided = existingStats?.cigarettes_avoided || 0;
+
+    // For new resisted cravings since last update, increment the count
+    const lastUpdateTimestamp = existingStats?.updated_at ? new Date(existingStats.updated_at) : null;
+    const newCravings = cravings ? cravings.filter(craving => {
+      if (!lastUpdateTimestamp) return true; // If no previous update, count all
+      return new Date(craving.timestamp) > lastUpdateTimestamp;
+    }) : [];
+
+    // Add newly resisted cravings to the count
+    const newResisted = newCravings.length;
+    if (newResisted > 0) {
+      console.log(`Adding ${newResisted} newly resisted cravings to cigarettes avoided count`);
+      cigarettesAvoided += newResisted;
+    }
 
     // Calculate money saved
     const moneySaved = Math.round(cigarettesAvoided * pricePerCigarette);

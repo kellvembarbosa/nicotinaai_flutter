@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 enum SyncStatus {
   synced,     // Item is synced with server
   pending,    // Item is waiting to be synced
@@ -56,14 +54,24 @@ class CravingModel {
   }
 
   factory CravingModel.fromJson(Map<String, dynamic> json) {
-    // Convert the enum 'outcome' from the database to the boolean 'resisted' used in the model
-    bool resisted = false;
-    if (json.containsKey('outcome')) {
-      final String outcome = json['outcome']?.toString().toUpperCase() ?? '';
-      resisted = outcome == 'RESISTED';
-    } else if (json.containsKey('resisted')) {
-      // Backwards compatibility for any existing data that might have 'resisted'
-      resisted = json['resisted'] == true;
+    // Determine resisted status from outcome enum or direct resisted field
+    bool getResisted() {
+      // First check if outcome field exists (database format)
+      if (json.containsKey('outcome')) {
+        final outcome = json['outcome'];
+        if (outcome != null) {
+          // RESISTED means resisted=true, any other value means resisted=false
+          return outcome.toString().toUpperCase() == 'RESISTED';
+        }
+      }
+      
+      // Fallback to direct resisted field if it exists
+      if (json.containsKey('resisted')) {
+        return json['resisted'] == true;
+      }
+      
+      // Default value if neither field exists
+      return false;
     }
     
     // Map intensity from database enum ["LOW", "MODERATE", "HIGH", "VERY_HIGH"] to app values
@@ -91,7 +99,7 @@ class CravingModel {
       notes: json['notes'],
       trigger: json['trigger'] ?? '',
       intensity: mapIntensity(json['intensity']),
-      resisted: resisted,
+      resisted: getResisted(),
       timestamp: DateTime.parse(json['timestamp']),
       userId: json['user_id'],
       syncStatus: SyncStatus.synced,
@@ -100,8 +108,6 @@ class CravingModel {
 
   Map<String, dynamic> toJson() {
     // We don't include syncStatus in the JSON since it's internal state
-    // Convert the boolean 'resisted' to the enum 'outcome' expected by the database
-    final String outcome = resisted ? 'RESISTED' : 'SMOKED';
     
     // Map intensity values from our app to the database enum values
     // Database enum values: ["LOW", "MODERATE", "HIGH", "VERY_HIGH"]
@@ -121,13 +127,19 @@ class CravingModel {
       }
     }
     
+    // Map boolean resisted field to the database enum outcome
+    // Database enum values: ["RESISTED", "SMOKED", "ALTERNATIVE"]
+    String getOutcomeEnum() {
+      return resisted ? 'RESISTED' : 'SMOKED';
+    }
+    
     return {
       'id': id,
       'location': location,
       'notes': notes,
       'trigger': trigger,
       'intensity': getIntensityEnum(), // Map to valid enum values: "LOW", "MODERATE", "HIGH", "VERY_HIGH"
-      'outcome': outcome, // Use 'outcome' instead of 'resisted'
+      'outcome': getOutcomeEnum(), // Map boolean resisted to enum outcome
       'timestamp': timestamp.toIso8601String(),
       'user_id': userId,
     };

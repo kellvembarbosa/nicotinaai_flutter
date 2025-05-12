@@ -39,7 +39,7 @@ class _RegisterCravingSheetImprovedState extends State<RegisterCravingSheetImpro
   String? _selectedLocation;
   String? _selectedTrigger;
   String? _selectedIntensity;
-  bool? _didResist;
+  bool? _didResist = true;
   
   // State for expandable sections
   bool _isLocationSectionExpanded = true;
@@ -47,936 +47,34 @@ class _RegisterCravingSheetImprovedState extends State<RegisterCravingSheetImpro
   bool _isIntensitySectionExpanded = true;
   bool _isResistSectionExpanded = true;
   bool _isNotesSectionExpanded = true;
-  
+
   @override
   void initState() {
     super.initState();
     _notesController.addListener(() {
-      // Force rebuild when text changes to update summary
-      setState(() {});
+      setState(() {
+        // Update UI when notes change
+      });
     });
   }
-  
+
   @override
   void dispose() {
     _notesController.dispose();
     super.dispose();
   }
-  
-  // Method to update the expansion state of sections
-  void _updateSectionStates() {
-    setState(() {
-      // When user selects a location, collapse that section and expand the next
-      if (_selectedLocation != null && _isLocationSectionExpanded) {
-        _isLocationSectionExpanded = false;
-        _isTriggerSectionExpanded = true;
-      }
-      
-      // When user selects a trigger, collapse that section and expand the next
-      if (_selectedTrigger != null && _isTriggerSectionExpanded) {
-        _isTriggerSectionExpanded = false;
-        _isIntensitySectionExpanded = true;
-      }
-      
-      // When user selects an intensity, collapse that section and expand the next
-      if (_selectedIntensity != null && _isIntensitySectionExpanded) {
-        _isIntensitySectionExpanded = false;
-        _isResistSectionExpanded = true;
-      }
-      
-      // When user indicates if they resisted, collapse that section and expand the notes section
-      if (_didResist != null && _isResistSectionExpanded) {
-        _isResistSectionExpanded = false;
-        _isNotesSectionExpanded = true;
-      }
-    });
-  }
 
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    
-    // Ideal size for mobile, balancing visibility and screen context
-    const initialSize = 0.80;
-    
-    return DraggableScrollableSheet(
-      initialChildSize: initialSize,
-      minChildSize: 0.5,
-      maxChildSize: 0.95,
-      expand: false,
-      snap: true,
-      snapSizes: const [0.7, 0.85, 0.95],
-      builder: (context, scrollController) {
-        return Container(
-          decoration: BoxDecoration(
-            color: context.backgroundColor,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-          ),
-          child: Column(
-            children: [
-              // Scrollable content with optimized layout
-              Expanded(
-                child: ListView(
-                  controller: scrollController,
-                  padding: const EdgeInsets.only(bottom: 16),
-                  children: [
-                    _buildHandle(context),
-                    
-                    // Optimized main title
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
-                      decoration: BoxDecoration(
-                        color: context.isDarkMode 
-                            ? context.primaryColor.withOpacity(0.15) 
-                            : context.primaryColor.withOpacity(0.08),
-                        borderRadius: const BorderRadius.only(
-                          bottomLeft: Radius.circular(16),
-                          bottomRight: Radius.circular(16),
-                        ),
-                      ),
-                      child: Column(
-                        children: [
-                          Text(
-                            l10n.registerCraving,
-                            style: context.titleStyle.copyWith(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: context.primaryColor,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                          Text(
-                            l10n.registerCravingSubtitle,
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: context.isDarkMode 
-                                  ? Colors.white70 
-                                  : Colors.black54,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ],
-                      ),
-                    ),
-                    
-                    const SizedBox(height: 8),
-                    
-                    // Section 1: Location - Collapsible
-                    Container(
-                      margin: const EdgeInsets.fromLTRB(16, 4, 16, 12),
-                      decoration: BoxDecoration(
-                        color: context.isDarkMode 
-                            ? Colors.grey[850]!.withOpacity(0.8) 
-                            : Colors.white,
-                        borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.03),
-                            blurRadius: 10,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                        border: _selectedLocation != null ? Border.all(
-                          color: context.primaryColor.withOpacity(0.3),
-                          width: 1.5,
-                        ) : null,
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Clickable header to expand/collapse
-                          InkWell(
-                            onTap: () {
-                              setState(() {
-                                _isLocationSectionExpanded = !_isLocationSectionExpanded;
-                              });
-                            },
-                            borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                              decoration: BoxDecoration(
-                                color: context.primaryColor.withOpacity(0.08),
-                                borderRadius: const BorderRadius.vertical(
-                                  top: Radius.circular(16),
-                                ),
-                              ),
-                              child: Row(
-                                children: [
-                                  Icon(
-                                    Icons.place_outlined, 
-                                    size: 18, 
-                                    color: context.primaryColor,
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Expanded(
-                                    child: Text(
-                                      l10n.whereAreYou,
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                        color: context.primaryColor,
-                                      ),
-                                    ),
-                                  ),
-                                  if (_selectedLocation != null)
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                      decoration: BoxDecoration(
-                                        color: context.primaryColor.withOpacity(0.1),
-                                        borderRadius: BorderRadius.circular(12),
-                                        border: Border.all(color: context.primaryColor.withOpacity(0.3)),
-                                      ),
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Icon(
-                                            _getLocationIcon(_selectedLocation!),
-                                            size: 14,
-                                            color: context.primaryColor,
-                                          ),
-                                          const SizedBox(width: 4),
-                                          Text(
-                                            _getLocationLabel(_selectedLocation!),
-                                            style: TextStyle(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.bold,
-                                              color: context.primaryColor,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  const SizedBox(width: 4),
-                                  Icon(
-                                    _isLocationSectionExpanded ? Icons.expand_less : Icons.expand_more,
-                                    color: Colors.grey,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          
-                          // Expandable content
-                          if (_isLocationSectionExpanded)
-                            Padding(
-                              padding: const EdgeInsets.all(16),
-                              child: _buildLocationGrid(context, l10n),
-                            ),
-                        ],
-                      ),
-                    ),
-                    
-                    // Section 2: Triggers - Collapsible
-                    Container(
-                      margin: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-                      decoration: BoxDecoration(
-                        color: context.isDarkMode 
-                            ? Colors.grey[850]!.withOpacity(0.8) 
-                            : Colors.white,
-                        borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.03),
-                            blurRadius: 10,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                        border: _selectedTrigger != null ? Border.all(
-                          color: context.primaryColor.withOpacity(0.3),
-                          width: 1.5,
-                        ) : null,
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Clickable header to expand/collapse
-                          InkWell(
-                            onTap: () {
-                              setState(() {
-                                _isTriggerSectionExpanded = !_isTriggerSectionExpanded;
-                              });
-                            },
-                            borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                              decoration: BoxDecoration(
-                                color: context.primaryColor.withOpacity(0.08),
-                                borderRadius: const BorderRadius.vertical(
-                                  top: Radius.circular(16),
-                                ),
-                              ),
-                              child: Row(
-                                children: [
-                                  Icon(
-                                    Icons.psychology_outlined, 
-                                    size: 18, 
-                                    color: context.primaryColor,
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Expanded(
-                                    child: Text(
-                                      l10n.whatTriggeredCraving,
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                        color: context.primaryColor,
-                                      ),
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
-                                  if (_selectedTrigger != null)
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                      decoration: BoxDecoration(
-                                        color: context.primaryColor.withOpacity(0.1),
-                                        borderRadius: BorderRadius.circular(12),
-                                        border: Border.all(color: context.primaryColor.withOpacity(0.3)),
-                                      ),
-                                      child: Text(
-                                        _getTriggerLabel(_selectedTrigger!),
-                                        style: TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.bold,
-                                          color: context.primaryColor,
-                                        ),
-                                      ),
-                                    ),
-                                  const SizedBox(width: 4),
-                                  Icon(
-                                    _isTriggerSectionExpanded ? Icons.expand_less : Icons.expand_more,
-                                    color: Colors.grey,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          
-                          // Expandable content
-                          if (_isTriggerSectionExpanded)
-                            Padding(
-                              padding: const EdgeInsets.all(16),
-                              child: _buildTriggerOptions(context, l10n),
-                            ),
-                        ],
-                      ),
-                    ),
-                    
-                    const SizedBox(height: 8),
-                    
-                    // Section 3: Intensity - Collapsible
-                    Container(
-                      margin: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-                      decoration: BoxDecoration(
-                        color: context.isDarkMode 
-                            ? Colors.grey[850]!.withOpacity(0.8) 
-                            : Colors.white,
-                        borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.03),
-                            blurRadius: 10,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                        border: _selectedIntensity != null ? Border.all(
-                          color: _getIntensityColor(_selectedIntensity!).withOpacity(0.3),
-                          width: 1.5,
-                        ) : null,
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Clickable header to expand/collapse
-                          InkWell(
-                            onTap: () {
-                              setState(() {
-                                _isIntensitySectionExpanded = !_isIntensitySectionExpanded;
-                              });
-                            },
-                            borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                              decoration: BoxDecoration(
-                                color: context.primaryColor.withOpacity(0.08),
-                                borderRadius: const BorderRadius.vertical(
-                                  top: Radius.circular(16),
-                                ),
-                              ),
-                              child: Row(
-                                children: [
-                                  Icon(
-                                    Icons.speed_outlined, 
-                                    size: 18, 
-                                    color: context.primaryColor,
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Expanded(
-                                    child: Text(
-                                      l10n.intensityLevel,
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                        color: context.primaryColor,
-                                      ),
-                                    ),
-                                  ),
-                                  if (_selectedIntensity != null)
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                      decoration: BoxDecoration(
-                                        color: _getIntensityColor(_selectedIntensity!).withOpacity(0.1),
-                                        borderRadius: BorderRadius.circular(12),
-                                        border: Border.all(
-                                          color: _getIntensityColor(_selectedIntensity!).withOpacity(0.3)
-                                        ),
-                                      ),
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Icon(
-                                            _getIntensityIcon(_selectedIntensity!),
-                                            size: 14,
-                                            color: _getIntensityColor(_selectedIntensity!),
-                                          ),
-                                          const SizedBox(width: 4),
-                                          Text(
-                                            _getIntensityLabel(_selectedIntensity!),
-                                            style: TextStyle(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.bold,
-                                              color: _getIntensityColor(_selectedIntensity!),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  const SizedBox(width: 4),
-                                  Icon(
-                                    _isIntensitySectionExpanded ? Icons.expand_less : Icons.expand_more,
-                                    color: Colors.grey,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          
-                          // Expandable content
-                          if (_isIntensitySectionExpanded)
-                            Padding(
-                              padding: const EdgeInsets.all(16),
-                              child: _buildIntensityOptions(context, l10n),
-                            ),
-                        ],
-                      ),
-                    ),
-                    
-                    // Section 4: Resistance - Collapsible
-                    Container(
-                      margin: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-                      decoration: BoxDecoration(
-                        color: context.isDarkMode 
-                            ? Colors.grey[850]!.withOpacity(0.8) 
-                            : Colors.white,
-                        borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.03),
-                            blurRadius: 10,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                        border: _didResist != null ? Border.all(
-                          color: _didResist! ? Colors.green.withOpacity(0.3) : Colors.redAccent.withOpacity(0.3),
-                          width: 1.5,
-                        ) : null,
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Clickable header to expand/collapse
-                          InkWell(
-                            onTap: () {
-                              setState(() {
-                                _isResistSectionExpanded = !_isResistSectionExpanded;
-                              });
-                            },
-                            borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                              decoration: BoxDecoration(
-                                color: context.primaryColor.withOpacity(0.08),
-                                borderRadius: const BorderRadius.vertical(
-                                  top: Radius.circular(16),
-                                ),
-                              ),
-                              child: Row(
-                                children: [
-                                  Icon(
-                                    Icons.fitness_center_outlined, 
-                                    size: 18, 
-                                    color: context.primaryColor,
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Expanded(
-                                    child: Text(
-                                      l10n.didYouResist,
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                        color: context.primaryColor,
-                                      ),
-                                    ),
-                                  ),
-                                  if (_didResist != null)
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                      decoration: BoxDecoration(
-                                        color: _didResist! 
-                                            ? Colors.green.withOpacity(0.1) 
-                                            : Colors.redAccent.withOpacity(0.1),
-                                        borderRadius: BorderRadius.circular(12),
-                                        border: Border.all(
-                                          color: _didResist! 
-                                              ? Colors.green.withOpacity(0.3) 
-                                              : Colors.redAccent.withOpacity(0.3),
-                                        ),
-                                      ),
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Icon(
-                                            _didResist! 
-                                                ? Icons.check_circle_outline 
-                                                : Icons.cancel_outlined,
-                                            size: 14,
-                                            color: _didResist! ? Colors.green : Colors.redAccent,
-                                          ),
-                                          const SizedBox(width: 4),
-                                          Text(
-                                            _getResistLabel(_didResist!),
-                                            style: TextStyle(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.bold,
-                                              color: _didResist! ? Colors.green : Colors.redAccent,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  const SizedBox(width: 4),
-                                  Icon(
-                                    _isResistSectionExpanded ? Icons.expand_less : Icons.expand_more,
-                                    color: Colors.grey,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          
-                          // Expandable content
-                          if (_isResistSectionExpanded)
-                            Padding(
-                              padding: const EdgeInsets.all(16),
-                              child: _buildResistOptions(context, l10n),
-                            ),
-                        ],
-                      ),
-                    ),
-                    
-                    // Section 5: Notes - Collapsible
-                    Container(
-                      margin: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-                      decoration: BoxDecoration(
-                        color: context.isDarkMode 
-                            ? Colors.grey[850]!.withOpacity(0.8) 
-                            : Colors.white,
-                        borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.03),
-                            blurRadius: 10,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                        border: _notesController.text.isNotEmpty ? Border.all(
-                          color: context.primaryColor.withOpacity(0.3),
-                          width: 1.5,
-                        ) : null,
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Clickable header to expand/collapse
-                          InkWell(
-                            onTap: () {
-                              setState(() {
-                                _isNotesSectionExpanded = !_isNotesSectionExpanded;
-                              });
-                            },
-                            borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                              decoration: BoxDecoration(
-                                color: context.primaryColor.withOpacity(0.08),
-                                borderRadius: const BorderRadius.vertical(
-                                  top: Radius.circular(16),
-                                ),
-                              ),
-                              child: Row(
-                                children: [
-                                  Icon(
-                                    Icons.note_outlined, 
-                                    size: 18, 
-                                    color: context.primaryColor,
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Expanded(
-                                    child: Text(
-                                      l10n.notes,
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                        color: context.primaryColor,
-                                      ),
-                                    ),
-                                  ),
-                                  if (_notesController.text.isNotEmpty)
-                                    Container(
-                                      constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.3),
-                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                      decoration: BoxDecoration(
-                                        color: context.primaryColor.withOpacity(0.1),
-                                        borderRadius: BorderRadius.circular(12),
-                                        border: Border.all(color: context.primaryColor.withOpacity(0.3)),
-                                      ),
-                                      child: Text(
-                                        _notesController.text.length > 15 
-                                            ? "${_notesController.text.substring(0, 15)}..." 
-                                            : _notesController.text,
-                                        style: TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.bold,
-                                          color: context.primaryColor,
-                                        ),
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ),
-                                  const SizedBox(width: 4),
-                                  Icon(
-                                    _isNotesSectionExpanded ? Icons.expand_less : Icons.expand_more,
-                                    color: Colors.grey,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          
-                          // Expandable content
-                          if (_isNotesSectionExpanded)
-                            Padding(
-                              padding: const EdgeInsets.all(16),
-                              child: _buildNotesField(context, l10n),
-                            ),
-                        ],
-                      ),
-                    ),
-                    
-                    // Extra space at the bottom
-                    const SizedBox(height: 70),
-                  ],
-                ),
-              ),
-              
-              // Optimized save button
-              Container(
-                width: double.infinity,
-                padding: EdgeInsets.only(
-                  left: 20,
-                  right: 20,
-                  bottom: 16 + MediaQuery.of(context).padding.bottom,
-                  top: 8,
-                ),
-                decoration: BoxDecoration(
-                  color: context.backgroundColor,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.07),
-                      offset: const Offset(0, -3),
-                      blurRadius: 8,
-                    ),
-                  ],
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    // Compact error message
-                    if (!_isFormValid())
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 8),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-                          decoration: BoxDecoration(
-                            color: Colors.red.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(
-                              color: Colors.red.withOpacity(0.3),
-                              width: 1,
-                            ),
-                          ),
-                          child: Row(
-                            children: [
-                              Icon(
-                                Icons.error_outline,
-                                color: Colors.red,
-                                size: 16,
-                              ),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: Text(
-                                  _getValidationMessage(l10n),
-                                  style: TextStyle(
-                                    color: Colors.red,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    
-                    // Save button with elevation
-                    SizedBox(
-                      width: double.infinity,
-                      height: 52,
-                      child: ElevatedButton(
-                        onPressed: _isFormValid() ? _saveCraving : () {
-                          // Error message when form is invalid
-                          final message = _getValidationMessage(l10n);
-                          
-                          // Check specific fields
-                          String tipMessage = "";
-                          if (_selectedLocation == null) {
-                            tipMessage = "Please select a location";
-                          } else if (_selectedTrigger == null) {
-                            tipMessage = "Please select what triggered the craving";
-                          } else if (_selectedIntensity == null) {
-                            tipMessage = "Please indicate the intensity of the craving";
-                          } else if (_didResist == null) {
-                            tipMessage = "Please indicate if you resisted the craving";
-                          }
-                          
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(message, style: const TextStyle(fontWeight: FontWeight.bold)),
-                                  if (tipMessage.isNotEmpty)
-                                    Text(tipMessage, style: const TextStyle(fontSize: 12)),
-                                ],
-                              ),
-                              backgroundColor: Colors.redAccent,
-                              behavior: SnackBarBehavior.floating,
-                              duration: const Duration(seconds: 3),
-                            ),
-                          );
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: context.primaryColor,
-                          disabledBackgroundColor: Colors.grey[300],
-                          foregroundColor: Colors.white,
-                          padding: EdgeInsets.zero,
-                          elevation: 4,
-                          shadowColor: context.primaryColor.withOpacity(0.4),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                        ),
-                        child: Ink(
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [
-                                context.primaryColor,
-                                context.primaryColor.withRed((context.primaryColor.red + 25).clamp(0, 255)),
-                              ],
-                              begin: Alignment.centerLeft,
-                              end: Alignment.centerRight,
-                            ),
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: Container(
-                            width: double.infinity,
-                            height: 52,
-                            alignment: Alignment.center,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Icon(Icons.save_outlined, size: 20),
-                                const SizedBox(width: 8),
-                                Text(
-                                  l10n.save,
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
+  // Check if all required fields are filled
   bool _isFormValid() {
+    // Location, trigger, and intensity are required
+    // Did resist is now pre-filled with true by default
     return _selectedLocation != null && 
            _selectedTrigger != null && 
            _selectedIntensity != null &&
            _didResist != null;
   }
   
-  // Method to get readable label for selected location value
-  String _getLocationLabel(String value) {
-    final l10n = AppLocalizations.of(context);
-    switch (value) {
-      case 'home':
-        return l10n.home;
-      case 'work':
-        return l10n.work;
-      case 'car':
-        return l10n.car;
-      case 'restaurant':
-        return l10n.restaurant;
-      case 'bar':
-        return l10n.bar;
-      case 'street':
-        return l10n.street;
-      case 'park':
-        return l10n.park;
-      case 'others':
-        return l10n.others;
-      default:
-        return value;
-    }
-  }
-  
-  // Method to get icon for location
-  IconData _getLocationIcon(String value) {
-    switch (value) {
-      case 'home':
-        return Icons.home;
-      case 'work':
-        return Icons.work;
-      case 'car':
-        return Icons.directions_car;
-      case 'restaurant':
-        return Icons.restaurant;
-      case 'bar':
-        return Icons.local_bar;
-      case 'street':
-        return Icons.map;
-      case 'park':
-        return Icons.park;
-      case 'others':
-        return Icons.more_horiz;
-      default:
-        return Icons.place;
-    }
-  }
-  
-  // Method to get readable label for selected trigger value
-  String _getTriggerLabel(String value) {
-    final l10n = AppLocalizations.of(context);
-    switch (value) {
-      case 'stress':
-        return l10n.stress;
-      case 'boredom':
-        return l10n.boredom;
-      case 'social_situation':
-        return l10n.socialSituation;
-      case 'after_meal':
-        return l10n.afterMeal;
-      case 'coffee':
-        return l10n.coffee;
-      case 'alcohol':
-        return l10n.alcohol;
-      case 'craving':
-        return l10n.craving;
-      case 'other':
-        return l10n.other;
-      default:
-        return value;
-    }
-  }
-  
-  // Method to get readable label for intensity value
-  String _getIntensityLabel(String value) {
-    final l10n = AppLocalizations.of(context);
-    switch (value) {
-      case 'low':
-        return l10n.mild;
-      case 'moderate':
-        return l10n.moderate;
-      case 'high':
-        return l10n.intense;
-      case 'very_high':
-        return l10n.veryIntense;
-      default:
-        return value;
-    }
-  }
-  
-  // Method to get color for intensity
-  Color _getIntensityColor(String value) {
-    switch (value) {
-      case 'low':
-        return Colors.green;
-      case 'moderate':
-        return Colors.orange;
-      case 'high':
-        return Colors.deepOrange;
-      case 'very_high':
-        return Colors.red;
-      default:
-        return context.primaryColor;
-    }
-  }
-  
-  // Method to get icon for intensity
-  IconData _getIntensityIcon(String value) {
-    switch (value) {
-      case 'low':
-        return Icons.sentiment_satisfied_outlined;
-      case 'moderate':
-        return Icons.sentiment_neutral_outlined;
-      case 'high':
-        return Icons.sentiment_dissatisfied_outlined;
-      case 'very_high':
-        return Icons.sentiment_very_dissatisfied_outlined;
-      default:
-        return Icons.circle;
-    }
-  }
-  
-  // Method to get readable label for resistance
-  String _getResistLabel(bool value) {
-    final l10n = AppLocalizations.of(context);
-    return value ? l10n.yes : l10n.no;
-  }
-  
+  // Returns error message based on missing fields
   String _getValidationMessage(AppLocalizations l10n) {
     if (_selectedLocation == null) {
       return l10n.pleaseSelectLocation;
@@ -985,618 +83,846 @@ class _RegisterCravingSheetImprovedState extends State<RegisterCravingSheetImpro
     } else if (_selectedIntensity == null) {
       return l10n.pleaseSelectIntensity;
     } else if (_didResist == null) {
-      return l10n.didYouResist;
+      return l10n.pleaseSelectResistOption;
     }
     return "";
   }
 
-  Widget _buildHandle(BuildContext context) {
-    return SizedBox(
-      height: 24,
-      width: double.infinity,
-      child: Stack(
-        alignment: Alignment.topCenter,
-        children: [
-          // Handle bar
-          Padding(
-            padding: const EdgeInsets.only(top: 8),
-            child: Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: Colors.grey.withAlpha(77),
-                borderRadius: BorderRadius.circular(2),
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    
+    return BlocListener<CravingBloc, CravingState>(
+      listener: (context, state) {
+        // Handle state changes from the craving bloc
+        if (state.status == CravingStatus.saved) {
+          // Close the sheet and return true to indicate success
+          Navigator.of(context).pop(true);
+        } else if (state.status == CravingStatus.error) {
+          // Show error message
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(state.errorMessage ?? l10n.errorOccurred),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      },
+      child: DraggableScrollableSheet(
+        initialChildSize: 0.9,
+        minChildSize: 0.7,
+        maxChildSize: 0.95,
+        builder: (context, scrollController) {
+          return Container(
+            decoration: BoxDecoration(
+              color: context.backgroundColor,
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                // Handle and header
+                Container(
+                  color: Colors.transparent,
+                  padding: const EdgeInsets.only(top: 8, bottom: 16),
+                  child: Column(
+                    children: <Widget>[
+                      // Drag handle
+                      Center(
+                        child: Container(
+                          width: 40,
+                          height: 4,
+                          decoration: BoxDecoration(
+                            color: Colors.grey.withOpacity(0.3),
+                            borderRadius: BorderRadius.circular(2),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      // Title
+                      Text(
+                        l10n.registerCraving,
+                        style: const TextStyle(
+                          fontSize: 20, 
+                          fontWeight: FontWeight.bold,
+                          color: Colors.red,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 4),
+                      // Subtitle
+                      Text(
+                        l10n.registerCravingSubtitle,
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: context.subtitleColor,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                ),
+                
+                // Form sections
+                Expanded(
+                  child: ListView(
+                    controller: scrollController,
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    physics: const ClampingScrollPhysics(),
+                    children: <Widget>[
+                      // Location section
+                      _buildExpandableSection(
+                        title: l10n.whereAreYou,
+                        icon: Icons.place,
+                        isExpanded: _isLocationSectionExpanded,
+                        onToggle: () => setState(() {
+                          _isLocationSectionExpanded = !_isLocationSectionExpanded;
+                        }),
+                        selectedValue: _selectedLocation,
+                        valueLabel: _selectedLocation != null 
+                            ? _getLocationLabel(_selectedLocation!) 
+                            : null,
+                        child: _buildLocationOptions(context),
+                      ),
+                      
+                      const SizedBox(height: 12),
+                      
+                      // Trigger section
+                      _buildExpandableSection(
+                        title: l10n.whatTriggeredCraving,
+                        icon: Icons.psychology,
+                        isExpanded: _isTriggerSectionExpanded,
+                        onToggle: () => setState(() {
+                          _isTriggerSectionExpanded = !_isTriggerSectionExpanded;
+                        }),
+                        selectedValue: _selectedTrigger,
+                        valueLabel: _selectedTrigger != null 
+                            ? _getTriggerLabel(_selectedTrigger!) 
+                            : null,
+                        child: _buildTriggerOptions(context),
+                      ),
+                      
+                      const SizedBox(height: 12),
+                      
+                      // Intensity section
+                      _buildExpandableSection(
+                        title: l10n.howIntenseIsYourCraving,
+                        icon: Icons.trending_up,
+                        isExpanded: _isIntensitySectionExpanded,
+                        onToggle: () => setState(() {
+                          _isIntensitySectionExpanded = !_isIntensitySectionExpanded;
+                        }),
+                        selectedValue: _selectedIntensity,
+                        valueLabel: _selectedIntensity != null 
+                            ? _getIntensityLabel(_selectedIntensity!) 
+                            : null,
+                        child: _buildIntensityOptions(context),
+                      ),
+                      
+                      const SizedBox(height: 12),
+                      
+                      // Resist section
+                      _buildExpandableSection(
+                        title: l10n.didYouResist,
+                        icon: Icons.shield,
+                        isExpanded: _isResistSectionExpanded,
+                        onToggle: () => setState(() {
+                          _isResistSectionExpanded = !_isResistSectionExpanded;
+                        }),
+                        selectedValue: _didResist != null ? _didResist.toString() : null,
+                        valueLabel: _didResist != null 
+                            ? (_didResist! ? l10n.yes : l10n.no)
+                            : null,
+                        child: _buildResistOptions(context),
+                      ),
+                      
+                      const SizedBox(height: 12),
+                      
+                      // Notes section
+                      _buildExpandableSection(
+                        title: l10n.notes,
+                        icon: Icons.note,
+                        isExpanded: _isNotesSectionExpanded,
+                        onToggle: () => setState(() {
+                          _isNotesSectionExpanded = !_isNotesSectionExpanded;
+                        }),
+                        selectedValue: _notesController.text.isNotEmpty 
+                            ? _notesController.text 
+                            : null,
+                        valueLabel: _notesController.text.isNotEmpty 
+                            ? _notesController.text.length > 20
+                                ? '${_notesController.text.substring(0, 20)}...'
+                                : _notesController.text
+                            : null,
+                        child: _buildNotesField(context),
+                      ),
+                      
+                      const SizedBox(height: 24),
+                    ],
+                  ),
+                ),
+                
+                // Bottom action bar
+                Container(
+                  padding: EdgeInsets.only(
+                    left: 16, 
+                    right: 16, 
+                    bottom: 16 + MediaQuery.of(context).padding.bottom,
+                    top: 16,
+                  ),
+                  decoration: BoxDecoration(
+                    color: context.backgroundColor,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.05),
+                        blurRadius: 5,
+                        offset: const Offset(0, -2),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      // Validation message if needed
+                      if (!_isFormValid())
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 12),
+                          child: Text(
+                            _getValidationMessage(l10n),
+                            style: const TextStyle(
+                              color: Colors.red,
+                              fontSize: 14,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      
+                      // Submit button
+                      BlocBuilder<CravingBloc, CravingState>(
+                        builder: (context, state) {
+                          final isLoading = state.status == CravingStatus.saving;
+                          
+                          return ElevatedButton(
+                            onPressed: isLoading || !_isFormValid()
+                                ? null
+                                : () => _saveCraving(context),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.red,
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                            child: isLoading
+                                ? const SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: Colors.white,
+                                    ),
+                                  )
+                                : Text(
+                                    l10n.register,
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                          );
+                        },
+                      ),
+                      
+                      // Cancel button
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        child: Text(l10n.cancel),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+  
+  // Expandable section widget
+  Widget _buildExpandableSection({
+    required String title,
+    required IconData icon,
+    required bool isExpanded,
+    required VoidCallback onToggle,
+    required Widget child,
+    String? selectedValue,
+    String? valueLabel,
+  }) {
+    return Card(
+      elevation: 0,
+      color: context.cardColor,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(
+          color: selectedValue != null
+              ? Colors.red
+              : context.dividerColor,
+          width: selectedValue != null ? 1.0 : 0.5,
+        ),
+      ),
+      margin: EdgeInsets.zero,
+      child: Column(
+        children: <Widget>[
+          // Header
+          InkWell(
+            onTap: onToggle,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                children: <Widget>[
+                  Icon(icon, color: Colors.red, size: 20),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      title,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ),
+                  if (valueLabel != null)
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.red.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        valueLabel,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: Colors.red,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  const SizedBox(width: 4),
+                  Icon(
+                    isExpanded ? Icons.expand_less : Icons.expand_more,
+                    color: Colors.grey,
+                  ),
+                ],
               ),
             ),
           ),
           
-          // Close button in the right corner
-          Positioned(
-            top: 0,
-            right: 8,
-            child: IconButton(
-              icon: Icon(
-                Icons.close,
-                size: 18,
-                color: Colors.grey[600],
-              ),
-              padding: EdgeInsets.zero,
-              constraints: const BoxConstraints(),
-              splashRadius: 20,
-              onPressed: () => Navigator.of(context).pop(),
+          // Content
+          if (isExpanded)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+              child: child,
             ),
-          ),
         ],
       ),
     );
   }
-
-  Widget _buildLocationGrid(BuildContext context, AppLocalizations l10n) {
-    final locations = [
-      _LocationOption(
-        icon: Icons.home,
-        label: l10n.home,
-        value: 'home',
-      ),
-      _LocationOption(
-        icon: Icons.work,
-        label: l10n.work,
-        value: 'work',
-      ),
-      _LocationOption(
-        icon: Icons.directions_car,
-        label: l10n.car,
-        value: 'car',
-      ),
-      _LocationOption(
-        icon: Icons.restaurant,
-        label: l10n.restaurant,
-        value: 'restaurant',
-      ),
-      _LocationOption(
-        icon: Icons.local_bar,
-        label: l10n.bar,
-        value: 'bar',
-      ),
-      _LocationOption(
-        icon: Icons.map,
-        label: l10n.street,
-        value: 'street',
-      ),
-      _LocationOption(
-        icon: Icons.park,
-        label: l10n.park,
-        value: 'park',
-      ),
-      _LocationOption(
-        icon: Icons.more_horiz,
-        label: l10n.others,
-        value: 'others',
-      ),
-    ];
-
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 4,
-        childAspectRatio: MediaQuery.of(context).size.height < 700 ? 0.85 : 0.8, // Adjusted for smaller screens
-        crossAxisSpacing: 6,
-        mainAxisSpacing: 8,
-      ),
-      itemCount: locations.length,
-      itemBuilder: (context, index) {
-        final location = locations[index];
-        return _buildLocationOption(
-          context,
-          location.icon,
-          location.label,
-          location.value,
-        );
-      },
-    );
-  }
   
-  Widget _buildTriggerOptions(BuildContext context, AppLocalizations l10n) {
-    final triggers = [
-      _TriggerOption(label: l10n.stress, value: 'stress'),
-      _TriggerOption(label: l10n.boredom, value: 'boredom'),
-      _TriggerOption(label: l10n.socialSituation, value: 'social_situation'),
-      _TriggerOption(label: l10n.afterMeal, value: 'after_meal'),
-      _TriggerOption(label: l10n.coffee, value: 'coffee'),
-      _TriggerOption(label: l10n.alcohol, value: 'alcohol'),
-      _TriggerOption(label: l10n.craving, value: 'craving'),
-      _TriggerOption(label: l10n.other, value: 'other'),
+  // Location options
+  Widget _buildLocationOptions(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    
+    final locations = [
+      _LocationOption(icon: Icons.home, label: l10n.home, value: 'home'),
+      _LocationOption(icon: Icons.work, label: l10n.work, value: 'work'),
+      _LocationOption(icon: Icons.restaurant, label: l10n.restaurant, value: 'restaurant'),
+      _LocationOption(icon: Icons.local_bar, label: l10n.bar, value: 'bar'),
+      _LocationOption(icon: Icons.directions_car, label: l10n.inCar, value: 'car'),
+      _LocationOption(icon: Icons.public, label: l10n.public, value: 'public'),
     ];
     
     return Wrap(
       spacing: 8,
       runSpacing: 8,
-      children: triggers.map((trigger) => _buildSelectionChip(
-        context, 
-        trigger.label, 
-        trigger.value,
-        isSelected: _selectedTrigger == trigger.value,
-        onSelected: (selected) {
-          setState(() {
-            _selectedTrigger = selected ? trigger.value : null;
-          });
-          // Updates the sections state when user selects a trigger
-          _updateSectionStates();
-        },
-      )).toList(),
-    );
-  }
-  
-  Widget _buildIntensityOptions(BuildContext context, AppLocalizations l10n) {
-    // Mapping to database enum values: ["LOW", "MODERATE", "HIGH", "VERY_HIGH"]
-    final intensities = [
-      _IntensityOption(label: l10n.mild, value: 'low'), // "LOW" in database
-      _IntensityOption(label: l10n.moderate, value: 'moderate'), // "MODERATE" in database
-      _IntensityOption(label: l10n.intense, value: 'high'), // "HIGH" in database
-      _IntensityOption(label: l10n.veryIntense, value: 'very_high'), // "VERY_HIGH" in database
-    ];
-    
-    // Optimized layout for mobile that adapts better to different screens
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 4,
-        childAspectRatio: 1.0,
-        crossAxisSpacing: 10,
-        mainAxisSpacing: 0,
-      ),
-      itemCount: intensities.length,
-      itemBuilder: (context, index) {
-        final intensity = intensities[index];
-        return _buildIntensityOption(
-          context,
-          intensity.label,
-          intensity.value,
-        );
-      },
-    );
-  }
-  
-  Widget _buildLocationOption(
-    BuildContext context, 
-    IconData icon, 
-    String label, 
-    String value,
-  ) {
-    final isSelected = _selectedLocation == value;
-    final color = context.primaryColor;
-    final screenHeight = MediaQuery.of(context).size.height;
-    
-    // Adaptive adjustments based on screen height
-    final bool isSmallScreen = screenHeight < 700;
-    final double iconSize = isSmallScreen ? 22 : 24;
-    final double fontSize = isSmallScreen ? 10 : 11;
-    final double padding = isSmallScreen ? 6 : 8;
-    
-    return InkWell(
-      onTap: () {
-        setState(() {
-          _selectedLocation = value;
-          // Updates the sections state when user selects a location
-          _updateSectionStates();
-        });
-      },
-      borderRadius: BorderRadius.circular(10),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            padding: EdgeInsets.all(padding),
+      children: locations.map((location) {
+        final isSelected = _selectedLocation == location.value;
+        
+        return InkWell(
+          onTap: () {
+            setState(() {
+              _selectedLocation = location.value;
+              // Automatically collapse this section and expand next when selected
+              if (_isLocationSectionExpanded) {
+                _isLocationSectionExpanded = false;
+                _isTriggerSectionExpanded = true;
+              }
+            });
+          },
+          borderRadius: BorderRadius.circular(10),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
             decoration: BoxDecoration(
               color: isSelected 
-                ? color.withAlpha(51) 
-                : context.isDarkMode 
-                    ? Colors.grey.withAlpha(26) 
-                    : Colors.grey.withAlpha(13),
-              shape: BoxShape.circle,
+                  ? Colors.red.withOpacity(0.1) 
+                  : context.chipBackgroundColor,
+              borderRadius: BorderRadius.circular(10),
               border: Border.all(
-                color: isSelected 
-                  ? color 
-                  : Colors.transparent,
+                color: isSelected ? Colors.red : Colors.transparent,
                 width: 1.5,
               ),
             ),
-            child: Icon(
-              icon,
-              color: isSelected 
-                ? color 
-                : context.isDarkMode 
-                    ? Colors.white 
-                    : Colors.grey[800],
-              size: iconSize,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: fontSize,
-              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-              color: isSelected 
-                ? color 
-                : context.contentColor,
-            ),
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ),
-    );
-  }
-  
-  Widget _buildSelectionChip(
-    BuildContext context,
-    String label,
-    String value, {
-    required bool isSelected,
-    required Function(bool) onSelected,
-  }) {
-    return FilterChip(
-      label: Text(label),
-      selected: isSelected,
-      onSelected: onSelected,
-      backgroundColor: context.isDarkMode 
-        ? Colors.grey.withAlpha(26) 
-        : Colors.grey.withAlpha(13),
-      selectedColor: context.primaryColor.withAlpha(51),
-      checkmarkColor: context.primaryColor,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: BorderSide(
-          color: isSelected 
-            ? context.primaryColor 
-            : Colors.transparent,
-        ),
-      ),
-      labelStyle: TextStyle(
-        color: isSelected 
-          ? context.primaryColor 
-          : context.contentColor,
-        fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-      ),
-    );
-  }
-  
-  Widget _buildIntensityOption(
-    BuildContext context,
-    String label,
-    String value,
-  ) {
-    final isSelected = _selectedIntensity == value;
-    final screenHeight = MediaQuery.of(context).size.height;
-    final isSmallScreen = screenHeight < 700;
-    
-    // Colors for each intensity level
-    Color getColor() {
-      switch (value) {
-        case 'low':
-          return Colors.green;
-        case 'moderate':
-          return Colors.orange;
-        case 'high':
-          return Colors.deepOrange;
-        case 'very_high':
-          return Colors.red;
-        default:
-          return context.primaryColor;
-      }
-    }
-    
-    final itemColor = getColor();
-    
-    // Icons for each intensity level
-    IconData getIcon() {
-      switch (value) {
-        case 'low':
-          return Icons.sentiment_satisfied_outlined;
-        case 'moderate':
-          return Icons.sentiment_neutral_outlined;
-        case 'high':
-          return Icons.sentiment_dissatisfied_outlined;
-        case 'very_high':
-          return Icons.sentiment_very_dissatisfied_outlined;
-        default:
-          return Icons.circle;
-      }
-    }
-    
-    final iconData = getIcon();
-    final double iconSize = 24;
-    final double fontSize = 12;
-    
-    // Modern design for intensity selection
-    return InkWell(
-      onTap: () {
-        setState(() {
-          _selectedIntensity = value;
-          // Updates the sections state when user selects an intensity
-          _updateSectionStates();
-        });
-      },
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        decoration: BoxDecoration(
-          color: isSelected 
-            ? itemColor.withOpacity(0.1) 
-            : context.isDarkMode 
-                ? Colors.grey.withOpacity(0.05) 
-                : Colors.grey.withOpacity(0.05),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: isSelected 
-              ? itemColor 
-              : Colors.transparent,
-            width: 1.5,
-          ),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // Icon with circular background
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: isSelected ? itemColor.withOpacity(0.2) : Colors.transparent,
-              ),
-              child: Icon(
-                iconData,
-                color: isSelected ? itemColor : Colors.grey,
-                size: iconSize,
-              ),
-            ),
-            const SizedBox(height: 4),
-            // Descriptive text
-            FittedBox(
-              fit: BoxFit.scaleDown,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 4),
-                child: Text(
-                  label,
-                  style: TextStyle(
-                    fontSize: fontSize,
-                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                    color: isSelected ? itemColor : context.contentColor,
-                  ),
-                  textAlign: TextAlign.center,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Icon(
+                  location.icon,
+                  size: 18,
+                  color: isSelected ? Colors.red : context.iconColor,
                 ),
+                const SizedBox(width: 6),
+                Text(
+                  location.label,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                    color: isSelected ? Colors.red : context.textColor,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      }).toList(),
+    );
+  }
+  
+  // Trigger options
+  Widget _buildTriggerOptions(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    
+    final triggers = [
+      _TriggerOption(icon: Icons.psychology, label: l10n.stress, value: 'stress'),
+      _TriggerOption(icon: Icons.sentiment_very_dissatisfied, label: l10n.anxiety, value: 'anxiety'),
+      _TriggerOption(icon: Icons.restaurant, label: l10n.afterMeal, value: 'after_meal'),
+      _TriggerOption(icon: Icons.coffee, label: l10n.coffee, value: 'coffee'),
+      _TriggerOption(icon: Icons.local_bar, label: l10n.alcohol, value: 'alcohol'),
+      _TriggerOption(icon: Icons.people, label: l10n.socialSituation, value: 'social'),
+    ];
+    
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: triggers.map((trigger) {
+        final isSelected = _selectedTrigger == trigger.value;
+        
+        return InkWell(
+          onTap: () {
+            setState(() {
+              _selectedTrigger = trigger.value;
+              // Automatically collapse this section and expand next when selected
+              if (_isTriggerSectionExpanded) {
+                _isTriggerSectionExpanded = false;
+                _isIntensitySectionExpanded = true;
+              }
+            });
+          },
+          borderRadius: BorderRadius.circular(10),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            decoration: BoxDecoration(
+              color: isSelected 
+                  ? Colors.red.withOpacity(0.1) 
+                  : context.chipBackgroundColor,
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(
+                color: isSelected ? Colors.red : Colors.transparent,
+                width: 1.5,
               ),
             ),
-          ],
-        ),
-      ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Icon(
+                  trigger.icon,
+                  size: 18,
+                  color: isSelected ? Colors.red : context.iconColor,
+                ),
+                const SizedBox(width: 6),
+                Text(
+                  trigger.label,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                    color: isSelected ? Colors.red : context.textColor,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      }).toList(),
     );
   }
   
-  Widget _buildNotesField(BuildContext context, AppLocalizations l10n) {
-    final screenHeight = MediaQuery.of(context).size.height;
-    final isSmallScreen = screenHeight < 700;
+  // Intensity options using slider
+  Widget _buildIntensityOptions(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     
-    return Container(
-      decoration: BoxDecoration(
-        color: context.isDarkMode 
-            ? Colors.grey.withOpacity(0.1) 
-            : Colors.grey.withOpacity(0.05),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: context.isDarkMode 
-              ? Colors.grey.withOpacity(0.2) 
-              : Colors.grey.withOpacity(0.15),
-          width: 1.0,
-        ),
-      ),
-      child: TextField(
-        controller: _notesController,
-        maxLines: isSmallScreen ? 2 : 3,
-        minLines: isSmallScreen ? 1 : 2,
-        style: TextStyle(
-          fontSize: 15,
-          color: context.contentColor,
-        ),
-        onChanged: (text) {
-          // No need to do anything here since the listener in initState will handle updating the state
-        },
-        decoration: InputDecoration(
-          hintText: l10n.howAreYouFeeling,
-          hintStyle: TextStyle(
-            color: context.subtitleColor,
-            fontSize: 14,
-            fontStyle: FontStyle.italic,
-          ),
-          prefixIcon: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12.0),
-            child: Icon(
-              Icons.edit_note_outlined,
-              color: context.primaryColor.withOpacity(0.5),
-              size: 20,
+    // Determine current intensity level index
+    final intensityValue = _selectedIntensity == null
+        ? 0.0
+        : _getIntensityValue(_selectedIntensity!);
+    
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: <Widget>[
+        // Intensity slider
+        SliderTheme(
+          data: SliderThemeData(
+            trackHeight: 8,
+            activeTrackColor: Colors.red,
+            inactiveTrackColor: Colors.red.withOpacity(0.2),
+            thumbColor: Colors.red,
+            overlayColor: Colors.red.withOpacity(0.2),
+            valueIndicatorColor: Colors.red,
+            valueIndicatorTextStyle: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
             ),
           ),
-          contentPadding: const EdgeInsets.all(16),
-          border: InputBorder.none,
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16),
-            borderSide: BorderSide(
-              color: context.primaryColor.withOpacity(0.5),
-              width: 1.5,
-            ),
+          child: Slider(
+            value: intensityValue,
+            min: 1,
+            max: 5,
+            divisions: 4,
+            label: _getIntensityLabelFromValue(intensityValue.toInt()),
+            onChanged: (value) {
+              setState(() {
+                _selectedIntensity = _getIntensityKeyFromValue(value.toInt());
+              });
+            },
+            onChangeEnd: (value) {
+              // Automatically collapse this section and expand next when selected
+              if (_isIntensitySectionExpanded) {
+                setState(() {
+                  _isIntensitySectionExpanded = false;
+                  _isResistSectionExpanded = true;
+                });
+              }
+            },
           ),
         ),
-      ),
-    );
-  }
-  
-  Widget _buildResistOptions(BuildContext context, AppLocalizations l10n) {
-    // Larger and more spaced buttons for better touch experience
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        SizedBox(
-          width: MediaQuery.of(context).size.width * 0.38, // 38% of screen width
-          height: 60, // Fixed height for better touch
-          child: _buildResistOption(
-            context, 
-            l10n.yes, 
-            true, 
-            Colors.green,
-          ),
-        ),
-        const SizedBox(width: 16), // Spacing between buttons
-        SizedBox(
-          width: MediaQuery.of(context).size.width * 0.38, // 38% of screen width
-          height: 60, // Fixed height for better touch
-          child: _buildResistOption(
-            context, 
-            l10n.no, 
-            false,
-            Colors.redAccent,
+        
+        // Intensity labels
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              _buildIntensityLabel(l10n.veryMild, intensityValue == 1),
+              _buildIntensityLabel(l10n.mild, intensityValue == 2),
+              _buildIntensityLabel(l10n.moderate, intensityValue == 3),
+              _buildIntensityLabel(l10n.severe, intensityValue == 4),
+              _buildIntensityLabel(l10n.verySevere, intensityValue == 5),
+            ],
           ),
         ),
       ],
     );
   }
   
-  Widget _buildResistOption(
-    BuildContext context,
-    String label,
-    bool value,
-    Color color,
-  ) {
-    final isSelected = _didResist == value;
-    final screenHeight = MediaQuery.of(context).size.height;
-    final isSmallScreen = screenHeight < 700;
+  // Small intensity label widget
+  Widget _buildIntensityLabel(String label, bool isSelected) {
+    return Text(
+      label,
+      style: TextStyle(
+        fontSize: 12,
+        color: isSelected ? Colors.red : context.subtitleColor,
+        fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+      ),
+    );
+  }
+  
+  // Resist options (yes/no)
+  Widget _buildResistOptions(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     
-    // Icon based on option (yes/no)
-    IconData getIcon() {
-      return value ? Icons.check_circle_outline : Icons.cancel_outlined;
-    }
-    
-    final double fontSize = 16;
-    final double iconSize = 22;
-    
-    // Modern design for resist buttons
-    return InkWell(
-      onTap: () {
-        setState(() {
-          _didResist = value;
-          // Updates the sections state when user selects if they resisted
-          _updateSectionStates();
-        });
-      },
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
-        decoration: BoxDecoration(
-          gradient: isSelected ? LinearGradient(
-            colors: [
-              color.withOpacity(0.8),
-              color.withOpacity(0.6),
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ) : null,
-          color: isSelected 
-            ? null // Use gradient when selected
-            : context.isDarkMode 
-                ? Colors.grey.withOpacity(0.1) 
-                : Colors.grey.withOpacity(0.05),
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: isSelected ? [
-            BoxShadow(
-              color: color.withOpacity(0.3),
-              blurRadius: 10,
-              offset: const Offset(0, 3),
-            ),
-          ] : null,
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              getIcon(),
-              color: isSelected ? Colors.white : color.withOpacity(0.7),
-              size: iconSize,
-            ),
-            const SizedBox(width: 8),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: fontSize,
-                fontWeight: FontWeight.bold,
-                color: isSelected ? Colors.white : context.contentColor,
+    return Row(
+      children: <Widget>[
+        // Yes option
+        Expanded(
+          child: InkWell(
+            onTap: () {
+              setState(() {
+                _didResist = true;
+                // Automatically collapse this section and expand notes when selected
+                if (_isResistSectionExpanded) {
+                  _isResistSectionExpanded = false;
+                  _isNotesSectionExpanded = true;
+                }
+              });
+            },
+            borderRadius: BorderRadius.circular(10),
+            child: Container(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              decoration: BoxDecoration(
+                color: _didResist == true
+                    ? Colors.green.withOpacity(0.2)
+                    : context.chipBackgroundColor,
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(
+                  color: _didResist == true ? Colors.green : Colors.transparent,
+                  width: 1.5,
+                ),
               ),
-              textAlign: TextAlign.center,
+              child: Column(
+                children: <Widget>[
+                  Icon(
+                    Icons.check_circle_outline,
+                    color: _didResist == true ? Colors.green : context.iconColor,
+                    size: 24,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    l10n.yes,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: _didResist == true ? FontWeight.bold : FontWeight.normal,
+                      color: _didResist == true ? Colors.green : context.textColor,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
             ),
-          ],
+          ),
+        ),
+        
+        const SizedBox(width: 12),
+        
+        // No option
+        Expanded(
+          child: InkWell(
+            onTap: () {
+              setState(() {
+                _didResist = false;
+                // Automatically collapse this section and expand notes when selected
+                if (_isResistSectionExpanded) {
+                  _isResistSectionExpanded = false;
+                  _isNotesSectionExpanded = true;
+                }
+              });
+            },
+            borderRadius: BorderRadius.circular(10),
+            child: Container(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              decoration: BoxDecoration(
+                color: _didResist == false
+                    ? Colors.red.withOpacity(0.2)
+                    : context.chipBackgroundColor,
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(
+                  color: _didResist == false ? Colors.red : Colors.transparent,
+                  width: 1.5,
+                ),
+              ),
+              child: Column(
+                children: <Widget>[
+                  Icon(
+                    Icons.cancel_outlined,
+                    color: _didResist == false ? Colors.red : context.iconColor,
+                    size: 24,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    l10n.no,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: _didResist == false ? FontWeight.bold : FontWeight.normal,
+                      color: _didResist == false ? Colors.red : context.textColor,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+  
+  // Notes text field
+  Widget _buildNotesField(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    
+    return Container(
+      decoration: BoxDecoration(
+        color: context.inputBackgroundColor,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(
+          color: context.dividerColor,
+        ),
+      ),
+      child: TextField(
+        controller: _notesController,
+        maxLines: 3,
+        minLines: 3,
+        decoration: InputDecoration(
+          hintText: l10n.howDoYouFeel,
+          hintStyle: TextStyle(
+            color: context.subtitleColor,
+            fontSize: 14,
+          ),
+          contentPadding: const EdgeInsets.all(12),
+          border: InputBorder.none,
+        ),
+        style: TextStyle(
+          color: context.textColor,
+          fontSize: 14,
         ),
       ),
     );
   }
   
-  // Improved save method that uses ImprovedOptimisticUtils
-  void _saveCraving() async {
+  // Save the craving with optimistic updates
+  void _saveCraving(BuildContext context) {
+    // Ensure the form is valid
     if (!_isFormValid()) return;
     
-    final authState = context.read<AuthBloc>().state;
-    if (authState.status != bloc_auth.AuthStatus.authenticated || authState.user == null) {
-      // Cannot save if not authenticated
-      Navigator.of(context).pop();
+    final l10n = AppLocalizations.of(context);
+    final authBloc = BlocProvider.of<AuthBloc>(context);
+    final cravingBloc = BlocProvider.of<CravingBloc>(context);
+    final trackingBloc = BlocProvider.of<TrackingBloc>(context);
+    
+    // Check if user is authenticated
+    if (authBloc.state.status != bloc_auth.AuthStatus.authenticated) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(l10n.notAuthenticated),
+          backgroundColor: Colors.red,
+        ),
+      );
       return;
     }
     
-    final userId = authState.user!.id;
-    final l10n = AppLocalizations.of(context);
+    final userId = authBloc.state.user!.id;
     
     // Create the craving model
     final craving = CravingModel(
       location: _selectedLocation!,
-      trigger: _selectedTrigger!,
+      reason: _selectedTrigger!,
       intensity: _selectedIntensity!,
-      resisted: _didResist!,
+      didResist: _didResist!,
       notes: _notesController.text.isNotEmpty ? _notesController.text : null,
       timestamp: DateTime.now(),
       userId: userId,
     );
     
-    // Get the craving bloc
-    final cravingBloc = context.read<CravingBloc>();
-    
-    // Check for achievements while context is still valid
-    if (_didResist != null) {
-      try {
-        AchievementHelper.checkAfterCravingRecordedWithNotifications(context, _didResist!);
-      } catch (e) {
-        debugPrint('Error checking for achievements in UI: $e');
-      }
-    }
-    
-    // First close the sheet so the UI is responsive
-    Navigator.of(context).pop(true);
-    
-    // Now perform the optimistic update with the improved utilities
-    final bool success = await ImprovedOptimisticUtils.createRecordOptimistically<CravingEvent, CravingState, CravingModel>(
+    // Apply optimistic update using the utility
+    ImprovedOptimisticUtils.optimisticCravingAction(
       context: context,
-      bloc: cravingBloc,
-      createEvent: (craving) => SaveCravingRequested(craving: craving),
-      checkSuccess: (state) => state.status == CravingStatus.loaded,
-      record: craving,
-      entityName: _didResist! ? l10n.cravingResistedRecorded : l10n.cravingRecorded,
+      trackingBloc: trackingBloc,
+      craving: craving, 
+      didResist: _didResist!,
+      onUpdateCompleted: () {
+        // Dispatch the actual save event
+        cravingBloc.add(SaveCravingRequested(craving: craving));
+        
+        // Check for achievements on craving resistance
+        if (_didResist!) {
+          AchievementHelper.checkCravingResistanceAchievements(context);
+        }
+      }
     );
-    
-    if (success) {
-      // Force update the tracking stats
-      final trackingBloc = context.read<TrackingBloc>();
-      trackingBloc.add(ForceUpdateStats());
+  }
+  
+  // Helper methods for location labels
+  String _getLocationLabel(String value) {
+    final l10n = AppLocalizations.of(context);
+    switch (value) {
+      case 'home': return l10n.home;
+      case 'work': return l10n.work;
+      case 'restaurant': return l10n.restaurant;
+      case 'bar': return l10n.bar;
+      case 'car': return l10n.inCar;
+      case 'public': return l10n.public;
+      default: return value;
+    }
+  }
+  
+  // Helper methods for trigger labels
+  String _getTriggerLabel(String value) {
+    final l10n = AppLocalizations.of(context);
+    switch (value) {
+      case 'stress': return l10n.stress;
+      case 'anxiety': return l10n.anxiety;
+      case 'after_meal': return l10n.afterMeal;
+      case 'coffee': return l10n.coffee;
+      case 'alcohol': return l10n.alcohol;
+      case 'social': return l10n.socialSituation;
+      default: return value;
+    }
+  }
+  
+  // Helper methods for intensity labels
+  String _getIntensityLabel(String value) {
+    final l10n = AppLocalizations.of(context);
+    switch (value) {
+      case 'very_mild': return l10n.veryMild;
+      case 'mild': return l10n.mild;
+      case 'moderate': return l10n.moderate;
+      case 'severe': return l10n.severe;
+      case 'very_severe': return l10n.verySevere;
+      default: return value;
+    }
+  }
+  
+  // Convert intensity key to numeric value
+  double _getIntensityValue(String intensityKey) {
+    switch (intensityKey) {
+      case 'very_mild': return 1.0;
+      case 'mild': return 2.0;
+      case 'moderate': return 3.0;
+      case 'severe': return 4.0;
+      case 'very_severe': return 5.0;
+      default: return 0.0;
+    }
+  }
+  
+  // Convert numeric value to intensity label
+  String _getIntensityLabelFromValue(int value) {
+    final l10n = AppLocalizations.of(context);
+    switch (value) {
+      case 1: return l10n.veryMild;
+      case 2: return l10n.mild;
+      case 3: return l10n.moderate;
+      case 4: return l10n.severe;
+      case 5: return l10n.verySevere;
+      default: return '';
+    }
+  }
+  
+  // Convert numeric value to intensity key
+  String _getIntensityKeyFromValue(int value) {
+    switch (value) {
+      case 1: return 'very_mild';
+      case 2: return 'mild';
+      case 3: return 'moderate';
+      case 4: return 'severe';
+      case 5: return 'very_severe';
+      default: return 'moderate';
     }
   }
 }
 
-// Helper classes for options
+// Helper classes for form options
 class _LocationOption {
   final IconData icon;
   final String label;
@@ -1610,20 +936,12 @@ class _LocationOption {
 }
 
 class _TriggerOption {
+  final IconData icon;
   final String label;
   final String value;
   
   const _TriggerOption({
-    required this.label,
-    required this.value,
-  });
-}
-
-class _IntensityOption {
-  final String label;
-  final String value;
-  
-  const _IntensityOption({
+    required this.icon,
     required this.label,
     required this.value,
   });
