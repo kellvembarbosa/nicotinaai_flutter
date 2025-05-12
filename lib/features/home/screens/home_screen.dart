@@ -225,30 +225,42 @@ class _HomeScreenState extends State<HomeScreen> {
             print('💰 Dias sem fumar: $_daysWithoutSmoking, Cigarros evitados: ${_stats?.cigarettesAvoided}');
           }
 
-          // Usar o StatsCalculator para calcular o valor de economia localmente e garantir consistência
-          if (updatedMoneySaved > 0 && updatedMoneySaved != 247) {
-            // Usar o valor do servidor se parecer válido
+          // Usar o valor mais preciso para cálculo de economia
+          if (updatedMoneySaved > 0) {
+            // Usar o valor do servidor se estiver disponível e for válido
             _moneySavedInCents = updatedMoneySaved;
+            
+            if (kDebugMode) {
+              print('💰 Usando valor de economia do servidor: $updatedMoneySaved centavos');
+            }
           } else {
-            // Usar o StatsCalculator para calcular o valor localmente
-            // Não precisamos dos valores padrão pois o StatsCalculator já os fornece
+            // Fallback: calcular o valor localmente baseado em cigarros evitados e dias sem fumar
             if (_stats != null) {
-              final int cigarettesAvoided = _stats!.cigarettesAvoided;
-              // Usar mesmo cálculo que no StatsCalculator para garantir consistência
+              // Calcular cigarros evitados por dia baseado no número original informado pelo usuário
+              final int cigarettesPerDay = _stats!.cigarettesPerDay ?? StatsCalculator.DEFAULT_CIGARETTES_PER_DAY;
+              final int daysWithoutSmoking = _daysWithoutSmoking ?? 0;
+              
+              // Calcular cigarros não fumados com base em dias sem fumar * cigarros/dia
+              // (mais realista do que apenas contar cravings resistidos)
+              final int calculatedCigarettesAvoided = daysWithoutSmoking * cigarettesPerDay;
+              
+              // Preço por cigarro usando valores do usuário ou padrões
               final double pricePerCigarette =
                   (_stats!.packPrice ?? StatsCalculator.DEFAULT_PACK_PRICE_CENTS) /
                   (_stats!.cigarettesPerPack ?? StatsCalculator.DEFAULT_CIGARETTES_PER_PACK);
-
-              final int calculatedMoneySaved = (cigarettesAvoided * pricePerCigarette).round();
+              
+              // Calcular economia total
+              final int calculatedMoneySaved = (calculatedCigarettesAvoided * pricePerCigarette).round();
 
               if (kDebugMode) {
-                print('💰 CALCULANDO LOCALMENTE (StatsCalculator): dias=$_daysWithoutSmoking, cigarros evitados=$cigarettesAvoided');
+                print('💰 CALCULANDO LOCALMENTE: dias=$daysWithoutSmoking, cigarros/dia=$cigarettesPerDay');
+                print('💰 Cigarros evitados calculados=$calculatedCigarettesAvoided');
                 print('💰 Preço por cigarro=$pricePerCigarette centavos, economia calculada=$calculatedMoneySaved centavos');
               }
 
               _moneySavedInCents = calculatedMoneySaved > 0 ? calculatedMoneySaved : null;
             } else {
-              // If we don't have stats or cigarettes avoided yet, show skeleton by setting to null
+              // If we don't have stats yet, show skeleton by setting to null
               _moneySavedInCents = null;
             }
           }

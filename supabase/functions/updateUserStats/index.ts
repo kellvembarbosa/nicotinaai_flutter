@@ -33,6 +33,7 @@ interface UserStats {
   pack_price?: number;
   // Campo para armazenar minutos de vida ganhos
   minutes_gained_today?: number;
+  total_minutes_gained?: number;
 }
 
 serve(async (req) => {
@@ -90,6 +91,13 @@ serve(async (req) => {
       .eq("user_id", userId)
       .maybeSingle();
 
+    // Get existing user stats
+    const { data: existingStats, error: statsError } = await supabase
+      .from("user_stats")
+      .select("*")
+      .eq("user_id", userId)
+      .maybeSingle();
+
     let cigarettesPerDay = 20; // Default value
     let cigarettesPerPack = 20; // Default value
     let packPrice = 1000; // Default value in cents (R$10,00)
@@ -123,7 +131,7 @@ serve(async (req) => {
     // Count resisted cravings
     const cravingsResisted = cravings ? cravings.length : 0;
 
-    // Calculate streak
+    // Calculate streak - days since last smoke
     let currentStreakDays = 0;
     let longestStreakDays = 0;
 
@@ -140,25 +148,33 @@ serve(async (req) => {
     // Calculate total smoke-free days (simplified - counts all days since first record)
     const totalSmokeFreedays = currentStreakDays;
 
-    // Get the existing cigarettes avoided count from previous stats
-    let cigarettesAvoided = existingStats?.cigarettes_avoided || 0;
-
-    // For new resisted cravings since last update, increment the count
-    const lastUpdateTimestamp = existingStats?.updated_at ? new Date(existingStats.updated_at) : null;
-    const newCravings = cravings ? cravings.filter(craving => {
-      if (!lastUpdateTimestamp) return true; // If no previous update, count all
-      return new Date(craving.timestamp) > lastUpdateTimestamp;
-    }) : [];
-
-    // Add newly resisted cravings to the count
-    const newResisted = newCravings.length;
-    if (newResisted > 0) {
-      console.log(`Adding ${newResisted} newly resisted cravings to cigarettes avoided count`);
-      cigarettesAvoided += newResisted;
+    // Update longest streak if current streak is longer
+    if (existingStats && existingStats.longest_streak_days) {
+      longestStreakDays = Math.max(existingStats.longest_streak_days, currentStreakDays);
+    } else {
+      longestStreakDays = currentStreakDays;
     }
 
-    // Calculate money saved
+    // IMPROVED: Calculate cigarettes avoided based on days without smoking
+    let cigarettesAvoided = 0;
+    
+    if (lastSmokeDate) {
+      // Calculate cigarettes avoided based on days without smoking * cigarettes per day
+      cigarettesAvoided = currentStreakDays * cigarettesPerDay;
+      console.log(`📊 Calculated cigarettes avoided: ${cigarettesAvoided} (${currentStreakDays} days * ${cigarettesPerDay} cigarettes/day)`);
+    } else {
+      // If no last smoke date, use cravings resisted as fallback (capped at 5 to avoid inflation)
+      cigarettesAvoided = Math.min(cravingsResisted, 5);
+      console.log(`⚠️ No last smoke date, using cravings resisted as fallback: ${cigarettesAvoided}`);
+    }
+
+    // IMPROVED: Calculate money saved based on cigarettes avoided
     const moneySaved = Math.round(cigarettesAvoided * pricePerCigarette);
+    console.log(`💰 Calculated money saved: ${moneySaved} cents (${cigarettesAvoided} cigarettes * ${pricePerCigarette} cents/cigarette)`);
+
+    // Calculate minutes gained
+    const MINUTES_PER_CIGARETTE = 6;
+    const totalMinutesGained = cigarettesAvoided * MINUTES_PER_CIGARETTE;
 
     // Calculate minutes gained today based on cigarettes avoided today
     // Pegamos as cravings resistidas de hoje
@@ -170,8 +186,6 @@ serve(async (req) => {
       return cravingDate >= today;
     }) : [];
     
-    // 6 minutos por cigarro não fumado
-    const MINUTES_PER_CIGARETTE = 6;
     const todayCravingsCount = todayCravings.length;
     
     // Se não houver cravings hoje, estimamos com base na média diária
@@ -181,20 +195,6 @@ serve(async (req) => {
         ? Math.floor(MINUTES_PER_CIGARETTE * cigarettesPerDay / 24)
         : 0;
     
-    // Get existing user stats or create new ones
-    const { data: existingStats, error: statsError } = await supabase
-      .from("user_stats")
-      .select("*")
-      .eq("user_id", userId)
-      .maybeSingle();
-
-    // Update longest streak if current streak is longer
-    if (existingStats && existingStats.longest_streak_days) {
-      longestStreakDays = Math.max(existingStats.longest_streak_days, currentStreakDays);
-    } else {
-      longestStreakDays = currentStreakDays;
-    }
-
     const stats: UserStats = {
       user_id: userId,
       cigarettes_avoided: cigarettesAvoided,
@@ -211,6 +211,7 @@ serve(async (req) => {
       product_type: productType,
       currency_code: currencyCode,
       minutes_gained_today: minutesGainedToday,
+      total_minutes_gained: totalMinutesGained,
     };
 
     if (lastSmokeDate) {
@@ -257,6 +258,8 @@ serve(async (req) => {
 
     console.log("Estatísticas do usuário atualizadas com sucesso");
     console.log("Minutes gained today:", minutesGainedToday);
+    console.log("Total minutes gained:", totalMinutesGained);
+    console.log("Money saved (cents):", moneySaved);
 
     return new Response(
       JSON.stringify({
