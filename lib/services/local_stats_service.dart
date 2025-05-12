@@ -94,8 +94,20 @@ class LocalStatsService {
       
       // Contar cigarros fumados
       for (final log in smokingLogs) {
-        // Usar o método auxiliar para obter a quantidade a partir do amount
-        cigarettesSmoked += SmokingRecordModel._amountToQuantity(log.amount);
+        // Converter o amount string para quantidade estimada
+        int quantity = 1; // valor padrão
+        switch (log.amount) {
+          case 'one_or_less':
+            quantity = 1;
+            break;
+          case 'two_to_five':
+            quantity = 3; // Média de 2-5
+            break;
+          case 'more_than_five':
+            quantity = 6;
+            break;
+        }
+        cigarettesSmoked += quantity;
       }
       
       // Calcular dias sem fumar

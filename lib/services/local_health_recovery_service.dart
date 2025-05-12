@@ -247,22 +247,26 @@ class LocalHealthRecoveryService {
               'recovery_id': recovery.id,
               'name': recovery.name,
               'description': recovery.description,
-              'xp_reward': json['xp_reward'] ?? 10, // Default to 10 XP
+              'xp_reward': 10, // Default to 10 XP
               'days_to_achieve': recovery.daysToAchieve
             });
             
             // Conceder XP ao usuário se updateAchievements é true
             if (updateAchievements) {
               try {
-                await SupabaseConfig.client.rpc('add_user_xp', {
-                  'p_user_id': userIdToUse,
-                  'p_amount': json['xp_reward'] ?? 10, // Default to 10 XP
-                  'p_source': 'HEALTH_RECOVERY',
-                  'p_reference_id': recovery.id
-                });
+                final xpAmount = 10; // Default XP amount
+                await SupabaseConfig.client.rpc(
+                  'add_user_xp', 
+                  params: {
+                    'p_user_id': userIdToUse,
+                    'p_amount': xpAmount,
+                    'p_source': 'HEALTH_RECOVERY',
+                    'p_reference_id': recovery.id
+                  }
+                );
                 
                 if (kDebugMode) {
-                  print('💰 [LocalHealthRecoveryService] Concedidos ${json['xp_reward'] ?? 10} XP para recuperação ${recovery.name}');
+                  print('💰 [LocalHealthRecoveryService] Concedidos $xpAmount XP para recuperação ${recovery.name}');
                 }
               } catch (e) {
                 if (kDebugMode) {
