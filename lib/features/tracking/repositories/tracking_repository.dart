@@ -1,8 +1,11 @@
+import 'package:flutter/foundation.dart';
 import 'package:nicotinaai_flutter/config/supabase_config.dart';
 import 'package:nicotinaai_flutter/features/tracking/models/craving.dart';
 import 'package:nicotinaai_flutter/features/tracking/models/health_recovery.dart';
 import 'package:nicotinaai_flutter/features/tracking/models/smoking_log.dart';
 import 'package:nicotinaai_flutter/features/tracking/models/user_stats.dart';
+import 'package:nicotinaai_flutter/services/local_health_recovery_service.dart';
+import 'package:nicotinaai_flutter/services/local_stats_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 /// Exception thrown when a Supabase Edge Function returns an error
@@ -190,7 +193,7 @@ class TrackingRepository {
     }
   }
 
-  Future<void> updateUserStats() async {
+  Future<UserStats?> updateUserStats() async {
     try {
       final user = _client.auth.currentUser;
       
@@ -198,11 +201,40 @@ class TrackingRepository {
         throw Exception('User not authenticated');
       }
       
-      // Call the edge function to update user stats
-      await _client.functions.invoke('updateUserStats', 
-        body: {'userId': user.id},
-      );
+      if (kDebugMode) {
+        print('📊 [TrackingRepository] Atualizando estatísticas - usando implementação local');
+      }
+      
+      // Use the local stats service instead of edge function
+      final localStatsService = LocalStatsService();
+      final updatedStats = await localStatsService.updateUserStats(userId: user.id);
+      
+      if (updatedStats == null) {
+        if (kDebugMode) {
+          print('⚠️ [TrackingRepository] Falha ao atualizar estatísticas localmente, tentando edge function...');
+        }
+        
+        // Fallback to edge function if local calculation fails
+        try {
+          await _client.functions.invoke('updateUserStats', 
+            body: {'userId': user.id},
+          );
+          
+          // Get updated stats after edge function call
+          return await getUserStats();
+        } catch (edgeFunctionError) {
+          if (kDebugMode) {
+            print('❌ [TrackingRepository] Erro na edge function: $edgeFunctionError');
+          }
+          rethrow;
+        }
+      }
+      
+      return updatedStats;
     } catch (e) {
+      if (kDebugMode) {
+        print('❌ [TrackingRepository] Erro ao atualizar estatísticas: $e');
+      }
       rethrow;
     }
   }
@@ -232,49 +264,83 @@ class TrackingRepository {
         throw Exception('User not authenticated');
       }
       
-      // Call the edge function to check health recoveries
-      final response = await _client.functions.invoke('checkHealthRecoveries', 
-        body: {
-          'userId': user.id,
-          'updateAchievements': updateAchievements, // Parâmetro para evitar loops infinitos
-        },
-      );
-      
-      if (response.status != 200) {
-        final errorData = response.data is Map 
-          ? response.data as Map<String, dynamic> 
-          : {'error': 'Unknown error', 'details': response.data};
-        
-        // Determine appropriate reason phrase based on status code
-        String reasonPhrase;
-        switch (response.status) {
-          case 400:
-            reasonPhrase = 'Bad Request';
-            break;
-          case 401:
-            reasonPhrase = 'Unauthorized';
-            break;
-          case 403:
-            reasonPhrase = 'Forbidden';
-            break;
-          case 404:
-            reasonPhrase = 'Not Found';
-            break;
-          case 500:
-            reasonPhrase = 'Internal Server Error';
-            break;
-          default:
-            reasonPhrase = 'Error ${response.status}';
-        }
-        
-        throw FunctionException(
-          status: response.status,
-          details: errorData,
-          reasonPhrase: reasonPhrase
-        );
+      if (kDebugMode) {
+        print('📊 [TrackingRepository] Verificando recuperações de saúde - usando implementação local');
       }
       
-      return response.data as Map<String, dynamic>;
+      // Use the local health recovery service
+      final localHealthRecoveryService = LocalHealthRecoveryService();
+      final result = await localHealthRecoveryService.checkHealthRecoveries(
+        userId: user.id,
+        updateAchievements: updateAchievements
+      );
+      
+      // Check if local implementation was successful
+      if (result['success'] == true) {
+        if (kDebugMode) {
+          print('✅ [TrackingRepository] Verificação local de recuperações concluída com sucesso');
+          print('📊 [TrackingRepository] Dias sem fumar: ${result['days_smoke_free']}');
+          print('📊 [TrackingRepository] Novas conquistas: ${result['new_achievements']?.length ?? 0}');
+          print('📊 [TrackingRepository] Total de conquistas: ${result['total_achievements']}');
+        }
+        return result;
+      } else {
+        if (kDebugMode) {
+          print('⚠️ [TrackingRepository] Falha na verificação local: ${result['error']}');
+          print('⚠️ [TrackingRepository] Tentando edge function como fallback...');
+        }
+        
+        // Fallback to edge function if local implementation fails
+        try {
+          final response = await _client.functions.invoke('checkHealthRecoveries', 
+            body: {
+              'userId': user.id,
+              'updateAchievements': updateAchievements,
+            },
+          );
+          
+          if (response.status != 200) {
+            final errorData = response.data is Map 
+              ? response.data as Map<String, dynamic> 
+              : {'error': 'Unknown error', 'details': response.data};
+            
+            // Determine appropriate reason phrase based on status code
+            String reasonPhrase;
+            switch (response.status) {
+              case 400:
+                reasonPhrase = 'Bad Request';
+                break;
+              case 401:
+                reasonPhrase = 'Unauthorized';
+                break;
+              case 403:
+                reasonPhrase = 'Forbidden';
+                break;
+              case 404:
+                reasonPhrase = 'Not Found';
+                break;
+              case 500:
+                reasonPhrase = 'Internal Server Error';
+                break;
+              default:
+                reasonPhrase = 'Error ${response.status}';
+            }
+            
+            throw FunctionException(
+              status: response.status,
+              details: errorData,
+              reasonPhrase: reasonPhrase
+            );
+          }
+          
+          return response.data as Map<String, dynamic>;
+        } catch (edgeFunctionError) {
+          if (kDebugMode) {
+            print('❌ [TrackingRepository] Erro na edge function de fallback: $edgeFunctionError');
+          }
+          rethrow;
+        }
+      }
     } catch (e) {
       // Log the error but rethrow
       print('Repository checkHealthRecoveries error: $e');
