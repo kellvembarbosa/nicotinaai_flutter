@@ -129,8 +129,10 @@ class CravingBloc extends Bloc<CravingEvent, CravingState> {
       // ETAPA 4: OPERAÇÕES PÓS-SALVAMENTO
       debugPrint('🔄 [CravingBloc] ETAPA 4: Executando operações pós-salvamento...');
       
-      // Check if this is a new user (no smoking_logs or user_stats)
-      // and explicitly initialize user_stats if needed
+      // Note: Health recoveries are now checked directly in the RegisterCravingSheet
+      // to avoid duplicate calls, since we're using our local implementation
+      // This logic remains commented as a reference
+      /*
       try {
         debugPrint('🏥 Checking and initializing health recoveries after craving...');
         final trackingRepository = TrackingRepository();
@@ -149,6 +151,8 @@ class CravingBloc extends Bloc<CravingEvent, CravingState> {
         // Non-critical error, just log it
         debugPrint('⚠️ Error initializing health recoveries after craving: $e');
       }
+      */
+      debugPrint('✓ Health recoveries are now checked by RegisterCravingSheet using local implementation');
       
       // Update tracking stats
       debugPrint('📊 Atualizando estatísticas de tracking...');

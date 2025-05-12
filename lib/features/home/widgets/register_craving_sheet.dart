@@ -39,7 +39,7 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
   String? _selectedIntensity;
   String? _selectedLocation;
   bool _didResist = true;
-  
+
   // Controls for collapsible sections
   bool _isReasonSectionExpanded = true;
   bool _isIntensitySectionExpanded = false;
@@ -77,13 +77,13 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
         _isIntensitySectionExpanded = false;
         _isLocationSectionExpanded = true;
       }
-      
+
       // When the user selects a location, collapse that section and expand resist section
       if (_selectedLocation != null && _isLocationSectionExpanded) {
         _isLocationSectionExpanded = false;
         _isResistSectionExpanded = true;
       }
-      
+
       // When the user has selected resist option, collapse that section and expand notes
       if (_isResistSectionExpanded && (_didResist != null)) {
         _isResistSectionExpanded = false;
@@ -95,64 +95,50 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    
+
     return BlocListener<CravingBloc, CravingState>(
       listener: (context, state) {
-        // Handle state changes from the craving bloc
-        if (state.status == CravingStatus.saving) {
-          if (kDebugMode) {
-            print('💾 Saving craving record...');
+        final l10n = AppLocalizations.of(context);
+
+        // Log state changes for debugging purposes only when in debug mode
+        if (kDebugMode) {
+          switch (state.status) {
+            case CravingStatus.saving:
+              print('💾 [CravingBloc] Saving craving record...');
+              break;
+            case CravingStatus.loaded:
+              print('✅ [CravingBloc] Craving record saved successfully!');
+              break;
+            case CravingStatus.error:
+              print('❌ [CravingBloc] Error saving craving record: ${state.errorMessage}');
+              break;
+            default:
+              // Do nothing for other states
+              break;
           }
-        } else if (state.status == CravingStatus.loaded) {
-          if (kDebugMode) {
-            print('✅ Craving record saved successfully!');
-          }
-          
-          // Get tracking bloc for optimistic updates
-          final trackingBloc = BlocProvider.of<TrackingBloc>(context);
-          
-          // Update tracking statistics optimistically
-          // If the craving was resisted, update the resistedCravings count
-          // This provides immediate feedback to the user
-          int cravingsResisted = _didResist ? 1 : 0;
-          
-          // Use StatsCalculator to calculate updated statistics
-          final StatsCalculator calculator = StatsCalculator();
-          
-          // Get current stats
-          final currentStats = trackingBloc.state.userStats;
-          if (currentStats != null) {
-            // Calculate updated values
-            final updatedResisted = (currentStats.cravingsResisted ?? 0) + cravingsResisted;
-            
-            if (kDebugMode) {
-              print('📊 Optimistically updating stats: Cravings resisted = $updatedResisted');
-            }
-          }
-          
-          // Mostrar confirmação (sheet já estará fechado nesse ponto)
-          if (Navigator.canPop(context)) {
+        }
+
+        // Only show UI feedback when necessary and if the sheet is still open
+        if (Navigator.canPop(context)) {
+          if (state.status == CravingStatus.loaded) {
+            // Show success message
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text('Craving record saved successfully!'),
+                content: Text(l10n.cravingRecorded ?? "Craving saved successfully"),
                 backgroundColor: Colors.green,
                 duration: const Duration(seconds: 2),
               ),
             );
+          } else if (state.status == CravingStatus.error) {
+            // Show error message with proper localization
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Error: ${state.errorMessage ?? "Unknown error"}'),
+                backgroundColor: Colors.red,
+                duration: const Duration(seconds: 5),
+              ),
+            );
           }
-        } else if (state.status == CravingStatus.error) {
-          if (kDebugMode) {
-            print('❌ Error saving craving record: ${state.errorMessage}');
-          }
-          
-          // Show error message
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Error: ${state.errorMessage}'),
-              backgroundColor: Colors.red,
-              duration: const Duration(seconds: 5),
-            ),
-          );
         }
       },
       child: DraggableScrollableSheet(
@@ -166,19 +152,11 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
             margin: EdgeInsets.zero,
             decoration: BoxDecoration(
               borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
-                  blurRadius: 10,
-                  spreadRadius: 2,
-                )
-              ],
+              boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 10, spreadRadius: 2)],
             ),
             child: Container(
               decoration: BoxDecoration(
-                color: context.isDarkMode 
-                  ? const Color(0xFF1C1C1E) 
-                  : context.backgroundColor,
+                color: context.isDarkMode ? const Color(0xFF1C1C1E) : context.backgroundColor,
                 borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
               ),
               child: Column(
@@ -192,7 +170,7 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
                         padding: const EdgeInsets.only(bottom: 16),
                         children: <Widget>[
                           _buildHandle(context),
-                        
+
                           // Optimized main title without background
                           Container(
                             width: double.infinity,
@@ -201,46 +179,36 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
                               children: <Widget>[
                                 Text(
                                   l10n.registerCraving,
-                                  style: context.titleStyle.copyWith(
-                                    fontSize: 22,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.red,
-                                  ),
+                                  style: context.titleStyle.copyWith(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.red),
                                   textAlign: TextAlign.center,
                                 ),
                                 Text(
                                   l10n.registerCravingSubtitle,
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: context.isDarkMode 
-                                        ? Colors.white70 
-                                        : Colors.black54,
-                                  ),
+                                  style: TextStyle(fontSize: 14, color: context.isDarkMode ? Colors.white70 : Colors.black54),
                                   textAlign: TextAlign.center,
                                 ),
                               ],
                             ),
                           ),
-                        
+
                           const SizedBox(height: 8),
-                        
+
                           // Reason Section - Collapsible
                           Padding(
                             padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
                             child: Card(
                               margin: EdgeInsets.zero,
                               elevation: 0,
-                              color: context.isDarkMode 
-                                  ? Colors.grey[850] 
-                                  : Colors.grey[50],
+                              color: context.isDarkMode ? Colors.grey[850] : Colors.grey[50],
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
                                 side: BorderSide(
-                                  color: _selectedReason != null 
-                                      ? Colors.red 
-                                      : context.isDarkMode
-                                      ? Colors.grey[800]!
-                                      : Colors.grey[300]!,
+                                  color:
+                                      _selectedReason != null
+                                          ? Colors.red
+                                          : context.isDarkMode
+                                          ? Colors.grey[800]!
+                                          : Colors.grey[300]!,
                                   width: _selectedReason != null ? 1.5 : 0.5,
                                 ),
                               ),
@@ -254,93 +222,65 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
                                         _isReasonSectionExpanded = !_isReasonSectionExpanded;
                                       });
                                     },
-                                    borderRadius: const BorderRadius.vertical(
-                                      top: Radius.circular(12),
-                                    ),
+                                    borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
                                     child: Padding(
                                       padding: const EdgeInsets.all(16.0),
                                       child: Row(
                                         children: <Widget>[
-                                          const Icon(
-                                            Icons.help_outline,
-                                            size: 20,
-                                            color: Colors.red,
-                                          ),
+                                          const Icon(Icons.help_outline, size: 20, color: Colors.red),
                                           const SizedBox(width: 8),
                                           Expanded(
                                             child: Text(
                                               l10n.whatTriggeredCraving,
-                                              style: const TextStyle(
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.bold,
-                                                color: Colors.red,
-                                              ),
+                                              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.red),
                                             ),
                                           ),
                                           if (_selectedReason != null)
                                             Container(
-                                              padding: const EdgeInsets.symmetric(
-                                                horizontal: 8,
-                                                vertical: 4,
-                                              ),
+                                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                               decoration: BoxDecoration(
                                                 color: Colors.red.withOpacity(0.1),
                                                 borderRadius: BorderRadius.circular(12),
-                                                border: Border.all(
-                                                  color: Colors.red.withOpacity(0.3),
-                                                ),
+                                                border: Border.all(color: Colors.red.withOpacity(0.3)),
                                               ),
                                               child: Text(
                                                 _getReasonLabel(_selectedReason!),
-                                                style: const TextStyle(
-                                                  fontSize: 14,
-                                                  fontWeight: FontWeight.bold,
-                                                  color: Colors.red,
-                                                ),
+                                                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.red),
                                               ),
                                             ),
                                           const SizedBox(width: 4),
-                                          Icon(
-                                            _isReasonSectionExpanded 
-                                                ? Icons.expand_less 
-                                                : Icons.expand_more,
-                                            color: Colors.grey,
-                                          ),
+                                          Icon(_isReasonSectionExpanded ? Icons.expand_less : Icons.expand_more, color: Colors.grey),
                                         ],
                                       ),
                                     ),
                                   ),
-                                  
+
                                   // Expandable content
                                   if (_isReasonSectionExpanded)
-                                    Padding(
-                                      padding: const EdgeInsets.fromLTRB(12, 0, 12, 16),
-                                      child: _buildReasonGrid(context, l10n),
-                                    ),
+                                    Padding(padding: const EdgeInsets.fromLTRB(12, 0, 12, 16), child: _buildReasonGrid(context, l10n)),
                                 ],
                               ),
                             ),
                           ),
-                        
+
                           const SizedBox(height: 8),
-                        
+
                           // Intensity Section - Collapsible
                           Padding(
                             padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
                             child: Card(
                               margin: EdgeInsets.zero,
                               elevation: 0,
-                              color: context.isDarkMode 
-                                  ? Colors.grey[850] 
-                                  : Colors.grey[50],
+                              color: context.isDarkMode ? Colors.grey[850] : Colors.grey[50],
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
                                 side: BorderSide(
-                                  color: _selectedIntensity != null 
-                                      ? Colors.red 
-                                      : context.isDarkMode
-                                      ? Colors.grey[800]!
-                                      : Colors.grey[300]!,
+                                  color:
+                                      _selectedIntensity != null
+                                          ? Colors.red
+                                          : context.isDarkMode
+                                          ? Colors.grey[800]!
+                                          : Colors.grey[300]!,
                                   width: _selectedIntensity != null ? 1.5 : 0.5,
                                 ),
                               ),
@@ -354,93 +294,65 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
                                         _isIntensitySectionExpanded = !_isIntensitySectionExpanded;
                                       });
                                     },
-                                    borderRadius: const BorderRadius.vertical(
-                                      top: Radius.circular(12),
-                                    ),
+                                    borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
                                     child: Padding(
                                       padding: const EdgeInsets.all(16.0),
                                       child: Row(
                                         children: <Widget>[
-                                          const Icon(
-                                            Icons.trending_up,
-                                            size: 20,
-                                            color: Colors.red,
-                                          ),
+                                          const Icon(Icons.trending_up, size: 20, color: Colors.red),
                                           const SizedBox(width: 8),
                                           Expanded(
                                             child: Text(
                                               l10n.intensityLevel,
-                                              style: const TextStyle(
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.bold,
-                                                color: Colors.red,
-                                              ),
+                                              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.red),
                                             ),
                                           ),
                                           if (_selectedIntensity != null)
                                             Container(
-                                              padding: const EdgeInsets.symmetric(
-                                                horizontal: 8,
-                                                vertical: 4,
-                                              ),
+                                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                               decoration: BoxDecoration(
                                                 color: Colors.red.withOpacity(0.1),
                                                 borderRadius: BorderRadius.circular(12),
-                                                border: Border.all(
-                                                  color: Colors.red.withOpacity(0.3),
-                                                ),
+                                                border: Border.all(color: Colors.red.withOpacity(0.3)),
                                               ),
                                               child: Text(
                                                 _getIntensityLabel(_selectedIntensity!),
-                                                style: const TextStyle(
-                                                  fontSize: 14,
-                                                  fontWeight: FontWeight.bold,
-                                                  color: Colors.red,
-                                                ),
+                                                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.red),
                                               ),
                                             ),
                                           const SizedBox(width: 4),
-                                          Icon(
-                                            _isIntensitySectionExpanded 
-                                                ? Icons.expand_less 
-                                                : Icons.expand_more,
-                                            color: Colors.grey,
-                                          ),
+                                          Icon(_isIntensitySectionExpanded ? Icons.expand_less : Icons.expand_more, color: Colors.grey),
                                         ],
                                       ),
                                     ),
                                   ),
-                                  
+
                                   // Expandable content
                                   if (_isIntensitySectionExpanded)
-                                    Padding(
-                                      padding: const EdgeInsets.fromLTRB(12, 0, 12, 16),
-                                      child: _buildIntensityOptions(context, l10n),
-                                    ),
+                                    Padding(padding: const EdgeInsets.fromLTRB(12, 0, 12, 16), child: _buildIntensityOptions(context, l10n)),
                                 ],
                               ),
                             ),
                           ),
-                        
+
                           const SizedBox(height: 8),
-                          
+
                           // Location Section - Collapsible
                           Padding(
                             padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
                             child: Card(
                               margin: EdgeInsets.zero,
                               elevation: 0,
-                              color: context.isDarkMode 
-                                  ? Colors.grey[850] 
-                                  : Colors.grey[50],
+                              color: context.isDarkMode ? Colors.grey[850] : Colors.grey[50],
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
                                 side: BorderSide(
-                                  color: _selectedLocation != null 
-                                      ? Colors.red 
-                                      : context.isDarkMode
-                                      ? Colors.grey[800]!
-                                      : Colors.grey[300]!,
+                                  color:
+                                      _selectedLocation != null
+                                          ? Colors.red
+                                          : context.isDarkMode
+                                          ? Colors.grey[800]!
+                                          : Colors.grey[300]!,
                                   width: _selectedLocation != null ? 1.5 : 0.5,
                                 ),
                               ),
@@ -454,93 +366,65 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
                                         _isLocationSectionExpanded = !_isLocationSectionExpanded;
                                       });
                                     },
-                                    borderRadius: const BorderRadius.vertical(
-                                      top: Radius.circular(12),
-                                    ),
+                                    borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
                                     child: Padding(
                                       padding: const EdgeInsets.all(16.0),
                                       child: Row(
                                         children: <Widget>[
-                                          const Icon(
-                                            Icons.place_outlined,
-                                            size: 20,
-                                            color: Colors.red,
-                                          ),
+                                          const Icon(Icons.place_outlined, size: 20, color: Colors.red),
                                           const SizedBox(width: 8),
                                           Expanded(
                                             child: Text(
                                               l10n.whereAreYou,
-                                              style: const TextStyle(
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.bold,
-                                                color: Colors.red,
-                                              ),
+                                              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.red),
                                             ),
                                           ),
                                           if (_selectedLocation != null)
                                             Container(
-                                              padding: const EdgeInsets.symmetric(
-                                                horizontal: 8,
-                                                vertical: 4,
-                                              ),
+                                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                               decoration: BoxDecoration(
                                                 color: Colors.red.withOpacity(0.1),
                                                 borderRadius: BorderRadius.circular(12),
-                                                border: Border.all(
-                                                  color: Colors.red.withOpacity(0.3),
-                                                ),
+                                                border: Border.all(color: Colors.red.withOpacity(0.3)),
                                               ),
                                               child: Text(
                                                 _getLocationLabel(_selectedLocation!),
-                                                style: const TextStyle(
-                                                  fontSize: 14,
-                                                  fontWeight: FontWeight.bold,
-                                                  color: Colors.red,
-                                                ),
+                                                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.red),
                                               ),
                                             ),
                                           const SizedBox(width: 4),
-                                          Icon(
-                                            _isLocationSectionExpanded 
-                                                ? Icons.expand_less 
-                                                : Icons.expand_more,
-                                            color: Colors.grey,
-                                          ),
+                                          Icon(_isLocationSectionExpanded ? Icons.expand_less : Icons.expand_more, color: Colors.grey),
                                         ],
                                       ),
                                     ),
                                   ),
-                                  
+
                                   // Expandable content
                                   if (_isLocationSectionExpanded)
-                                    Padding(
-                                      padding: const EdgeInsets.fromLTRB(12, 0, 12, 16),
-                                      child: _buildLocationGrid(context, l10n),
-                                    ),
+                                    Padding(padding: const EdgeInsets.fromLTRB(12, 0, 12, 16), child: _buildLocationGrid(context, l10n)),
                                 ],
                               ),
                             ),
                           ),
-                          
+
                           const SizedBox(height: 8),
-                          
+
                           // Resist Section - Collapsible
                           Padding(
                             padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
                             child: Card(
                               margin: EdgeInsets.zero,
                               elevation: 0,
-                              color: context.isDarkMode 
-                                  ? Colors.grey[850] 
-                                  : Colors.grey[50],
+                              color: context.isDarkMode ? Colors.grey[850] : Colors.grey[50],
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
                                 side: BorderSide(
-                                  color: (_didResist != null) 
-                                      ? Colors.red 
-                                      : context.isDarkMode
-                                      ? Colors.grey[800]!
-                                      : Colors.grey[300]!,
+                                  color:
+                                      (_didResist != null)
+                                          ? Colors.red
+                                          : context.isDarkMode
+                                          ? Colors.grey[800]!
+                                          : Colors.grey[300]!,
                                   width: (_didResist != null) ? 1.5 : 0.5,
                                 ),
                               ),
@@ -554,93 +438,65 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
                                         _isResistSectionExpanded = !_isResistSectionExpanded;
                                       });
                                     },
-                                    borderRadius: const BorderRadius.vertical(
-                                      top: Radius.circular(12),
-                                    ),
+                                    borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
                                     child: Padding(
                                       padding: const EdgeInsets.all(16.0),
                                       child: Row(
                                         children: <Widget>[
-                                          const Icon(
-                                            Icons.block,
-                                            size: 20,
-                                            color: Colors.red,
-                                          ),
+                                          const Icon(Icons.block, size: 20, color: Colors.red),
                                           const SizedBox(width: 8),
                                           Expanded(
                                             child: Text(
                                               l10n.didYouResist,
-                                              style: const TextStyle(
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.bold,
-                                                color: Colors.red,
-                                              ),
+                                              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.red),
                                             ),
                                           ),
                                           if (_didResist != null)
                                             Container(
-                                              padding: const EdgeInsets.symmetric(
-                                                horizontal: 8,
-                                                vertical: 4,
-                                              ),
+                                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                               decoration: BoxDecoration(
                                                 color: Colors.red.withOpacity(0.1),
                                                 borderRadius: BorderRadius.circular(12),
-                                                border: Border.all(
-                                                  color: Colors.red.withOpacity(0.3),
-                                                ),
+                                                border: Border.all(color: Colors.red.withOpacity(0.3)),
                                               ),
                                               child: Text(
                                                 _didResist ? l10n.yes : l10n.no,
-                                                style: const TextStyle(
-                                                  fontSize: 14,
-                                                  fontWeight: FontWeight.bold,
-                                                  color: Colors.red,
-                                                ),
+                                                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.red),
                                               ),
                                             ),
                                           const SizedBox(width: 4),
-                                          Icon(
-                                            _isResistSectionExpanded 
-                                                ? Icons.expand_less 
-                                                : Icons.expand_more,
-                                            color: Colors.grey,
-                                          ),
+                                          Icon(_isResistSectionExpanded ? Icons.expand_less : Icons.expand_more, color: Colors.grey),
                                         ],
                                       ),
                                     ),
                                   ),
-                                  
+
                                   // Expandable content
                                   if (_isResistSectionExpanded)
-                                    Padding(
-                                      padding: const EdgeInsets.fromLTRB(12, 0, 12, 16),
-                                      child: _buildResistOptions(context, l10n),
-                                    ),
+                                    Padding(padding: const EdgeInsets.fromLTRB(12, 0, 12, 16), child: _buildResistOptions(context, l10n)),
                                 ],
                               ),
                             ),
                           ),
-                          
+
                           const SizedBox(height: 8),
-                          
+
                           // Notes Section - Collapsible
                           Padding(
                             padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
                             child: Card(
                               margin: EdgeInsets.zero,
                               elevation: 0,
-                              color: context.isDarkMode 
-                                  ? Colors.grey[850] 
-                                  : Colors.grey[50],
+                              color: context.isDarkMode ? Colors.grey[850] : Colors.grey[50],
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
                                 side: BorderSide(
-                                  color: _notesController.text.isNotEmpty 
-                                      ? Colors.red 
-                                      : context.isDarkMode
-                                      ? Colors.grey[800]!
-                                      : Colors.grey[300]!,
+                                  color:
+                                      _notesController.text.isNotEmpty
+                                          ? Colors.red
+                                          : context.isDarkMode
+                                          ? Colors.grey[800]!
+                                          : Colors.grey[300]!,
                                   width: _notesController.text.isNotEmpty ? 1.5 : 0.5,
                                 ),
                               ),
@@ -654,127 +510,82 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
                                         _isNotesSectionExpanded = !_isNotesSectionExpanded;
                                       });
                                     },
-                                    borderRadius: const BorderRadius.vertical(
-                                      top: Radius.circular(12),
-                                    ),
+                                    borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
                                     child: Padding(
                                       padding: const EdgeInsets.all(16.0),
                                       child: Row(
                                         children: <Widget>[
-                                          const Icon(
-                                            Icons.note_outlined,
-                                            size: 20,
-                                            color: Colors.red,
-                                          ),
+                                          const Icon(Icons.note_outlined, size: 20, color: Colors.red),
                                           const SizedBox(width: 8),
                                           Expanded(
                                             child: Text(
-                                              l10n.notes, 
-                                              style: const TextStyle(
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.bold,
-                                                color: Colors.red,
-                                              ),
+                                              l10n.notes,
+                                              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.red),
                                             ),
                                           ),
                                           if (_notesController.text.isNotEmpty)
                                             Container(
-                                              constraints: BoxConstraints(
-                                                maxWidth: MediaQuery.of(context).size.width * 0.3,
-                                              ),
-                                              padding: const EdgeInsets.symmetric(
-                                                horizontal: 8,
-                                                vertical: 4,
-                                              ),
+                                              constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.3),
+                                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                               decoration: BoxDecoration(
                                                 color: Colors.red.withOpacity(0.1),
                                                 borderRadius: BorderRadius.circular(12),
-                                                border: Border.all(
-                                                  color: Colors.red.withOpacity(0.3),
-                                                ),
+                                                border: Border.all(color: Colors.red.withOpacity(0.3)),
                                               ),
                                               child: Text(
                                                 _notesController.text.length > 15
                                                     ? "${_notesController.text.substring(0, 15)}..."
                                                     : _notesController.text,
-                                                style: const TextStyle(
-                                                  fontSize: 14,
-                                                  fontWeight: FontWeight.bold,
-                                                  color: Colors.red,
-                                                ),
+                                                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.red),
                                                 overflow: TextOverflow.ellipsis,
                                               ),
                                             ),
                                           const SizedBox(width: 4),
-                                          Icon(
-                                            _isNotesSectionExpanded 
-                                                ? Icons.expand_less 
-                                                : Icons.expand_more,
-                                            color: Colors.grey,
-                                          ),
+                                          Icon(_isNotesSectionExpanded ? Icons.expand_less : Icons.expand_more, color: Colors.grey),
                                         ],
                                       ),
                                     ),
                                   ),
-                                  
+
                                   // Expandable content
                                   if (_isNotesSectionExpanded)
-                                    Padding(
-                                      padding: const EdgeInsets.fromLTRB(12, 0, 12, 16),
-                                      child: _buildNotesField(context, l10n),
-                                    ),
+                                    Padding(padding: const EdgeInsets.fromLTRB(12, 0, 12, 16), child: _buildNotesField(context, l10n)),
                                 ],
                               ),
                             ),
                           ),
-                            
+
                           // Extra space at bottom
                           const SizedBox(height: 70),
                         ],
                       ),
                     ),
                   ),
-                
+
                   // Register button with BlocBuilder
                   BlocBuilder<CravingBloc, CravingState>(
                     builder: (context, state) {
                       final isLoading = state.status == CravingStatus.saving;
-                      
+
                       return ClipRRect(
                         borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
                         child: BackdropFilter(
                           filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
                           child: Container(
                             width: double.infinity,
-                            padding: EdgeInsets.only(
-                              left: 20,
-                              right: 20,
-                              bottom: 16 + MediaQuery.of(context).padding.bottom,
-                              top: 12,
-                            ),
+                            padding: EdgeInsets.only(left: 20, right: 20, bottom: 16 + MediaQuery.of(context).padding.bottom, top: 12),
                             decoration: BoxDecoration(
-                              color: context.isDarkMode 
-                                  ? Colors.black.withOpacity(0.2) 
-                                  : Colors.white.withOpacity(0.2),
+                              color: context.isDarkMode ? Colors.black.withOpacity(0.2) : Colors.white.withOpacity(0.2),
                               borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
                               boxShadow: [
-                                BoxShadow(
-                                  color: const Color.fromRGBO(0, 0, 0, 0.1),
-                                  offset: const Offset(0, -3),
-                                  blurRadius: 10,
-                                  spreadRadius: 1,
-                                ),
+                                BoxShadow(color: const Color.fromRGBO(0, 0, 0, 0.1), offset: const Offset(0, -3), blurRadius: 10, spreadRadius: 1),
                               ],
                               gradient: LinearGradient(
                                 begin: Alignment.topCenter,
                                 end: Alignment.bottomCenter,
                                 colors: [
-                                  context.isDarkMode 
-                                      ? const Color.fromRGBO(255, 255, 255, 0.03) 
-                                      : const Color.fromRGBO(255, 255, 255, 0.7),
-                                  context.isDarkMode 
-                                      ? const Color.fromRGBO(0, 0, 0, 0.3) 
-                                      : const Color.fromRGBO(255, 255, 255, 0.5),
+                                  context.isDarkMode ? const Color.fromRGBO(255, 255, 255, 0.03) : const Color.fromRGBO(255, 255, 255, 0.7),
+                                  context.isDarkMode ? const Color.fromRGBO(0, 0, 0, 0.3) : const Color.fromRGBO(255, 255, 255, 0.5),
                                 ],
                               ),
                             ),
@@ -791,34 +602,20 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
                                       child: BackdropFilter(
                                         filter: ImageFilter.blur(sigmaX: 3, sigmaY: 3),
                                         child: Container(
-                                          padding: const EdgeInsets.symmetric(
-                                            vertical: 8,
-                                            horizontal: 12,
-                                          ),
+                                          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
                                           decoration: BoxDecoration(
                                             color: const Color.fromRGBO(255, 0, 0, 0.1),
                                             borderRadius: BorderRadius.circular(8),
-                                            border: Border.all(
-                                              color: const Color.fromRGBO(255, 0, 0, 0.3),
-                                              width: 1,
-                                            ),
+                                            border: Border.all(color: const Color.fromRGBO(255, 0, 0, 0.3), width: 1),
                                           ),
                                           child: Row(
                                             children: <Widget>[
-                                              const Icon(
-                                                Icons.error_outline,
-                                                color: Colors.red,
-                                                size: 16,
-                                              ),
+                                              const Icon(Icons.error_outline, color: Colors.red, size: 16),
                                               const SizedBox(width: 8),
                                               Expanded(
                                                 child: Text(
                                                   _getValidationMessage(l10n),
-                                                  style: const TextStyle(
-                                                    color: Colors.red,
-                                                    fontSize: 12,
-                                                    fontWeight: FontWeight.w500,
-                                                  ),
+                                                  style: const TextStyle(color: Colors.red, fontSize: 12, fontWeight: FontWeight.w500),
                                                 ),
                                               ),
                                             ],
@@ -833,9 +630,7 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
                                   width: double.infinity,
                                   height: 52,
                                   child: ElevatedButton(
-                                    onPressed: isLoading || !_isFormValid()
-                                        ? null 
-                                        : _saveCraving,
+                                    onPressed: isLoading || !_isFormValid() ? null : _saveCraving,
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: Colors.red,
                                       disabledBackgroundColor: Colors.grey[300],
@@ -843,9 +638,7 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
                                       padding: EdgeInsets.zero,
                                       elevation: 4,
                                       shadowColor: Colors.red.withOpacity(0.4),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(16),
-                                      ),
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                                     ),
                                     child: Ink(
                                       decoration: BoxDecoration(
@@ -860,32 +653,21 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
                                         width: double.infinity,
                                         height: 52,
                                         alignment: Alignment.center,
-                                        child: isLoading
-                                            ? const SizedBox(
-                                                width: 24,
-                                                height: 24,
-                                                child: CircularProgressIndicator(
-                                                  color: Colors.white,
-                                                  strokeWidth: 2,
+                                        child:
+                                            isLoading
+                                                ? const SizedBox(
+                                                  width: 24,
+                                                  height: 24,
+                                                  child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                                                )
+                                                : Row(
+                                                  mainAxisAlignment: MainAxisAlignment.center,
+                                                  children: <Widget>[
+                                                    const Icon(Icons.save_alt, size: 20),
+                                                    const SizedBox(width: 8),
+                                                    Text(l10n.register, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                                                  ],
                                                 ),
-                                              )
-                                            : Row(
-                                                mainAxisAlignment: MainAxisAlignment.center,
-                                                children: <Widget>[
-                                                  const Icon(
-                                                    Icons.save_alt,
-                                                    size: 20,
-                                                  ),
-                                                  const SizedBox(width: 8),
-                                                  Text(
-                                                    l10n.register,
-                                                    style: const TextStyle(
-                                                      fontSize: 16,
-                                                      fontWeight: FontWeight.bold,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
                                       ),
                                     ),
                                   ),
@@ -907,9 +689,7 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
   }
 
   bool _isFormValid() {
-    return _selectedReason != null && 
-           _selectedIntensity != null && 
-           _selectedLocation != null;
+    return _selectedReason != null && _selectedIntensity != null && _selectedLocation != null;
   }
 
   String _getValidationMessage(AppLocalizations l10n) {
@@ -922,52 +702,20 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
     }
     return "";
   }
-  
+
   Widget _buildLocationGrid(BuildContext context, AppLocalizations l10n) {
     final screenHeight = MediaQuery.of(context).size.height;
     final isSmallScreen = screenHeight < 700;
 
     final locations = [
-      _LocationOption(
-        icon: Icons.home_outlined, 
-        label: l10n.home, 
-        value: 'home',
-      ),
-      _LocationOption(
-        icon: Icons.work_outline, 
-        label: l10n.work, 
-        value: 'work',
-      ),
-      _LocationOption(
-        icon: Icons.directions_car_outlined, 
-        label: l10n.car, 
-        value: 'car',
-      ),
-      _LocationOption(
-        icon: Icons.restaurant_outlined, 
-        label: l10n.restaurant, 
-        value: 'restaurant',
-      ),
-      _LocationOption(
-        icon: Icons.local_bar_outlined, 
-        label: l10n.bar, 
-        value: 'bar',
-      ),
-      _LocationOption(
-        icon: Icons.directions_walk_outlined, 
-        label: l10n.street, 
-        value: 'street',
-      ),
-      _LocationOption(
-        icon: Icons.park_outlined, 
-        label: l10n.park, 
-        value: 'park',
-      ),
-      _LocationOption(
-        icon: Icons.more_horiz, 
-        label: l10n.others, 
-        value: 'other',
-      ),
+      _LocationOption(icon: Icons.home_outlined, label: l10n.home, value: 'home'),
+      _LocationOption(icon: Icons.work_outline, label: l10n.work, value: 'work'),
+      _LocationOption(icon: Icons.directions_car_outlined, label: l10n.car, value: 'car'),
+      _LocationOption(icon: Icons.restaurant_outlined, label: l10n.restaurant, value: 'restaurant'),
+      _LocationOption(icon: Icons.local_bar_outlined, label: l10n.bar, value: 'bar'),
+      _LocationOption(icon: Icons.directions_walk_outlined, label: l10n.street, value: 'street'),
+      _LocationOption(icon: Icons.park_outlined, label: l10n.park, value: 'park'),
+      _LocationOption(icon: Icons.more_horiz, label: l10n.others, value: 'other'),
     ];
 
     return GridView.builder(
@@ -982,22 +730,12 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
       itemCount: locations.length,
       itemBuilder: (context, index) {
         final location = locations[index];
-        return _buildLocationOption(
-          context,
-          location.icon,
-          location.label,
-          location.value,
-        );
+        return _buildLocationOption(context, location.icon, location.label, location.value);
       },
     );
   }
 
-  Widget _buildLocationOption(
-    BuildContext context,
-    IconData icon,
-    String label,
-    String value,
-  ) {
+  Widget _buildLocationOption(BuildContext context, IconData icon, String label, String value) {
     final isSelected = _selectedLocation == value;
     final color = Colors.red;
     final screenHeight = MediaQuery.of(context).size.height;
@@ -1012,32 +750,28 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
       },
       borderRadius: BorderRadius.circular(12),
       child: Container(
-        padding: EdgeInsets.symmetric(
-          vertical: isSmallScreen ? 8 : 12,
-          horizontal: isSmallScreen ? 10 : 12,
-        ),
+        padding: EdgeInsets.symmetric(vertical: isSmallScreen ? 8 : 12, horizontal: isSmallScreen ? 10 : 12),
         decoration: BoxDecoration(
-          color: isSelected
-              ? color.withOpacity(0.1)
-              : context.isDarkMode
-                ? Colors.grey.withOpacity(0.1)
-                : Colors.grey.withOpacity(0.05),
+          color:
+              isSelected
+                  ? color.withOpacity(0.1)
+                  : context.isDarkMode
+                  ? Colors.grey.withOpacity(0.1)
+                  : Colors.grey.withOpacity(0.05),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: isSelected ? color : Colors.transparent,
-            width: 1.5,
-          ),
+          border: Border.all(color: isSelected ? color : Colors.transparent, width: 1.5),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
             Icon(
               icon,
-              color: isSelected
-                  ? color
-                  : context.isDarkMode
-                    ? Colors.white
-                    : Colors.grey[800],
+              color:
+                  isSelected
+                      ? color
+                      : context.isDarkMode
+                      ? Colors.white
+                      : Colors.grey[800],
               size: isSmallScreen ? 20 : 24,
             ),
             SizedBox(width: isSmallScreen ? 8 : 12),
@@ -1056,7 +790,7 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
       ),
     );
   }
-  
+
   Widget _buildResistOptions(BuildContext context, AppLocalizations l10n) {
     return Column(
       children: [
@@ -1072,16 +806,14 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
             width: double.infinity,
             padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
             decoration: BoxDecoration(
-              color: _didResist == true
-                  ? Colors.green.withOpacity(0.2)
-                  : context.isDarkMode
-                    ? Colors.grey.withOpacity(0.1)
-                    : Colors.grey.withOpacity(0.05),
+              color:
+                  _didResist == true
+                      ? Colors.green.withOpacity(0.2)
+                      : context.isDarkMode
+                      ? Colors.grey.withOpacity(0.1)
+                      : Colors.grey.withOpacity(0.05),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: _didResist == true ? Colors.green : Colors.transparent,
-                width: 1.5,
-              ),
+              border: Border.all(color: _didResist == true ? Colors.green : Colors.transparent, width: 1.5),
             ),
             child: Row(
               children: <Widget>[
@@ -1091,16 +823,9 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: _didResist == true ? Colors.green : Colors.transparent,
-                    border: Border.all(
-                      color: _didResist == true ? Colors.green : Colors.grey.withOpacity(0.5),
-                      width: 1.5,
-                    ),
+                    border: Border.all(color: _didResist == true ? Colors.green : Colors.grey.withOpacity(0.5), width: 1.5),
                   ),
-                  child: _didResist == true
-                      ? const Center(
-                          child: Icon(Icons.check, size: 14, color: Colors.white),
-                        )
-                      : null,
+                  child: _didResist == true ? const Center(child: Icon(Icons.check, size: 14, color: Colors.white)) : null,
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -1130,16 +855,14 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
             width: double.infinity,
             padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
             decoration: BoxDecoration(
-              color: _didResist == false
-                  ? Colors.red.withOpacity(0.2)
-                  : context.isDarkMode
-                    ? Colors.grey.withOpacity(0.1)
-                    : Colors.grey.withOpacity(0.05),
+              color:
+                  _didResist == false
+                      ? Colors.red.withOpacity(0.2)
+                      : context.isDarkMode
+                      ? Colors.grey.withOpacity(0.1)
+                      : Colors.grey.withOpacity(0.05),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: _didResist == false ? Colors.red : Colors.transparent,
-                width: 1.5,
-              ),
+              border: Border.all(color: _didResist == false ? Colors.red : Colors.transparent, width: 1.5),
             ),
             child: Row(
               children: <Widget>[
@@ -1149,16 +872,9 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: _didResist == false ? Colors.red : Colors.transparent,
-                    border: Border.all(
-                      color: _didResist == false ? Colors.red : Colors.grey.withOpacity(0.5),
-                      width: 1.5,
-                    ),
+                    border: Border.all(color: _didResist == false ? Colors.red : Colors.grey.withOpacity(0.5), width: 1.5),
                   ),
-                  child: _didResist == false
-                      ? const Center(
-                          child: Icon(Icons.check, size: 14, color: Colors.white),
-                        )
-                      : null,
+                  child: _didResist == false ? const Center(child: Icon(Icons.check, size: 14, color: Colors.white)) : null,
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -1192,10 +908,7 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
             child: Container(
               width: 40,
               height: 4,
-              decoration: BoxDecoration(
-                color: Colors.grey.withAlpha(77),
-                borderRadius: BorderRadius.circular(2),
-              ),
+              decoration: BoxDecoration(color: Colors.grey.withAlpha(77), borderRadius: BorderRadius.circular(2)),
             ),
           ),
 
@@ -1221,36 +934,12 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
     final isSmallScreen = screenHeight < 700;
 
     final reasons = [
-      _ReasonOption(
-        icon: Icons.psychology, 
-        label: l10n.stress, 
-        value: 'stress',
-      ),
-      _ReasonOption(
-        icon: Icons.coffee, 
-        label: l10n.coffee, 
-        value: 'coffee',
-      ),
-      _ReasonOption(
-        icon: Icons.sentiment_very_dissatisfied, 
-        label: l10n.anxiety, 
-        value: 'anxiety',
-      ),
-      _ReasonOption(
-        icon: Icons.wine_bar, 
-        label: l10n.alcohol, 
-        value: 'alcohol',
-      ),
-      _ReasonOption(
-        icon: Icons.people_alt_outlined, 
-        label: l10n.socialSituation, 
-        value: 'social',
-      ),
-      _ReasonOption(
-        icon: Icons.fastfood_outlined, 
-        label: l10n.afterMeal, 
-        value: 'after_meal',
-      ),
+      _ReasonOption(icon: Icons.psychology, label: l10n.stress, value: 'stress'),
+      _ReasonOption(icon: Icons.coffee, label: l10n.coffee, value: 'coffee'),
+      _ReasonOption(icon: Icons.sentiment_very_dissatisfied, label: l10n.anxiety, value: 'anxiety'),
+      _ReasonOption(icon: Icons.wine_bar, label: l10n.alcohol, value: 'alcohol'),
+      _ReasonOption(icon: Icons.people_alt_outlined, label: l10n.socialSituation, value: 'social'),
+      _ReasonOption(icon: Icons.fastfood_outlined, label: l10n.afterMeal, value: 'after_meal'),
     ];
 
     return GridView.builder(
@@ -1265,22 +954,12 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
       itemCount: reasons.length,
       itemBuilder: (context, index) {
         final reason = reasons[index];
-        return _buildReasonOption(
-          context,
-          reason.icon,
-          reason.label,
-          reason.value,
-        );
+        return _buildReasonOption(context, reason.icon, reason.label, reason.value);
       },
     );
   }
 
-  Widget _buildReasonOption(
-    BuildContext context,
-    IconData icon,
-    String label,
-    String value,
-  ) {
+  Widget _buildReasonOption(BuildContext context, IconData icon, String label, String value) {
     final isSelected = _selectedReason == value;
     final color = Colors.red;
     final screenHeight = MediaQuery.of(context).size.height;
@@ -1295,32 +974,28 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
       },
       borderRadius: BorderRadius.circular(12),
       child: Container(
-        padding: EdgeInsets.symmetric(
-          vertical: isSmallScreen ? 8 : 12,
-          horizontal: isSmallScreen ? 10 : 12,
-        ),
+        padding: EdgeInsets.symmetric(vertical: isSmallScreen ? 8 : 12, horizontal: isSmallScreen ? 10 : 12),
         decoration: BoxDecoration(
-          color: isSelected
-              ? color.withOpacity(0.1)
-              : context.isDarkMode
-                ? Colors.grey.withOpacity(0.1)
-                : Colors.grey.withOpacity(0.05),
+          color:
+              isSelected
+                  ? color.withOpacity(0.1)
+                  : context.isDarkMode
+                  ? Colors.grey.withOpacity(0.1)
+                  : Colors.grey.withOpacity(0.05),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: isSelected ? color : Colors.transparent,
-            width: 1.5,
-          ),
+          border: Border.all(color: isSelected ? color : Colors.transparent, width: 1.5),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
             Icon(
               icon,
-              color: isSelected
-                  ? color
-                  : context.isDarkMode
-                    ? Colors.white
-                    : Colors.grey[800],
+              color:
+                  isSelected
+                      ? color
+                      : context.isDarkMode
+                      ? Colors.white
+                      : Colors.grey[800],
               size: isSmallScreen ? 20 : 24,
             ),
             SizedBox(width: isSmallScreen ? 8 : 12),
@@ -1349,35 +1024,24 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
     ];
 
     return Column(
-      children: intensities
-          .map(
-            (intensity) => Padding(
-              padding: const EdgeInsets.only(bottom: 8),
-              child: _buildIntensityOption(
-                context,
-                intensity.label,
-                intensity.value,
-                _selectedIntensity == intensity.value,
-                (value) {
-                  setState(() {
-                    _selectedIntensity = value ? intensity.value : null;
-                    _updateSectionStates();
-                  });
-                },
-              ),
-            ),
-          )
-          .toList(),
+      children:
+          intensities
+              .map(
+                (intensity) => Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: _buildIntensityOption(context, intensity.label, intensity.value, _selectedIntensity == intensity.value, (value) {
+                    setState(() {
+                      _selectedIntensity = value ? intensity.value : null;
+                      _updateSectionStates();
+                    });
+                  }),
+                ),
+              )
+              .toList(),
     );
   }
 
-  Widget _buildIntensityOption(
-    BuildContext context,
-    String label,
-    String value,
-    bool isSelected,
-    Function(bool) onSelected,
-  ) {
+  Widget _buildIntensityOption(BuildContext context, String label, String value, bool isSelected, Function(bool) onSelected) {
     final color = Colors.red;
 
     return InkWell(
@@ -1389,16 +1053,14 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
         width: double.infinity,
         padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
         decoration: BoxDecoration(
-          color: isSelected
-              ? color.withOpacity(0.2)
-              : context.isDarkMode
-                ? Colors.grey.withOpacity(0.1)
-                : Colors.grey.withOpacity(0.05),
+          color:
+              isSelected
+                  ? color.withOpacity(0.2)
+                  : context.isDarkMode
+                  ? Colors.grey.withOpacity(0.1)
+                  : Colors.grey.withOpacity(0.05),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: isSelected ? color : Colors.transparent,
-            width: 1.5,
-          ),
+          border: Border.all(color: isSelected ? color : Colors.transparent, width: 1.5),
         ),
         child: Row(
           children: <Widget>[
@@ -1409,16 +1071,9 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: isSelected ? color : Colors.transparent,
-                border: Border.all(
-                  color: isSelected ? color : Colors.grey.withOpacity(0.5),
-                  width: 1.5,
-                ),
+                border: Border.all(color: isSelected ? color : Colors.grey.withOpacity(0.5), width: 1.5),
               ),
-              child: isSelected
-                  ? const Center(
-                      child: Icon(Icons.check, size: 14, color: Colors.white),
-                    )
-                  : null,
+              child: isSelected ? const Center(child: Icon(Icons.check, size: 14, color: Colors.white)) : null,
             ),
             const SizedBox(width: 12),
             // Option text
@@ -1448,15 +1103,9 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
       },
       child: Container(
         decoration: BoxDecoration(
-          color: context.isDarkMode
-              ? Colors.grey.withOpacity(0.1)
-              : Colors.grey.withOpacity(0.05),
+          color: context.isDarkMode ? Colors.grey.withOpacity(0.1) : Colors.grey.withOpacity(0.05),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: context.isDarkMode
-                ? Colors.grey.withOpacity(0.3)
-                : Colors.grey.withOpacity(0.2),
-          ),
+          border: Border.all(color: context.isDarkMode ? Colors.grey.withOpacity(0.3) : Colors.grey.withOpacity(0.2)),
         ),
         child: TextField(
           controller: _notesController,
@@ -1464,18 +1113,11 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
           minLines: 1,
           decoration: InputDecoration(
             hintText: l10n.howDoYouFeel,
-            hintStyle: TextStyle(
-              color: context.subtitleColor,
-              fontSize: isSmallScreen ? 12 : 13,
-            ),
+            hintStyle: TextStyle(color: context.subtitleColor, fontSize: isSmallScreen ? 12 : 13),
             contentPadding: EdgeInsets.all(isSmallScreen ? 10 : 12),
             border: InputBorder.none,
             suffixIcon: IconButton(
-              icon: Icon(
-                Icons.check_circle_outline,
-                color: Colors.red.withOpacity(0.7),
-                size: 20,
-              ),
+              icon: Icon(Icons.check_circle_outline, color: Colors.red.withOpacity(0.7), size: 20),
               onPressed: () {
                 FocusScope.of(context).unfocus();
               },
@@ -1527,7 +1169,7 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
         return value;
     }
   }
-  
+
   // Method to get readable label for a selected location
   String _getLocationLabel(String value) {
     final l10n = AppLocalizations.of(context);
@@ -1558,25 +1200,23 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
 
     final authBloc = BlocProvider.of<AuthBloc>(context);
     final cravingBloc = BlocProvider.of<CravingBloc>(context);
+    final trackingBloc = BlocProvider.of<TrackingBloc>(context);
+    final l10n = AppLocalizations.of(context);
 
     // Ensure user is authenticated
     if (authBloc.state.status != bloc_auth.AuthStatus.authenticated) {
       if (kDebugMode) {
         print('❌ Cannot save craving: User not authenticated');
       }
-      // Show error message
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error: User not authenticated'),
-          backgroundColor: Colors.red,
-          duration: const Duration(seconds: 3),
-        ),
-      );
+      // Show error message with proper localization
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Not authenticated"), backgroundColor: Colors.red, duration: const Duration(seconds: 3)));
       return;
     }
 
     final userId = authBloc.state.user!.id;
-    
+
     // Create the craving record
     final craving = CravingModel(
       trigger: _selectedReason!,
@@ -1588,99 +1228,75 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
       userId: userId,
     );
 
-    // Adiciona logs detalhados para debug
     if (kDebugMode) {
-      print('🔍 DETALHES DO CRAVING:');
-      print('- Trigger: ${craving.trigger}');
-      print('- Intensity: ${craving.intensity}');
-      print('- Location: ${craving.location}');
-      print('- Resisted: ${craving.resisted}');
-      print('- Notes: ${craving.notes}');
-      print('- Timestamp: ${craving.timestamp}');
-      print('- UserID: ${craving.userId}');
-      
-      // Visualiza o JSON que será enviado
-      final jsonData = craving.toJson();
-      print('📦 JSON A SER ENVIADO:');
-      jsonData.forEach((key, value) => print('- $key: $value'));
+      print('📊 [RegisterCravingSheet] Saving craving: resisted=${_didResist}');
     }
-    
-    // Log para depuração
-    if (kDebugMode) {
-      print('📝 PREPARANDO ENVIO DO EVENTO PARA O BLOC');
-      print('📝 VERIFICANDO ESTADO DO BLOC: ${cravingBloc.state.status}');
-    }
-    
-    // Mostrar indicador de carregamento temporário
-    ScaffoldMessenger.of(context).showSnackBar(
+
+    // Exibir indicador de carregamento
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+    scaffoldMessenger.showSnackBar(
       SnackBar(
         content: Row(
           children: [
             const SizedBox(
               width: 20,
               height: 20,
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-              ),
+              child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(Colors.white)),
             ),
-            const SizedBox(width: 12),
-            Text('Saving craving record...'),
+            const SizedBox(width: 16),
+            Text(_didResist ? "Registrando craving resistido..." : "Registrando craving..."),
           ],
         ),
-        duration: const Duration(seconds: 2),
-        backgroundColor: Colors.green.shade700,
+        duration: const Duration(seconds: 1),
       ),
     );
-    
-    // IMPORTANTE: Dispatch the event to save the craving
-    // Esta é a linha que envia o evento para o BLoC processar
-    if (kDebugMode) {
-      print('🚀 ENVIANDO EVENTO SaveCravingRequested PARA O BLOC...');
-    }
-    
+
+    // Dispatch the save event to the bloc - this will update the database
     cravingBloc.add(SaveCravingRequested(craving: craving));
+
+    // Notificar o TrackingBloc para atualizar as estatísticas na base de dados
+    // TrackingBloc irá buscar dados atualizados após a conclusão
+    trackingBloc.add(CravingAdded(resisted: _didResist));
     
-    if (kDebugMode) {
-      print('✅ EVENTO ENVIADO COM SUCESSO!');
-      print('📝 VERIFICANDO NOVO ESTADO DO BLOC APÓS ENVIO: ${cravingBloc.state.status}');
-    }
+    // Forçar atualização completa para garantir contagem correta
+    trackingBloc.add(ForceUpdateStats());
     
-    // Pequeno atraso para garantir que o evento foi enfileirado antes de fechar o sheet
-    // Isso evita problemas de concorrência onde o evento poderia ser perdido
-    Future.delayed(const Duration(milliseconds: 300), () {
+    // Verificar recuperações de saúde usando nossa implementação local
+    Future.delayed(const Duration(milliseconds: 500), () {
       if (kDebugMode) {
-        print('⏰ ATRASO DE SEGURANÇA CONCLUÍDO, FECHANDO SHEET...');
+        print('🏥 [RegisterCravingSheet] Verificando recuperações de saúde após registrar craving');
       }
       
-      // Determine cravingsResisted count for optimistic update
-      // Only increment if craving was resisted
-      int cravingsResisted = _didResist ? 1 : 0;
+      final trackingRepository = TrackingRepository();
       
-      if (kDebugMode) {
-        print('✅ [RegisterCravingSheet] Closing sheet with didResist=$_didResist, cravingsResisted=$cravingsResisted');
-      }
-      
-      // Fechar o sheet com dados para atualização otimista na tela principal
-      if (Navigator.canPop(context)) {
-        Navigator.of(context).pop({
-          'registered': true,
-          'stats': {
-            'cravingsResisted': cravingsResisted,
-            'didResist': _didResist,
-            'intensity': _selectedIntensity,
+      // A chamada para checkHealthRecoveries já está usando a implementação local
+      trackingRepository.checkHealthRecoveries(updateAchievements: true)
+        .then((result) {
+          if (kDebugMode) {
+            print('✅ [RegisterCravingSheet] Verificação de recuperações de saúde concluída:');
+            print('Dias sem fumar: ${result['days_smoke_free']}');
+            print('Novas conquistas: ${result['new_achievements']?.length ?? 0}');
+          }
+        })
+        .catchError((error) {
+          if (kDebugMode) {
+            print('⚠️ [RegisterCravingSheet] Erro ao verificar recuperações de saúde: $error');
           }
         });
-        
-        if (kDebugMode) {
-          print('👋 SHEET FECHADO. PROCESSO CONTINUARÁ EM SEGUNDO PLANO.');
-        }
-      } else {
-        if (kDebugMode) {
-          print('⚠️ NAVEGADOR JÁ FECHADO, NADA A FAZER.');
-        }
-      }
     });
+    
+    if (kDebugMode) {
+      print('🔄 [RegisterCravingSheet] Forcing stats update to ensure accurate cravings count');
+    }
+
+    // Close the sheet with the result
+    if (Navigator.canPop(context)) {
+      Navigator.of(context).pop({'registered': true});
+
+      if (kDebugMode) {
+        print('👋 [RegisterCravingSheet] Sheet closed, database update in progress');
+      }
+    }
   }
 }
 
@@ -1689,11 +1305,7 @@ class _ReasonOption {
   final String label;
   final String value;
 
-  const _ReasonOption({
-    required this.icon,
-    required this.label,
-    required this.value,
-  });
+  const _ReasonOption({required this.icon, required this.label, required this.value});
 }
 
 class _IntensityOption {
@@ -1708,9 +1320,5 @@ class _LocationOption {
   final String label;
   final String value;
 
-  const _LocationOption({
-    required this.icon,
-    required this.label,
-    required this.value,
-  });
+  const _LocationOption({required this.icon, required this.label, required this.value});
 }
