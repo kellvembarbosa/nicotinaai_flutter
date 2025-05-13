@@ -36,7 +36,7 @@ class SuperwallTrackingAdapter implements TrackingAdapter {
   Future<void> trackEventOnlyPaid(
     String eventName, {
     Map<String, dynamic>? parameters,
-    VoidCallback? onPaidFeature,
+    required VoidCallback onPaidFeature,
   }) async {
     if (!_isInitialized || !_isTrackingEnabled) return;
     sw.Superwall.shared.registerPlacement(

@@ -10,6 +10,7 @@ import 'package:go_router/go_router.dart';
 import 'package:nicotinaai_flutter/core/routes/app_routes.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
+import 'package:nicotinaai_flutter/services/analytics/analytics_service.dart';
 import 'package:nicotinaai_flutter/utils/supported_currencies.dart';
 import 'package:nicotinaai_flutter/utils/currency_utils.dart';
 import 'dart:ui';
@@ -24,29 +25,29 @@ class CompletionScreen extends StatefulWidget {
 class _CompletionScreenState extends State<CompletionScreen> {
   // Removendo opção de alternância, sempre usando grid
   bool _isGridView = true;
-  
+
   // Formata o valor para exibição de acordo com a moeda
   String _formatCurrency(double value, String? currencyCode) {
     // Garantir que sempre temos um valor válido mesmo se for nulo
     if (value.isNaN || value.isInfinite) {
       value = 0;
     }
-    
+
     // Verificar se temos um código de moeda válido
     if (currencyCode == null || currencyCode.isEmpty) {
       // Se não tivermos, use a moeda padrão
       currencyCode = SupportedCurrencies.defaultCurrency.code;
     }
-    
+
     final currency = SupportedCurrencies.getByCurrencyCode(currencyCode);
     if (currency != null) {
       final valueInCents = (value * 100).round();
       try {
         return CurrencyUtils().format(
-          valueInCents, 
+          valueInCents,
           user: null, // Não temos acesso ao usuário aqui, então passamos null
           currencySymbol: currency.symbol,
-          currencyLocale: currency.locale
+          currencyLocale: currency.locale,
         );
       } catch (e) {
         // Em caso de erro, usar formatação de fallback
@@ -60,30 +61,31 @@ class _CompletionScreenState extends State<CompletionScreen> {
   @override
   Widget build(BuildContext context) {
     final localizations = AppLocalizations.of(context);
-    
+
     return BlocBuilder<OnboardingBloc, OnboardingState>(
       builder: (context, state) {
         final onboarding = state.onboarding;
-        
+
         if (onboarding == null) {
           return const Center(child: CircularProgressIndicator());
         }
-        
+
         // Calcular economia mensal
         final cigarettesPerDay = onboarding.cigarettesPerDayCount ?? 0;
         final packPrice = onboarding.packPrice ?? 0;
         final cigarettesPerPack = onboarding.cigarettesPerPack ?? 20;
-        
+
         // Calcular o gasto diário em centavos
         final dailyCost = cigarettesPerDay * (packPrice / cigarettesPerPack);
         // Calcular o gasto mensal em reais
         final monthlyCost = (dailyCost * 30) / 100;
-        
+
         // Texto para o objetivo
-        final goalText = onboarding.goal == GoalType.reduce 
-            ? localizations.reduceConsumption
-            : localizations.quitSmoking;
-        
+        final goalText =
+            onboarding.goal == GoalType.reduce
+                ? localizations.reduceConsumption
+                : localizations.quitSmoking;
+
         // Texto para o prazo
         String timelineText = localizations.atYourOwnPace;
         if (onboarding.goalTimeline == GoalTimeline.sevenDays) {
@@ -103,12 +105,10 @@ class _CompletionScreenState extends State<CompletionScreen> {
           content: Column(
             children: [
               const SizedBox(height: 16), // Reduzido para 16
-              
               // Imagem de sucesso com glassmorphism
               _buildSuccessIcon(context),
-              
+
               const SizedBox(height: 20), // Reduzido para 20
-              
               // Título centralizado sem alternância de layout
               Text(
                 localizations.congratulations,
@@ -119,12 +119,11 @@ class _CompletionScreenState extends State<CompletionScreen> {
                 ),
                 textAlign: TextAlign.center,
               ),
-              
+
               const SizedBox(height: 10), // Reduzido para 10
-              
               // Resumo personalizado - mais compacto
               Text(
-                onboarding.goal == GoalType.reduce 
+                onboarding.goal == GoalType.reduce
                     ? localizations.personalizedPlanReduce(timelineText)
                     : localizations.personalizedPlanQuit(timelineText),
                 style: context.textTheme.bodyMedium?.copyWith(
@@ -134,78 +133,102 @@ class _CompletionScreenState extends State<CompletionScreen> {
                 ),
                 textAlign: TextAlign.center,
               ),
-              
+
               const SizedBox(height: 16), // Reduzido para 16
-              
               // Painel de resumo
-              _buildSummaryPanel(context, cigarettesPerDay, monthlyCost, goalText, onboarding),
-              
+              _buildSummaryPanel(
+                context,
+                cigarettesPerDay,
+                monthlyCost,
+                goalText,
+                onboarding,
+              ),
+
               const SizedBox(height: 20), // Reduzido para 20
-              
               // Sempre mostra benefícios em grid, sem opção de lista
               _buildBenefitsGrid(context),
-              
+
               // Ajustar para deixar espaço para o botão no bottom
               const SizedBox(height: 24), // Reduzido para 24
             ],
           ),
           onNext: () async {
-            // Mostrar indicador de carregamento
-            // ignore: use_build_context_synchronously
-            showDialog(
-              context: context,
-              barrierDismissible: false,
-              builder: (context) => Center(
-                child: CircularProgressIndicator(
-                  color: context.primaryColor,
-                ),
-              ),
-            );
-            
-            try {
-              // Abordagem simplificada: completar onboarding com foco na UI
-              print('✅ [CompletionScreen] Completando onboarding');
-              
-              // Usando o BLoC para completar o onboarding
-              context.read<OnboardingBloc>().add(CompleteOnboarding());
-              
-              // Pequeno delay para garantir que o estado seja propagado
-              await Future.delayed(const Duration(milliseconds: 300));
-              
-              // Fechar o diálogo de carregamento e navegar
-              if (context.mounted) {
-                Navigator.of(context).pop();
-                
-                // Navegar imediatamente para a tela principal
-                print('🚀 [CompletionScreen] Navegando para a tela principal');
-                context.go(AppRoutes.main.path);
-              }
-            } catch (e) {
-              print('❌ [CompletionScreen] Erro ao completar onboarding: $e');
-              
-              // Mesmo com erro, tentar realizar a navegação
-              if (context.mounted) {
-                Navigator.of(context).pop();
-                
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(localizations.somethingWentWrong),
-                    duration: const Duration(seconds: 2),
-                    behavior: SnackBarBehavior.floating,
-                  ),
+            // Rastrear o evento em todos os adaptadores
+            await AnalyticsService().trackEventOnlyPaid(
+              'start_my_journey',
+              parameters: {
+                'screen': 'completion',
+                'cigarettes_per_day': onboarding.cigarettesPerDayCount,
+                'goal': onboarding.goal?.toString(),
+                'monthly_savings': monthlyCost,
+                'currency': onboarding.packPriceCurrency,
+              },
+              onPaidFeature: () async {
+                // Ação a ser executada quando o recurso pago é ativado
+                print('💰 [CompletionScreen] Feature paga ativada');
+                // Mostrar indicador de carregamento
+                // ignore: use_build_context_synchronously
+                showDialog(
+                  context: context,
+                  barrierDismissible: false,
+                  builder:
+                      (context) => Center(
+                        child: CircularProgressIndicator(
+                          color: context.primaryColor,
+                        ),
+                      ),
                 );
-                
-                // Navegação de fallback mesmo com erro
-                print('⚠️ [CompletionScreen] Navegando com fallback');
-                context.go(AppRoutes.main.path);
-              }
-            }
+
+                try {
+                  // Abordagem simplificada: completar onboarding com foco na UI
+                  print('✅ [CompletionScreen] Completando onboarding');
+
+                  // Usando o BLoC para completar o onboarding
+                  context.read<OnboardingBloc>().add(CompleteOnboarding());
+
+                  // Pequeno delay para garantir que o estado seja propagado
+                  await Future.delayed(const Duration(milliseconds: 300));
+
+                  // Fechar o diálogo de carregamento e navegar
+                  if (context.mounted) {
+                    Navigator.of(context).pop();
+
+                    // Navegar imediatamente para a tela principal
+                    print(
+                      '🚀 [CompletionScreen] Navegando para a tela principal',
+                    );
+                    context.go(AppRoutes.main.path);
+                  }
+                } catch (e) {
+                  print(
+                    '❌ [CompletionScreen] Erro ao completar onboarding: $e',
+                  );
+
+                  // Mesmo com erro, tentar realizar a navegação
+                  if (context.mounted) {
+                    Navigator.of(context).pop();
+
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(localizations.somethingWentWrong),
+                        duration: const Duration(seconds: 2),
+                        behavior: SnackBarBehavior.floating,
+                      ),
+                    );
+
+                    // Navegação de fallback mesmo com erro
+                    print('⚠️ [CompletionScreen] Navegando com fallback');
+                    context.go(AppRoutes.main.path);
+                  }
+                }
+              },
+            );
           },
         );
       },
     );
   }
-  
+
   // Widget para o ícone de sucesso com fundo blur - super compacto
   Widget _buildSuccessIcon(BuildContext context) {
     return ClipRRect(
@@ -216,14 +239,16 @@ class _CompletionScreenState extends State<CompletionScreen> {
           width: double.infinity,
           height: 120, // Reduzido para 120
           decoration: BoxDecoration(
-            color: context.isDarkMode 
-                ? context.primaryColor.withOpacity(0.15) 
-                : context.primaryColor.withOpacity(0.1),
+            color:
+                context.isDarkMode
+                    ? context.primaryColor.withOpacity(0.15)
+                    : context.primaryColor.withOpacity(0.1),
             borderRadius: BorderRadius.circular(12), // Reduzido para 12
             border: Border.all(
-              color: context.isDarkMode 
-                  ? context.primaryColor.withOpacity(0.3)
-                  : context.primaryColor.withOpacity(0.2),
+              color:
+                  context.isDarkMode
+                      ? context.primaryColor.withOpacity(0.3)
+                      : context.primaryColor.withOpacity(0.2),
               width: 1, // Reduzido para 1
             ),
           ),
@@ -238,34 +263,38 @@ class _CompletionScreenState extends State<CompletionScreen> {
       ),
     );
   }
-  
+
   // Painel de resumo com suporte a dark mode - otimizado para telas pequenas
-  Widget _buildSummaryPanel(BuildContext context, int cigarettesPerDay, double monthlyCost, String goalText, OnboardingModel onboarding) {
+  Widget _buildSummaryPanel(
+    BuildContext context,
+    int cigarettesPerDay,
+    double monthlyCost,
+    String goalText,
+    OnboardingModel onboarding,
+  ) {
     final localizations = AppLocalizations.of(context);
-    
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(12), // Reduzido para 12
       decoration: BoxDecoration(
-        color: context.isDarkMode 
-            ? const Color(0xFF1A1A1A)
-            : Colors.grey[50],
+        color: context.isDarkMode ? const Color(0xFF1A1A1A) : Colors.grey[50],
         borderRadius: BorderRadius.circular(10), // Reduzido para 10
         border: Border.all(
-          color: context.isDarkMode 
-              ? const Color(0xFF333333)
-              : Colors.grey[200]!,
+          color:
+              context.isDarkMode ? const Color(0xFF333333) : Colors.grey[200]!,
           width: 0.5, // Reduzido para 0.5
         ),
-        boxShadow: context.isDarkMode 
-            ? null
-            : [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  blurRadius: 8, // Reduzido para 8
-                  offset: const Offset(0, 1), // Reduzido para 1
-                ),
-              ],
+        boxShadow:
+            context.isDarkMode
+                ? null
+                : [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 8, // Reduzido para 8
+                    offset: const Offset(0, 1), // Reduzido para 1
+                  ),
+                ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -279,7 +308,6 @@ class _CompletionScreenState extends State<CompletionScreen> {
             ),
           ),
           const SizedBox(height: 8), // Reduzido para 8
-          
           // Consumo
           _buildInfoItem(
             context,
@@ -287,9 +315,9 @@ class _CompletionScreenState extends State<CompletionScreen> {
             localizations.dailyConsumption,
             localizations.cigarettesPerDayValue(cigarettesPerDay),
           ),
-          
+
           _buildDivider(context),
-          
+
           // Economia financeira
           _buildInfoItem(
             context,
@@ -297,19 +325,23 @@ class _CompletionScreenState extends State<CompletionScreen> {
             localizations.potentialMonthlySavings,
             _formatCurrency(monthlyCost, onboarding.packPriceCurrency),
           ),
-          
+
           _buildDivider(context),
-          
+
           // Objetivo
           _buildInfoItem(
             context,
-            onboarding.goal == GoalType.reduce ? Icons.trending_down : Icons.smoke_free,
+            onboarding.goal == GoalType.reduce
+                ? Icons.trending_down
+                : Icons.smoke_free,
             localizations.yourGoal,
-            onboarding.goal == GoalType.reduce ? localizations.reduceConsumption : localizations.quitSmoking,
+            onboarding.goal == GoalType.reduce
+                ? localizations.reduceConsumption
+                : localizations.quitSmoking,
           ),
-          
+
           _buildDivider(context),
-          
+
           // Desafio principal
           _buildInfoItem(
             context,
@@ -321,7 +353,7 @@ class _CompletionScreenState extends State<CompletionScreen> {
       ),
     );
   }
-  
+
   // Divider adaptado para dark mode - mais compacto
   Widget _buildDivider(BuildContext context) {
     return Divider(
@@ -330,50 +362,51 @@ class _CompletionScreenState extends State<CompletionScreen> {
       thickness: 0.5, // Mais fino
     );
   }
-  
+
   // Lista de benefícios
   Widget _buildBenefitsList(BuildContext context) {
     final localizations = AppLocalizations.of(context);
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildBenefitItem(
           context,
           localizations.personalized,
-          localizations.personalizedDescription
+          localizations.personalizedDescription,
         ),
-        
+
         _buildBenefitItem(
           context,
           localizations.importantAchievements,
-          localizations.achievementsDescription
+          localizations.achievementsDescription,
         ),
-        
+
         _buildBenefitItem(
           context,
           localizations.supportWhenNeeded,
-          localizations.supportDescription
+          localizations.supportDescription,
         ),
-        
+
         _buildBenefitItem(
           context,
           localizations.guaranteedResults,
-          localizations.resultsDescription
+          localizations.resultsDescription,
         ),
       ],
     );
   }
-  
+
   // Grid de benefícios otimizado para telas pequenas
   Widget _buildBenefitsGrid(BuildContext context) {
     final localizations = AppLocalizations.of(context);
-    
+
     return GridView.count(
       crossAxisCount: 2,
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      childAspectRatio: 1.1, // Ligeiramente mais alto que largo para melhor visualização
+      childAspectRatio:
+          1.1, // Ligeiramente mais alto que largo para melhor visualização
       crossAxisSpacing: 6, // Reduzido para 6
       mainAxisSpacing: 6, // Reduzido para 6
       padding: EdgeInsets.zero, // Sem padding extra
@@ -405,9 +438,14 @@ class _CompletionScreenState extends State<CompletionScreen> {
       ],
     );
   }
-  
+
   // Card para o layout de grid - super compacto para telas pequenas
-  Widget _buildBenefitCard(BuildContext context, IconData icon, String title, String description) {
+  Widget _buildBenefitCard(
+    BuildContext context,
+    IconData icon,
+    String title,
+    String description,
+  ) {
     return Card(
       elevation: context.isDarkMode ? 0 : 1,
       color: context.cardColor,
@@ -415,7 +453,8 @@ class _CompletionScreenState extends State<CompletionScreen> {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(8), // Reduzido para 8
         side: BorderSide(
-          color: context.isDarkMode ? const Color(0xFF333333) : Colors.transparent,
+          color:
+              context.isDarkMode ? const Color(0xFF333333) : Colors.transparent,
           width: 0.5, // Mais fino
         ),
       ),
@@ -466,7 +505,7 @@ class _CompletionScreenState extends State<CompletionScreen> {
       ),
     );
   }
-  
+
   IconData _getChallengeIcon(QuitChallenge? challenge) {
     switch (challenge) {
       case QuitChallenge.stress:
@@ -481,10 +520,10 @@ class _CompletionScreenState extends State<CompletionScreen> {
         return Icons.help_outline;
     }
   }
-  
+
   String _getChallengeText(QuitChallenge? challenge) {
     final localizations = AppLocalizations.of(context);
-    
+
     switch (challenge) {
       case QuitChallenge.stress:
         return localizations.stressAnxiety;
@@ -498,8 +537,13 @@ class _CompletionScreenState extends State<CompletionScreen> {
         return localizations.notSpecified;
     }
   }
-  
-  Widget _buildInfoItem(BuildContext context, IconData icon, String title, String value) {
+
+  Widget _buildInfoItem(
+    BuildContext context,
+    IconData icon,
+    String title,
+    String value,
+  ) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6.0), // Reduzido para 6
       child: Row(
@@ -545,8 +589,12 @@ class _CompletionScreenState extends State<CompletionScreen> {
       ),
     );
   }
-  
-  Widget _buildBenefitItem(BuildContext context, String title, String description) {
+
+  Widget _buildBenefitItem(
+    BuildContext context,
+    String title,
+    String description,
+  ) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 10.0), // Reduzido para 10
       child: Row(

@@ -156,7 +156,7 @@ class PostHogTrackingAdapter implements TrackingAdapter {
   Future<void> trackEventOnlyPaid(
     String eventName, {
     Map<String, dynamic>? parameters,
-    VoidCallback? onPaidFeature,
+    required VoidCallback onPaidFeature,
   }) async {
     // Implementação específica para eventos pagos
     if (!_isInitialized) {
@@ -173,7 +173,7 @@ class PostHogTrackingAdapter implements TrackingAdapter {
     print('🔒 [PostHogTracking] Tracking paid feature: $eventName');
 
     // Execute the paid feature callback if provided
-    onPaidFeature?.call();
+    // onPaidFeature?.call();
 
     // Track the event
     return trackEvent(eventName, parameters: parameters);

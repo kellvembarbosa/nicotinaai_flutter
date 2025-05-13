@@ -228,6 +228,31 @@ class AnalyticsService {
   Future<void> logFeatureUsage(String featureName) async {
     await trackEvent('feature_used', parameters: {'feature': featureName});
   }
+
+  /// Track an event on all adapters (previously was only for paid)
+  /// Now all adapters receive these events
+  Future<void> trackEventOnlyPaid(
+    String eventName, {
+    Map<String, dynamic>? parameters,
+    required VoidCallback onPaidFeature,
+  }) async {
+    if (!_isInitialized) {
+      await initialize();
+    }
+
+    debugPrint(
+      '📊 [AnalyticsService] Tracking event (formerly only paid): $eventName with parameters: $parameters',
+    );
+
+    // Track event on all adapters
+    for (final adapter in _adapters) {
+      await adapter.trackEventOnlyPaid(
+        eventName,
+        parameters: parameters,
+        onPaidFeature: onPaidFeature,
+      );
+    }
+  }
 }
 
 // Superwall tracking adapter factory

@@ -157,7 +157,7 @@ class FacebookTrackingAdapter implements TrackingAdapter {
   Future<void> trackEventOnlyPaid(
     String eventName, {
     Map<String, dynamic>? parameters,
-    VoidCallback? onPaidFeature,
+    required VoidCallback onPaidFeature,
   }) async {
     // Implementação específica para eventos pagos
     if (!_isInitialized) {
@@ -173,7 +173,7 @@ class FacebookTrackingAdapter implements TrackingAdapter {
 
     try {
       // Execute the paid feature callback
-      onPaidFeature?.call();
+      // onPaidFeature?.call();
 
       // Log the event
       await trackEvent(eventName, parameters: parameters);
