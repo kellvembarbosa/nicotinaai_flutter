@@ -12,6 +12,8 @@ import 'package:nicotinaai_flutter/features/tracking/repositories/tracking_repos
 import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
 import 'package:nicotinaai_flutter/services/notification_service.dart';
 import 'package:nicotinaai_flutter/services/analytics/analytics_service.dart';
+import 'package:nicotinaai_flutter/utils/improved_stats_calculator.dart';
+import 'package:nicotinaai_flutter/utils/date_normalizer.dart';
 
 import 'tracking_event.dart';
 import 'tracking_state.dart';
@@ -117,6 +119,34 @@ class TrackingBloc extends Bloc<TrackingEvent, TrackingState> {
         _loadSmokingLogs(emit, forceRefresh: false),
         _loadCravings(emit, forceRefresh: false),
       ]);
+
+      // IMPORTANTE: Carregar unifiedCravings para garantir que os dados de cravings resistidos hoje sejam calculados corretamente
+      if (state.userStats != null) {
+        final userId = state.userStats!.userId;
+        if (userId != null) {
+          try {
+            if (kDebugMode) {
+              print('🔄 [TrackingBloc] Carregando unifiedCravings para o usuário: $userId');
+            }
+            await _onLoadCravingsForUser(LoadCravingsForUser(userId: userId), emit);
+            
+            if (kDebugMode) {
+              print('✅ [TrackingBloc] Cravings unificados carregados: ${state.unifiedCravings.length}');
+              
+              // Calcular cravings resistidos hoje diretamente do estado
+              int todayResisted = _calculateCravingsResistedToday();
+              int minutesGainedToday = todayResisted * ImprovedStatsCalculator.MINUTES_PER_CIGARETTE;
+              
+              print('📊 [TrackingBloc] Cravings resistidos hoje: $todayResisted');
+              print('📊 [TrackingBloc] Minutos ganhos hoje: $minutesGainedToday min');
+            }
+          } catch (e) {
+            if (kDebugMode) {
+              print('❌ [TrackingBloc] Erro ao carregar unifiedCravings: $e');
+            }
+          }
+        }
+      }
 
       // Try to ensure we have user stats
       if (state.userStats == null) {
@@ -916,10 +946,40 @@ class TrackingBloc extends Bloc<TrackingEvent, TrackingState> {
         _lastLogsUpdateTime = null;
         _lastCravingsUpdateTime = null;
         _lastRecoveriesUpdateTime = null;
+        _lastUnifiedCravingsUpdateTime = null;
+        _lastSmokingRecordsUpdateTime = null;
       }
 
       // Primeiro carrega as estatísticas do usuário
       await _loadUserStats(emit, forceRefresh: event.forceRefresh);
+
+      // IMPORTANTE: Carregar unifiedCravings para garantir que os dados de cravings resistidos hoje sejam atualizados
+      if (state.userStats != null) {
+        final userId = state.userStats!.userId;
+        if (userId != null) {
+          try {
+            if (kDebugMode) {
+              print('🔄 [TrackingBloc] Recarregando unifiedCravings para o usuário: $userId');
+            }
+            await _onLoadCravingsForUser(LoadCravingsForUser(userId: userId), emit);
+            
+            if (kDebugMode) {
+              print('✅ [TrackingBloc] Cravings unificados recarregados: ${state.unifiedCravings.length}');
+              
+              // Calcular cravings resistidos hoje diretamente do estado
+              int todayResisted = _calculateCravingsResistedToday();
+              int minutesGainedToday = todayResisted * ImprovedStatsCalculator.MINUTES_PER_CIGARETTE;
+              
+              print('📊 [TrackingBloc] Cravings resistidos hoje: $todayResisted');
+              print('📊 [TrackingBloc] Minutos ganhos hoje: $minutesGainedToday min');
+            }
+          } catch (e) {
+            if (kDebugMode) {
+              print('❌ [TrackingBloc] Erro ao recarregar unifiedCravings: $e');
+            }
+          }
+        }
+      }
 
       // Check for new achievements
       try {
@@ -963,6 +1023,7 @@ class TrackingBloc extends Bloc<TrackingEvent, TrackingState> {
           isLogsLoading: false,
           isCravingsLoading: false,
           isRecoveriesLoading: false,
+          lastUpdated: DateTime.now().millisecondsSinceEpoch
         ),
       );
     } catch (e) {
@@ -1436,5 +1497,31 @@ class TrackingBloc extends Bloc<TrackingEvent, TrackingState> {
         lastUpdated: DateTime.now().millisecondsSinceEpoch
       ));
     }
+  }
+  
+  /// Calcula o número de cravings resistidos hoje com base na data local
+  /// Este método replica a lógica da extensão TrackingNormalizer para uso interno da classe
+  int _calculateCravingsResistedToday() {
+    // Get current date at LOCAL midnight for comparison
+    // This ensures "today" is based on the user's local date, not UTC
+    final now = DateTime.now();
+    final todayLocal = DateTime(now.year, now.month, now.day);
+    
+    // Count all resisted cravings from today (including those pending/failed)
+    int todayResisted = state.unifiedCravings
+        .where((c) {
+          // Must be resisted
+          if (!c.resisted) return false;
+          
+          // Convert timestamp to local time for local date comparison
+          final cravingLocal = c.timestamp.toLocal();
+          final cravingDateLocal = DateTime(cravingLocal.year, cravingLocal.month, cravingLocal.day);
+          
+          // Compare local dates (year/month/day only)
+          return cravingDateLocal.isAtSameMomentAs(todayLocal);
+        })
+        .length;
+    
+    return todayResisted;
   }
 }

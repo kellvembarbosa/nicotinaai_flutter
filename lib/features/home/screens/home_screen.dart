@@ -25,6 +25,7 @@ import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
 import 'package:nicotinaai_flutter/utils/currency_utils.dart';
 import 'package:nicotinaai_flutter/utils/health_recovery_utils.dart';
 import 'package:nicotinaai_flutter/utils/stats_calculator.dart';
+import 'package:nicotinaai_flutter/utils/improved_stats_calculator.dart';
 import 'package:nicotinaai_flutter/widgets/skeleton_loading.dart';
 import 'package:nicotinaai_flutter/features/home/widgets/register_craving_sheet.dart';
 
@@ -493,7 +494,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 Expanded(
                                   child: _buildDailyStatCard(
                                     context,
-                                    _cravingsResisted == null ? null : '$_cravingsResisted',
+                                    isLoading ? null : '${BlocProvider.of<TrackingBloc>(context).getCravingsResistedToday()}',
                                     l10n.homeCravingsResisted,
                                     Colors.orange,
                                     Icons.smoke_free,
@@ -504,7 +505,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 Expanded(
                                   child: _buildDailyStatCard(
                                     context,
-                                    _calculateDailyMinutesGained(),
+                                    BlocProvider.of<TrackingBloc>(context).getMinutesGainedTodayFormatted(),
                                     l10n.homeMinutesGainedToday,
                                     Colors.teal,
                                     Icons.favorite,
@@ -1146,48 +1147,24 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  /// Calcula os minutos ganhos hoje (nas últimas 24 horas)
+  /// Calcula os minutos ganhos hoje com base nos cravings resistidos no dia atual
+  /// Cada craving resistido hoje representa 6 minutos de vida ganhos
   /// Retorna string formatada ou null se não existirem dados
   String? _calculateDailyMinutesGained() {
-    if (_stats == null) {
-      return null;
-    }
-
-    // Sempre usar o valor do banco de dados quando disponível
-    if (_stats!.minutesGainedToday != null) {
-      final minutesToday = _stats!.minutesGainedToday!;
-      if (kDebugMode) {
-        print('📊 Usando minutesGainedToday do DB: $minutesToday min');
-      }
-      return '$minutesToday min';
-    }
-
-    // Cálculo de fallback consistente caso o campo no DB ainda não exista
-    if (_daysWithoutSmoking == null) {
-      return null;
-    }
-
-    final int cigarettesPerDay = _stats!.cigarettesPerDay ?? StatsCalculator.DEFAULT_CIGARETTES_PER_DAY;
-
-    // Se o usuário tem menos de 1 dia sem fumar
-    if (_daysWithoutSmoking! < 1) {
-      // Se temos minutos de vida ganhos total, podemos usar isso
-      if (_minutesLifeGained != null) {
-        return '$_minutesLifeGained min';
-      }
-      return '0 min';
-    }
-
-    // Estimativa baseada em cigarros por dia que o usuário fumava antes
-    // Dividido por 24 para obter uma estimativa horária
-    final int estimatedMinutesToday = StatsCalculator.MINUTES_PER_CIGARETTE * cigarettesPerDay ~/ 24;
-
+    // Obter o BLoC para usar o normalizador
+    final trackingBloc = BlocProvider.of<TrackingBloc>(context);
+    
+    // Usar o método específico do TrackingNormalizer para calcular minutos ganhos hoje
+    // Este método já implementa a lógica de filtrar apenas os cravings do dia atual
+    final minutesGainedToday = trackingBloc.getMinutesGainedToday();
+    
     if (kDebugMode) {
-      print('📊 Minutos ganhos hoje (cálculo fallback): $estimatedMinutesToday');
-      print('📊 Estimativa baseada em: $cigarettesPerDay cigarros por dia');
+      print('📊 [HomeScreen] Minutos ganhos hoje (via TrackingNormalizer): $minutesGainedToday min');
+      print('📊 [HomeScreen] Cravings resistidos hoje: ${trackingBloc.getCravingsResistedToday()}');
+      print('📊 [HomeScreen] Minutos por craving: ${ImprovedStatsCalculator.MINUTES_PER_CIGARETTE}');
     }
-
-    return '$estimatedMinutesToday min';
+    
+    return '$minutesGainedToday min';
   }
 
   // Build a motivational card when there are no achievements
