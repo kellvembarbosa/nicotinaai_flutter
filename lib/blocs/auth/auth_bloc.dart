@@ -6,6 +6,7 @@ import 'package:nicotinaai_flutter/features/auth/repositories/auth_repository.da
 import 'package:nicotinaai_flutter/services/analytics/analytics_service.dart';
 import 'package:nicotinaai_flutter/services/notification_service.dart';
 import 'package:nicotinaai_flutter/services/storage_service.dart';
+import 'package:nicotinaai_flutter/services/identity_service.dart';
 import 'package:nicotinaai_flutter/core/routes/router_events.dart';
 
 import 'auth_event.dart';
@@ -14,6 +15,7 @@ import 'auth_state.dart';
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final AuthRepository _authRepository;
   final AnalyticsService _analyticsService = AnalyticsService();
+  final IdentityService _identityService = IdentityService();
   
   AuthBloc({
     required AuthRepository authRepository,
@@ -62,6 +64,15 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       
       if (user != null) {
         print('👤 [AuthBloc] Usuário autenticado: ${user.email}');
+        
+        // Initialize user identity across platforms
+        try {
+          await _identityService.initializeUserIdentity(user);
+          print('🔗 [AuthBloc] User identity initialized across platforms');
+        } catch (identityError) {
+          print('⚠️ [AuthBloc] Failed to initialize identity across platforms: $identityError');
+        }
+        
         emit(AuthState.authenticated(user));
       } else {
         print('⚠️ [AuthBloc] Sessão encontrada, mas sem usuário válido');
@@ -93,16 +104,17 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       await NotificationService().saveFcmTokenAfterLogin();
       print('🔔 [AuthBloc] Token FCM salvo após login');
       
-      // Track login event in analytics
+      // Initialize user identity and track login event across all platforms
       try {
+        // Initialize user identity (RevenueCat, Superwall, PostHog)
+        await _identityService.initializeUserIdentity(user);
+        
+        // Track login event separately
         await _analyticsService.logLogin(method: 'email');
-        await _analyticsService.setUserProperties(
-          userId: user.id,
-          email: user.email,
-        );
-        print('📊 [AuthBloc] Login event tracked in analytics');
-      } catch (analyticsError) {
-        print('⚠️ [AuthBloc] Failed to track login event: $analyticsError');
+        
+        print('🔗 [AuthBloc] User identified and login event tracked across all platforms');
+      } catch (identityError) {
+        print('⚠️ [AuthBloc] Failed to manage user identity: $identityError');
       }
       
       emit(AuthState.authenticated(user));
@@ -138,16 +150,17 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       await NotificationService().saveFcmTokenAfterLogin();
       print('🔔 [AuthBloc] Token FCM salvo após registro');
       
-      // Track signup event in analytics
+      // Initialize user identity and track signup event across all platforms
       try {
+        // Initialize user identity (RevenueCat, Superwall, PostHog)
+        await _identityService.initializeUserIdentity(user);
+        
+        // Track signup event separately
         await _analyticsService.logSignUp(method: 'email');
-        await _analyticsService.setUserProperties(
-          userId: user.id,
-          email: user.email,
-        );
-        print('📊 [AuthBloc] Signup event tracked in analytics');
-      } catch (analyticsError) {
-        print('⚠️ [AuthBloc] Failed to track signup event: $analyticsError');
+        
+        print('🔗 [AuthBloc] User identified and signup event tracked across all platforms');
+      } catch (identityError) {
+        print('⚠️ [AuthBloc] Failed to manage user identity: $identityError');
       }
       
       emit(AuthState.authenticated(user));
@@ -170,12 +183,12 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       print('🔄 [AuthBloc] Iniciando logout');
       emit(state.copyWith(isLoading: true));
       
-      // Clear analytics data before signing out
+      // Reset user identity across all platforms before signing out
       try {
-        await _analyticsService.clearUserData();
-        print('🧹 [AuthBloc] Analytics data cleared');
-      } catch (analyticsError) {
-        print('⚠️ [AuthBloc] Failed to clear analytics data: $analyticsError');
+        await _identityService.resetUserIdentity();
+        print('🧹 [AuthBloc] User identity reset across all platforms');
+      } catch (identityError) {
+        print('⚠️ [AuthBloc] Failed to reset user identity: $identityError');
       }
       
       // Limpar dados de armazenamento local usando SharedPreferences
@@ -276,6 +289,15 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       );
       
       print('✅ [AuthBloc] Dados atualizados com sucesso');
+      
+      // Update user identity across platforms after data update
+      try {
+        await _identityService.updateUserIdentity(updatedUser);
+        print('🔗 [AuthBloc] User identity updated across all platforms');
+      } catch (identityError) {
+        print('⚠️ [AuthBloc] Failed to update user identity: $identityError');
+      }
+      
       emit(AuthState.authenticated(updatedUser));
     } catch (e) {
       final error = e is app_exceptions.AuthException
@@ -299,6 +321,15 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       final updatedUser = await _authRepository.updateUserProfile(event.user);
       
       print('✅ [AuthBloc] Perfil atualizado com sucesso');
+      
+      // Update user identity across platforms after profile update
+      try {
+        await _identityService.updateUserIdentity(updatedUser);
+        print('🔗 [AuthBloc] User identity updated across all platforms');
+      } catch (identityError) {
+        print('⚠️ [AuthBloc] Failed to update user identity: $identityError');
+      }
+      
       emit(AuthState.authenticated(updatedUser));
     } catch (e) {
       final error = e is app_exceptions.AuthException
@@ -322,6 +353,15 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       final updatedUser = await _authRepository.updateUserProfile(event.user);
       
       print('✅ [AuthBloc] Perfil atualizado com sucesso');
+      
+      // Update user identity across platforms after profile update
+      try {
+        await _identityService.updateUserIdentity(updatedUser);
+        print('🔗 [AuthBloc] User identity updated across all platforms');
+      } catch (identityError) {
+        print('⚠️ [AuthBloc] Failed to update user identity: $identityError');
+      }
+      
       emit(AuthState.authenticated(updatedUser));
     } catch (e) {
       final error = e is app_exceptions.AuthException
@@ -362,12 +402,12 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       print('🔄 [AuthBloc] Forçando logout após exclusão de conta');
       emit(state.copyWith(isLoading: true));
       
-      // Clear analytics data
+      // Reset user identity across all platforms after account deletion
       try {
-        await _analyticsService.clearUserData();
-        print('🧹 [AuthBloc] Analytics data cleared after account deletion');
-      } catch (analyticsError) {
-        print('⚠️ [AuthBloc] Failed to clear analytics data: $analyticsError');
+        await _identityService.resetUserIdentity();
+        print('🧹 [AuthBloc] User identity reset across all platforms after account deletion');
+      } catch (identityError) {
+        print('⚠️ [AuthBloc] Failed to reset user identity: $identityError');
       }
       
       // Limpar dados de armazenamento local usando SharedPreferences

@@ -96,7 +96,7 @@ void main() async {
   // Initialize Superwall
   try {
     await Superwall.instance.configure(
-      apiKey: 'YOUR_SUPERWALL_API_KEY',
+      apiKey: 'pk_8828c0ca657f179fcb24a7532d6cf8d5309d7879506a7e25',
       options: SuperwallOptions(
         paywallsLoggingEnabled: true,
         dangerousSettings: DangerousSettings(disableForFreeUsers: false),
@@ -222,9 +222,9 @@ void main() async {
 // Helper function to get the appropriate RevenueCat API key
 String _getRevenueCatApiKey() {
   if (defaultTargetPlatform == TargetPlatform.android) {
-    return 'YOUR_ANDROID_REVENUECAT_API_KEY';
+    return 'appl_pkpgHbMNmUpYHENUhNpCfhJVxYX'; // Android API key
   } else if (defaultTargetPlatform == TargetPlatform.iOS) {
-    return 'YOUR_IOS_REVENUECAT_API_KEY';
+    return 'appl_pkpgHbMNmUpYHENUhNpCfhJVxYX'; // iOS API key
   } else {
     throw Exception('Unsupported platform for RevenueCat');
   }
