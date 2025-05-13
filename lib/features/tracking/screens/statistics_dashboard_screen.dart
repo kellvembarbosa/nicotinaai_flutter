@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -227,7 +228,7 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen> w
             _buildStatsCard(
               context,
               l10n.potentialMonthlySavings,
-              context.read<CurrencyBloc>().format(stats.moneySaved),
+              context.read<CurrencyBloc>().format(_calculateCumulativeSavings(stats, context.read<CurrencyBloc>())),
               Icons.account_balance_wallet,
               Colors.blue,
             ),
@@ -428,7 +429,7 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen> w
             _buildStatsCard(
               context,
               l10n.savingsCalculator,
-              currencyBloc.format(stats.moneySaved),
+              currencyBloc.format(_calculateCumulativeSavings(stats, currencyBloc)),
               Icons.account_balance_wallet,
               Colors.blue,
             ),
@@ -445,7 +446,7 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen> w
                   child: _buildStatsCard(
                     context,
                     'Month',
-                    currencyBloc.format(stats.moneySaved * 30 ~/ (days > 0 ? days : 30)),
+                    currencyBloc.format(_calculateProjectedSavings(stats, 30, currencyBloc)),
                     Icons.calendar_month,
                     Colors.teal,
                   ),
@@ -455,7 +456,7 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen> w
                   child: _buildStatsCard(
                     context,
                     'Year',
-                    currencyBloc.format(stats.moneySaved * 365 ~/ (days > 0 ? days : 30)),
+                    currencyBloc.format(_calculateProjectedSavings(stats, 365, currencyBloc)),
                     Icons.cake,
                     Colors.amber,
                   ),
@@ -1301,6 +1302,64 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen> w
     );
   }
 
+  /// Calcula as economias acumuladas com base nos cigarros evitados realmente
+  int _calculateCumulativeSavings(UserStats stats, CurrencyBloc currencyBloc) {
+    // Se não tiver as informações necessárias, retorna a economia atual do banco de dados
+    if (stats.packPrice == null || stats.cigarettesPerPack == null || stats.cigarettesPerPack == 0) {
+      return stats.moneySaved;
+    }
+    
+    // Usa o valor de cigarros evitados registrado nas estatísticas
+    final int cigarettesAvoided = stats.cigarettesAvoided;
+    if (cigarettesAvoided <= 0) {
+      return stats.moneySaved;
+    }
+    
+    // Calcula o preço por unidade (em centavos)
+    final double pricePerCigarette = stats.packPrice! / stats.cigarettesPerPack!;
+    
+    // Calcula a economia acumulada com base nos cigarros evitados
+    final int cumulativeSavings = (cigarettesAvoided * pricePerCigarette).round();
+    
+    if (kDebugMode) {
+      print('💰 [Dashboard] Cálculo de economia acumulada:');
+      print('   - Preço por cigarro: $pricePerCigarette centavos');
+      print('   - Cigarros evitados: $cigarettesAvoided');
+      print('   - Economia no DB: ${stats.moneySaved} centavos');
+      print('   - Economia calculada: $cumulativeSavings centavos');
+    }
+    
+    return cumulativeSavings;
+  }
+  
+  /// Calcula as economias projetadas para um determinado período com base nos dados do usuário
+  int _calculateProjectedSavings(UserStats stats, int daysInPeriod, CurrencyBloc currencyBloc) {
+    // Se não tiver as informações necessárias, retorna 0
+    if (stats.packPrice == null || stats.cigarettesPerPack == null || stats.cigarettesPerPack == 0 || 
+        stats.cigarettesPerDay == null || stats.cigarettesPerDay == 0) {
+      return 0;
+    }
+    
+    // Calcula o preço por unidade (em centavos)
+    final double pricePerCigarette = stats.packPrice! / stats.cigarettesPerPack!;
+    
+    // Calcula os cigarros que seriam fumados no período
+    final int cigarettesInPeriod = stats.cigarettesPerDay! * daysInPeriod;
+    
+    // Calcula a economia projetada para o período
+    final int projectedSavings = (cigarettesInPeriod * pricePerCigarette).round();
+    
+    if (kDebugMode) {
+      print('💰 [Dashboard] Cálculo de economias projetadas para $daysInPeriod dias:');
+      print('   - Preço por cigarro: $pricePerCigarette centavos');
+      print('   - Cigarros por dia: ${stats.cigarettesPerDay}');
+      print('   - Cigarros no período: $cigarettesInPeriod');
+      print('   - Economia projetada: $projectedSavings centavos');
+    }
+    
+    return projectedSavings;
+  }
+  
   /// Calcula o preço unitário de cada cigarro com base no preço do maço e na quantidade de cigarros por maço
   String _calculateUnitPrice(UserStats stats, CurrencyBloc currencyBloc) {
     // Se não tiver as informações necessárias, retorna "Not available"
@@ -1308,8 +1367,18 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen> w
       return 'Not available';
     }
     
-    // Calcula o preço por unidade (em centavos)
-    final unitPriceInCents = stats.packPrice! ~/ stats.cigarettesPerPack!;
+    // Calcula o preço por unidade (em centavos) - usando divisão com ponto flutuante e arredondamento
+    // para ser consistente com o cálculo em ImprovedStatsCalculator
+    final double pricePerCigarette = stats.packPrice! / stats.cigarettesPerPack!;
+    final int unitPriceInCents = pricePerCigarette.round();
+    
+    if (kDebugMode) {
+      print('💰 [Dashboard] Cálculo de preço por unidade:');
+      print('   - Preço do maço: ${stats.packPrice} centavos');
+      print('   - Cigarros por maço: ${stats.cigarettesPerPack}');
+      print('   - Preço por cigarro (float): $pricePerCigarette centavos');
+      print('   - Preço por cigarro (arredondado): $unitPriceInCents centavos');
+    }
     
     // Formata o valor usando o CurrencyBloc
     return currencyBloc.format(unitPriceInCents);
