@@ -138,10 +138,12 @@ class LocalStatsService {
         );
       }
       
+      // Usando o método com parâmetros nomeados
       int moneySaved = ImprovedStatsCalculator.calculateMoneySaved(
-        cigarettesAvoided, 
-        packPrice, 
-        cigarettesPerPack
+        daysWithoutSmoking: currentStreakDays,
+        cigarettesPerDay: cigarettesPerDay,
+        packPrice: packPrice,
+        cigarettesPerPack: cigarettesPerPack
       );
       
       // Calcular minutos ganhos

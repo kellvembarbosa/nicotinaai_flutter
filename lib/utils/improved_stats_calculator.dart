@@ -104,6 +104,34 @@ class ImprovedStatsCalculator {
     );
   }
   
+  /// Calcula dias sem fumar com base na data do último cigarro
+  static int calculateDaysWithoutSmoking(DateTime lastSmokeDate) {
+    // Garantir que as datas estão em UTC para cálculos consistentes
+    final lastSmokeDateUtc = DateNormalizer.toUtc(lastSmokeDate);
+    final now = DateTime.now().toUtc();
+    
+    // Usar DateNormalizer para calcular dias de forma consistente
+    return DateNormalizer.daysBetween(lastSmokeDateUtc, now);
+  }
+  
+  /// Calcula cigarros evitados com base na data do último cigarro e cigarros por dia
+  static int calculateCigarettesAvoided(DateTime lastSmokeDate, int cigarettesPerDay) {
+    // Calcular dias sem fumar
+    final daysWithoutSmoking = calculateDaysWithoutSmoking(lastSmokeDate);
+    
+    // Multiplicar dias pelo número de cigarros por dia
+    return daysWithoutSmoking * cigarettesPerDay;
+  }
+  
+  /// Calcula economia com base em cigarros evitados
+  static int calculateMoneySaved(int cigarettesAvoided, int packPrice, int cigarettesPerPack) {
+    // Calcular preço por cigarro
+    final double pricePerCigarette = packPrice / cigarettesPerPack;
+    
+    // Calcular economia total
+    return (cigarettesAvoided * pricePerCigarette).round();
+  }
+  
   /// Calcula minutos de vida ganhos com base nos cigarros evitados
   static int calculateMinutesGained(int cigarettesAvoided) {
     return cigarettesAvoided * MINUTES_PER_CIGARETTE;
