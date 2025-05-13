@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:nicotinaai_flutter/blocs/analytics/analytics_bloc.dart';
+import 'package:nicotinaai_flutter/blocs/analytics/analytics_event.dart';
 import 'package:nicotinaai_flutter/blocs/auth/auth_bloc.dart';
 import 'package:nicotinaai_flutter/blocs/auth/auth_event.dart';
 import 'package:nicotinaai_flutter/blocs/auth/auth_state.dart';
@@ -128,6 +130,12 @@ class _LoginScreenState extends State<LoginScreen> {
                             : Icons.visibility_off_outlined,
                         ),
                         onPressed: () {
+                          context.read<AnalyticsBloc>().add(
+                            TrackCustomEvent(
+                              'login_password_visibility_toggled',
+                              parameters: {'visible': !_passwordVisible},
+                            ),
+                          );
                           setState(() {
                             _passwordVisible = !_passwordVisible;
                           });
@@ -154,7 +162,14 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: TextButton(
                       onPressed: state.isLoading 
                         ? null
-                        : () => context.push(AppRoutes.forgotPassword.path),
+                        : () {
+                            context.read<AnalyticsBloc>().add(
+                              const TrackCustomEvent(
+                                'login_forgot_password_clicked',
+                              ),
+                            );
+                            context.push(AppRoutes.forgotPassword.path);
+                          },
                       child: Text(l10n.forgotPassword),
                     ),
                   ),
@@ -166,7 +181,14 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: ElevatedButton(
                       onPressed: state.isLoading 
                         ? null 
-                        : _handleLogin,
+                        : () {
+                            context.read<AnalyticsBloc>().add(
+                              const TrackCustomEvent(
+                                'login_button_clicked',
+                              ),
+                            );
+                            _handleLogin();
+                          },
                       child: state.isLoading
                         ? const PlatformLoadingIndicator(size: 24)
                         : Text(l10n.login),
@@ -182,7 +204,14 @@ class _LoginScreenState extends State<LoginScreen> {
                       TextButton(
                         onPressed: state.isLoading 
                           ? null 
-                          : () => context.push(AppRoutes.register.path),
+                          : () {
+                              context.read<AnalyticsBloc>().add(
+                                const TrackCustomEvent(
+                                  'login_register_clicked',
+                                ),
+                              );
+                              context.push(AppRoutes.register.path);
+                            },
                         child: Text(l10n.register),
                       ),
                     ],
@@ -202,11 +231,23 @@ class _LoginScreenState extends State<LoginScreen> {
     
     // Validate form
     if (_formKey.currentState?.validate() ?? false) {
+      // Track successful login attempt
+      context.read<AnalyticsBloc>().add(
+        const LogLoginEvent(method: 'email'),
+      );
+      
       // Dispatch login event
       context.read<AuthBloc>().add(LoginRequested(
         email: _emailController.text.trim(),
         password: _passwordController.text,
       ));
+    } else {
+      // Track failed validation
+      context.read<AnalyticsBloc>().add(
+        const TrackCustomEvent(
+          'login_validation_failed',
+        ),
+      );
     }
   }
 }

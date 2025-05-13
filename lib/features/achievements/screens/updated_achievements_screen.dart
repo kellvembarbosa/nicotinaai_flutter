@@ -7,6 +7,8 @@ import 'package:go_router/go_router.dart';
 import 'package:nicotinaai_flutter/blocs/achievement/achievement_bloc.dart';
 import 'package:nicotinaai_flutter/blocs/achievement/achievement_event.dart';
 import 'package:nicotinaai_flutter/blocs/achievement/achievement_state.dart';
+import 'package:nicotinaai_flutter/blocs/analytics/analytics_bloc.dart';
+import 'package:nicotinaai_flutter/blocs/analytics/analytics_event.dart';
 import 'package:nicotinaai_flutter/core/theme/app_theme.dart';
 import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
 import 'package:flutter/services.dart';
@@ -86,8 +88,20 @@ class _AchievementsScreenState extends State<AchievementsScreen> with SingleTick
 
   void _handleTabChange() {
     if (_tabController.indexIsChanging) {
+      final newCategory = _categories[_tabController.index].toLowerCase();
+      
+      // Track category change
+      final analyticsBloc = context.read<AnalyticsBloc>();
+      analyticsBloc.add(TrackCustomEvent(
+        'achievement_category_changed',
+        parameters: {
+          'category': newCategory,
+          'previous_category': _currentCategory,
+        }
+      ));
+      
       setState(() {
-        _currentCategory = _categories[_tabController.index].toLowerCase();
+        _currentCategory = newCategory;
       });
     }
   }
@@ -201,6 +215,13 @@ class _AchievementsScreenState extends State<AchievementsScreen> with SingleTick
             const SizedBox(height: 24),
             ElevatedButton(
               onPressed: () {
+                // Track retry button click
+                final analyticsBloc = context.read<AnalyticsBloc>();
+                analyticsBloc.add(const TrackCustomEvent(
+                  'achievement_retry_clicked',
+                  parameters: {'source': 'error_view'},
+                ));
+                
                 context.read<AchievementBloc>().add(InitializeAchievements());
               },
               child: const Text('Retry'),
@@ -736,31 +757,44 @@ class _AchievementsScreenState extends State<AchievementsScreen> with SingleTick
   }
 
   Widget _buildBenefitItem(String label, IconData icon, Color color) {
-    return Column(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            color: color.withOpacity(context.isDarkMode ? 0.15 : 0.1),
-            shape: BoxShape.circle,
+    return GestureDetector(
+      onTap: () {
+        // Track health benefit click
+        final analyticsBloc = context.read<AnalyticsBloc>();
+        analyticsBloc.add(TrackCustomEvent(
+          'health_benefit_clicked',
+          parameters: {
+            'benefit_type': label,
+            'source': 'achievements_screen',
+          }
+        ));
+      },
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: color.withOpacity(context.isDarkMode ? 0.15 : 0.1),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              icon,
+              color: color,
+              size: 22,
+            ),
           ),
-          child: Icon(
-            icon,
-            color: color,
-            size: 22,
+          const SizedBox(height: 8),
+          Text(
+            label,
+            style: GoogleFonts.poppins(
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+              color: context.subtitleColor,
+            ),
+            textAlign: TextAlign.center,
           ),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          label,
-          style: GoogleFonts.poppins(
-            fontSize: 12,
-            fontWeight: FontWeight.w500,
-            color: context.subtitleColor,
-          ),
-          textAlign: TextAlign.center,
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -802,6 +836,16 @@ class _AchievementsScreenState extends State<AchievementsScreen> with SingleTick
                 if (timePeriod != TimePeriod.allTime)
                   TextButton(
                     onPressed: () {
+                      // Track show all achievements click
+                      final analyticsBloc = context.read<AnalyticsBloc>();
+                      analyticsBloc.add(TrackCustomEvent(
+                        'show_all_achievements_clicked',
+                        parameters: {
+                          'previous_filter': timePeriod.name,
+                          'category': _currentCategory,
+                        },
+                      ));
+                      
                       context.read<AchievementBloc>().add(ChangeTimePeriod(TimePeriod.allTime));
                     },
                     child: Text('Show all achievements'),
@@ -873,6 +917,19 @@ class _AchievementsScreenState extends State<AchievementsScreen> with SingleTick
       padding: const EdgeInsets.only(bottom: 16),
       child: InkWell(
         onTap: () {
+          // Track achievement item click
+          final analyticsBloc = context.read<AnalyticsBloc>();
+          analyticsBloc.add(TrackCustomEvent(
+            'achievement_item_clicked',
+            parameters: {
+              'achievement_id': achievement.id,
+              'achievement_name': achievement.definition.name,
+              'achievement_category': achievement.definition.category,
+              'is_unlocked': achievement.isUnlocked,
+              'progress': (achievement.progress * 100).toInt(),
+            },
+          ));
+          
           // Navigate to achievement detail screen using push to maintain history
           HapticFeedback.lightImpact();
           context.push(AppRoutes.achievementDetail.withParams(params: {

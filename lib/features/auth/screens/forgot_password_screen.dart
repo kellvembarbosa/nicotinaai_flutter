@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:nicotinaai_flutter/blocs/analytics/analytics_bloc.dart';
+import 'package:nicotinaai_flutter/blocs/analytics/analytics_event.dart';
 import 'package:nicotinaai_flutter/blocs/auth/auth_bloc.dart';
 import 'package:nicotinaai_flutter/blocs/auth/auth_event.dart';
 import 'package:nicotinaai_flutter/blocs/auth/auth_state.dart';
@@ -28,6 +30,11 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   }
 
   void _navigateToLogin() {
+    context.read<AnalyticsBloc>().add(
+      const TrackCustomEvent(
+        'forgot_password_back_to_login_clicked',
+      ),
+    );
     context.go(AppRoutes.login.path);
   }
 
@@ -91,7 +98,14 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           ),
           const SizedBox(height: 32),
           ElevatedButton(
-            onPressed: _navigateToLogin,
+            onPressed: () {
+              context.read<AnalyticsBloc>().add(
+                const TrackCustomEvent(
+                  'forgot_password_success_back_to_login_clicked',
+                ),
+              );
+              _navigateToLogin();
+            },
             child: Text(l10n.backToLogin),
           ),
         ],
@@ -147,7 +161,14 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           SizedBox(
             height: 50,
             child: ElevatedButton(
-              onPressed: state.isLoading ? null : _handleResetPassword,
+              onPressed: state.isLoading ? null : () {
+              context.read<AnalyticsBloc>().add(
+                const TrackCustomEvent(
+                  'forgot_password_send_reset_link_clicked',
+                ),
+              );
+              _handleResetPassword();
+            },
               child: state.isLoading
                 ? const CircularProgressIndicator()
                 : Text(l10n.sendResetLink),
@@ -157,7 +178,14 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           
           // Back to Login
           TextButton.icon(
-            onPressed: state.isLoading ? null : _navigateToLogin,
+            onPressed: state.isLoading ? null : () {
+              context.read<AnalyticsBloc>().add(
+                const TrackCustomEvent(
+                  'forgot_password_back_button_clicked',
+                ),
+              );
+              _navigateToLogin();
+            },
             icon: const Icon(Icons.arrow_back),
             label: Text(l10n.backToLogin),
           ),
@@ -172,6 +200,14 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     
     // Validate form
     if (_formKey.currentState?.validate() ?? false) {
+      // Track password reset request
+      context.read<AnalyticsBloc>().add(
+        TrackCustomEvent(
+          'forgot_password_reset_requested',
+          parameters: {'email': _emailController.text.trim()},
+        ),
+      );
+      
       // Dispatch reset password event
       context.read<AuthBloc>().add(PasswordResetRequested(
         email: _emailController.text.trim(),
@@ -183,6 +219,13 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       setState(() {
         _resetEmailSent = true;
       });
+    } else {
+      // Track validation failure
+      context.read<AnalyticsBloc>().add(
+        const TrackCustomEvent(
+          'forgot_password_validation_failed',
+        ),
+      );
     }
   }
 }

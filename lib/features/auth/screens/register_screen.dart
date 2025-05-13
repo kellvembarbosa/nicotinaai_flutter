@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:nicotinaai_flutter/blocs/analytics/analytics_bloc.dart';
+import 'package:nicotinaai_flutter/blocs/analytics/analytics_event.dart';
 import 'package:nicotinaai_flutter/blocs/auth/auth_bloc.dart';
 import 'package:nicotinaai_flutter/blocs/auth/auth_event.dart';
 import 'package:nicotinaai_flutter/blocs/auth/auth_state.dart';
@@ -40,6 +42,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   void _navigateToLogin() {
+    // Track navigation to login
+    context.read<AnalyticsBloc>().add(
+      const TrackCustomEvent(
+        'register_login_clicked',
+      ),
+    );
+    
     // Navegação usando GoRouter
     context.go(AppRoutes.login.path);
   }
@@ -162,6 +171,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             : Icons.visibility_off_outlined,
                         ),
                         onPressed: () {
+                          context.read<AnalyticsBloc>().add(
+                            TrackCustomEvent(
+                              'register_password_visibility_toggled',
+                              parameters: {'visible': !_passwordVisible},
+                            ),
+                          );
                           setState(() {
                             _passwordVisible = !_passwordVisible;
                           });
@@ -196,6 +211,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             : Icons.visibility_off_outlined,
                         ),
                         onPressed: () {
+                          context.read<AnalyticsBloc>().add(
+                            TrackCustomEvent(
+                              'register_confirm_password_visibility_toggled',
+                              parameters: {'visible': !_confirmPasswordVisible},
+                            ),
+                          );
                           setState(() {
                             _confirmPasswordVisible = !_confirmPasswordVisible;
                           });
@@ -224,6 +245,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         onChanged: state.isLoading
                           ? null
                           : (value) {
+                              context.read<AnalyticsBloc>().add(
+                                TrackCustomEvent(
+                                  'register_terms_checkbox_toggled',
+                                  parameters: {'accepted': value},
+                                ),
+                              );
                               setState(() {
                                 _termsAccepted = value ?? false;
                               });
@@ -232,6 +259,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       Expanded(
                         child: GestureDetector(
                           onTap: () {
+                            context.read<AnalyticsBloc>().add(
+                              TrackCustomEvent(
+                                'register_terms_text_clicked',
+                                parameters: {'current_state': _termsAccepted},
+                              ),
+                            );
                             setState(() {
                               _termsAccepted = !_termsAccepted;
                             });
@@ -252,7 +285,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     child: ElevatedButton(
                       onPressed: state.isLoading || !_termsAccepted
                         ? null 
-                        : _handleRegister,
+                        : () {
+                            context.read<AnalyticsBloc>().add(
+                              const TrackCustomEvent(
+                                'register_button_clicked',
+                              ),
+                            );
+                            _handleRegister();
+                          },
                       child: state.isLoading
                         ? const PlatformLoadingIndicator(size: 24)
                         : Text(l10n.createAccount),
@@ -289,6 +329,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
     // Validate form
     if (_formKey.currentState?.validate() ?? false) {
       if (!_termsAccepted) {
+        context.read<AnalyticsBloc>().add(
+          const TrackCustomEvent(
+            'register_terms_not_accepted_error',
+          ),
+        );
+        
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(AppLocalizations.of(context).termsConditionsRequired),
@@ -298,12 +344,24 @@ class _RegisterScreenState extends State<RegisterScreen> {
         return;
       }
       
+      // Track successful signup
+      context.read<AnalyticsBloc>().add(
+        const LogSignUpEvent(method: 'email'),
+      );
+      
       // Dispatch register event
       context.read<AuthBloc>().add(SignUpRequested(
         name: _nameController.text.trim(),
         email: _emailController.text.trim(),
         password: _passwordController.text,
       ));
+    } else {
+      // Track failed validation
+      context.read<AnalyticsBloc>().add(
+        const TrackCustomEvent(
+          'register_validation_failed',
+        ),
+      );
     }
   }
 }

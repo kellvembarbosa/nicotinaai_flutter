@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:nicotinaai_flutter/blocs/currency/currency_bloc.dart';
 import 'package:nicotinaai_flutter/blocs/settings/settings_bloc.dart';
 import 'package:nicotinaai_flutter/blocs/settings/settings_event.dart';
 import 'package:nicotinaai_flutter/blocs/settings/settings_state.dart';
 import 'package:nicotinaai_flutter/core/theme/app_theme.dart';
 import 'package:nicotinaai_flutter/features/settings/repositories/settings_repository.dart';
 import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
-import 'package:nicotinaai_flutter/utils/currency_utils.dart';
 
 /// Tela para edição do preço do maço de cigarros
 class PackPriceScreen extends StatefulWidget {
@@ -26,8 +26,7 @@ class _PackPriceScreenState extends State<PackPriceScreen> {
   /// Foco do campo de texto
   final FocusNode _priceFocusNode = FocusNode();
   
-  /// Formatador de moeda
-  final CurrencyUtils _currencyUtils = CurrencyUtils();
+  // Removido formatador de moeda direta em favor do CurrencyBloc
   
   @override
   void initState() {
@@ -93,8 +92,8 @@ class _PackPriceScreenState extends State<PackPriceScreen> {
     // Reposiciona o cursor após a formatação
     final int cursorPosition = _priceController.selection.start;
     
-    // Formata o valor para exibição
-    _priceController.text = _currencyUtils.format(valueInCents);
+    // Formata o valor para exibição usando a moeda preferencial do usuário
+    _priceController.text = context.read<CurrencyBloc>().format(valueInCents);
     
     // Reposiciona o cursor
     if (cursorPosition != -1) {
@@ -114,7 +113,7 @@ class _PackPriceScreenState extends State<PackPriceScreen> {
       return;
     }
     
-    final int priceInCents = _currencyUtils.parseToCents(textValue);
+    final int priceInCents = context.read<CurrencyBloc>().parseToCents(textValue);
     context.read<SettingsBloc>().add(UpdatePackPrice(priceInCents: priceInCents));
   }
   
@@ -133,7 +132,7 @@ class _PackPriceScreenState extends State<PackPriceScreen> {
             if (_priceController.text.isEmpty) {
               final packPrice = state.settings.packPriceInCents;
               if (packPrice > 0) {
-                _priceController.text = _currencyUtils.format(packPrice);
+                _priceController.text = context.read<CurrencyBloc>().format(packPrice);
                 _originalPriceInCents = packPrice;
               }
             }
@@ -307,7 +306,7 @@ class _PackPriceScreenState extends State<PackPriceScreen> {
     
     return InkWell(
       onTap: () {
-        _priceController.text = _currencyUtils.format(priceInCents);
+        _priceController.text = context.read<CurrencyBloc>().format(priceInCents);
         
         // Dispara o salvamento automático se o valor for diferente
         if (_originalPriceInCents != priceInCents) {
@@ -334,7 +333,7 @@ class _PackPriceScreenState extends State<PackPriceScreen> {
           ),
         ),
         child: Text(
-          _currencyUtils.format(priceInCents),
+          context.read<CurrencyBloc>().format(priceInCents),
           style: context.textTheme.bodyMedium!.copyWith(
             color: context.contentColor,
             fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,

@@ -3,13 +3,13 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:nicotinaai_flutter/blocs/currency/currency_bloc.dart';
 import 'package:nicotinaai_flutter/blocs/settings/settings_bloc.dart';
 import 'package:nicotinaai_flutter/blocs/settings/settings_event.dart';
 import 'package:nicotinaai_flutter/blocs/settings/settings_state.dart';
 import 'package:nicotinaai_flutter/core/theme/app_theme.dart';
 import 'package:nicotinaai_flutter/features/settings/repositories/settings_repository.dart';
 import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
-import 'package:nicotinaai_flutter/utils/currency_utils.dart';
 
 /// Tela para edição do preço do maço de cigarros (layout melhorado, similar ao onboarding)
 class PackPriceScreenImproved extends StatefulWidget {
@@ -28,8 +28,7 @@ class _PackPriceScreenImprovedState extends State<PackPriceScreenImproved> {
   /// Foco do campo de texto
   final FocusNode _priceFocusNode = FocusNode();
   
-  /// Formatador de moeda
-  final CurrencyUtils _currencyUtils = CurrencyUtils();
+  // Removido formatador de moeda direta em favor do CurrencyBloc
   
   /// Valor em centavos atual
   int _valueInCents = 0;
@@ -102,8 +101,8 @@ class _PackPriceScreenImprovedState extends State<PackPriceScreenImproved> {
     // Reposiciona o cursor após a formatação
     final int cursorPosition = _priceController.selection.start;
     
-    // Formata o valor para exibição
-    _priceController.text = _currencyUtils.format(_valueInCents);
+    // Formata o valor para exibição usando a moeda preferencial do usuário
+    _priceController.text = context.read<CurrencyBloc>().format(_valueInCents);
     
     // Reposiciona o cursor
     if (cursorPosition != -1) {
@@ -126,8 +125,8 @@ class _PackPriceScreenImprovedState extends State<PackPriceScreenImproved> {
       return;
     }
     
-    // Atualiza o campo
-    _priceController.text = _currencyUtils.format(newValue);
+    // Atualiza o campo usando a moeda preferencial do usuário
+    _priceController.text = context.read<CurrencyBloc>().format(newValue);
     
     // Feedback tátil
     HapticFeedback.lightImpact();
@@ -157,7 +156,7 @@ class _PackPriceScreenImprovedState extends State<PackPriceScreenImproved> {
             if (_priceController.text.isEmpty) {
               final packPrice = state.settings.packPriceInCents;
               if (packPrice > 0) {
-                _priceController.text = _currencyUtils.format(packPrice);
+                _priceController.text = context.read<CurrencyBloc>().format(packPrice);
                 _valueInCents = packPrice;
                 _originalPriceInCents = packPrice;
               }
@@ -291,7 +290,7 @@ class _PackPriceScreenImprovedState extends State<PackPriceScreenImproved> {
                                       borderRadius: BorderRadius.circular(8),
                                     ),
                                     child: Text(
-                                      CurrencyUtils.detectDeviceCurrencySymbol(),
+                                      context.read<CurrencyBloc>().state.currencySymbol,
                                       style: GoogleFonts.poppins(
                                         fontSize: 24,
                                         fontWeight: FontWeight.bold,
@@ -421,10 +420,10 @@ class _PackPriceScreenImprovedState extends State<PackPriceScreenImproved> {
                                   : (context.isDarkMode ? Colors.white : Colors.black87),
                               fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                             ),
-                            label: Text(_currencyUtils.format(price)),
+                            label: Text(context.read<CurrencyBloc>().format(price)),
                             onPressed: () {
                               // Atualiza o preço diretamente
-                              _priceController.text = _currencyUtils.format(price);
+                              _priceController.text = context.read<CurrencyBloc>().format(price);
                               
                               // Dispara o salvamento automático se o valor for diferente
                               if (_originalPriceInCents != price) {

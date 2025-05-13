@@ -11,6 +11,7 @@ import 'package:nicotinaai_flutter/core/theme/app_theme.dart';
 import 'package:nicotinaai_flutter/features/home/models/craving_model.dart';
 import 'package:nicotinaai_flutter/features/tracking/repositories/tracking_repository.dart';
 import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
+import 'package:nicotinaai_flutter/services/analytics/analytics_service.dart';
 import 'package:nicotinaai_flutter/utils/stats_calculator.dart';
 
 class RegisterCravingSheet extends StatefulWidget {
@@ -1255,26 +1256,45 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
       ),
     );
 
-    // Dispatch the save event directly to the TrackingBloc
-    trackingBloc.add(SaveCraving(craving: craving));
+    // Use AnalyticsService directly to track the event and restrict it to paid users
+    final analyticsService = AnalyticsService();
     
-    // Forçar atualização completa para garantir contagem correta
-    trackingBloc.add(ForceUpdateStats());
-    
-    // Health recovery checks are now handled automatically in the TrackingBloc
-    // when SaveCraving is processed, so we don't need to do it manually here.
-    if (kDebugMode) {
-      print('🔄 [RegisterCravingSheet] Requested craving save and stats update');
-    }
+    // Track event with a paid feature callback - this will show a paywall if needed
+    analyticsService.trackEventOnlyPaid(
+      'register_craving', 
+      parameters: {
+        'trigger': _selectedReason,
+        'intensity': _selectedIntensity,
+        'location': _selectedLocation,
+        'resisted': _didResist,
+        'has_notes': _notesController.text.isNotEmpty,
+      },
+      onPaidFeature: () {
+        // This will only be executed if the user has a paid subscription
+        // or after they complete the paywall flow
+        
+        // Dispatch the save event directly to the TrackingBloc
+        trackingBloc.add(SaveCraving(craving: craving));
+        
+        // Forçar atualização completa para garantir contagem correta
+        trackingBloc.add(ForceUpdateStats());
+        
+        // Health recovery checks are now handled automatically in the TrackingBloc
+        // when SaveCraving is processed, so we don't need to do it manually here.
+        if (kDebugMode) {
+          print('🔄 [RegisterCravingSheet] Requested craving save and stats update');
+        }
 
-    // Close the sheet with the result
-    if (Navigator.canPop(context)) {
-      Navigator.of(context).pop({'registered': true});
+        // Close the sheet with the result
+        if (Navigator.canPop(context)) {
+          Navigator.of(context).pop({'registered': true});
 
-      if (kDebugMode) {
-        print('👋 [RegisterCravingSheet] Sheet closed, database update in progress');
-      }
-    }
+          if (kDebugMode) {
+            print('👋 [RegisterCravingSheet] Sheet closed, database update in progress');
+          }
+        }
+      },
+    );
   }
 }
 

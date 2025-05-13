@@ -12,6 +12,8 @@ class SuperwallTrackingAdapter implements TrackingAdapter {
   @override
   Future<void> initialize() async {
     // Superwall is already initialized in main.dart, so we just mark this as initialized
+
+    await sw.Superwall.shared.preloadAllPaywalls();
     _isInitialized = true;
     debugPrint('✅ SuperwallTrackingAdapter initialized');
     return;
@@ -31,7 +33,28 @@ class SuperwallTrackingAdapter implements TrackingAdapter {
     );
   }
 
-  /// Track apenas para features pagas (executa a função e registra o evento)
+  /// Track only for paid features (executes the function and registers the event)
+  /// 
+  /// This method uses Superwall's `registerPlacement` to register a paywall trigger.
+  /// When a user tries to access a paid feature:
+  /// 
+  /// 1. If the user is already a paid subscriber, the `onPaidFeature` callback executes immediately
+  /// 2. If the user is not a paid subscriber, Superwall shows a paywall
+  ///    - If the user completes the purchase, the `onPaidFeature` callback executes
+  ///    - If the user cancels or dismisses the paywall, the callback is not executed
+  /// 
+  /// Example usage:
+  /// ```dart
+  /// superwall.trackEventOnlyPaid(
+  ///   'premium_feature_access',
+  ///   parameters: {'feature_name': 'craving_tracker'},
+  ///   onPaidFeature: () {
+  ///     // This code only runs for paid users or after purchase
+  ///     saveCraving(cravingData);
+  ///     updateUserStats();
+  ///   },
+  /// );
+  /// ```
   @override
   Future<void> trackEventOnlyPaid(
     String eventName, {

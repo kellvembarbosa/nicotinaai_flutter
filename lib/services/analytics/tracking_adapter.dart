@@ -9,6 +9,14 @@ abstract class TrackingAdapter {
   Future<void> trackEvent(String eventName, {Map<String, dynamic>? parameters});
 
   /// Track an event for paid features
+  /// 
+  /// This method is used to restrict features to paid users only.
+  /// Each adapter implements this differently:
+  /// - SuperwallTrackingAdapter: Shows a paywall using Superwall's registerPlacement
+  /// - Other adapters: Simply track the event and execute the callback
+  /// 
+  /// The `onPaidFeature` callback contains the actual feature implementation,
+  /// which will only execute for paid users or after completing the paywall.
   Future<void> trackEventOnlyPaid(
     String eventName, {
     Map<String, dynamic>? parameters,

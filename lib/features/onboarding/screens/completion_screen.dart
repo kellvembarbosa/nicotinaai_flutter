@@ -24,7 +24,6 @@ class CompletionScreen extends StatefulWidget {
 
 class _CompletionScreenState extends State<CompletionScreen> {
   // Removendo opção de alternância, sempre usando grid
-  bool _isGridView = true;
 
   // Formata o valor para exibição de acordo com a moeda
   String _formatCurrency(double value, String? currencyCode) {

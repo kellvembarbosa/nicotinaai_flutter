@@ -4,6 +4,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:nicotinaai_flutter/blocs/analytics/analytics_bloc.dart';
+import 'package:nicotinaai_flutter/blocs/analytics/analytics_event.dart';
 import 'package:nicotinaai_flutter/blocs/auth/auth_bloc.dart';
 import 'package:nicotinaai_flutter/blocs/auth/auth_state.dart' as bloc_auth;
 import 'package:nicotinaai_flutter/blocs/theme/theme_bloc.dart';
@@ -78,6 +80,10 @@ class _HomeScreenState extends State<HomeScreen> {
     // Evite chamar BLoC diretamente em initState
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _initializeBlocs();
+      
+      // Track screen view for analytics
+      final analyticsBloc = BlocProvider.of<AnalyticsBloc>(context);
+      analyticsBloc.add(const TrackCustomEvent('home_screen_view', parameters: {'screen': 'home'}));
     });
   }
 
@@ -366,6 +372,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Track screen view impression for analytics
+    final analyticsBloc = BlocProvider.of<AnalyticsBloc>(context);
+    analyticsBloc.add(const TrackCustomEvent('home_screen_impression'));
+    
     // Obter dados do usuário do AuthBloc
     return BlocBuilder<AuthBloc, bloc_auth.AuthState>(
       builder: (context, authState) {
@@ -594,6 +604,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                                 TextButton(
                                   onPressed: () {
+                                    // Track statistics dashboard navigation
+                                    final analyticsBloc = BlocProvider.of<AnalyticsBloc>(context);
+                                    analyticsBloc.add(const TrackCustomEvent(
+                                      'view_all_statistics_clicked',
+                                      parameters: {'source': 'home_screen'},
+                                    ));
+                                    
                                     // Navigate to statistics dashboard
                                     context.go(
                                       AppRoutes.statisticsDashboard.path,
@@ -710,6 +727,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                     Colors.blueAccent,
                                     Icons.smoking_rooms,
                                     () {
+                                      // Track new record button click
+                                      final analyticsBloc = BlocProvider.of<AnalyticsBloc>(context);
+                                      analyticsBloc.add(const TrackCustomEvent(
+                                        'new_record_button_clicked',
+                                        parameters: {'source': 'home_screen'},
+                                      ));
+                                      
                                       // Usar a versão BLoC da sheet
                                       NewRecordSheet.show(context).then((
                                         result,
@@ -717,6 +741,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                         // Só atualiza se um record foi realmente registrado
                                         if (result != null &&
                                             result['registered'] == true) {
+                                          // Track successful record creation
+                                          analyticsBloc.add(const TrackCustomEvent(
+                                            'smoking_record_created',
+                                            parameters: {'source': 'new_record_sheet'},
+                                          ));
+                                          
                                           if (kDebugMode) {
                                             print(
                                               "🔄 Atualizando após registrar cigarro com BLoC",
@@ -769,6 +799,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                     ),
                                     TextButton(
                                       onPressed: () {
+                                        // Track health recovery navigation
+                                        final analyticsBloc = BlocProvider.of<AnalyticsBloc>(context);
+                                        analyticsBloc.add(const TrackCustomEvent(
+                                          'see_all_health_recovery_clicked',
+                                          parameters: {'source': 'home_screen'},
+                                        ));
+                                        
                                         // Navigate to health recovery screen
                                         context.push(
                                           AppRoutes.healthRecovery.path,
@@ -910,6 +947,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                                 TextButton(
                                   onPressed: () {
+                                    // Track achievements navigation
+                                    final analyticsBloc = BlocProvider.of<AnalyticsBloc>(context);
+                                    analyticsBloc.add(const TrackCustomEvent(
+                                      'see_all_achievements_clicked',
+                                      parameters: {'source': 'home_screen'},
+                                    ));
+                                    
                                     // Navigate to achievements screen
                                     context.go(AppRoutes.achievements.path);
                                   },
@@ -1163,7 +1207,20 @@ class _HomeScreenState extends State<HomeScreen> {
 
   /// Handle tap on the next milestone card
   void _onNextMilestoneTap() {
+    // Track next milestone interaction
+    final analyticsBloc = BlocProvider.of<AnalyticsBloc>(context);
+    
     if (_nextHealthMilestone != null) {
+      // Track specific milestone interaction
+      analyticsBloc.add(TrackCustomEvent(
+        'next_milestone_clicked',
+        parameters: {
+          'milestone_id': _nextHealthMilestone!['id'],
+          'milestone_name': _nextHealthMilestone!['name'],
+          'days_remaining': _nextHealthMilestone!['daysRemaining'],
+        },
+      ));
+      
       // Navigate to the health recovery detail screen for this milestone
       context.push(
         AppRoutes.healthRecoveryDetail.withParams(
@@ -1171,6 +1228,12 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       );
     } else {
+      // Track generic milestone interaction
+      analyticsBloc.add(const TrackCustomEvent(
+        'next_milestone_clicked',
+        parameters: {'milestone_type': 'generic'},
+      ));
+      
       // Navigate to the health recovery list screen if we don't have a specific milestone
       context.push(AppRoutes.healthRecovery.path);
     }

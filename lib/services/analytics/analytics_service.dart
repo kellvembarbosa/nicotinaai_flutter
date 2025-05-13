@@ -229,8 +229,40 @@ class AnalyticsService {
     await trackEvent('feature_used', parameters: {'feature': featureName});
   }
 
-  /// Track an event on all adapters (previously was only for paid)
-  /// Now all adapters receive these events
+  /// Track an event on all adapters and handle paid feature access
+  /// 
+  /// This method can be used to restrict specific features to paid users.
+  /// The Superwall adapter will show a paywall when appropriate.
+  /// The `onPaidFeature` callback will only be executed for paid users or
+  /// after they complete the paywall flow.
+  /// 
+  /// Example usage:
+  /// ```dart
+  /// // Example: Restricting craving registration to paid users
+  /// final craving = CravingModel(
+  ///   trigger: 'stress',
+  ///   intensity: 'high',
+  ///   location: 'home',
+  ///   resisted: true,
+  ///   userId: userId,
+  /// );
+  /// 
+  /// analyticsService.trackEventOnlyPaid(
+  ///   'register_craving',
+  ///   parameters: {
+  ///     'trigger': craving.trigger,
+  ///     'intensity': craving.intensity,
+  ///   },
+  ///   onPaidFeature: () {
+  ///     // This code only executes for paid users or after paywall completion
+  ///     trackingBloc.add(SaveCraving(craving: craving));
+  ///     trackingBloc.add(ForceUpdateStats());
+  ///     
+  ///     // Close the sheet and return result
+  ///     Navigator.of(context).pop({'registered': true});
+  ///   },
+  /// );
+  /// ```
   Future<void> trackEventOnlyPaid(
     String eventName, {
     Map<String, dynamic>? parameters,
