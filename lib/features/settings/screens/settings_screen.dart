@@ -9,7 +9,8 @@ import 'package:nicotinaai_flutter/blocs/auth/auth_state.dart';
 import 'package:nicotinaai_flutter/blocs/currency/currency_bloc.dart';
 import 'package:nicotinaai_flutter/blocs/currency/currency_state.dart';
 import 'package:nicotinaai_flutter/blocs/locale/locale_bloc.dart';
-import 'package:nicotinaai_flutter/blocs/locale/locale_state.dart' as locale_state;
+import 'package:nicotinaai_flutter/blocs/locale/locale_state.dart'
+    as locale_state;
 import 'package:nicotinaai_flutter/blocs/theme/theme_bloc.dart';
 import 'package:nicotinaai_flutter/blocs/theme/theme_state.dart' as theme_state;
 import 'package:nicotinaai_flutter/core/routes/app_routes.dart';
@@ -33,18 +34,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
   // Notification service and state
   final NotificationService _notificationService = NotificationService();
   bool _areNotificationsEnabled = true;
-  
+
   @override
   void initState() {
     super.initState();
     _loadNotificationSettings();
   }
-  
+
   Future<void> _loadNotificationSettings() async {
-    _areNotificationsEnabled = await _notificationService.areNotificationsEnabled();
+    _areNotificationsEnabled =
+        await _notificationService.areNotificationsEnabled();
     if (mounted) setState(() {});
   }
-  
+
   @override
   Widget build(BuildContext context) {
     final localizations = AppLocalizations.of(context);
@@ -72,9 +74,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
               color: context.cardColor,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16),
-                side: context.isDarkMode 
-                    ? BorderSide(color: context.borderColor) 
-                    : BorderSide.none,
+                side:
+                    context.isDarkMode
+                        ? BorderSide(color: context.borderColor)
+                        : BorderSide.none,
               ),
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
@@ -111,11 +114,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       onPressed: () {
                         // Track edit profile button click
                         final analyticsBloc = context.read<AnalyticsBloc>();
-                        analyticsBloc.add(const TrackCustomEvent(
-                          'edit_profile_clicked',
-                          parameters: {'source': 'settings_screen'},
-                        ));
-                        
+                        analyticsBloc.add(
+                          const TrackCustomEvent(
+                            'edit_profile_clicked',
+                            parameters: {'source': 'settings_screen'},
+                          ),
+                        );
+
                         // Navegar para tela de edição de perfil
                         context.push(AppRoutes.editProfile.path);
                       },
@@ -124,8 +129,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: context.primaryColor,
                         foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 12,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
                       ),
                     ),
                   ],
@@ -144,17 +154,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
               Icons.notifications_outlined,
               onTap: () async {
                 final newValue = !_areNotificationsEnabled;
-                
+
                 // Track notification toggle
                 final analyticsBloc = context.read<AnalyticsBloc>();
-                analyticsBloc.add(TrackCustomEvent(
-                  'notifications_toggled',
-                  parameters: {
-                    'new_state': newValue ? 'enabled' : 'disabled',
-                    'method': 'tile_tap',
-                  },
-                ));
-                
+                analyticsBloc.add(
+                  TrackCustomEvent(
+                    'notifications_toggled',
+                    parameters: {
+                      'new_state': newValue ? 'enabled' : 'disabled',
+                      'method': 'tile_tap',
+                    },
+                  ),
+                );
+
                 await _notificationService.setNotificationsEnabled(newValue);
                 setState(() {
                   _areNotificationsEnabled = newValue;
@@ -165,14 +177,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 onChanged: (value) async {
                   // Track notification toggle
                   final analyticsBloc = context.read<AnalyticsBloc>();
-                  analyticsBloc.add(TrackCustomEvent(
-                    'notifications_toggled',
-                    parameters: {
-                      'new_state': value ? 'enabled' : 'disabled',
-                      'method': 'switch',
-                    },
-                  ));
-                  
+                  analyticsBloc.add(
+                    TrackCustomEvent(
+                      'notifications_toggled',
+                      parameters: {
+                        'new_state': value ? 'enabled' : 'disabled',
+                        'method': 'switch',
+                      },
+                    ),
+                  );
+
                   await _notificationService.setNotificationsEnabled(value);
                   setState(() {
                     _areNotificationsEnabled = value;
@@ -180,8 +194,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 },
               ),
             ),
-            
-            
+
             // Configuração de tema com ThemeSettings
             Card(
               elevation: 0,
@@ -196,7 +209,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 child: ThemeSettings(),
               ),
             ),
-            
+
             _buildSettingItem(
               context,
               localizations.language,
@@ -205,23 +218,27 @@ class _SettingsScreenState extends State<SettingsScreen> {
               onTap: () {
                 // Track language settings clicked
                 final analyticsBloc = context.read<AnalyticsBloc>();
-                analyticsBloc.add(TrackCustomEvent(
-                  'language_settings_clicked',
-                  parameters: {
-                    'current_language': context.read<LocaleBloc>().state.currentLanguageName,
-                    'source': 'settings_screen',
-                  },
-                ));
-                
+                analyticsBloc.add(
+                  TrackCustomEvent(
+                    'language_settings_clicked',
+                    parameters: {
+                      'current_language':
+                          context.read<LocaleBloc>().state.currentLanguageName,
+                      'source': 'settings_screen',
+                    },
+                  ),
+                );
+
                 context.push(AppRoutes.languageBloc.path);
               },
               trailing: BlocBuilder<LocaleBloc, locale_state.LocaleState>(
-                builder: (context, state) => Text(
-                  state.currentLanguageName,
-                  style: context.textTheme.bodySmall!.copyWith(
-                    color: context.subtitleColor,
-                  ),
-                ),
+                builder:
+                    (context, state) => Text(
+                      state.currentLanguageName,
+                      style: context.textTheme.bodySmall!.copyWith(
+                        color: context.subtitleColor,
+                      ),
+                    ),
               ),
             ),
             _buildSettingItem(
@@ -233,23 +250,29 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 // Track theme settings clicked
                 final analyticsBloc = context.read<AnalyticsBloc>();
                 final themeState = context.read<ThemeBloc>().state;
-                analyticsBloc.add(TrackCustomEvent(
-                  'theme_settings_clicked',
-                  parameters: {
-                    'current_theme': _getThemeModeName(themeState.themeMode, localizations),
-                    'source': 'settings_screen',
-                  },
-                ));
-                
+                analyticsBloc.add(
+                  TrackCustomEvent(
+                    'theme_settings_clicked',
+                    parameters: {
+                      'current_theme': _getThemeModeName(
+                        themeState.themeMode,
+                        localizations,
+                      ),
+                      'source': 'settings_screen',
+                    },
+                  ),
+                );
+
                 context.push(AppRoutes.themeBloc.path);
               },
               trailing: BlocBuilder<ThemeBloc, theme_state.ThemeState>(
-                builder: (context, state) => Text(
-                  _getThemeModeName(state.themeMode, localizations),
-                  style: context.textTheme.bodySmall!.copyWith(
-                    color: context.subtitleColor,
-                  ),
-                ),
+                builder:
+                    (context, state) => Text(
+                      _getThemeModeName(state.themeMode, localizations),
+                      style: context.textTheme.bodySmall!.copyWith(
+                        color: context.subtitleColor,
+                      ),
+                    ),
               ),
             ),
 
@@ -265,11 +288,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
               onTap: () {
                 // Track cigarettes per day settings clicked
                 final analyticsBloc = context.read<AnalyticsBloc>();
-                analyticsBloc.add(const TrackCustomEvent(
-                  'cigarettes_per_day_settings_clicked',
-                  parameters: {'source': 'settings_screen'},
-                ));
-                
+                analyticsBloc.add(
+                  const TrackCustomEvent(
+                    'cigarettes_per_day_settings_clicked',
+                    parameters: {'source': 'settings_screen'},
+                  ),
+                );
+
                 // Navegar para tela de configuração de cigarros por dia
                 context.push(AppRoutes.cigarettesPerDay.path);
               },
@@ -282,11 +307,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
               onTap: () {
                 // Track pack price settings clicked
                 final analyticsBloc = context.read<AnalyticsBloc>();
-                analyticsBloc.add(const TrackCustomEvent(
-                  'pack_price_settings_clicked',
-                  parameters: {'source': 'settings_screen'},
-                ));
-                
+                analyticsBloc.add(
+                  const TrackCustomEvent(
+                    'pack_price_settings_clicked',
+                    parameters: {'source': 'settings_screen'},
+                  ),
+                );
+
                 // Navegar para tela de configuração de preço do maço
                 context.push(AppRoutes.packPrice.path);
               },
@@ -300,23 +327,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 // Track currency settings clicked
                 final analyticsBloc = context.read<AnalyticsBloc>();
                 final currencyState = context.read<CurrencyBloc>().state;
-                analyticsBloc.add(TrackCustomEvent(
-                  'currency_settings_clicked',
-                  parameters: {
-                    'current_currency': currencyState.currencyCode,
-                    'source': 'settings_screen',
-                  },
-                ));
-                
+                analyticsBloc.add(
+                  TrackCustomEvent(
+                    'currency_settings_clicked',
+                    parameters: {
+                      'current_currency': currencyState.currencyCode,
+                      'source': 'settings_screen',
+                    },
+                  ),
+                );
+
                 context.push(AppRoutes.currencyBloc.path);
               },
               trailing: BlocBuilder<CurrencyBloc, CurrencyState>(
-                builder: (context, state) => Text(
-                  state.currencyCode,
-                  style: context.textTheme.bodySmall!.copyWith(
-                    color: context.subtitleColor,
-                  ),
-                ),
+                builder:
+                    (context, state) => Text(
+                      state.currencyCode,
+                      style: context.textTheme.bodySmall!.copyWith(
+                        color: context.subtitleColor,
+                      ),
+                    ),
               ),
             ),
             _buildSettingItem(
@@ -327,11 +357,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
               onTap: () {
                 // Track quit date settings clicked
                 final analyticsBloc = context.read<AnalyticsBloc>();
-                analyticsBloc.add(const TrackCustomEvent(
-                  'quit_date_settings_clicked',
-                  parameters: {'source': 'settings_screen'},
-                ));
-                
+                analyticsBloc.add(
+                  const TrackCustomEvent(
+                    'quit_date_settings_clicked',
+                    parameters: {'source': 'settings_screen'},
+                  ),
+                );
+
                 // Navegar para tela de configuração de data de parada
                 context.push(AppRoutes.quitDate.path);
               },
@@ -349,11 +381,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
               onTap: () {
                 // Track reset password clicked
                 final analyticsBloc = context.read<AnalyticsBloc>();
-                analyticsBloc.add(const TrackCustomEvent(
-                  'reset_password_clicked',
-                  parameters: {'source': 'settings_screen'},
-                ));
-                
+                analyticsBloc.add(
+                  const TrackCustomEvent(
+                    'reset_password_clicked',
+                    parameters: {'source': 'settings_screen'},
+                  ),
+                );
+
                 // Navegar para tela de redefinição de senha
                 context.push(AppRoutes.resetPassword.path);
               },
@@ -366,11 +400,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
               onTap: () {
                 // Track delete account clicked
                 final analyticsBloc = context.read<AnalyticsBloc>();
-                analyticsBloc.add(const TrackCustomEvent(
-                  'delete_account_clicked',
-                  parameters: {'source': 'settings_screen'},
-                ));
-                
+                analyticsBloc.add(
+                  const TrackCustomEvent(
+                    'delete_account_clicked',
+                    parameters: {'source': 'settings_screen'},
+                  ),
+                );
+
                 // Navegar para tela de exclusão de conta
                 context.push(AppRoutes.deleteAccount.path);
               },
@@ -385,11 +421,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
               onTap: () async {
                 // Track logout clicked
                 final analyticsBloc = context.read<AnalyticsBloc>();
-                analyticsBloc.add(const TrackCustomEvent(
-                  'logout_clicked',
-                  parameters: {'source': 'settings_screen'},
-                ));
-                
+                analyticsBloc.add(
+                  const TrackCustomEvent(
+                    'logout_clicked',
+                    parameters: {'source': 'settings_screen'},
+                  ),
+                );
+
                 // Confirmar logout
                 showDialog(
                   context: context,
@@ -413,21 +451,29 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             child: Text(
                               localizations.cancel,
                               style: context.textTheme.labelLarge!.copyWith(
-                                color: context.isDarkMode ? Colors.grey[300] : Colors.grey[700],
+                                color:
+                                    context.isDarkMode
+                                        ? Colors.grey[300]
+                                        : Colors.grey[700],
                               ),
                             ),
                           ),
                           ElevatedButton(
                             onPressed: () async {
                               // Track logout confirmed
-                              final analyticsBloc = context.read<AnalyticsBloc>();
-                              analyticsBloc.add(const TrackCustomEvent(
-                                'logout_confirmed',
-                                parameters: {'source': 'settings_screen'},
-                              ));
-                              
+                              final analyticsBloc =
+                                  context.read<AnalyticsBloc>();
+                              analyticsBloc.add(
+                                const TrackCustomEvent(
+                                  'logout_confirmed',
+                                  parameters: {'source': 'settings_screen'},
+                                ),
+                              );
+
                               Navigator.of(context).pop();
-                              context.read<AuthBloc>().add(LogoutRequested(context: context));
+                              context.read<AuthBloc>().add(
+                                LogoutRequested(context: context),
+                              );
                               if (context.mounted) {
                                 context.go('/login');
                               }
@@ -439,7 +485,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             child: Text(localizations.logout),
                           ),
                         ],
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
                       ),
                 );
               },
@@ -448,7 +496,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
 
             const SizedBox(height: 24),
-            
 
             // Seção de sobre
             _buildSectionHeader(context, localizations.about),
@@ -460,11 +507,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
               onTap: () {
                 // Track privacy policy clicked
                 final analyticsBloc = context.read<AnalyticsBloc>();
-                analyticsBloc.add(const TrackCustomEvent(
-                  'privacy_policy_clicked',
-                  parameters: {'source': 'settings_screen'},
-                ));
-                
+                analyticsBloc.add(
+                  const TrackCustomEvent(
+                    'privacy_policy_clicked',
+                    parameters: {'source': 'settings_screen'},
+                  ),
+                );
+
                 // Abrir política de privacidade
                 UrlLauncherUtils.launchURL(
                   'https://nicotina.ai/legal/privacy-policy',
@@ -480,11 +529,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
               onTap: () {
                 // Track terms of use clicked
                 final analyticsBloc = context.read<AnalyticsBloc>();
-                analyticsBloc.add(const TrackCustomEvent(
-                  'terms_of_use_clicked',
-                  parameters: {'source': 'settings_screen'},
-                ));
-                
+                analyticsBloc.add(
+                  const TrackCustomEvent(
+                    'terms_of_use_clicked',
+                    parameters: {'source': 'settings_screen'},
+                  ),
+                );
+
                 // Abrir termos de uso
                 UrlLauncherUtils.launchURL(
                   'https://nicotina.ai/legal/terms-of-service',
@@ -500,11 +551,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
               onTap: () {
                 // Track about app clicked
                 final analyticsBloc = context.read<AnalyticsBloc>();
-                analyticsBloc.add(const TrackCustomEvent(
-                  'about_app_clicked',
-                  parameters: {'source': 'settings_screen'},
-                ));
-                
+                analyticsBloc.add(
+                  const TrackCustomEvent(
+                    'about_app_clicked',
+                    parameters: {'source': 'settings_screen'},
+                  ),
+                );
+
                 // Mostrar diálogo com informações
                 _showAboutDialog(context);
               },
@@ -560,10 +613,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ),
       child: ListTile(
         onTap: onTap,
-        leading: Icon(
-          icon,
-          color: iconColor ?? context.subtitleColor,
-        ),
+        leading: Icon(icon, color: iconColor ?? context.subtitleColor),
         title: Text(
           title,
           style: context.textTheme.titleMedium!.copyWith(
@@ -577,11 +627,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
             color: context.subtitleColor,
           ),
         ),
-        trailing: trailing ?? Icon(
-          Icons.arrow_forward_ios,
-          size: 16,
-          color: context.subtitleColor,
-        ),
+        trailing:
+            trailing ??
+            Icon(
+              Icons.arrow_forward_ios,
+              size: 16,
+              color: context.subtitleColor,
+            ),
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
@@ -590,7 +642,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   void _showDeleteAccountDialog(BuildContext context) {
     final localizations = AppLocalizations.of(context);
-    
+
     showDialog(
       context: context,
       builder:
@@ -613,7 +665,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 child: Text(
                   localizations.cancel,
                   style: context.textTheme.labelLarge!.copyWith(
-                    color: context.isDarkMode ? Colors.grey[300] : Colors.grey[700],
+                    color:
+                        context.isDarkMode
+                            ? Colors.grey[300]
+                            : Colors.grey[700],
                   ),
                 ),
               ),
@@ -623,10 +678,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   Navigator.of(context).pop();
                 },
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-                child: Text(localizations.delete, style: const TextStyle(color: Colors.white)),
+                child: Text(
+                  localizations.delete,
+                  style: const TextStyle(color: Colors.white),
+                ),
               ),
             ],
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
           ),
     );
   }
@@ -642,10 +702,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
         return localizations.system;
     }
   }
-  
+
   void _showAboutDialog(BuildContext context) {
     final localizations = AppLocalizations.of(context);
-    
+
     showDialog(
       context: context,
       builder:
@@ -653,11 +713,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
             applicationName: localizations.appName,
             applicationVersion: '1.0.0',
             applicationIcon: const FlutterLogo(size: 50),
-            applicationLegalese: '© 2024 NicotinaAI. Todos os direitos reservados.',
+            applicationLegalese:
+                '© 2024 Nicotina,AI. Todos os direitos reservados.',
             children: [
               const SizedBox(height: 16),
               Text(
-                'NicotinaAI é uma aplicação de apoio para parar de fumar, que usa inteligência artificial para ajudar no monitoramento de hábitos e fornecer suporte personalizado durante o processo de parar de fumar.',
+                'Nicotina,AI é uma aplicação de apoio para parar de fumar, que usa inteligência artificial para ajudar no monitoramento de hábitos e fornecer suporte personalizado durante o processo de parar de fumar.',
                 style: context.bodyStyle,
               ),
             ],

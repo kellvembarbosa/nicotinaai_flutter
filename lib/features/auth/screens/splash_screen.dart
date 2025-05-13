@@ -21,80 +21,94 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    
+
     // Deixar o sistema carregar um pouco antes de verificar status
     Future.delayed(Duration(milliseconds: 1500), () {
       _checkAuthAndNavigate();
     });
   }
-  
+
   void _checkAuthAndNavigate() async {
     if (!mounted) return;
-    
+
     final authBloc = context.read<AuthBloc>();
     final authState = authBloc.state;
     final isAuthenticated = authState.isAuthenticated;
-    
-    print('🛑 [SplashScreen] Na tela de splash, NUNCA interferir na navegação do Router!');
-    print('ℹ️ [SplashScreen] O SplashScreen agora está apenas aguardando o Router decidir para onde ir.');
-    
+
+    print(
+      '🛑 [SplashScreen] Na tela de splash, NUNCA interferir na navegação do Router!',
+    );
+    print(
+      'ℹ️ [SplashScreen] O SplashScreen agora está apenas aguardando o Router decidir para onde ir.',
+    );
+
     if (!isAuthenticated) {
       // Se não estiver autenticado, ir para login
-      print('🔒 [SplashScreen] Usuário não autenticado, redirecionando para login');
+      print(
+        '🔒 [SplashScreen] Usuário não autenticado, redirecionando para login',
+      );
       context.go(AppRoutes.login.path);
       return;
     }
-    
+
     print('👤 [SplashScreen] Usuário autenticado, verificando onboarding');
-    
+
     // Se autenticado, verificar onboarding
     final onboardingBloc = context.read<OnboardingBloc>();
-    
+
     try {
       // Forçar inicialização do onboarding e aguardar resposta do evento
       print('🔄 [SplashScreen] Inicializando onboarding...');
       onboardingBloc.add(InitializeOnboarding());
-      
+
       // Aguardar um tempo para o onboarding ser inicializado
       await Future.delayed(const Duration(milliseconds: 500));
-      
+
       if (!mounted) return;
-      
+
       // Verificação direta no Supabase para confirmar o status
       print('🔍 [SplashScreen] Verificando status do onboarding');
       onboardingBloc.add(CheckOnboardingStatus());
-      
+
       // Aguardar verificação
       await Future.delayed(const Duration(milliseconds: 500));
-      
+
       if (!mounted) return;
-      
+
       // Obter estado atual do onboarding
       final onboardingState = onboardingBloc.state;
       final isCompleted = onboardingState.isCompleted;
-      
+
       // Usar a verificação como fonte primária da verdade
-      print('✅ [SplashScreen] Status do onboarding: ${isCompleted ? "COMPLETO" : "INCOMPLETO"}');
-      
+      print(
+        '✅ [SplashScreen] Status do onboarding: ${isCompleted ? "COMPLETO" : "INCOMPLETO"}',
+      );
+
       if (isCompleted) {
         // Se onboarding completo, ir para tela principal
-        print('✅ [SplashScreen] Onboarding completo, redirecionando para tela principal');
+        print(
+          '✅ [SplashScreen] Onboarding completo, redirecionando para tela principal',
+        );
         context.go(AppRoutes.main.path);
       } else {
         // Se não, ir para onboarding
-        print('⏩ [SplashScreen] Onboarding incompleto, redirecionando para onboarding');
+        print(
+          '⏩ [SplashScreen] Onboarding incompleto, redirecionando para onboarding',
+        );
         context.go(AppRoutes.onboarding.path);
       }
     } catch (e) {
       if (!mounted) return;
-      
+
       print('❌ [SplashScreen] Erro ao verificar onboarding: $e');
-      
+
       // Em caso de erro, verificar estado atual como fallback
       final onboardingState = onboardingBloc.state;
       final isCompleted = onboardingState.isCompleted;
-      print('🔄 [SplashScreen] Fallback: status do onboarding: ${isCompleted ? "COMPLETO" : "INCOMPLETO"}');
-      
+      print(
+        '🔄 [SplashScreen] Fallback: status do onboarding: ${isCompleted ? "COMPLETO" : "INCOMPLETO"}',
+      );
+
       if (isCompleted) {
         context.go(AppRoutes.main.path);
       } else {
@@ -106,38 +120,31 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    
+
     return Scaffold(
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             // App logo or icon
-            Image.asset(
-              'assets/images/smoke-one.png',
-              width: 120,
-              height: 120,
-            ),
+            Image.asset('assets/images/smoke-one.png', width: 120, height: 120),
             const SizedBox(height: 24),
-            
+
             // App name
             Text(
-              'NicotinaAI',
-              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+              'Nicotina.AI',
+              style: Theme.of(
+                context,
+              ).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 32),
-            
+
             // Loading indicator
             const PlatformLoadingIndicator(size: 32),
             const SizedBox(height: 16),
-            
+
             // Loading message
-            Text(
-              l10n.loading,
-              style: Theme.of(context).textTheme.bodyLarge,
-            ),
+            Text(l10n.loading, style: Theme.of(context).textTheme.bodyLarge),
           ],
         ),
       ),
