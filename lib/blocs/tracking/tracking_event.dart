@@ -22,7 +22,23 @@ class RefreshUserStats extends TrackingEvent {
   RefreshUserStats({this.forceRefresh = false});
 }
 
-class ForceUpdateStats extends TrackingEvent {}
+class ForceUpdateStats extends TrackingEvent {
+  final bool debounce;
+  final DateTime timestamp;
+
+  // Default constructor with debouncing enabled and current timestamp
+  ForceUpdateStats({this.debounce = true})
+    : timestamp = DateTime.now();
+  
+  // Factory constructor for identical events with new timestamp 
+  // Used for determining if multiple calls should be processed within debounce period
+  factory ForceUpdateStats.withTimestamp(DateTime timestamp) {
+    return ForceUpdateStats._internal(timestamp);
+  }
+
+  // Internal constructor for timestamp-based equality checks
+  ForceUpdateStats._internal(this.timestamp) : debounce = true;
+}
 
 // ===============================================
 // Unified Smoking Records events (replaces both SmokingRecordBloc and old events)

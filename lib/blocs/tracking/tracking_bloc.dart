@@ -37,8 +37,23 @@ class TrackingBloc extends Bloc<TrackingEvent, TrackingState> {
   DateTime? _lastUnifiedCravingsUpdateTime;
   DateTime? _lastSmokingRecordsUpdateTime;
 
-  // Cache expiration time (5 minutes)
+  // Cache expiration times - using different durations for different data types
+  static const Duration statsExpiration = Duration(minutes: 10); // Stats can be cached longer
+  static const Duration logsExpiration = Duration(minutes: 5);
+  static const Duration cravingsExpiration = Duration(minutes: 5);
+  static const Duration recoveriesExpiration = Duration(minutes: 15); // Health recoveries change rarely
+  static const Duration unifiedCravingsExpiration = Duration(minutes: 5);
+  static const Duration smokingRecordsExpiration = Duration(minutes: 5);
+  
+  // Default cache expiration (for backward compatibility)
   static const Duration cacheExpiration = Duration(minutes: 5);
+  
+  // Debouncing for ForceUpdateStats
+  static const Duration _debounceTime = Duration(milliseconds: 300);
+  DateTime? _lastStatsUpdateRequest;
+  
+  // Pending ForceUpdateStats events to be processed after debounce
+  bool _hasQueuedUpdate = false;
 
   // Loading flag to prevent multiple simultaneous initializations
   bool _isInitializing = false;
@@ -96,139 +111,222 @@ class TrackingBloc extends Bloc<TrackingEvent, TrackingState> {
     on<ClearCravingError>(_onClearCravingError);
   }
 
-  // Verifica se o cache expirou
-  bool _isCacheExpired(DateTime? lastUpdate) {
+  // Verifica se o cache expirou com base no tipo de dados
+  bool _isCacheExpired(DateTime? lastUpdate, {Duration? expiration}) {
     if (lastUpdate == null) return true;
     final now = DateTime.now();
-    return now.difference(lastUpdate) > cacheExpiration;
+    final expirationToUse = expiration ?? cacheExpiration;
+    return now.difference(lastUpdate) > expirationToUse;
+  }
+  
+  // Helpers específicos para cada tipo de cache
+  bool _isStatsExpired() => _isCacheExpired(_lastStatsUpdateTime, expiration: statsExpiration);
+  bool _isLogsExpired() => _isCacheExpired(_lastLogsUpdateTime, expiration: logsExpiration);
+  bool _isCravingsExpired() => _isCacheExpired(_lastCravingsUpdateTime, expiration: cravingsExpiration);
+  bool _isRecoveriesExpired() => _isCacheExpired(_lastRecoveriesUpdateTime, expiration: recoveriesExpiration);
+  bool _isUnifiedCravingsExpired() => _isCacheExpired(_lastUnifiedCravingsUpdateTime, expiration: unifiedCravingsExpiration);
+  bool _isSmokingRecordsExpired() => _isCacheExpired(_lastSmokingRecordsUpdateTime, expiration: smokingRecordsExpiration);
+  
+  // Verifica se uma atualização de estatísticas deve ser debounced
+  bool _shouldDebounceStatsUpdate(DateTime now) {
+    if (_lastStatsUpdateRequest == null) return false;
+    return now.difference(_lastStatsUpdateRequest!) < _debounceTime;
   }
 
+  // Sequence optimization: Initializes the tracking system with proper prioritization and caching
   Future<void> _onInitializeTracking(InitializeTracking event, Emitter<TrackingState> emit) async {
-    if (_isInitializing) return;
+    // Prevent multiple concurrent initializations
+    if (_isInitializing) {
+      if (kDebugMode) {
+        print('🛑 [TrackingBloc] Initialization already in progress, skipping redundant call');
+      }
+      return;
+    }
 
     try {
       _isInitializing = true;
+      
+      if (kDebugMode) {
+        print('🚀 [TrackingBloc] Starting initialization sequence');
+      }
 
       emit(
         state.copyWith(status: TrackingStatus.loading, isStatsLoading: true, isLogsLoading: true, isCravingsLoading: true, isRecoveriesLoading: true),
       );
-
-      // Primeiro carrega estatísticas do usuário e dados básicos
-      await Future.wait([
-        _loadUserStats(emit, forceRefresh: false),
-        _loadSmokingLogs(emit, forceRefresh: false),
-        _loadCravings(emit, forceRefresh: false),
-      ]);
-
-      // IMPORTANTE: Carregar unifiedCravings para garantir que os dados de cravings resistidos hoje sejam calculados corretamente
+      
+      // PHASE 1: First load critical data - prioritize user stats first as they're needed by other components
+      // Use our improved cache system to avoid unnecessary network requests
+      await _loadUserStats(emit, forceRefresh: _isStatsExpired());
+      
+      // PHASE 2: Then load other data in parallel if we have user stats
+      List<Future> dataLoadTasks = [];
+      
       if (state.userStats != null) {
-        final userId = state.userStats!.userId;
-        if (userId != null) {
-          try {
+        // We have user stats, load other data in parallel
+        if (_isLogsExpired() || state.smokingLogs.isEmpty) {
+          dataLoadTasks.add(_loadSmokingLogs(emit, forceRefresh: false));
+        }
+        
+        if (_isCravingsExpired() || state.cravings.isEmpty) {
+          dataLoadTasks.add(_loadCravings(emit, forceRefresh: false));
+        }
+        
+        if (state.userStats!.userId != null) {
+          // Load unified cravings if cache expired or empty
+          if (_isUnifiedCravingsExpired() || state.unifiedCravings.isEmpty) {
             if (kDebugMode) {
-              print('🔄 [TrackingBloc] Carregando unifiedCravings para o usuário: $userId');
+              print('🔄 [TrackingBloc] Loading unified cravings for user: ${state.userStats!.userId}');
             }
-            await _onLoadCravingsForUser(LoadCravingsForUser(userId: userId), emit);
-            
-            if (kDebugMode) {
-              print('✅ [TrackingBloc] Cravings unificados carregados: ${state.unifiedCravings.length}');
-              
-              // Calcular cravings resistidos hoje diretamente do estado
-              int todayResisted = _calculateCravingsResistedToday();
-              int minutesGainedToday = todayResisted * ImprovedStatsCalculator.MINUTES_PER_CIGARETTE;
-              
-              print('📊 [TrackingBloc] Cravings resistidos hoje: $todayResisted');
-              print('📊 [TrackingBloc] Minutos ganhos hoje: $minutesGainedToday min');
-            }
-          } catch (e) {
-            if (kDebugMode) {
-              print('❌ [TrackingBloc] Erro ao carregar unifiedCravings: $e');
-            }
+            dataLoadTasks.add(_onLoadCravingsForUser(LoadCravingsForUser(userId: state.userStats!.userId!), emit));
+          } else if (kDebugMode) {
+            print('✅ [TrackingBloc] Using cached unified cravings (${state.unifiedCravings.length} items)');
           }
         }
-      }
-
-      // Try to ensure we have user stats
-      if (state.userStats == null) {
-        try {
-          await _loadUserStats(emit, forceRefresh: true);
-        } catch (statsErr) {
-          print('Error loading user stats: $statsErr');
+        
+        // Wait for all parallel data loading tasks to complete
+        if (dataLoadTasks.isNotEmpty) {
+          await Future.wait(dataLoadTasks);
+          
+          if (kDebugMode) {
+            // Debug output after parallel loading
+            print('✅ [TrackingBloc] Parallel data loading completed:');
+            print('   - SmokingLogs: ${state.smokingLogs.length} items');
+            print('   - Cravings: ${state.cravings.length} items');
+            print('   - UnifiedCravings: ${state.unifiedCravings.length} items');
+            
+            // Calculate cravings resisted today for debugging
+            int todayResisted = _calculateCravingsResistedToday();
+            int minutesGainedToday = todayResisted * ImprovedStatsCalculator.MINUTES_PER_CIGARETTE;
+            print('📊 [TrackingBloc] Cravings resisted today: $todayResisted');
+            print('📊 [TrackingBloc] Minutes gained today: $minutesGainedToday min');
+          }
         }
       }
       
-      // Verificar se temos valores nulos que precisam ser atualizados do servidor
-      // Valores zero são considerados válidos e não devem forçar uma atualização
+      // PHASE 3: Fix missing or inconsistent data
+      
+      // 3.1: If user stats still missing, try to load them again with force refresh
+      if (state.userStats == null) {
+        try {
+          if (kDebugMode) {
+            print('⚠️ [TrackingBloc] UserStats still null, forcing refresh');
+          }
+          await _loadUserStats(emit, forceRefresh: true);
+        } catch (statsErr) {
+          print('❌ [TrackingBloc] Error loading user stats: $statsErr');
+        }
+      }
+      
+      // 3.2: Fix missing values in stats when we have a lastSmokeDate
       if (state.userStats != null && 
          (state.userStats!.totalMinutesGained == null || 
-          state.userStats!.moneySaved == null) &&
+          state.userStats!.moneySaved == null || 
+          state.userStats!.totalMinutesGained == 0 || 
+          state.userStats!.moneySaved == 0) &&
          state.userStats!.lastSmokeDate != null) {
+        
         if (kDebugMode) {
-          print('🔄 Stats values missing with valid last_smoke_date, forcing update from server...');
-          print('📊 Current values - minutes: ${state.userStats!.totalMinutesGained}, money: ${state.userStats!.moneySaved}');
+          print('🔧 [TrackingBloc] Fixing missing or zero values with valid last_smoke_date');
+          print('   - Current minutes gained: ${state.userStats!.totalMinutesGained}');
+          print('   - Current money saved: ${state.userStats!.moneySaved}');
         }
-        await _repository.updateUserStats();
-        await _loadUserStats(emit, forceRefresh: true);
-      }
-
-      // If we have smoking logs, make sure we have a last smoke date
-      if (state.userStats != null && state.userStats!.lastSmokeDate == null && state.smokingLogs.isNotEmpty) {
-        // Try to update the last smoke date from the latest smoking log
+        
         try {
           await _repository.updateUserStats();
           await _loadUserStats(emit, forceRefresh: true);
-        } catch (updateErr) {
-          print('Error updating user stats: $updateErr');
+          
+          if (kDebugMode && state.userStats != null) {
+            print('✅ [TrackingBloc] Values after fix:');
+            print('   - Updated minutes gained: ${state.userStats!.totalMinutesGained}');
+            print('   - Updated money saved: ${state.userStats!.moneySaved}');
+          }
+        } catch (e) {
+          print('❌ [TrackingBloc] Error fixing stat values: $e');
         }
       }
 
-      // Log current user stats status
-      if (state.userStats == null) {
-        print('User stats not available after initialization');
-      } else if (state.userStats!.lastSmokeDate == null) {
-        print('Last smoke date not available after initialization');
-      } else {
-        print('User stats available: last smoke date = ${state.userStats!.lastSmokeDate}');
-      }
-
-      // First load existing health recoveries
-      try {
-        await _loadHealthRecoveries(emit, forceRefresh: false);
-      } catch (e) {
-        print('Error loading health recoveries: $e');
-        // Ensure we have at least empty recoveries list
-        emit(state.copyWith(healthRecoveries: [], userHealthRecoveries: [], isRecoveriesLoading: false));
-      }
-
-      // Verifica se há logs de fumo ou data do último cigarro para verificar recuperações
-      if (state.smokingLogs.isNotEmpty || (state.userStats != null && state.userStats!.lastSmokeDate != null)) {
+      // 3.3: Fix missing lastSmokeDate when we have smoking logs
+      if (state.userStats != null && state.userStats!.lastSmokeDate == null && state.smokingLogs.isNotEmpty) {
+        if (kDebugMode) {
+          print('🔧 [TrackingBloc] Fixing missing lastSmokeDate from smoking logs');
+        }
+        
         try {
-          // Se não temos data do último cigarro mas temos logs de fumo, tenta atualizar as estatísticas primeiro
+          await _repository.updateUserStats();
+          await _loadUserStats(emit, forceRefresh: true);
+          
+          if (kDebugMode && state.userStats != null) {
+            print('✅ [TrackingBloc] LastSmokeDate after fix: ${state.userStats!.lastSmokeDate}');
+          }
+        } catch (updateErr) {
+          print('❌ [TrackingBloc] Error updating lastSmokeDate: $updateErr');
+        }
+      }
+      
+      // PHASE 4: Load health recoveries
+      
+      // 4.1: Load existing health recoveries
+      if (_isRecoveriesExpired() || state.healthRecoveries.isEmpty || state.userHealthRecoveries.isEmpty) {
+        try {
+          if (kDebugMode) {
+            print('🔄 [TrackingBloc] Loading health recoveries');
+          }
+          await _loadHealthRecoveries(emit, forceRefresh: false);
+        } catch (e) {
+          print('❌ [TrackingBloc] Error loading health recoveries: $e');
+          // Ensure we have at least empty recoveries list
+          emit(state.copyWith(healthRecoveries: [], userHealthRecoveries: [], isRecoveriesLoading: false));
+        }
+      } else if (kDebugMode) {
+        print('✅ [TrackingBloc] Using cached health recoveries (${state.healthRecoveries.length} items)');
+      }
+      
+      // 4.2: Check for new health recoveries (only if we have lastSmokeDate)
+      if ((state.smokingLogs.isNotEmpty || 
+           (state.userStats != null && state.userStats!.lastSmokeDate != null)) &&
+          (_isRecoveriesExpired() || state.hasError)) {
+        
+        try {
+          if (kDebugMode) {
+            print('🔍 [TrackingBloc] Checking for new health recoveries...');
+          }
+          
+          // Only update last smoke date if we don't have it
           if ((state.userStats == null || state.userStats!.lastSmokeDate == null) && state.smokingLogs.isNotEmpty) {
-            print('⚠️ No last smoke date available but smoking logs exist - updating stats first');
+            if (kDebugMode) {
+              print('⚠️ [TrackingBloc] No lastSmokeDate but smoking logs exist - updating stats first');
+            }
+            
             try {
-              // Atualiza as estatísticas usando os logs de fumo
               await _repository.updateUserStats();
               await _loadUserStats(emit, forceRefresh: true);
             } catch (statsErr) {
-              print('⚠️ Error updating user stats: $statsErr');
+              print('⚠️ [TrackingBloc] Error updating user stats: $statsErr');
             }
           }
 
-          print('✅ Checking for new health recoveries...');
+          // Only check health recoveries if it's been a while since last check
           final result = await _repository.checkHealthRecoveries(updateAchievements: false);
-          print('✅ Health recovery check completed: $result');
+          
+          if (kDebugMode) {
+            print('✅ [TrackingBloc] Health recovery check completed: $result');
+          }
 
           // Reload health recoveries after successful check
           await _loadHealthRecoveries(emit, forceRefresh: true);
         } catch (e) {
-          print('⚠️ Error checking health recoveries: $e');
+          print('⚠️ [TrackingBloc] Error checking health recoveries: $e');
           // Continue even if there's an error with checking health recoveries
         }
-      } else {
-        print('⚠️ Skipping health recovery check: No smoking logs or last smoke date available');
+      } else if (kDebugMode) {
+        if (state.userStats == null || state.userStats!.lastSmokeDate == null) {
+          print('⚠️ [TrackingBloc] Skipping health recovery check: No lastSmokeDate available');
+        } else {
+          print('ℹ️ [TrackingBloc] Skipping health recovery check: Cache still valid');
+        }
       }
-
+      
+      // PHASE 5: Final state update
       emit(
         state.copyWith(
           status: TrackingStatus.loaded,
@@ -238,7 +336,15 @@ class TrackingBloc extends Bloc<TrackingEvent, TrackingState> {
           isRecoveriesLoading: false,
         ),
       );
+      
+      if (kDebugMode) {
+        print('✅ [TrackingBloc] Initialization completed successfully');
+      }
     } catch (e) {
+      if (kDebugMode) {
+        print('❌ [TrackingBloc] Initialization failed: $e');
+      }
+      
       emit(
         state.copyWith(
           status: TrackingStatus.error,
@@ -260,10 +366,10 @@ class TrackingBloc extends Bloc<TrackingEvent, TrackingState> {
   }
 
   Future<void> _loadUserStats(Emitter<TrackingState> emit, {bool forceRefresh = false}) async {
-    // Usa cache se disponível e não expirado
-    if (!forceRefresh && !_isCacheExpired(_lastStatsUpdateTime) && state.userStats != null) {
+    // Usa cache se disponível e não expirado - usando tempo de expiração específico
+    if (!forceRefresh && !_isStatsExpired() && state.userStats != null) {
       if (kDebugMode) {
-        print('Using cached user stats from $_lastStatsUpdateTime');
+        print('Using cached user stats from $_lastStatsUpdateTime (expires after ${statsExpiration.inMinutes} minutes)');
       }
       emit(state.copyWith(isStatsLoading: false));
       return;
@@ -376,8 +482,38 @@ class TrackingBloc extends Bloc<TrackingEvent, TrackingState> {
   }
 
   Future<void> _onForceUpdateStats(ForceUpdateStats event, Emitter<TrackingState> emit) async {
+    // Implement debouncing to prevent excessive updates
+    final now = DateTime.now();
+    
+    // If debouncing is enabled and an update was recently requested, queue it
+    if (event.debounce && _shouldDebounceStatsUpdate(now)) {
+      if (kDebugMode) {
+        print('🕒 [TrackingBloc] Debouncing ForceUpdateStats event - deferring by ${_debounceTime.inMilliseconds}ms');
+      }
+      
+      // Only queue if we don't already have one queued
+      if (!_hasQueuedUpdate) {
+        _hasQueuedUpdate = true;
+        // Schedule a delayed update
+        Future.delayed(_debounceTime, () {
+          if (kDebugMode) {
+            print('⏰ [TrackingBloc] Processing queued ForceUpdateStats event');
+          }
+          // Reset flag and add a non-debounced event
+          _hasQueuedUpdate = false;
+          add(ForceUpdateStats(debounce: false));
+        });
+      }
+      
+      // Don't proceed with current update
+      return;
+    }
+    
+    // Update the last update request time
+    _lastStatsUpdateRequest = now;
+    
     if (kDebugMode) {
-      print('🔄 [TrackingBloc] Forcing stats update...');
+      print('🔄 [TrackingBloc] Processing ForceUpdateStats event');
       if (state.userStats != null) {
         print('📊 [TrackingBloc] Current values before update:');
         print('   - Cravings Resisted: ${state.userStats!.cravingsResisted}');
@@ -474,10 +610,10 @@ class TrackingBloc extends Bloc<TrackingEvent, TrackingState> {
   }
 
   Future<void> _loadSmokingLogs(Emitter<TrackingState> emit, {bool forceRefresh = false}) async {
-    // Usa cache se disponível e não expirado
-    if (!forceRefresh && !_isCacheExpired(_lastLogsUpdateTime) && state.smokingLogs.isNotEmpty) {
+    // Usa cache se disponível e não expirado - usando tempo de expiração específico
+    if (!forceRefresh && !_isLogsExpired() && state.smokingLogs.isNotEmpty) {
       if (kDebugMode) {
-        print('Using cached smoking logs from $_lastLogsUpdateTime');
+        print('Using cached smoking logs from $_lastLogsUpdateTime (expires after ${logsExpiration.inMinutes} minutes)');
       }
       emit(state.copyWith(isLogsLoading: false));
       return;
@@ -552,10 +688,10 @@ class TrackingBloc extends Bloc<TrackingEvent, TrackingState> {
   }
 
   Future<void> _loadCravings(Emitter<TrackingState> emit, {bool forceRefresh = false}) async {
-    // Usa cache se disponível e não expirado
-    if (!forceRefresh && !_isCacheExpired(_lastCravingsUpdateTime) && state.cravings.isNotEmpty) {
+    // Usa cache se disponível e não expirado - usando tempo de expiração específico
+    if (!forceRefresh && !_isCravingsExpired() && state.cravings.isNotEmpty) {
       if (kDebugMode) {
-        print('Using cached cravings from $_lastCravingsUpdateTime');
+        print('Using cached cravings from $_lastCravingsUpdateTime (expires after ${cravingsExpiration.inMinutes} minutes)');
       }
       emit(state.copyWith(isCravingsLoading: false));
       return;
@@ -839,10 +975,11 @@ class TrackingBloc extends Bloc<TrackingEvent, TrackingState> {
   }
 
   Future<void> _loadHealthRecoveries(Emitter<TrackingState> emit, {bool forceRefresh = false}) async {
-    // Usa cache se disponível e não expirado
-    if (!forceRefresh && !_isCacheExpired(_lastRecoveriesUpdateTime) && state.healthRecoveries.isNotEmpty && state.userHealthRecoveries.isNotEmpty) {
+    // Usa cache se disponível e não expirado - usando tempo de expiração específico
+    // Health recoveries can be cached for longer periods since they change less frequently
+    if (!forceRefresh && !_isRecoveriesExpired() && state.healthRecoveries.isNotEmpty && state.userHealthRecoveries.isNotEmpty) {
       if (kDebugMode) {
-        print('Using cached health recoveries from $_lastRecoveriesUpdateTime');
+        print('Using cached health recoveries from $_lastRecoveriesUpdateTime (expires after ${recoveriesExpiration.inMinutes} minutes)');
       }
       emit(state.copyWith(isRecoveriesLoading: false));
       return;
@@ -933,15 +1070,20 @@ class TrackingBloc extends Bloc<TrackingEvent, TrackingState> {
   }
 
   // Global Methods
+  // Enhanced refresh method with improved parallel loading and better caching
   Future<void> _onRefreshAllData(RefreshAllData event, Emitter<TrackingState> emit) async {
     try {
+      if (kDebugMode) {
+        print('🔄 [TrackingBloc] Starting refresh all data operation (force: ${event.forceRefresh})');
+      }
+      
       emit(state.copyWith(isStatsLoading: true, isLogsLoading: true, isCravingsLoading: true, isRecoveriesLoading: true));
 
-      // Update stats on the server
-      await _repository.updateUserStats();
-
-      // Limpa o cache para forçar a recarga de todos os dados
+      // If forceRefresh, reset all cache timestamps
       if (event.forceRefresh) {
+        if (kDebugMode) {
+          print('🧹 [TrackingBloc] Clearing all cache timestamps to force refresh');
+        }
         _lastStatsUpdateTime = null;
         _lastLogsUpdateTime = null;
         _lastCravingsUpdateTime = null;
@@ -949,73 +1091,114 @@ class TrackingBloc extends Bloc<TrackingEvent, TrackingState> {
         _lastUnifiedCravingsUpdateTime = null;
         _lastSmokingRecordsUpdateTime = null;
       }
+      
+      // PHASE 1: Update server-side stats to ensure everything is up-to-date
+      if (kDebugMode) {
+        print('🔄 [TrackingBloc] Updating user stats on server');
+      }
+      try {
+        await _repository.updateUserStats(); 
+      } catch (e) {
+        if (kDebugMode) {
+          print('⚠️ [TrackingBloc] Error updating stats on server: $e');
+          print('   - Continuing with refresh operation despite error');
+        }
+      }
 
-      // Primeiro carrega as estatísticas do usuário
-      await _loadUserStats(emit, forceRefresh: event.forceRefresh);
-
-      // IMPORTANTE: Carregar unifiedCravings para garantir que os dados de cravings resistidos hoje sejam atualizados
-      if (state.userStats != null) {
-        final userId = state.userStats!.userId;
-        if (userId != null) {
-          try {
+      // PHASE 2: Load data in parallel for better performance
+      // Prepare parallel load operations
+      final parallelLoads = <Future>[];
+      
+      // User stats - always refresh first as other operations depend on this
+      parallelLoads.add(_loadUserStats(emit, forceRefresh: true));
+      
+      // Wait for user stats to complete
+      await Future.wait(parallelLoads);
+      parallelLoads.clear();
+      
+      // PHASE 3: Use user stats to load other data as needed
+      if (state.userStats != null && state.userStats!.userId != null) {
+        final userId = state.userStats!.userId!;
+        
+        // Add cravings and logs to parallel load
+        parallelLoads.add(_loadSmokingLogs(emit, forceRefresh: event.forceRefresh));
+        parallelLoads.add(_loadCravings(emit, forceRefresh: event.forceRefresh)); 
+        
+        // Conditionally add unified cravings
+        if (_isUnifiedCravingsExpired() || event.forceRefresh || state.unifiedCravings.isEmpty) {
+          if (kDebugMode) {
+            print('🔄 [TrackingBloc] Loading unified cravings for user: $userId');
+          }
+          parallelLoads.add(_onLoadCravingsForUser(LoadCravingsForUser(userId: userId), emit));
+        }
+        
+        // Check achievements in parallel
+        try {
+          parallelLoads.add(_repository.checkAchievements());
+        } catch (e) {
+          if (kDebugMode) {
+            print('⚠️ [TrackingBloc] Error checking achievements: $e');
+          }
+        }
+        
+        // Conditionally check health recoveries
+        if (state.userStats!.lastSmokeDate != null) {
+          // Only check health recoveries if we have last smoke date and cache is expired
+          if (_isRecoveriesExpired() || event.forceRefresh) {
             if (kDebugMode) {
-              print('🔄 [TrackingBloc] Recarregando unifiedCravings para o usuário: $userId');
+              print('🔄 [TrackingBloc] Checking health recoveries');
             }
-            await _onLoadCravingsForUser(LoadCravingsForUser(userId: userId), emit);
             
-            if (kDebugMode) {
-              print('✅ [TrackingBloc] Cravings unificados recarregados: ${state.unifiedCravings.length}');
-              
-              // Calcular cravings resistidos hoje diretamente do estado
-              int todayResisted = _calculateCravingsResistedToday();
-              int minutesGainedToday = todayResisted * ImprovedStatsCalculator.MINUTES_PER_CIGARETTE;
-              
-              print('📊 [TrackingBloc] Cravings resistidos hoje: $todayResisted');
-              print('📊 [TrackingBloc] Minutos ganhos hoje: $minutesGainedToday min');
-            }
-          } catch (e) {
-            if (kDebugMode) {
-              print('❌ [TrackingBloc] Erro ao recarregar unifiedCravings: $e');
+            try {
+              parallelLoads.add(_repository.checkHealthRecoveries(updateAchievements: false));
+            } catch (e) {
+              if (kDebugMode) {
+                print('⚠️ [TrackingBloc] Error checking health recoveries: $e');
+              }
             }
           }
         }
       }
-
-      // Check for new achievements
-      try {
-        await _repository.checkAchievements();
-      } catch (e) {
-        print('Error checking achievements: $e');
-        // Continue even if checkAchievements fails
+      
+      // Wait for all parallel operations to complete
+      await Future.wait(parallelLoads);
+      
+      // PHASE 4: Final loads
+      parallelLoads.clear();
+      
+      // Health recoveries might need to be loaded after the check
+      if (_isRecoveriesExpired() || event.forceRefresh || state.healthRecoveries.isEmpty) {
+        parallelLoads.add(_loadHealthRecoveries(emit, forceRefresh: event.forceRefresh));
       }
-
-      // Verifica se temos estatísticas do usuário e data do último cigarro
-      if (state.userStats != null && state.userStats!.lastSmokeDate != null) {
-        // Check for health recoveries only if we have last smoke date
-        try {
-          await _repository.checkHealthRecoveries(updateAchievements: false);
-        } catch (e) {
-          print('Error checking health recoveries: $e');
-          // Continue even if checkHealthRecoveries fails
+      
+      // One final user stats refresh to get the latest data
+      parallelLoads.add(_loadUserStats(emit, forceRefresh: true));
+      
+      // Wait for final loads
+      await Future.wait(parallelLoads);
+      
+      // Calculate debug stats
+      if (kDebugMode) {
+        int todayResisted = _calculateCravingsResistedToday();
+        int minutesGainedToday = todayResisted * ImprovedStatsCalculator.MINUTES_PER_CIGARETTE;
+        
+        print('📊 [TrackingBloc] Refresh completed with the following data:');
+        print('   - SmokingLogs: ${state.smokingLogs.length} items');
+        print('   - Cravings: ${state.cravings.length} items');
+        print('   - UnifiedCravings: ${state.unifiedCravings.length} items');
+        print('   - HealthRecoveries: ${state.healthRecoveries.length} items');
+        print('   - UserHealthRecoveries: ${state.userHealthRecoveries.length} items');
+        print('   - Cravings resisted today: $todayResisted');
+        print('   - Minutes gained today: $minutesGainedToday min');
+        
+        if (state.userStats != null) {
+          print('   - Last smoke date: ${state.userStats!.lastSmokeDate}');
+          print('   - Cigarettes avoided: ${state.userStats!.cigarettesAvoided}');
+          print('   - Money saved: ${state.userStats!.moneySaved}¢');
         }
-      } else {
-        print('Skipping health recovery check: User stats or last smoke date not available');
       }
-
-      // Reload user stats once more to get the most updated data
-      try {
-        await _loadUserStats(emit, forceRefresh: true);
-      } catch (e) {
-        print('Error refreshing user stats: $e');
-      }
-
-      // Load remaining data in parallel
-      await Future.wait([
-        _loadSmokingLogs(emit, forceRefresh: event.forceRefresh),
-        _loadCravings(emit, forceRefresh: event.forceRefresh),
-        _loadHealthRecoveries(emit, forceRefresh: event.forceRefresh),
-      ]);
-
+      
+      // Final state update
       emit(
         state.copyWith(
           status: TrackingStatus.loaded,
@@ -1026,9 +1209,23 @@ class TrackingBloc extends Bloc<TrackingEvent, TrackingState> {
           lastUpdated: DateTime.now().millisecondsSinceEpoch
         ),
       );
+      
+      if (kDebugMode) {
+        print('✅ [TrackingBloc] Refresh all data completed successfully');
+      }
     } catch (e) {
+      if (kDebugMode) {
+        print('❌ [TrackingBloc] Error refreshing all data: $e');
+      }
+      
       emit(
-        state.copyWith(errorMessage: e.toString(), isStatsLoading: false, isLogsLoading: false, isCravingsLoading: false, isRecoveriesLoading: false),
+        state.copyWith(
+          errorMessage: e.toString(), 
+          isStatsLoading: false, 
+          isLogsLoading: false, 
+          isCravingsLoading: false, 
+          isRecoveriesLoading: false
+        ),
       );
     }
   }
@@ -1040,17 +1237,33 @@ class TrackingBloc extends Bloc<TrackingEvent, TrackingState> {
     }
   }
 
-  // Reset stats for logout
+  // Complete reset of all tracking data and cache - used during logout
   void _onResetTrackingData(ResetTrackingData event, Emitter<TrackingState> emit) {
-    print('🧹 [TrackingBloc] Resetting all tracking data');
+    if (kDebugMode) {
+      print('🧹 [TrackingBloc] Resetting all tracking data and cache');
+    }
+    
+    // Clear all cache timestamps
     _lastStatsUpdateTime = null;
     _lastLogsUpdateTime = null;
     _lastCravingsUpdateTime = null;
     _lastRecoveriesUpdateTime = null;
     _lastUnifiedCravingsUpdateTime = null;
     _lastSmokingRecordsUpdateTime = null;
+    
+    // Clear debounce state
+    _lastStatsUpdateRequest = null;
+    _hasQueuedUpdate = false;
+    
+    // Reset initialization flag
     _isInitializing = false;
+    
+    // Emit initial state
     emit(const TrackingState());
+    
+    if (kDebugMode) {
+      print('✅ [TrackingBloc] Tracking data reset completed');
+    }
   }
   
   // =================================================
@@ -1058,6 +1271,14 @@ class TrackingBloc extends Bloc<TrackingEvent, TrackingState> {
   // =================================================
   
   Future<void> _onLoadSmokingRecordsForUser(LoadSmokingRecordsForUser event, Emitter<TrackingState> emit) async {
+    // Check if we can use the cached data
+    if (!_isSmokingRecordsExpired() && state.smokingRecords.isNotEmpty) {
+      if (kDebugMode) {
+        print('Using cached smoking records from $_lastSmokingRecordsUpdateTime (expires after ${smokingRecordsExpiration.inMinutes} minutes)');
+      }
+      return;
+    }
+    
     emit(state.copyWith(status: TrackingStatus.loading));
     
     try {
@@ -1078,6 +1299,10 @@ class TrackingBloc extends Bloc<TrackingEvent, TrackingState> {
       ));
       
       _lastSmokingRecordsUpdateTime = DateTime.now();
+      
+      if (kDebugMode) {
+        print('Successfully loaded ${serverRecords.length} server smoking records and ${localPendingRecords.length} pending local records');
+      }
     } catch (e) {
       emit(state.copyWith(
         status: TrackingStatus.error,
@@ -1091,7 +1316,9 @@ class TrackingBloc extends Bloc<TrackingEvent, TrackingState> {
     final temporaryId = 'temp_${_uuid.v4()}';
     
     // Log for debug
-    debugPrint('Creating smoking record with temporary ID: $temporaryId');
+    if (kDebugMode) {
+      print('🆕 [TrackingBloc] Creating smoking record with temporary ID: $temporaryId');
+    }
     
     // Create an optimistic version with pending status
     final optimisticRecord = event.record.copyWith(
@@ -1111,12 +1338,20 @@ class TrackingBloc extends Bloc<TrackingEvent, TrackingState> {
       // Perform the actual API call
       final savedRecord = await _smokingRecordRepository.saveRecord(event.record);
       
-      debugPrint('Smoking record saved successfully with ID: ${savedRecord.id}');
+      if (kDebugMode) {
+        print('✅ [TrackingBloc] Smoking record saved successfully with ID: ${savedRecord.id}');
+      }
       
       // Update the temporary item with the real one
       final finalRecords = updatedRecords.map((r) => 
         r.id == temporaryId ? savedRecord : r
       ).toList();
+      
+      // Invalidate affected caches - stats will change when a smoking record is added
+      _invalidateCaches();
+      
+      // Explicitly invalidate health recoveries cache as they're likely to be reset due to new smoking
+      _lastRecoveriesUpdateTime = null;
       
       emit(state.copyWith(
         status: TrackingStatus.loaded,
@@ -1126,18 +1361,25 @@ class TrackingBloc extends Bloc<TrackingEvent, TrackingState> {
       
       // Explicitly check health recoveries to ensure they are reset due to new smoking event
       try {
-        debugPrint('Checking health recoveries after new smoking record...');
+        if (kDebugMode) {
+          print('🏥 [TrackingBloc] Checking health recoveries after new smoking record...');
+        }
         
         // This will call the edge function which has been updated to detect 
         // recent smoking events and reset health recoveries if necessary
         await _repository.checkHealthRecoveries(updateAchievements: true);
-        debugPrint('Health recoveries check completed after adding smoking record');
+        
+        if (kDebugMode) {
+          print('✅ [TrackingBloc] Health recoveries check completed after adding smoking record');
+        }
       } catch (e) {
         // Non-critical error, just log it
-        debugPrint('Error checking health recoveries after new smoking record: $e');
+        if (kDebugMode) {
+          print('⚠️ [TrackingBloc] Error checking health recoveries after new smoking record: $e');
+        }
       }
       
-      // Update tracking stats
+      // Update tracking stats (debounced)
       add(ForceUpdateStats());
       
       // Check for achievements after recording a smoking event
@@ -1145,7 +1387,9 @@ class TrackingBloc extends Bloc<TrackingEvent, TrackingState> {
         AchievementHelper.checkAfterSmokingRecord(event.record.context!);
       }
     } catch (e) {
-      debugPrint('Error saving smoking record: $e');
+      if (kDebugMode) {
+        print('❌ [TrackingBloc] Error saving smoking record: $e');
+      }
       
       // Mark as failed but keep in the list
       final failedRecords = updatedRecords.map((r) => 
@@ -1285,6 +1529,14 @@ class TrackingBloc extends Bloc<TrackingEvent, TrackingState> {
   // =================================================
   
   Future<void> _onLoadCravingsForUser(LoadCravingsForUser event, Emitter<TrackingState> emit) async {
+    // Check if we can use the cached data
+    if (!_isUnifiedCravingsExpired() && state.unifiedCravings.isNotEmpty) {
+      if (kDebugMode) {
+        print('Using cached unified cravings from $_lastUnifiedCravingsUpdateTime (expires after ${unifiedCravingsExpiration.inMinutes} minutes)');
+      }
+      return;
+    }
+    
     emit(state.copyWith(status: TrackingStatus.loading));
     
     try {
@@ -1305,6 +1557,10 @@ class TrackingBloc extends Bloc<TrackingEvent, TrackingState> {
       ));
       
       _lastUnifiedCravingsUpdateTime = DateTime.now();
+      
+      if (kDebugMode) {
+        print('Successfully loaded ${serverCravings.length} server cravings and ${localPendingCravings.length} pending local cravings');
+      }
     } catch (e) {
       emit(state.copyWith(
         status: TrackingStatus.error,
@@ -1313,12 +1569,27 @@ class TrackingBloc extends Bloc<TrackingEvent, TrackingState> {
     }
   }
   
+  // Helper method to perform optimistic CRUD operations with cache invalidation
+  void _invalidateCaches() {
+    // Reset cache timestamps that depend on user stats
+    _lastStatsUpdateTime = null;
+    // Cravings and smoking logs directly affect stats
+    _lastCravingsUpdateTime = null;
+    _lastLogsUpdateTime = null;
+    
+    if (kDebugMode) {
+      print('🧹 [TrackingBloc] Invalidated dependent caches for stats, cravings, and logs');
+    }
+  }
+
   Future<void> _onSaveCraving(SaveCraving event, Emitter<TrackingState> emit) async {
     // Generate a temporary ID for the new craving
     final temporaryId = 'temp_${_uuid.v4()}';
     
     // Debug logs
-    debugPrint('🆕 [TrackingBloc] Creating craving with ID temporário: $temporaryId');
+    if (kDebugMode) {
+      print('🆕 [TrackingBloc] Creating craving with temporary ID: $temporaryId');
+    }
     
     // Create an optimistic version with pending status
     final optimisticCraving = event.craving.copyWith(
@@ -1338,12 +1609,17 @@ class TrackingBloc extends Bloc<TrackingEvent, TrackingState> {
       // Perform the actual API call
       final savedCraving = await _cravingRepository.saveCraving(event.craving);
       
-      debugPrint('✅ [TrackingBloc] Craving salvo com sucesso com ID: ${savedCraving.id}');
+      if (kDebugMode) {
+        print('✅ [TrackingBloc] Craving saved successfully with ID: ${savedCraving.id}');
+      }
       
       // Update the temporary item with the real one
       final finalCravings = updatedCravings.map((c) => 
         c.id == temporaryId ? savedCraving : c
       ).toList();
+      
+      // Invalidate affected caches - stats will change when a craving is added
+      _invalidateCaches();
       
       emit(state.copyWith(
         status: TrackingStatus.loaded,
@@ -1351,20 +1627,32 @@ class TrackingBloc extends Bloc<TrackingEvent, TrackingState> {
         lastUpdated: DateTime.now().millisecondsSinceEpoch
       ));
       
-      // Update tracking stats
+      // Update tracking stats (debounced)
       add(CravingAdded(resisted: event.craving.resisted));
       
       // Check for health recoveries
       try {
-        debugPrint('🏥 [TrackingBloc] Checking health recoveries after craving...');
+        if (kDebugMode) {
+          print('🏥 [TrackingBloc] Checking health recoveries after craving...');
+        }
         await _repository.checkHealthRecoveries(updateAchievements: true);
-        debugPrint('✅ [TrackingBloc] Health recoveries check completed');
+        
+        // Invalidate health recoveries cache
+        _lastRecoveriesUpdateTime = null;
+        
+        if (kDebugMode) {
+          print('✅ [TrackingBloc] Health recoveries check completed');
+        }
       } catch (e) {
         // Non-critical error, just log it
-        debugPrint('⚠️ [TrackingBloc] Error checking health recoveries: $e');
+        if (kDebugMode) {
+          print('⚠️ [TrackingBloc] Error checking health recoveries: $e');
+        }
       }
     } catch (e) {
-      debugPrint('❌ [TrackingBloc] Error saving craving: $e');
+      if (kDebugMode) {
+        print('❌ [TrackingBloc] Error saving craving: $e');
+      }
       
       // Mark as failed but keep in the list
       final failedCravings = updatedCravings.map((c) => 
