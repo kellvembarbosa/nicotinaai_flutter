@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nicotinaai_flutter/blocs/tracking/tracking_bloc.dart';
 import 'package:nicotinaai_flutter/blocs/tracking/tracking_event.dart';
 import 'package:nicotinaai_flutter/blocs/tracking/tracking_state.dart';
+import 'package:nicotinaai_flutter/blocs/tracking/tracking_normalizer.dart';
 import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
 import 'package:nicotinaai_flutter/utils/currency_utils.dart';
 import 'package:nicotinaai_flutter/widgets/skeleton_loading.dart';

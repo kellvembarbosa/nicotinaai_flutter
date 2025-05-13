@@ -7,6 +7,7 @@ import 'package:nicotinaai_flutter/blocs/currency/currency_state.dart';
 import 'package:nicotinaai_flutter/blocs/tracking/tracking_bloc.dart';
 import 'package:nicotinaai_flutter/blocs/tracking/tracking_event.dart';
 import 'package:nicotinaai_flutter/blocs/tracking/tracking_state.dart';
+import 'package:nicotinaai_flutter/blocs/tracking/tracking_normalizer.dart';
 import 'package:nicotinaai_flutter/core/routes/app_routes.dart';
 import 'package:nicotinaai_flutter/core/theme/app_theme.dart';
 import 'package:nicotinaai_flutter/features/tracking/models/craving.dart';
