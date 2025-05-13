@@ -214,7 +214,7 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen> w
             _buildStatsCard(
               context,
               l10n.homeMinutesLifeGained,
-              '${stats.cigarettesAvoided * 7}',
+              '${context.read<TrackingBloc>().getMinutesLifeGained()}',
               Icons.favorite,
               Colors.red,
               suffix: 'minutes',
@@ -620,10 +620,11 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen> w
               child: _buildStatsCard(
                 context,
                 l10n.homeMinutesLifeGained,
-                '${stats.cigarettesAvoided * 7}',
+                '${context.read<TrackingBloc>().getMinutesLifeGained()}',
                 Icons.favorite,
                 Colors.red,
                 suffix: 'minutes',
+                subtitle: '6 minutes gained per craving resisted',
               ),
             ),
             const SizedBox(width: 16),
@@ -631,7 +632,7 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen> w
               child: _buildStatsCard(
                 context,
                 'Breath capacity',
-                '${_calculateBreathCapacity(daysSmokeFree)}%',
+                '${context.read<TrackingBloc>().getBreathCapacityPercent()}%',
                 Icons.air,
                 Colors.blue,
               ),
@@ -1005,13 +1006,5 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen> w
     }
   }
 
-  int _calculateBreathCapacity(int days) {
-    if (days <= 0) return 10;
-    if (days < 7) return 15;
-    if (days < 14) return 25;
-    if (days < 30) return 35;
-    if (days < 90) return 50;
-    if (days < 180) return 75;
-    return 90;
-  }
+  // Method removed - now using TrackingBloc.getBreathCapacityPercent() for consistent calculations
 }
