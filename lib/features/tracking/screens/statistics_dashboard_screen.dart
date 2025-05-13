@@ -188,7 +188,7 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen> w
                   child: _buildStatsCard(
                     context,
                     l10n.homeCravingsResisted,
-                    stats.cravingsResisted.toString(),
+                    '${context.read<TrackingBloc>().getCravingsResisted()}',
                     Icons.smoke_free,
                     Colors.green,
                   ),
@@ -230,6 +230,156 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen> w
               context.read<CurrencyBloc>().format(stats.moneySaved),
               Icons.account_balance_wallet,
               Colors.blue,
+            ),
+            
+            const SizedBox(height: 24),
+            
+            // Price information section
+            _buildSectionHeader(context, 'Cigarette Prices'),
+            const SizedBox(height: 16),
+            
+            // Pack price and per unit price cards - usando o mesmo estilo dos outros cards
+            Container(
+              height: 180,
+              margin: const EdgeInsets.only(bottom: 16),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: context.cardColor,
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withAlpha(13),
+                            offset: const Offset(0, 4),
+                            blurRadius: 12,
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: Colors.deepPurple.withAlpha(51),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: const Icon(
+                                  Icons.inventory_2,
+                                  color: Colors.deepPurple,
+                                  size: 24,
+                                ),
+                              ),
+                              const Icon(
+                                Icons.arrow_upward,
+                                color: Colors.green,
+                                size: 16,
+                              ),
+                            ],
+                          ),
+                          const Spacer(),
+                          Text(
+                            stats.packPrice != null 
+                                ? context.read<CurrencyBloc>().format(stats.packPrice!) 
+                                : 'Not set',
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: context.contentColor,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Price per Pack',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: context.subtitleColor,
+                            ),
+                          ),
+                          if (stats.cigarettesPerPack != null) ...[
+                            const SizedBox(height: 4),
+                            Text(
+                              '${stats.cigarettesPerPack} cigarettes/pack',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: context.subtitleColor.withAlpha(179),
+                                fontStyle: FontStyle.italic,
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: context.cardColor,
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withAlpha(13),
+                            offset: const Offset(0, 4),
+                            blurRadius: 12,
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: Colors.indigo.withAlpha(51),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: const Icon(
+                                  Icons.local_offer,
+                                  color: Colors.indigo,
+                                  size: 24,
+                                ),
+                              ),
+                              const Icon(
+                                Icons.arrow_upward,
+                                color: Colors.green,
+                                size: 16,
+                              ),
+                            ],
+                          ),
+                          const Spacer(),
+                          Text(
+                            _calculateUnitPrice(stats, context.read<CurrencyBloc>()),
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: context.contentColor,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Price per Unit',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: context.subtitleColor,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ],
         );
@@ -408,6 +558,161 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen> w
               ),
               textAlign: TextAlign.center,
             ),
+            
+            const SizedBox(height: 24),
+            
+            // Cigarette price cards
+            _buildSectionHeader(context, 'Cost Analysis'),
+            const SizedBox(height: 16),
+            
+            // Price per unit and cigarettes avoided - usando o mesmo estilo dos outros cards
+            Container(
+              height: 180,
+              margin: const EdgeInsets.only(bottom: 16),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: context.cardColor,
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withAlpha(13),
+                            offset: const Offset(0, 4),
+                            blurRadius: 12,
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: Colors.indigo.withAlpha(51),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: const Icon(
+                                  Icons.local_offer,
+                                  color: Colors.indigo,
+                                  size: 24,
+                                ),
+                              ),
+                              const Icon(
+                                Icons.arrow_upward,
+                                color: Colors.green,
+                                size: 16,
+                              ),
+                            ],
+                          ),
+                          const Spacer(),
+                          Text(
+                            _calculateUnitPrice(stats, currencyBloc),
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: context.contentColor,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Unit Cost',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: context.subtitleColor,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            'Per cigarette',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: context.subtitleColor.withAlpha(179),
+                              fontStyle: FontStyle.italic,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: context.cardColor,
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withAlpha(13),
+                            offset: const Offset(0, 4),
+                            blurRadius: 12,
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: Colors.green.withAlpha(51),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: const Icon(
+                                  Icons.smoke_free,
+                                  color: Colors.green,
+                                  size: 24,
+                                ),
+                              ),
+                              const Icon(
+                                Icons.arrow_upward,
+                                color: Colors.green,
+                                size: 16,
+                              ),
+                            ],
+                          ),
+                          const Spacer(),
+                          Text(
+                            '${stats.cigarettesAvoided}',
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: context.contentColor,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Cigarettes Avoided',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: context.subtitleColor,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            'Not purchased',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: context.subtitleColor.withAlpha(179),
+                              fontStyle: FontStyle.italic,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ],
         );
       },
@@ -426,15 +731,15 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen> w
       );
     }
     
-    // Calculate stats
-    int resistedCount = 0;
+    // Get accurate craving counts from TrackingBloc normalizer
+    int resistedCount = context.read<TrackingBloc>().getCravingsResisted();
+    
+    // Calculate smoked and alternative counts from the cravings list
     int smokedCount = 0;
     int alternativeCount = 0;
     
     for (final craving in cravings) {
-      if (craving.outcome == CravingOutcome.resisted) {
-        resistedCount++;
-      } else if (craving.outcome == CravingOutcome.smoked) {
+      if (craving.outcome == CravingOutcome.smoked) {
         smokedCount++;
       } else if (craving.outcome == CravingOutcome.alternative) {
         alternativeCount++;
@@ -481,9 +786,10 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen> w
               child: _buildStatsCard(
                 context,
                 'Total Cravings',
-                totalCravings.toString(),
+                '${totalCravings}',
                 Icons.analytics,
                 Colors.purple,
+                subtitle: 'Including synced, pending and failed',
               ),
             ),
           ],
@@ -993,6 +1299,20 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen> w
         ),
       ],
     );
+  }
+
+  /// Calcula o preço unitário de cada cigarro com base no preço do maço e na quantidade de cigarros por maço
+  String _calculateUnitPrice(UserStats stats, CurrencyBloc currencyBloc) {
+    // Se não tiver as informações necessárias, retorna "Not available"
+    if (stats.packPrice == null || stats.cigarettesPerPack == null || stats.cigarettesPerPack == 0) {
+      return 'Not available';
+    }
+    
+    // Calcula o preço por unidade (em centavos)
+    final unitPriceInCents = stats.packPrice! ~/ stats.cigarettesPerPack!;
+    
+    // Formata o valor usando o CurrencyBloc
+    return currencyBloc.format(unitPriceInCents);
   }
 
   String _getCravingIntensityText(CravingIntensity intensity) {

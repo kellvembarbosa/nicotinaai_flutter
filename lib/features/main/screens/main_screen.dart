@@ -6,7 +6,7 @@ import 'package:nicotinaai_flutter/features/achievements/helpers/achievement_hel
 import 'package:nicotinaai_flutter/features/home/screens/home_screen.dart';
 import 'package:nicotinaai_flutter/features/main/widgets/main_screen_tab.dart';
 import 'package:nicotinaai_flutter/features/settings/screens/settings_screen.dart';
-import 'package:nicotinaai_flutter/features/tracking/screens/dashboard_screen.dart';
+// Unused import removed - dashboard screen is now accessed via statisticsDashboard route
 import 'package:nicotinaai_flutter/blocs/auth/auth_bloc.dart';
 import 'package:nicotinaai_flutter/blocs/auth/auth_state.dart';
 import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
