@@ -244,6 +244,15 @@ class _DashboardScreenContent extends StatelessWidget {
               Colors.purple,
               isLoading: state.isStatsLoading,
             ),
+            _buildStatCard(
+              context,
+              l10n.homeMinutesLifeGained,
+              '${context.read<TrackingBloc>().getMinutesLifeGained()}',
+              Icons.favorite,
+              Colors.red,
+              subtitle: '6 minutes gained per craving resisted',
+              isLoading: state.isStatsLoading,
+            ),
           ],
         ),
       ],
@@ -325,7 +334,7 @@ class _DashboardScreenContent extends StatelessWidget {
     String value,
     IconData icon,
     Color color,
-    {bool isLoading = false}
+    {bool isLoading = false, String? subtitle}
   ) {
     return Card(
       elevation: 2,
@@ -369,6 +378,16 @@ class _DashboardScreenContent extends StatelessWidget {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
+                  if (subtitle != null) ...[
+                    const SizedBox(height: 4),
+                    Text(
+                      subtitle,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        fontStyle: FontStyle.italic,
+                        color: Theme.of(context).textTheme.bodySmall?.color?.withOpacity(0.7),
+                      ),
+                    ),
+                  ],
                 ],
               ),
       ),
