@@ -140,8 +140,7 @@ class LocalStatsService {
       
       // Usando o método com parâmetros nomeados
       int moneySaved = ImprovedStatsCalculator.calculateMoneySaved(
-        daysWithoutSmoking: currentStreakDays,
-        cigarettesPerDay: cigarettesPerDay,
+        cigarettesAvoided: cigarettesAvoided,
         packPrice: packPrice,
         cigarettesPerPack: cigarettesPerPack
       );

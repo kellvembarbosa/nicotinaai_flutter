@@ -123,15 +123,6 @@ class ImprovedStatsCalculator {
     return daysWithoutSmoking * cigarettesPerDay;
   }
   
-  /// Calcula economia com base em cigarros evitados
-  static int calculateMoneySaved(int cigarettesAvoided, int packPrice, int cigarettesPerPack) {
-    // Calcular preço por cigarro
-    final double pricePerCigarette = packPrice / cigarettesPerPack;
-    
-    // Calcular economia total
-    return (cigarettesAvoided * pricePerCigarette).round();
-  }
-  
   /// Calcula minutos de vida ganhos com base nos cigarros evitados
   static int calculateMinutesGained(int cigarettesAvoided) {
     return cigarettesAvoided * MINUTES_PER_CIGARETTE;
@@ -160,21 +151,37 @@ class ImprovedStatsCalculator {
     return currentPercent > 100 ? 100 : currentPercent;
   }
   
-  /// Calcula a economia monetária baseada em dias sem fumar
+  /// Calcula a economia monetária baseada em dias sem fumar ou cigarros evitados
+  ///
+  /// Esta versão suporta dois modos de cálculo:
+  /// 1. Por dias sem fumar e cigarros por dia (usando parâmetros nomeados)
+  /// 2. Diretamente por cigarros evitados (usando parâmetros posicionais)
   static int calculateMoneySaved({
-    required int daysWithoutSmoking,
-    required int cigarettesPerDay,
+    int? daysWithoutSmoking,
+    int? cigarettesPerDay,
     required int packPrice,
     required int cigarettesPerPack,
+    int? cigarettesAvoided,
   }) {
-    // Calcular cigarros evitados
-    final int cigarettesAvoided = daysWithoutSmoking * cigarettesPerDay;
+    // Determinar cigarros evitados - ou diretamente fornecidos ou calculados
+    int actualCigarettesAvoided;
+    
+    if (cigarettesAvoided != null) {
+      // Usar cigarros evitados diretamente se fornecidos
+      actualCigarettesAvoided = cigarettesAvoided;
+    } else if (daysWithoutSmoking != null && cigarettesPerDay != null) {
+      // Calcular com base em dias sem fumar * cigarros por dia
+      actualCigarettesAvoided = daysWithoutSmoking * cigarettesPerDay;
+    } else {
+      // Caso parâmetros insuficientes, retornar zero
+      return 0;
+    }
     
     // Calcular preço por cigarro
     final double pricePerCigarette = packPrice / cigarettesPerPack;
     
     // Calcular economia total
-    final int moneySaved = (cigarettesAvoided * pricePerCigarette).round();
+    final int moneySaved = (actualCigarettesAvoided * pricePerCigarette).round();
     
     return moneySaved;
   }
