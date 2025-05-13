@@ -6,14 +6,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:nicotinaai_flutter/blocs/auth/auth_bloc.dart';
 import 'package:nicotinaai_flutter/blocs/auth/auth_state.dart' as bloc_auth;
-import 'package:nicotinaai_flutter/blocs/smoking_record/smoking_record_bloc.dart';
-import 'package:nicotinaai_flutter/blocs/smoking_record/smoking_record_event.dart';
-import 'package:nicotinaai_flutter/blocs/smoking_record/smoking_record_state.dart';
 import 'package:nicotinaai_flutter/blocs/theme/theme_bloc.dart';
 import 'package:nicotinaai_flutter/blocs/theme/theme_state.dart';
 import 'package:nicotinaai_flutter/blocs/tracking/tracking_bloc.dart';
 import 'package:nicotinaai_flutter/blocs/tracking/tracking_event.dart';
 import 'package:nicotinaai_flutter/blocs/tracking/tracking_state.dart';
+import 'package:nicotinaai_flutter/blocs/tracking/tracking_normalizer.dart';
 import 'package:nicotinaai_flutter/blocs/achievement/achievement_bloc.dart';
 import 'package:nicotinaai_flutter/blocs/achievement/achievement_state.dart';
 import 'package:nicotinaai_flutter/core/routes/app_routes.dart';
@@ -82,11 +80,11 @@ class _HomeScreenState extends State<HomeScreen> {
       final userId = authState.user!.id;
 
       // Solicitar dados de registros de fumo
-      final recordBloc = BlocProvider.of<SmokingRecordBloc>(context);
-      recordBloc.add(LoadSmokingRecordsRequested(userId: userId));
-
       // Solicitar dados de estatísticas
       final trackingBloc = BlocProvider.of<TrackingBloc>(context);
+      
+      // Carregar registros de fumo através do TrackingBloc unificado
+      trackingBloc.add(LoadSmokingRecordsForUser(userId: userId));
       trackingBloc.add(LoadUserStats(forceRefresh: true));
       trackingBloc.add(LoadHealthRecoveries());
     }
@@ -108,7 +106,6 @@ class _HomeScreenState extends State<HomeScreen> {
     if (_lastUpdateTime != null) {
       final timeSinceLastUpdate = now.difference(_lastUpdateTime!);
       // Mais responsivo: Se a última atualização foi há menos de 2 segundos, ignorar
-      // (reduzido de 10 segundos para 2 segundos para maior responsividade)
       if (timeSinceLastUpdate.inSeconds < 2) {
         if (kDebugMode) {
           print('🕒 Última atualização foi há apenas ${timeSinceLastUpdate.inSeconds} segundos, ignorando');
@@ -130,6 +127,14 @@ class _HomeScreenState extends State<HomeScreen> {
     if (kDebugMode) {
       if (hasLastSmokeDate) {
         print('📅 Data do último cigarro no BLoC: ${trackingState.userStats!.lastSmokeDate}');
+        if (trackingState.userStats != null) {
+          print('📊 Stats atuais do TrackingBloc:');
+          print('   - Cravings Resisted: ${trackingState.userStats!.cravingsResisted}');
+          print('   - Dias sem fumar: ${trackingState.userStats!.currentStreakDays}');
+          print('   - Economia: ${trackingState.userStats!.moneySaved} centavos');
+          print('   - Minutos ganhos total: ${trackingState.userStats!.totalMinutesGained}');
+          print('   - Minutos ganhos hoje: ${trackingState.userStats!.minutesGainedToday}');
+        }
       } else {
         print('⚠️ Data do último cigarro não disponível no BLoC');
       }
@@ -190,9 +195,17 @@ class _HomeScreenState extends State<HomeScreen> {
       if (mounted) {
         // Obter estatísticas atualizadas diretamente do BLoC state
         final updatedStats = trackingState.userStats;
+        
+        // We no longer need these variables as we're using trackingBloc normalizer methods
+        // Keeping the commented code for reference
+        /*
         final updatedCravingsResisted = updatedStats?.cravingsResisted ?? 0;
         final updatedDaysWithoutSmoking = updatedStats?.currentStreakDays ?? 0;
         final updatedMoneySaved = updatedStats?.moneySaved ?? 0;
+        final updatedMinutesLifeGained = updatedStats?.totalMinutesGained ?? 
+            (updatedStats?.cigarettesAvoided != null ? 
+                StatsCalculator.calculateMinutesGained(updatedStats!.cigarettesAvoided) : 0);
+        */
 
         if (kDebugMode && updatedStats?.lastSmokeDate != null && _stats?.lastSmokeDate != null) {
           // Verificar se a data mudou para debug
@@ -203,74 +216,31 @@ class _HomeScreenState extends State<HomeScreen> {
           }
         }
 
+        // Get trackingBloc to use normalizer methods for consistent data
+        final trackingBloc = BlocProvider.of<TrackingBloc>(context);
+          
         setState(() {
           _userRecoveryIds = newUserRecoveryIds;
           _healthRecoveryStatus = newHealthRecoveryStatus;
           _stats = updatedStats;
-          _daysWithoutSmoking = updatedDaysWithoutSmoking;
-          // Preferir usar o valor do banco de dados se disponível
-          _minutesLifeGained =
-              updatedStats?.totalMinutesGained != null
-                  ? updatedStats?.totalMinutesGained
-                  : updatedStats?.cigarettesAvoided != null
-                  ? StatsCalculator.calculateMinutesGained(updatedStats?.cigarettesAvoided ?? 0)
-                  : null;
-          _breathCapacityPercent = _daysWithoutSmoking != null ? (_daysWithoutSmoking! > 30 ? 40 : (_daysWithoutSmoking! > 7 ? 20 : 10)) : null;
-          _cravingsResisted = updatedCravingsResisted;
-          // Removemos o cálculo incorreto de _dailyMinutesGained aqui
-          // Ele será calculado com mais precisão na função _calculateDailyMinutesGained()
+          _daysWithoutSmoking = trackingBloc.getDaysWithoutSmoking(); // Use normalizer method 
+          _minutesLifeGained = trackingBloc.getMinutesLifeGained(); // Use normalizer method
+          _breathCapacityPercent = trackingBloc.getBreathCapacityPercent(); // Use normalizer method
+          _cravingsResisted = trackingBloc.getCravingsResisted(); // Use normalizer method instead of direct state value
+          _moneySavedInCents = trackingBloc.getMoneySavedInCents(); // Use normalizer method
+          
           // Debug para analisar o valor da economia e minutos ganhos
           if (kDebugMode) {
-            print('💰 Valor economizado recebido do servidor: $updatedMoneySaved centavos');
-            print('⏱️ Minutos de vida ganhos do servidor: ${updatedStats?.totalMinutesGained}');
-            print('📊 Dias sem fumar: $_daysWithoutSmoking, Cigarros evitados: ${_stats?.cigarettesAvoided}');
+            print('📊 HomeScreen stats atualizadas (via trackingNormalizer):');
+            print('   - Cravings resistidos: $_cravingsResisted');
+            print('   - Dias sem fumar: $_daysWithoutSmoking');
+            print('   - Economia: $_moneySavedInCents centavos');
+            print('   - Minutos ganhos total: $_minutesLifeGained');
             
-            // Verificar explicitamente valores zero para facilitar a depuração
-            if (updatedMoneySaved == 0) {
-              print('⚠️ ALERTA: Valor de economia zero recebido do servidor!');
-            }
-            if (updatedStats?.totalMinutesGained == 0) {
-              print('⚠️ ALERTA: Valor de minutos ganhos zero recebido do servidor!');
-            }
-          }
-
-          // Usar o valor mais preciso para cálculo de economia
-          if (updatedMoneySaved != null) {
-            // Usar o valor do servidor se estiver disponível (mesmo que seja zero)
-            _moneySavedInCents = updatedMoneySaved;
-            
-            if (kDebugMode) {
-              print('💰 Usando valor de economia do servidor: $updatedMoneySaved centavos');
-            }
-          } else {
-            // Fallback: calcular o valor localmente baseado em cigarros evitados e dias sem fumar
-            if (_stats != null) {
-              // Calcular cigarros evitados por dia baseado no número original informado pelo usuário
-              final int cigarettesPerDay = _stats!.cigarettesPerDay ?? StatsCalculator.DEFAULT_CIGARETTES_PER_DAY;
-              final int daysWithoutSmoking = _daysWithoutSmoking ?? 0;
-              
-              // Calcular cigarros não fumados com base em dias sem fumar * cigarros/dia
-              // (mais realista do que apenas contar cravings resistidos)
-              final int calculatedCigarettesAvoided = daysWithoutSmoking * cigarettesPerDay;
-              
-              // Preço por cigarro usando valores do usuário ou padrões
-              final double pricePerCigarette =
-                  (_stats!.packPrice ?? StatsCalculator.DEFAULT_PACK_PRICE_CENTS) /
-                  (_stats!.cigarettesPerPack ?? StatsCalculator.DEFAULT_CIGARETTES_PER_PACK);
-              
-              // Calcular economia total
-              final int calculatedMoneySaved = (calculatedCigarettesAvoided * pricePerCigarette).round();
-
-              if (kDebugMode) {
-                print('💰 CALCULANDO LOCALMENTE: dias=$daysWithoutSmoking, cigarros/dia=$cigarettesPerDay');
-                print('💰 Cigarros evitados calculados=$calculatedCigarettesAvoided');
-                print('💰 Preço por cigarro=$pricePerCigarette centavos, economia calculada=$calculatedMoneySaved centavos');
-              }
-
-              _moneySavedInCents = calculatedMoneySaved;
-            } else {
-              // If we don't have stats yet, show skeleton by setting to null
-              _moneySavedInCents = null;
+            // Compare with direct state values to verify the fix
+            if (updatedStats != null) {
+              print('📊 Valores anteriores (direto do state):');
+              print('   - Cravings resistidos: ${updatedStats.cravingsResisted}');
             }
           }
 
@@ -377,17 +347,17 @@ class _HomeScreenState extends State<HomeScreen> {
                 },
               ),
               // Listener para SmokingRecordBloc - com detecção melhorada de mudanças
-              BlocListener<SmokingRecordBloc, SmokingRecordState>(
+              BlocListener<TrackingBloc, TrackingState>(
                 listenWhen: (previous, current) {
                   // Importante: detectar mudanças na quantidade de registros ou status
-                  return previous.records.length != current.records.length ||
+                  return previous.smokingRecords.length != current.smokingRecords.length ||
                       previous.status != current.status ||
-                      (previous.status == SmokingRecordStatus.saving && current.status == SmokingRecordStatus.loaded);
+                      (previous.status == TrackingStatus.saving && current.status == TrackingStatus.loaded);
                 },
                 listener: (context, state) {
                   if (kDebugMode) {
-                    print('🔄 [HomeScreen] SmokingRecordBloc state mudou: ${state.status}');
-                    print('📊 [HomeScreen] Número de registros: ${state.records.length}');
+                    print('🔄 [HomeScreen] TrackingBloc state mudou: ${state.status}');
+                    print('📊 [HomeScreen] Número de registros: ${state.smokingRecords.length}');
                   }
 
                   // Sempre forçar atualização quando o estado mudar significativamente
@@ -415,34 +385,28 @@ class _HomeScreenState extends State<HomeScreen> {
                   canUpdate = timeSinceLastUpdate.inSeconds >= 1;
                 }
 
-                // Detecta eventos reais de mudança para atualizar
-                // Adicionadas mais condições de detecção para garantir que as atualizações sejam percebidas
-                final bool shouldUpdate =
-                    trackingState.isLoaded &&
-                    canUpdate &&
+                // Simplificar a lógica de detecção de mudanças
+                // O lastUpdated do trackingState é o gatilho principal para atualizações
+                final bool shouldUpdate = 
+                    trackingState.isLoaded && 
+                    canUpdate && 
                     (
-                    // Condições originais
-                    _stats?.cravingsResisted != trackingState.userStats?.cravingsResisted ||
-                        _stats?.currentStreakDays != trackingState.userStats?.currentStreakDays ||
-                        _stats?.moneySaved != trackingState.userStats?.moneySaved ||
-                        (_stats?.lastSmokeDate?.millisecondsSinceEpoch ?? 0) !=
-                            (trackingState.userStats?.lastSmokeDate?.millisecondsSinceEpoch ?? 0) ||
-                        (_userRecoveryIds.isEmpty && trackingState.userHealthRecoveries.isNotEmpty) ||
-                        // Importante: usar timestamp como inteiro e comparar valores
-                        (trackingState.lastUpdated != null &&
-                            _lastUpdateTime != null &&
-                            trackingState.lastUpdated! > _lastUpdateTime!.millisecondsSinceEpoch) ||
-                        // Mesmo sem alterações de valores, podemos ter novas entradas
-                        (_stats != null &&
-                            trackingState.userStats != null &&
-                            (_stats!.smokingRecordsCount != trackingState.userStats!.smokingRecordsCount)));
+                      // Usar lastUpdated como principal indicador de mudança
+                      trackingState.lastUpdated != null && 
+                      (
+                        _lastUpdateTime == null || 
+                        trackingState.lastUpdated! > _lastUpdateTime!.millisecondsSinceEpoch
+                      )
+                    );
 
-                // Atualiza apenas quando há mudanças reais nos dados
+                // Atualiza quando o lastUpdated muda, indicando novos dados do BLoC
                 if (shouldUpdate && !_isUpdating) {
                   WidgetsBinding.instance.addPostFrameCallback((_) {
                     if (mounted && !_isUpdating) {
                       if (kDebugMode) {
-                        print('🔄 Atualizando dados devido a mudanças reais nos dados');
+                        print('🔄 Atualizando dados devido à mudança no lastUpdated do TrackingBloc');
+                        print('   - TrackingBloc lastUpdated: ${trackingState.lastUpdated}');
+                        print('   - HomeScreen lastUpdateTime: ${_lastUpdateTime?.millisecondsSinceEpoch}');
                       }
                       _loadData(trackingState);
                     }
@@ -1189,8 +1153,7 @@ class _HomeScreenState extends State<HomeScreen> {
       return null;
     }
 
-    // Agora preferimos usar o valor já calculado no banco de dados
-    // que é atualizado pela Edge Function updateUserStats
+    // Sempre usar o valor do banco de dados quando disponível
     if (_stats!.minutesGainedToday != null) {
       final minutesToday = _stats!.minutesGainedToday!;
       if (kDebugMode) {
@@ -1199,36 +1162,29 @@ class _HomeScreenState extends State<HomeScreen> {
       return '$minutesToday min';
     }
 
-    // Cálculo de fallback caso o campo no DB ainda não exista
-    if (_minutesLifeGained == null || _cravingsResisted == null) {
+    // Cálculo de fallback consistente caso o campo no DB ainda não exista
+    if (_daysWithoutSmoking == null) {
       return null;
     }
 
     final int cigarettesPerDay = _stats!.cigarettesPerDay ?? StatsCalculator.DEFAULT_CIGARETTES_PER_DAY;
 
-    // Se o usuário tem menos de 1 dia sem fumar, os minutos ganhos hoje são
-    // simplesmente o total de minutos ganhos
-    if ((_daysWithoutSmoking ?? 0) < 1) {
-      final minutesToday = _minutesLifeGained!;
-      return '$minutesToday min';
+    // Se o usuário tem menos de 1 dia sem fumar
+    if (_daysWithoutSmoking! < 1) {
+      // Se temos minutos de vida ganhos total, podemos usar isso
+      if (_minutesLifeGained != null) {
+        return '$_minutesLifeGained min';
+      }
+      return '0 min';
     }
 
-    // Para calcular os minutos ganhos hoje, usamos os cravings resistidos de hoje
-    // e o cálculo de minutos por cigarro
-    final int cravingsToday = _cravingsResisted!;
-
-    // Se não há cravings registrados hoje, podemos estimar com base na média
-    // de cigarros por dia que o usuário fumava antes
-    final int estimatedMinutesToday =
-        cravingsToday > 0
-            ? cravingsToday * StatsCalculator.MINUTES_PER_CIGARETTE
-            : cigarettesPerDay > 0
-            ? StatsCalculator.MINUTES_PER_CIGARETTE * cigarettesPerDay ~/ 24
-            : 0;
+    // Estimativa baseada em cigarros por dia que o usuário fumava antes
+    // Dividido por 24 para obter uma estimativa horária
+    final int estimatedMinutesToday = StatsCalculator.MINUTES_PER_CIGARETTE * cigarettesPerDay ~/ 24;
 
     if (kDebugMode) {
-      print('📊 Minutos ganhos hoje (cálculo fallback): $estimatedMinutesToday (baseado em $cravingsToday cravings)');
-      print('📊 Cigarros por dia antes de parar: $cigarettesPerDay');
+      print('📊 Minutos ganhos hoje (cálculo fallback): $estimatedMinutesToday');
+      print('📊 Estimativa baseada em: $cigarettesPerDay cigarros por dia');
     }
 
     return '$estimatedMinutesToday min';

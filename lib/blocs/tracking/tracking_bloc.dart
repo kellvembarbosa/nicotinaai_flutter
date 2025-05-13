@@ -1,27 +1,39 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:uuid/uuid.dart';
+import 'package:nicotinaai_flutter/features/achievements/helpers/achievement_helper.dart';
+import 'package:nicotinaai_flutter/features/home/models/craving_model.dart';
+import 'package:nicotinaai_flutter/features/home/models/smoking_record_model.dart';
+import 'package:nicotinaai_flutter/features/home/repositories/craving_repository.dart';
+import 'package:nicotinaai_flutter/features/home/repositories/smoking_record_repository.dart';
 import 'package:nicotinaai_flutter/features/tracking/models/craving.dart';
 import 'package:nicotinaai_flutter/features/tracking/models/health_recovery.dart';
-import 'package:nicotinaai_flutter/features/tracking/models/user_stats.dart';
 import 'package:nicotinaai_flutter/features/tracking/repositories/tracking_repository.dart';
 import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
 import 'package:nicotinaai_flutter/services/notification_service.dart';
 import 'package:nicotinaai_flutter/services/analytics/analytics_service.dart';
-import 'package:nicotinaai_flutter/utils/stats_calculator.dart';
 
 import 'tracking_event.dart';
 import 'tracking_state.dart';
 
 class TrackingBloc extends Bloc<TrackingEvent, TrackingState> {
+  // Main repositories
   final TrackingRepository _repository;
+  final CravingRepository _cravingRepository = CravingRepository();
+  final SmokingRecordRepository _smokingRecordRepository = SmokingRecordRepository();
+  
+  // Services
   final NotificationService _notificationService = NotificationService();
   final AnalyticsService _analyticsService = AnalyticsService();
+  final _uuid = const Uuid();
 
   // Cache system
   DateTime? _lastStatsUpdateTime;
   DateTime? _lastLogsUpdateTime;
   DateTime? _lastCravingsUpdateTime;
   DateTime? _lastRecoveriesUpdateTime;
+  DateTime? _lastUnifiedCravingsUpdateTime;
+  DateTime? _lastSmokingRecordsUpdateTime;
 
   // Cache expiration time (5 minutes)
   static const Duration cacheExpiration = Duration(minutes: 5);
@@ -41,14 +53,14 @@ class TrackingBloc extends Bloc<TrackingEvent, TrackingState> {
     on<RefreshUserStats>(_onRefreshUserStats);
     on<ForceUpdateStats>(_onForceUpdateStats);
 
-    // Smoking Logs events
+    // Original Smoking Logs events
     on<LoadSmokingLogs>(_onLoadSmokingLogs);
     on<RefreshSmokingLogs>(_onRefreshSmokingLogs);
     on<AddSmokingLog>(_onAddSmokingLog);
     on<DeleteSmokingLog>(_onDeleteSmokingLog);
     on<SmokingRecordAdded>(_onSmokingRecordAdded);
 
-    // Cravings events
+    // Original Cravings events
     on<LoadCravings>(_onLoadCravings);
     on<RefreshCravings>(_onRefreshCravings);
     on<AddCraving>(_onAddCraving);
@@ -62,6 +74,24 @@ class TrackingBloc extends Bloc<TrackingEvent, TrackingState> {
     on<RefreshAllData>(_onRefreshAllData);
     on<ClearError>(_onClearError);
     on<ResetTrackingData>(_onResetTrackingData);
+    
+    // ===== New unified smoking records events =====
+    on<LoadSmokingRecordsForUser>(_onLoadSmokingRecordsForUser);
+    on<SaveSmokingRecord>(_onSaveSmokingRecord);
+    on<RemoveSmokingRecord>(_onRemoveSmokingRecord);
+    on<RetrySyncSmokingRecord>(_onRetrySyncSmokingRecord);
+    on<SyncPendingSmokingRecords>(_onSyncPendingSmokingRecords);
+    on<GetSmokingRecordCount>(_onGetSmokingRecordCount);
+    on<ClearSmokingRecordError>(_onClearSmokingRecordError);
+    
+    // ===== New unified cravings events =====
+    on<LoadCravingsForUser>(_onLoadCravingsForUser);
+    on<SaveCraving>(_onSaveCraving);
+    on<RemoveCraving>(_onRemoveCraving);
+    on<RetrySyncCraving>(_onRetrySyncCraving);
+    on<SyncPendingCravings>(_onSyncPendingCravings);
+    on<GetCravingCount>(_onGetCravingCount);
+    on<ClearCravingError>(_onClearCravingError);
   }
 
   // Verifica se o cache expirou
@@ -97,14 +127,14 @@ class TrackingBloc extends Bloc<TrackingEvent, TrackingState> {
         }
       }
       
-      // Verificar se temos valores nulos ou zero que precisam ser atualizados do servidor
-      // Valores zero serão tratados como inválidos para exibir o skeleton loader
+      // Verificar se temos valores nulos que precisam ser atualizados do servidor
+      // Valores zero são considerados válidos e não devem forçar uma atualização
       if (state.userStats != null && 
-         (state.userStats!.totalMinutesGained == null || state.userStats!.totalMinutesGained == 0 || 
-          state.userStats!.moneySaved == null || state.userStats!.moneySaved == 0) &&
+         (state.userStats!.totalMinutesGained == null || 
+          state.userStats!.moneySaved == null) &&
          state.userStats!.lastSmokeDate != null) {
         if (kDebugMode) {
-          print('🔄 Stats values missing or zero with valid last_smoke_date, forcing update from server...');
+          print('🔄 Stats values missing with valid last_smoke_date, forcing update from server...');
           print('📊 Current values - minutes: ${state.userStats!.totalMinutesGained}, money: ${state.userStats!.moneySaved}');
         }
         await _repository.updateUserStats();
@@ -213,7 +243,67 @@ class TrackingBloc extends Bloc<TrackingEvent, TrackingState> {
       final stats = await _repository.getUserStats();
       _lastStatsUpdateTime = DateTime.now();
 
-      emit(state.copyWith(userStats: stats, isStatsLoading: false));
+      // Verificar se os dados estão com valores inválidos quando deveriam ter valores
+      if (stats != null) {
+        // Verificar se temos campos zerados que não deveriam estar zerados
+        if (kDebugMode) {
+          print('📊 [TrackingBloc] Stats loaded: cravingsResisted=${stats.cravingsResisted}, ' +
+                'cigarettesAvoided=${stats.cigarettesAvoided}, moneySaved=${stats.moneySaved}');
+                
+          // Depurar informações da data se disponível
+          if (stats.lastSmokeDate != null) {
+            print('📊 [TrackingBloc] Last smoke date from server: ${stats.lastSmokeDate!.toIso8601String()} (UTC: ${stats.lastSmokeDate!.isUtc})');
+          }
+        }
+        
+        // Verificamos se temos cravings zerado, mas smoking logs ou last_smoke_date presentes
+        // o que indicaria um problema com os dados
+        final bool hasInvalidZeros = 
+          (stats.cravingsResisted == 0 && stats.lastSmokeDate != null) ||
+          (stats.cigarettesAvoided == 0 && stats.lastSmokeDate != null) ||
+          (stats.moneySaved == 0 && stats.lastSmokeDate != null && stats.cigarettesAvoided > 0);
+          
+        if (hasInvalidZeros) {
+          if (kDebugMode) {
+            print('⚠️ [TrackingBloc] Detected invalid zeros in stats with last_smoke_date present.');
+            print('⚠️ [TrackingBloc] Forcing stats recalculation...');
+          }
+          
+          // Forçar a atualização das estatísticas no servidor
+          await _repository.updateUserStats();
+          
+          // Recarregar os dados atualizados
+          final updatedStats = await _repository.getUserStats();
+          
+          if (kDebugMode) {
+            if (updatedStats != null) {
+              print('✅ [TrackingBloc] Stats recalculated: cravingsResisted=${updatedStats.cravingsResisted}, ' +
+                    'cigarettesAvoided=${updatedStats.cigarettesAvoided}, moneySaved=${updatedStats.moneySaved}');
+            } else {
+              print('⚠️ [TrackingBloc] Failed to recalculate stats: updatedStats is null');
+            }
+          }
+          
+          // Usar as estatísticas atualizadas ou originais
+          final statsToUse = updatedStats ?? stats;
+          
+          emit(state.copyWith(userStats: statsToUse, isStatsLoading: false));
+        } else {
+          // Usar as estatísticas diretamente
+          if (kDebugMode && stats.lastSmokeDate != null) {
+            print('📊 [TrackingBloc] Stat values from server:');
+            print('   - Dias sem fumar: ${stats.currentStreakDays}');
+            print('   - Cigarros evitados: ${stats.cigarettesAvoided}');
+            print('   - Economia: ${stats.moneySaved}');
+            print('   - Data do último cigarro: ${stats.lastSmokeDate!.toIso8601String()} (UTC: ${stats.lastSmokeDate!.isUtc})');
+          }
+          
+          emit(state.copyWith(userStats: stats, isStatsLoading: false));
+        }
+      } else {
+        // Se não há stats, simplesmente emitir o null
+        emit(state.copyWith(userStats: stats, isStatsLoading: false));
+      }
     } catch (e) {
       emit(state.copyWith(errorMessage: 'Failed to load user stats: ${e.toString()}', isStatsLoading: false));
     }
@@ -223,11 +313,30 @@ class TrackingBloc extends Bloc<TrackingEvent, TrackingState> {
     emit(state.copyWith(isStatsLoading: true));
 
     try {
-      // Update stats on the server
-      await _repository.updateUserStats();
-
-      // Load updated stats
-      await _loadUserStats(emit, forceRefresh: true);
+      // Update stats using the local implementation
+      final updatedStats = await _repository.updateUserStats();
+      
+      if (updatedStats != null) {
+        if (kDebugMode) {
+          print('🔄 [TrackingBloc] Stats refreshed');
+          if (updatedStats.lastSmokeDate != null) {
+            print('📊 [TrackingBloc] Stats values:');
+            print('   - Dias sem fumar: ${updatedStats.currentStreakDays}');
+            print('   - Cigarros evitados: ${updatedStats.cigarettesAvoided}');
+            print('   - Data do último cigarro: ${updatedStats.lastSmokeDate!.toIso8601String()} (UTC: ${updatedStats.lastSmokeDate!.isUtc})');
+          }
+        }
+        
+        // Usar as estatísticas atualizadas diretamente
+        emit(state.copyWith(
+          userStats: updatedStats, 
+          isStatsLoading: false,
+          lastUpdated: DateTime.now().millisecondsSinceEpoch
+        ));
+      } else {
+        // Fallback to loading stats from server
+        await _loadUserStats(emit, forceRefresh: true);
+      }
     } finally {
       // If still loading for some reason, ensure loading flag is reset
       if (state.isStatsLoading) {
@@ -239,20 +348,71 @@ class TrackingBloc extends Bloc<TrackingEvent, TrackingState> {
   Future<void> _onForceUpdateStats(ForceUpdateStats event, Emitter<TrackingState> emit) async {
     if (kDebugMode) {
       print('🔄 [TrackingBloc] Forcing stats update...');
+      if (state.userStats != null) {
+        print('📊 [TrackingBloc] Current values before update:');
+        print('   - Cravings Resisted: ${state.userStats!.cravingsResisted}');
+        print('   - Cigarros Evitados: ${state.userStats!.cigarettesAvoided}');
+        print('   - Minutos Ganhos Total: ${state.userStats!.totalMinutesGained}');
+        print('   - Minutos Ganhos Hoje: ${state.userStats!.minutesGainedToday}');
+        print('   - Economia: ${state.userStats!.moneySaved}');
+        print('   - Dias sem fumar: ${state.userStats!.currentStreakDays}');
+        
+        // Depurar informações da data usando o TrackingNormalizer para diagnóstico
+        if (state.userStats!.lastSmokeDate != null && kDebugMode) {
+          print('🔄 [TrackingBloc] Antes da atualização, estado atual:');
+          print('   - Dias sem fumar: ${state.userStats!.currentStreakDays}');
+          print('   - Data do último cigarro: ${state.userStats!.lastSmokeDate!.toIso8601String()}');
+        }
+      }
     }
 
     try {
       // First emit a loading state to ensure subscribers notice the change
-      emit(state.copyWith(isStatsLoading: true));
+      emit(state.copyWith(
+        isStatsLoading: true,
+        lastUpdated: DateTime.now().millisecondsSinceEpoch
+      ));
 
       // First load fresh cravings
       await _loadCravings(emit, forceRefresh: true);
 
-      // Now update stats based on fresh cravings
-      await _repository.updateUserStats();
+      // Now update stats based on fresh cravings with local implementation
+      final updatedStats = await _repository.updateUserStats();
+      
+      if (kDebugMode) {
+        print('📊 [TrackingBloc] updateUserStats calculation completed');
+      }
 
-      // Finally load the updated stats
-      await _loadUserStats(emit, forceRefresh: true);
+      if (updatedStats != null) {
+        // Usar estatísticas diretamente (elas já serão normalizadas pelo TrackingNormalizer)
+        emit(state.copyWith(
+          userStats: updatedStats, 
+          isStatsLoading: false,
+          lastUpdated: DateTime.now().millisecondsSinceEpoch
+        ));
+      } else {
+        // Fallback to loading stats from server
+        await _loadUserStats(emit, forceRefresh: true);
+      }
+
+      // Log the changes for comparison
+      if (kDebugMode && state.userStats != null) {
+        print('📊 [TrackingBloc] Values after update:');
+        print('   - Cravings Resisted: ${state.userStats!.cravingsResisted}');
+        print('   - Cigarros Evitados: ${state.userStats!.cigarettesAvoided}');
+        print('   - Minutos Ganhos Total: ${state.userStats!.totalMinutesGained}');
+        print('   - Minutos Ganhos Hoje: ${state.userStats!.minutesGainedToday}');
+        print('   - Economia: ${state.userStats!.moneySaved}');
+        print('   - Dias sem fumar: ${state.userStats!.currentStreakDays}');
+        
+        // Depurar após atualização
+        if (state.userStats!.lastSmokeDate != null && kDebugMode) {
+          print('🔄 [TrackingBloc] Após atualização, valores atualizados:');
+          print('   - Dias sem fumar: ${state.userStats!.currentStreakDays}');
+          print('   - Data do último cigarro: ${state.userStats!.lastSmokeDate!.toIso8601String()}');
+          print('   - É UTC: ${state.userStats!.lastSmokeDate!.isUtc}');
+        }
+      }
 
       // Ensure the state is clearly different when emitted
       emit(
@@ -271,7 +431,10 @@ class TrackingBloc extends Bloc<TrackingEvent, TrackingState> {
       if (kDebugMode) {
         print('❌ [TrackingBloc] Error forcing stats update: $e');
       }
-      emit(state.copyWith(isStatsLoading: false));
+      emit(state.copyWith(
+        isStatsLoading: false,
+        lastUpdated: DateTime.now().millisecondsSinceEpoch
+      ));
     }
   }
 
@@ -459,106 +622,100 @@ class TrackingBloc extends Bloc<TrackingEvent, TrackingState> {
     }
   }
 
-  /// Handler para o evento CravingAdded - atualização otimista imediata usando o StatsCalculator
+  /// Handler para o evento CravingAdded - atualização direta da base de dados
   Future<void> _onCravingAdded(CravingAdded event, Emitter<TrackingState> emit) async {
     if (kDebugMode) {
-      print('🔄 [TrackingBloc] Atualização otimista para craving adicionado');
+      print('🔄 [TrackingBloc] Processando evento CravingAdded');
       print('🔄 [TrackingBloc] Craving resistido: ${event.resisted}');
     }
 
-    // Atualização otimista usando o calculator centralizado
-    final currentStats = state.userStats;
-    if (currentStats != null) {
-      // Só incrementar cravingsResisted se o craving foi realmente resistido
-      UserStats updatedStats;
-      
-      if (event.resisted) {
-        // Usar o serviço centralizado para calcular os novos valores quando resistiu
-        updatedStats = StatsCalculator.calculateAddCraving(currentStats);
-        
-        if (kDebugMode) {
-          print('✅ [TrackingBloc] Atualizando otimisticamente para craving RESISTIDO:');
-          print('  - Cravings resistidos: ${currentStats.cravingsResisted} -> ${updatedStats.cravingsResisted}');
-          print('  - Cigarros evitados: ${currentStats.cigarettesAvoided} -> ${updatedStats.cigarettesAvoided}');
-          print('  - Economia: ${currentStats.moneySaved} -> ${updatedStats.moneySaved} centavos');
-          print(
-            '  - Minutos de vida ganhos: ${StatsCalculator.calculateMinutesGained(currentStats.cigarettesAvoided)} -> ${StatsCalculator.calculateMinutesGained(updatedStats.cigarettesAvoided)}',
-          );
-        }
-      } else {
-        // Craving não foi resistido, não incrementar contador
-        if (kDebugMode) {
-          print('⚠️ [TrackingBloc] Craving NÃO foi resistido, não incrementando contador');
-        }
-        
-        // Para craving não resistido, garantir que os dados são persistidos no banco
-        // Uma cópia completa com incremento de lastUpdated para garantir detecção da mudança de estado
-        updatedStats = currentStats.copyWith(
-          lastUpdated: DateTime.now().millisecondsSinceEpoch
-        );
-      }
+    // Indicar que está carregando
+    emit(state.copyWith(status: TrackingStatus.loading));
 
-      // Emitir um novo estado com todos os valores atualizados
-      emit(state.copyWith(userStats: updatedStats, lastUpdated: DateTime.now().millisecondsSinceEpoch));
-    } else if (kDebugMode) {
-      print('⚠️ [TrackingBloc] Não foi possível fazer atualização otimista - userStats é null');
-    }
-
-    // Em segundo plano, busca os dados atualizados
     try {
+      // Atualizar os stats no servidor
       await _repository.updateUserStats();
+      
+      // Buscar dados atualizados
       await _loadUserStats(emit, forceRefresh: true);
 
       if (kDebugMode) {
-        print('✅ [TrackingBloc] Atualização de fundo completa para craving adicionado');
+        print('✅ [TrackingBloc] Atualização completa para craving adicionado');
+        if (state.userStats != null) {
+          print('📊 [TrackingBloc] Valores após atualização do servidor:');
+          print('  - Cravings resistidos: ${state.userStats!.cravingsResisted}');
+          print('  - Cigarros evitados: ${state.userStats!.cigarettesAvoided}');  
+          print('  - Economia: ${state.userStats!.moneySaved} centavos');
+          print('  - Minutos ganhos hoje: ${state.userStats!.minutesGainedToday}');
+          print('  - Minutos ganhos total: ${state.userStats!.totalMinutesGained}');
+        }
       }
+      
+      // Emitir estado atualizado com status de sucesso
+      emit(state.copyWith(
+        status: TrackingStatus.loaded,
+        lastUpdated: DateTime.now().millisecondsSinceEpoch
+      ));
     } catch (e) {
       if (kDebugMode) {
-        print('❌ [TrackingBloc] Erro na atualização de fundo: $e');
+        print('❌ [TrackingBloc] Erro na atualização: $e');
       }
-      // Não expomos o erro para o usuário já que a atualização otimista foi feita
+      
+      // Emitir estado de erro
+      emit(state.copyWith(
+        status: TrackingStatus.error,
+        errorMessage: 'Erro ao atualizar estatísticas: ${e.toString()}',
+        lastUpdated: DateTime.now().millisecondsSinceEpoch
+      ));
     }
   }
 
-  /// Handler para o evento SmokingRecordAdded - atualização otimista imediata usando o StatsCalculator
+  /// Handler para o evento SmokingRecordAdded - atualização direta da base de dados
   Future<void> _onSmokingRecordAdded(SmokingRecordAdded event, Emitter<TrackingState> emit) async {
     if (kDebugMode) {
-      print('🔄 [TrackingBloc] Atualização otimista para registro de fumo adicionado');
+      print('🔄 [TrackingBloc] Processando evento SmokingRecordAdded');
+      print('🔄 [TrackingBloc] Quantidade de cigarros: ${event.amount}');
     }
 
-    // Atualização otimista usando o calculator centralizado
-    final currentStats = state.userStats;
-    if (currentStats != null) {
-      // Usar o serviço centralizado para calcular os novos valores
-      final updatedStats = StatsCalculator.calculateAddSmoking(currentStats, event.amount);
+    // Indicar que está carregando
+    emit(state.copyWith(status: TrackingStatus.loading));
 
-      if (kDebugMode) {
-        print('✅ [TrackingBloc] Atualizando otimisticamente para fumo:');
-        print('  - Cigarros fumados: ${currentStats.cigarettesSmoked} -> ${updatedStats.cigarettesSmoked}');
-        print('  - Registros: ${currentStats.smokingRecordsCount} -> ${updatedStats.smokingRecordsCount}');
-        print('  - Cigarros evitados: ${currentStats.cigarettesAvoided} -> ${updatedStats.cigarettesAvoided} (reset)');
-        print('  - Sequência atual (dias): ${currentStats.currentStreakDays} -> ${updatedStats.currentStreakDays} (reset)');
-      }
-
-      // Emitir um novo estado com todos os valores atualizados
-      emit(state.copyWith(userStats: updatedStats, lastUpdated: DateTime.now().millisecondsSinceEpoch));
-    } else if (kDebugMode) {
-      print('⚠️ [TrackingBloc] Não foi possível fazer atualização otimista - userStats é null');
-    }
-
-    // Em segundo plano, busca os dados atualizados
     try {
+      // Atualizar os stats no servidor
       await _repository.updateUserStats();
+      
+      // Buscar dados atualizados
       await _loadUserStats(emit, forceRefresh: true);
 
       if (kDebugMode) {
-        print('✅ [TrackingBloc] Atualização de fundo completa para registro de fumo');
+        print('✅ [TrackingBloc] Atualização completa para registro de fumo');
+        if (state.userStats != null) {
+          print('📊 [TrackingBloc] Valores após atualização do servidor:');
+          print('  - Cigarros fumados: ${state.userStats!.cigarettesSmoked}');
+          print('  - Registros: ${state.userStats!.smokingRecordsCount}');
+          print('  - Cigarros evitados: ${state.userStats!.cigarettesAvoided}');
+          print('  - Sequência atual (dias): ${state.userStats!.currentStreakDays}');
+          print('  - Minutos ganhos hoje: ${state.userStats!.minutesGainedToday}');
+          print('  - Minutos ganhos total: ${state.userStats!.totalMinutesGained}');
+        }
       }
+      
+      // Emitir estado atualizado com status de sucesso
+      emit(state.copyWith(
+        status: TrackingStatus.loaded,
+        lastUpdated: DateTime.now().millisecondsSinceEpoch
+      ));
     } catch (e) {
       if (kDebugMode) {
-        print('❌ [TrackingBloc] Erro na atualização de fundo: $e');
+        print('❌ [TrackingBloc] Erro na atualização: $e');
       }
-      // Não expomos o erro para o usuário já que a atualização otimista foi feita
+      
+      // Emitir estado de erro
+      emit(state.copyWith(
+        status: TrackingStatus.error,
+        errorMessage: 'Erro ao atualizar estatísticas: ${e.toString()}',
+        lastUpdated: DateTime.now().millisecondsSinceEpoch
+      ));
     }
   }
 
@@ -829,7 +986,455 @@ class TrackingBloc extends Bloc<TrackingEvent, TrackingState> {
     _lastLogsUpdateTime = null;
     _lastCravingsUpdateTime = null;
     _lastRecoveriesUpdateTime = null;
+    _lastUnifiedCravingsUpdateTime = null;
+    _lastSmokingRecordsUpdateTime = null;
     _isInitializing = false;
     emit(const TrackingState());
+  }
+  
+  // =================================================
+  // Unified Smoking Record handlers (migrated from SmokingRecordBloc)
+  // =================================================
+  
+  Future<void> _onLoadSmokingRecordsForUser(LoadSmokingRecordsForUser event, Emitter<TrackingState> emit) async {
+    emit(state.copyWith(status: TrackingStatus.loading));
+    
+    try {
+      final serverRecords = await _smokingRecordRepository.getRecordsForUser(event.userId);
+      
+      // Merge server data with any pending local changes
+      final localPendingRecords = state.smokingRecords.where(
+        (r) => r.syncStatus == SyncStatus.pending || r.syncStatus == SyncStatus.failed
+      ).toList();
+      
+      // Use server data for everything else
+      final updatedRecords = [...serverRecords, ...localPendingRecords];
+      
+      emit(state.copyWith(
+        status: TrackingStatus.loaded,
+        smokingRecords: updatedRecords,
+        lastUpdated: DateTime.now().millisecondsSinceEpoch
+      ));
+      
+      _lastSmokingRecordsUpdateTime = DateTime.now();
+    } catch (e) {
+      emit(state.copyWith(
+        status: TrackingStatus.error,
+        errorMessage: e.toString(),
+      ));
+    }
+  }
+  
+  Future<void> _onSaveSmokingRecord(SaveSmokingRecord event, Emitter<TrackingState> emit) async {
+    // Generate a temporary ID for the new record
+    final temporaryId = 'temp_${_uuid.v4()}';
+    
+    // Log for debug
+    debugPrint('Creating smoking record with temporary ID: $temporaryId');
+    
+    // Create an optimistic version with pending status
+    final optimisticRecord = event.record.copyWith(
+      id: temporaryId,
+      syncStatus: SyncStatus.pending
+    );
+    
+    // Update the state immediately (optimistically)
+    final updatedRecords = [optimisticRecord, ...state.smokingRecords];
+    emit(state.copyWith(
+      status: TrackingStatus.saving,
+      smokingRecords: updatedRecords,
+      lastUpdated: DateTime.now().millisecondsSinceEpoch
+    ));
+    
+    try {
+      // Perform the actual API call
+      final savedRecord = await _smokingRecordRepository.saveRecord(event.record);
+      
+      debugPrint('Smoking record saved successfully with ID: ${savedRecord.id}');
+      
+      // Update the temporary item with the real one
+      final finalRecords = updatedRecords.map((r) => 
+        r.id == temporaryId ? savedRecord : r
+      ).toList();
+      
+      emit(state.copyWith(
+        status: TrackingStatus.loaded,
+        smokingRecords: finalRecords,
+        lastUpdated: DateTime.now().millisecondsSinceEpoch
+      ));
+      
+      // Explicitly check health recoveries to ensure they are reset due to new smoking event
+      try {
+        debugPrint('Checking health recoveries after new smoking record...');
+        
+        // This will call the edge function which has been updated to detect 
+        // recent smoking events and reset health recoveries if necessary
+        await _repository.checkHealthRecoveries(updateAchievements: true);
+        debugPrint('Health recoveries check completed after adding smoking record');
+      } catch (e) {
+        // Non-critical error, just log it
+        debugPrint('Error checking health recoveries after new smoking record: $e');
+      }
+      
+      // Update tracking stats
+      add(ForceUpdateStats());
+      
+      // Check for achievements after recording a smoking event
+      if (event.record.context != null) {
+        AchievementHelper.checkAfterSmokingRecord(event.record.context!);
+      }
+    } catch (e) {
+      debugPrint('Error saving smoking record: $e');
+      
+      // Mark as failed but keep in the list
+      final failedRecords = updatedRecords.map((r) => 
+        r.id == temporaryId ? r.copyWith(syncStatus: SyncStatus.failed) : r
+      ).toList();
+      
+      emit(state.copyWith(
+        status: TrackingStatus.error,
+        errorMessage: e.toString(),
+        smokingRecords: failedRecords,
+        lastUpdated: DateTime.now().millisecondsSinceEpoch
+      ));
+    }
+  }
+  
+  Future<void> _onRetrySyncSmokingRecord(RetrySyncSmokingRecord event, Emitter<TrackingState> emit) async {
+    final recordIndex = state.smokingRecords.indexWhere((r) => r.id == event.id);
+    if (recordIndex == -1) return;
+    
+    // Create a new list with the updated record status
+    final updatedRecords = List<SmokingRecordModel>.from(state.smokingRecords);
+    updatedRecords[recordIndex] = updatedRecords[recordIndex].copyWith(
+      syncStatus: SyncStatus.pending
+    );
+    
+    emit(state.copyWith(
+      status: TrackingStatus.saving,
+      smokingRecords: updatedRecords,
+      lastUpdated: DateTime.now().millisecondsSinceEpoch
+    ));
+    
+    try {
+      // Get a clean version without the temporary ID for API
+      final recordToSync = updatedRecords[recordIndex].copyWith(
+        id: event.id.startsWith('temp_') ? null : event.id
+      );
+      
+      // Perform the actual API call
+      final syncedRecord = await _smokingRecordRepository.saveRecord(recordToSync);
+      
+      // Replace with the synced version in our records list
+      updatedRecords[recordIndex] = syncedRecord;
+      
+      emit(state.copyWith(
+        status: TrackingStatus.loaded,
+        smokingRecords: updatedRecords,
+        lastUpdated: DateTime.now().millisecondsSinceEpoch
+      ));
+      
+      // Update the tracking stats
+      add(ForceUpdateStats());
+    } catch (e) {
+      // Mark as failed again
+      updatedRecords[recordIndex] = updatedRecords[recordIndex].copyWith(
+        syncStatus: SyncStatus.failed
+      );
+      
+      emit(state.copyWith(
+        status: TrackingStatus.error,
+        errorMessage: e.toString(),
+        smokingRecords: updatedRecords,
+        lastUpdated: DateTime.now().millisecondsSinceEpoch
+      ));
+    }
+  }
+  
+  Future<void> _onRemoveSmokingRecord(RemoveSmokingRecord event, Emitter<TrackingState> emit) async {
+    // Store the original record for potential rollback
+    final originalRecord = state.smokingRecords.firstWhere((r) => r.id == event.id);
+    
+    // Remove immediately (optimistic update)
+    final updatedRecords = state.smokingRecords.where((r) => r.id != event.id).toList();
+    emit(state.copyWith(
+      status: TrackingStatus.loaded,
+      smokingRecords: updatedRecords,
+      lastUpdated: DateTime.now().millisecondsSinceEpoch
+    ));
+    
+    try {
+      // Perform the actual deletion
+      await _smokingRecordRepository.deleteRecord(event.id);
+      
+      // Update the tracking stats
+      add(ForceUpdateStats());
+    } catch (e) {
+      // Put the record back on error
+      final rollbackRecords = [...updatedRecords, originalRecord];
+      
+      emit(state.copyWith(
+        status: TrackingStatus.error,
+        errorMessage: e.toString(),
+        smokingRecords: rollbackRecords,
+        lastUpdated: DateTime.now().millisecondsSinceEpoch
+      ));
+    }
+  }
+  
+  Future<void> _onSyncPendingSmokingRecords(SyncPendingSmokingRecords event, Emitter<TrackingState> emit) async {
+    final pendingItems = [...state.pendingRecords, ...state.failedRecords];
+    
+    for (final record in pendingItems) {
+      if (record.id != null) {
+        add(RetrySyncSmokingRecord(id: record.id!));
+      }
+    }
+  }
+  
+  Future<void> _onGetSmokingRecordCount(GetSmokingRecordCount event, Emitter<TrackingState> emit) async {
+    try {
+      final count = await _smokingRecordRepository.getRecordCountForUser(event.userId);
+      emit(state.copyWith(
+        recordCount: count,
+        lastUpdated: DateTime.now().millisecondsSinceEpoch
+      ));
+    } catch (e) {
+      emit(state.copyWith(
+        status: TrackingStatus.error,
+        errorMessage: e.toString(),
+      ));
+    }
+  }
+  
+  void _onClearSmokingRecordError(ClearSmokingRecordError event, Emitter<TrackingState> emit) {
+    if (state.hasError) {
+      emit(state.copyWith(
+        errorMessage: null,
+        status: state.smokingRecords.isNotEmpty
+            ? TrackingStatus.loaded
+            : TrackingStatus.initial,
+        lastUpdated: DateTime.now().millisecondsSinceEpoch
+      ));
+    }
+  }
+  
+  // =================================================
+  // Unified Craving handlers (migrated from CravingBloc)
+  // =================================================
+  
+  Future<void> _onLoadCravingsForUser(LoadCravingsForUser event, Emitter<TrackingState> emit) async {
+    emit(state.copyWith(status: TrackingStatus.loading));
+    
+    try {
+      final serverCravings = await _cravingRepository.getCravingsForUser(event.userId);
+      
+      // Merge server data with any pending local changes
+      final localPendingCravings = state.unifiedCravings.where(
+        (c) => c.syncStatus == SyncStatus.pending || c.syncStatus == SyncStatus.failed
+      ).toList();
+      
+      // Use server data for everything else
+      final updatedCravings = [...serverCravings, ...localPendingCravings];
+      
+      emit(state.copyWith(
+        status: TrackingStatus.loaded,
+        unifiedCravings: updatedCravings,
+        lastUpdated: DateTime.now().millisecondsSinceEpoch
+      ));
+      
+      _lastUnifiedCravingsUpdateTime = DateTime.now();
+    } catch (e) {
+      emit(state.copyWith(
+        status: TrackingStatus.error,
+        errorMessage: e.toString(),
+      ));
+    }
+  }
+  
+  Future<void> _onSaveCraving(SaveCraving event, Emitter<TrackingState> emit) async {
+    // Generate a temporary ID for the new craving
+    final temporaryId = 'temp_${_uuid.v4()}';
+    
+    // Debug logs
+    debugPrint('🆕 [TrackingBloc] Creating craving with ID temporário: $temporaryId');
+    
+    // Create an optimistic version with pending status
+    final optimisticCraving = event.craving.copyWith(
+      id: temporaryId,
+      syncStatus: SyncStatus.pending
+    );
+    
+    // Update the state immediately (optimistically)
+    final updatedCravings = [optimisticCraving, ...state.unifiedCravings];
+    emit(state.copyWith(
+      status: TrackingStatus.saving,
+      unifiedCravings: updatedCravings,
+      lastUpdated: DateTime.now().millisecondsSinceEpoch
+    ));
+    
+    try {
+      // Perform the actual API call
+      final savedCraving = await _cravingRepository.saveCraving(event.craving);
+      
+      debugPrint('✅ [TrackingBloc] Craving salvo com sucesso com ID: ${savedCraving.id}');
+      
+      // Update the temporary item with the real one
+      final finalCravings = updatedCravings.map((c) => 
+        c.id == temporaryId ? savedCraving : c
+      ).toList();
+      
+      emit(state.copyWith(
+        status: TrackingStatus.loaded,
+        unifiedCravings: finalCravings,
+        lastUpdated: DateTime.now().millisecondsSinceEpoch
+      ));
+      
+      // Update tracking stats
+      add(CravingAdded(resisted: event.craving.resisted));
+      
+      // Check for health recoveries
+      try {
+        debugPrint('🏥 [TrackingBloc] Checking health recoveries after craving...');
+        await _repository.checkHealthRecoveries(updateAchievements: true);
+        debugPrint('✅ [TrackingBloc] Health recoveries check completed');
+      } catch (e) {
+        // Non-critical error, just log it
+        debugPrint('⚠️ [TrackingBloc] Error checking health recoveries: $e');
+      }
+    } catch (e) {
+      debugPrint('❌ [TrackingBloc] Error saving craving: $e');
+      
+      // Mark as failed but keep in the list
+      final failedCravings = updatedCravings.map((c) => 
+        c.id == temporaryId ? c.copyWith(syncStatus: SyncStatus.failed) : c
+      ).toList();
+      
+      emit(state.copyWith(
+        status: TrackingStatus.error,
+        errorMessage: e.toString(),
+        unifiedCravings: failedCravings,
+        lastUpdated: DateTime.now().millisecondsSinceEpoch
+      ));
+    }
+  }
+  
+  Future<void> _onRetrySyncCraving(RetrySyncCraving event, Emitter<TrackingState> emit) async {
+    final cravingIndex = state.unifiedCravings.indexWhere((c) => c.id == event.id);
+    if (cravingIndex == -1) return;
+    
+    // Create a new list with the updated craving status
+    final updatedCravings = List<CravingModel>.from(state.unifiedCravings);
+    updatedCravings[cravingIndex] = updatedCravings[cravingIndex].copyWith(
+      syncStatus: SyncStatus.pending
+    );
+    
+    emit(state.copyWith(
+      status: TrackingStatus.saving,
+      unifiedCravings: updatedCravings,
+      lastUpdated: DateTime.now().millisecondsSinceEpoch
+    ));
+    
+    try {
+      // Get a clean version without the temporary ID for API
+      final cravingToSync = updatedCravings[cravingIndex].copyWith(
+        id: event.id.startsWith('temp_') ? null : event.id
+      );
+      
+      // Perform the actual API call
+      final syncedCraving = await _cravingRepository.saveCraving(cravingToSync);
+      
+      // Replace with the synced version in our cravings list
+      updatedCravings[cravingIndex] = syncedCraving;
+      
+      emit(state.copyWith(
+        status: TrackingStatus.loaded,
+        unifiedCravings: updatedCravings,
+        lastUpdated: DateTime.now().millisecondsSinceEpoch
+      ));
+      
+      // Update the tracking stats
+      add(CravingAdded(resisted: syncedCraving.resisted));
+    } catch (e) {
+      // Mark as failed again
+      updatedCravings[cravingIndex] = updatedCravings[cravingIndex].copyWith(
+        syncStatus: SyncStatus.failed
+      );
+      
+      emit(state.copyWith(
+        status: TrackingStatus.error,
+        errorMessage: e.toString(),
+        unifiedCravings: updatedCravings,
+        lastUpdated: DateTime.now().millisecondsSinceEpoch
+      ));
+    }
+  }
+  
+  Future<void> _onRemoveCraving(RemoveCraving event, Emitter<TrackingState> emit) async {
+    // Store the original craving for potential rollback
+    final originalCraving = state.unifiedCravings.firstWhere((c) => c.id == event.id);
+    
+    // Remove immediately (optimistic update)
+    final updatedCravings = state.unifiedCravings.where((c) => c.id != event.id).toList();
+    emit(state.copyWith(
+      status: TrackingStatus.loaded,
+      unifiedCravings: updatedCravings,
+      lastUpdated: DateTime.now().millisecondsSinceEpoch
+    ));
+    
+    try {
+      // Perform the actual deletion
+      await _cravingRepository.deleteCraving(event.id);
+      
+      // Update the tracking stats
+      add(ForceUpdateStats());
+    } catch (e) {
+      // Put the craving back on error
+      final rollbackCravings = [...updatedCravings, originalCraving];
+      
+      emit(state.copyWith(
+        status: TrackingStatus.error,
+        errorMessage: e.toString(),
+        unifiedCravings: rollbackCravings,
+        lastUpdated: DateTime.now().millisecondsSinceEpoch
+      ));
+    }
+  }
+  
+  Future<void> _onSyncPendingCravings(SyncPendingCravings event, Emitter<TrackingState> emit) async {
+    final pendingItems = [...state.pendingCravings, ...state.failedCravings];
+    
+    for (final craving in pendingItems) {
+      if (craving.id != null) {
+        add(RetrySyncCraving(id: craving.id!));
+      }
+    }
+  }
+  
+  Future<void> _onGetCravingCount(GetCravingCount event, Emitter<TrackingState> emit) async {
+    try {
+      final count = await _cravingRepository.getCravingCountForUser(event.userId);
+      emit(state.copyWith(
+        cravingCount: count,
+        lastUpdated: DateTime.now().millisecondsSinceEpoch
+      ));
+    } catch (e) {
+      emit(state.copyWith(
+        status: TrackingStatus.error,
+        errorMessage: e.toString(),
+      ));
+    }
+  }
+  
+  void _onClearCravingError(ClearCravingError event, Emitter<TrackingState> emit) {
+    if (state.hasError) {
+      emit(state.copyWith(
+        errorMessage: null,
+        status: state.unifiedCravings.isNotEmpty
+            ? TrackingStatus.loaded
+            : TrackingStatus.initial,
+        lastUpdated: DateTime.now().millisecondsSinceEpoch
+      ));
+    }
   }
 }

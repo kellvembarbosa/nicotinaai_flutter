@@ -27,7 +27,6 @@ import 'package:nicotinaai_flutter/blocs/app_bloc_observer.dart';
 import 'package:nicotinaai_flutter/blocs/auth/auth_bloc.dart';
 import 'package:nicotinaai_flutter/blocs/achievement/achievement_bloc.dart';
 import 'package:nicotinaai_flutter/blocs/achievement/achievement_event.dart';
-import 'package:nicotinaai_flutter/blocs/craving/craving_bloc.dart';
 import 'package:nicotinaai_flutter/blocs/currency/currency_bloc.dart';
 import 'package:nicotinaai_flutter/blocs/currency/currency_event.dart';
 import 'package:nicotinaai_flutter/blocs/locale/locale_bloc.dart';
@@ -35,7 +34,6 @@ import 'package:nicotinaai_flutter/blocs/locale/locale_event.dart';
 import 'package:nicotinaai_flutter/blocs/locale/locale_state.dart';
 import 'package:nicotinaai_flutter/blocs/onboarding/onboarding_bloc.dart';
 import 'package:nicotinaai_flutter/blocs/skeleton/skeleton_bloc.dart';
-import 'package:nicotinaai_flutter/blocs/smoking_record/smoking_record_bloc.dart';
 import 'package:nicotinaai_flutter/blocs/theme/theme_bloc.dart';
 import 'package:nicotinaai_flutter/blocs/theme/theme_event.dart';
 import 'package:nicotinaai_flutter/blocs/theme/theme_state.dart' as theme_state;
@@ -226,29 +224,7 @@ class MyApp extends StatelessWidget {
             )..add(InitializeTracking()),
           ),
           
-          // CravingBloc
-          BlocProvider<CravingBloc>(
-            create: (context) {
-              // Obtém referência ao TrackingBloc para atualizações
-              final trackingBloc = context.read<TrackingBloc>();
-              return CravingBloc(
-                repository: cravingRepository,
-                trackingBloc: trackingBloc,
-              );
-            },
-          ),
-          
-          // SmokingRecordBloc
-          BlocProvider<SmokingRecordBloc>(
-            create: (context) {
-              // Obtém referência ao TrackingBloc para atualizações
-              final trackingBloc = context.read<TrackingBloc>();
-              return SmokingRecordBloc(
-                repository: smokingRecordRepository,
-                trackingBloc: trackingBloc,
-              );
-            },
-          ),
+          // Unified TrackingBloc now handles both cravings and smoking records
           
           // Os Providers legados foram removidos, usando apenas BLoCs
           

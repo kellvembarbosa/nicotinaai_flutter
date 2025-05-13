@@ -143,12 +143,13 @@ class LocalHealthRecoveryService {
             .eq('user_id', userIdToUse);
         
         if (existingRecoveriesResponse != null && (existingRecoveriesResponse as List).isNotEmpty) {
-          // Deletar todas as recuperações de saúde deste usuário
+          // Resetar recuperações de saúde usando a função security definer
           try {
             await SupabaseConfig.client
-                .from('user_health_recoveries')
-                .delete()
-                .eq('user_id', userIdToUse);
+                .rpc('manage_user_health_recovery', params: {
+                  'p_user_id': userIdToUse,
+                  'p_operation': 'delete_all' // Usar operação "delete_all" para resetar todas as recuperações
+                });
             
             if (kDebugMode) {
               print('✅ [LocalHealthRecoveryService] Resetadas ${existingRecoveriesResponse.length} recuperações');
@@ -228,84 +229,85 @@ class LocalHealthRecoveryService {
             print('🏆 [LocalHealthRecoveryService] Nova recuperação alcançada: ${recovery.name}');
           }
           
-          // Adicionar a recuperação de saúde do usuário
+          // Adicionar a recuperação de saúde do usuário usando a função security definer
           final newRecoveryResponse = await SupabaseConfig.client
-              .from('user_health_recoveries')
-              .insert({
-                'user_id': userIdToUse,
-                'recovery_id': recovery.id,
-                'achieved_at': DateTime.now().toIso8601String(),
-                'is_viewed': false
-              })
-              .select()
-              .single();
+              .rpc('manage_user_health_recovery', params: {
+                'p_user_id': userIdToUse,
+                'p_recovery_id': recovery.id,
+                'p_is_viewed': false,
+                'p_operation': 'create'  // Esta função requer um parâmetro de operação
+              });
           
           // Salvar no array de novas conquistas
           if (newRecoveryResponse != null) {
-            newAchievements.add({
-              'id': newRecoveryResponse['id'],
-              'recovery_id': recovery.id,
-              'name': recovery.name,
-              'description': recovery.description,
-              'xp_reward': 10, // Default to 10 XP
-              'days_to_achieve': recovery.daysToAchieve
-            });
-            
-            // Conceder XP ao usuário se updateAchievements é true
-            if (updateAchievements) {
-              try {
-                final xpAmount = 10; // Default XP amount
-                await SupabaseConfig.client.rpc(
-                  'add_user_xp', 
-                  params: {
-                    'p_user_id': userIdToUse,
-                    'p_amount': xpAmount,
-                    'p_source': 'HEALTH_RECOVERY',
-                    'p_reference_id': recovery.id
+            final responseMap = newRecoveryResponse as Map<String, dynamic>;
+            if (responseMap['success'] == true && responseMap['id'] != null) {
+              final newRecoveryId = responseMap['id'] as String; // ID vem no campo 'id' do objeto de resposta
+              newAchievements.add({
+                'id': newRecoveryId,
+                'recovery_id': recovery.id,
+                'name': recovery.name,
+                'description': recovery.description,
+                'xp_reward': 10, // Default to 10 XP
+                'days_to_achieve': recovery.daysToAchieve
+              });
+              
+              // Conceder XP ao usuário se updateAchievements é true
+              if (updateAchievements) {
+                try {
+                  final xpAmount = 10; // Default XP amount
+                  await SupabaseConfig.client.rpc(
+                    'add_user_xp', 
+                    params: {
+                      'p_user_id': userIdToUse,
+                      'p_amount': xpAmount,
+                      'p_source': 'HEALTH_RECOVERY',
+                      'p_reference_id': recovery.id
+                    }
+                  );
+                  
+                  if (kDebugMode) {
+                    print('💰 [LocalHealthRecoveryService] Concedidos $xpAmount XP para recuperação ${recovery.name}');
                   }
-                );
-                
-                if (kDebugMode) {
-                  print('💰 [LocalHealthRecoveryService] Concedidos $xpAmount XP para recuperação ${recovery.name}');
+                } catch (e) {
+                  if (kDebugMode) {
+                    print('⚠️ [LocalHealthRecoveryService] Erro ao conceder XP: $e');
+                  }
+                  // Continuar mesmo com erro ao conceder XP
                 }
-              } catch (e) {
+              } else {
                 if (kDebugMode) {
-                  print('⚠️ [LocalHealthRecoveryService] Erro ao conceder XP: $e');
+                  print('ℹ️ [LocalHealthRecoveryService] XP não concedido (updateAchievements=false)');
                 }
-                // Continuar mesmo com erro ao conceder XP
               }
-            } else {
-              if (kDebugMode) {
-                print('ℹ️ [LocalHealthRecoveryService] XP não concedido (updateAchievements=false)');
-              }
-            }
-            
-            // Criar notificação se updateAchievements é true
-            if (updateAchievements) {
-              try {
-                await SupabaseConfig.client
-                    .from('notifications')
-                    .insert({
-                      'user_id': userIdToUse,
-                      'title': 'Health Recovery: ${recovery.name}',
-                      'message': 'Your ${recovery.name.toLowerCase()} has improved after ${recovery.daysToAchieve} days without smoking.',
-                      'type': 'HEALTH_RECOVERY',
-                      'reference_id': newRecoveryResponse['id'],
-                      'is_read': false
-                    });
-                
-                if (kDebugMode) {
-                  print('✅ [LocalHealthRecoveryService] Criada notificação para recuperação ${recovery.name}');
+              
+              // Criar notificação se updateAchievements é true
+              if (updateAchievements) {
+                try {
+                  await SupabaseConfig.client
+                      .from('notifications')
+                      .insert({
+                        'user_id': userIdToUse,
+                        'title': 'Health Recovery: ${recovery.name}',
+                        'message': 'Your ${recovery.name.toLowerCase()} has improved after ${recovery.daysToAchieve} days without smoking.',
+                        'type': 'HEALTH_RECOVERY',
+                        'reference_id': newRecoveryId,
+                        'is_read': false
+                      });
+                  
+                  if (kDebugMode) {
+                    print('✅ [LocalHealthRecoveryService] Criada notificação para recuperação ${recovery.name}');
+                  }
+                } catch (e) {
+                  if (kDebugMode) {
+                    print('⚠️ [LocalHealthRecoveryService] Erro ao criar notificação: $e');
+                  }
+                  // Continuar mesmo com erro na notificação
                 }
-              } catch (e) {
+              } else {
                 if (kDebugMode) {
-                  print('⚠️ [LocalHealthRecoveryService] Erro ao criar notificação: $e');
+                  print('ℹ️ [LocalHealthRecoveryService] Notificação não criada (updateAchievements=false)');
                 }
-                // Continuar mesmo com erro na notificação
-              }
-            } else {
-              if (kDebugMode) {
-                print('ℹ️ [LocalHealthRecoveryService] Notificação não criada (updateAchievements=false)');
               }
             }
           }

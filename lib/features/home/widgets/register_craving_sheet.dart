@@ -4,9 +4,6 @@ import 'dart:ui';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nicotinaai_flutter/blocs/auth/auth_bloc.dart';
 import 'package:nicotinaai_flutter/blocs/auth/auth_state.dart' as bloc_auth;
-import 'package:nicotinaai_flutter/blocs/craving/craving_bloc.dart';
-import 'package:nicotinaai_flutter/blocs/craving/craving_event.dart';
-import 'package:nicotinaai_flutter/blocs/craving/craving_state.dart';
 import 'package:nicotinaai_flutter/blocs/tracking/tracking_bloc.dart';
 import 'package:nicotinaai_flutter/blocs/tracking/tracking_event.dart';
 import 'package:nicotinaai_flutter/blocs/tracking/tracking_state.dart';
@@ -97,21 +94,28 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
 
-    return BlocListener<CravingBloc, CravingState>(
+    return BlocListener<TrackingBloc, TrackingState>(
+      listenWhen: (previous, current) {
+        // Listen for changes in the status or error message
+        return previous.status != current.status || 
+               previous.errorMessage != current.errorMessage || 
+               // Listen for changes in the unified cravings collection
+               previous.unifiedCravings.length != current.unifiedCravings.length;
+      },
       listener: (context, state) {
         final l10n = AppLocalizations.of(context);
 
         // Log state changes for debugging purposes only when in debug mode
         if (kDebugMode) {
           switch (state.status) {
-            case CravingStatus.saving:
-              print('💾 [CravingBloc] Saving craving record...');
+            case TrackingStatus.saving:
+              print('💾 [TrackingBloc] Saving craving record...');
               break;
-            case CravingStatus.loaded:
-              print('✅ [CravingBloc] Craving record saved successfully!');
+            case TrackingStatus.loaded:
+              print('✅ [TrackingBloc] Craving record saved successfully!');
               break;
-            case CravingStatus.error:
-              print('❌ [CravingBloc] Error saving craving record: ${state.errorMessage}');
+            case TrackingStatus.error:
+              print('❌ [TrackingBloc] Error saving craving record: ${state.errorMessage}');
               break;
             default:
               // Do nothing for other states
@@ -121,7 +125,7 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
 
         // Only show UI feedback when necessary and if the sheet is still open
         if (Navigator.canPop(context)) {
-          if (state.status == CravingStatus.loaded) {
+          if (state.status == TrackingStatus.loaded) {
             // Show success message
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
@@ -130,7 +134,7 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
                 duration: const Duration(seconds: 2),
               ),
             );
-          } else if (state.status == CravingStatus.error) {
+          } else if (state.status == TrackingStatus.error) {
             // Show error message with proper localization
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
@@ -564,9 +568,9 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
                   ),
 
                   // Register button with BlocBuilder
-                  BlocBuilder<CravingBloc, CravingState>(
+                  BlocBuilder<TrackingBloc, TrackingState>(
                     builder: (context, state) {
-                      final isLoading = state.status == CravingStatus.saving;
+                      final isLoading = state.status == TrackingStatus.saving;
 
                       return ClipRRect(
                         borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
@@ -1200,7 +1204,6 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
     if (!_isFormValid()) return;
 
     final authBloc = BlocProvider.of<AuthBloc>(context);
-    final cravingBloc = BlocProvider.of<CravingBloc>(context);
     final trackingBloc = BlocProvider.of<TrackingBloc>(context);
     final l10n = AppLocalizations.of(context);
 
@@ -1252,42 +1255,16 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
       ),
     );
 
-    // Dispatch the save event to the bloc - this will update the database
-    cravingBloc.add(SaveCravingRequested(craving: craving));
-
-    // Notificar o TrackingBloc para atualizar as estatísticas na base de dados
-    // TrackingBloc irá buscar dados atualizados após a conclusão
-    trackingBloc.add(CravingAdded(resisted: _didResist));
+    // Dispatch the save event directly to the TrackingBloc
+    trackingBloc.add(SaveCraving(craving: craving));
     
     // Forçar atualização completa para garantir contagem correta
     trackingBloc.add(ForceUpdateStats());
     
-    // Verificar recuperações de saúde usando nossa implementação local
-    Future.delayed(const Duration(milliseconds: 500), () {
-      if (kDebugMode) {
-        print('🏥 [RegisterCravingSheet] Verificando recuperações de saúde após registrar craving');
-      }
-      
-      final trackingRepository = TrackingRepository();
-      
-      // A chamada para checkHealthRecoveries já está usando a implementação local
-      trackingRepository.checkHealthRecoveries(updateAchievements: true)
-        .then((result) {
-          if (kDebugMode) {
-            print('✅ [RegisterCravingSheet] Verificação de recuperações de saúde concluída:');
-            print('Dias sem fumar: ${result['days_smoke_free']}');
-            print('Novas conquistas: ${result['new_achievements']?.length ?? 0}');
-          }
-        })
-        .catchError((error) {
-          if (kDebugMode) {
-            print('⚠️ [RegisterCravingSheet] Erro ao verificar recuperações de saúde: $error');
-          }
-        });
-    });
-    
+    // Health recovery checks are now handled automatically in the TrackingBloc
+    // when SaveCraving is processed, so we don't need to do it manually here.
     if (kDebugMode) {
-      print('🔄 [RegisterCravingSheet] Forcing stats update to ensure accurate cravings count');
+      print('🔄 [RegisterCravingSheet] Requested craving save and stats update');
     }
 
     // Close the sheet with the result

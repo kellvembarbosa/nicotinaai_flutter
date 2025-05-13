@@ -1,10 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:nicotinaai_flutter/blocs/craving/craving_bloc.dart';
-import 'package:nicotinaai_flutter/blocs/craving/craving_event.dart';
-import 'package:nicotinaai_flutter/blocs/smoking_record/smoking_record_bloc.dart';
-import 'package:nicotinaai_flutter/blocs/smoking_record/smoking_record_event.dart';
 import 'package:nicotinaai_flutter/blocs/tracking/tracking_bloc.dart';
 import 'package:nicotinaai_flutter/blocs/tracking/tracking_event.dart';
 import 'package:nicotinaai_flutter/blocs/achievement/achievement_bloc.dart';
@@ -21,39 +17,11 @@ class RouterEvents {
     }
     
     try {
-      // Limpar dados de cravings
-      if (context.read<CravingBloc>() != null) {
-        context.read<CravingBloc>().add(ClearCravingsRequested());
-        if (kDebugMode) {
-          print('✅ [RouterEvents] Dados de cravings limpos');
-        }
-      }
-    } catch (e) {
-      if (kDebugMode) {
-        print('⚠️ [RouterEvents] Erro ao limpar cravings: $e');
-      }
-    }
-    
-    try {
-      // Limpar dados de registros de fumo
-      if (context.read<SmokingRecordBloc>() != null) {
-        context.read<SmokingRecordBloc>().add(ClearSmokingRecordsRequested());
-        if (kDebugMode) {
-          print('✅ [RouterEvents] Dados de registros de fumo limpos');
-        }
-      }
-    } catch (e) {
-      if (kDebugMode) {
-        print('⚠️ [RouterEvents] Erro ao limpar registros de fumo: $e');
-      }
-    }
-    
-    try {
-      // Limpar dados de tracking
+      // Limpar dados de tracking (agora inclui cravings e smoking records)
       if (context.read<TrackingBloc>() != null) {
         context.read<TrackingBloc>().add(ResetTrackingData());
         if (kDebugMode) {
-          print('✅ [RouterEvents] Dados de tracking limpos');
+          print('✅ [RouterEvents] Dados de tracking, cravings e smoking records limpos');
         }
       }
     } catch (e) {

@@ -2,9 +2,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nicotinaai_flutter/features/home/models/craving_model.dart';
-import 'package:nicotinaai_flutter/blocs/craving/craving_bloc.dart';
-import 'package:nicotinaai_flutter/blocs/craving/craving_state.dart';
-import 'package:nicotinaai_flutter/blocs/craving/craving_event.dart';
+import 'package:nicotinaai_flutter/blocs/tracking/tracking_bloc.dart';
+import 'package:nicotinaai_flutter/blocs/tracking/tracking_state.dart';
+import 'package:nicotinaai_flutter/blocs/tracking/tracking_event.dart';
 import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
 
 /// Utility functions for optimistic updates
@@ -81,8 +81,8 @@ class OptimisticUpdateUtils {
     required BuildContext context, 
     required CravingModel craving,
   }) async {
-    // Get the BLoC
-    final cravingBloc = context.read<CravingBloc>();
+    // Get the TrackingBloc
+    final trackingBloc = context.read<TrackingBloc>();
     final l10n = AppLocalizations.of(context);
     
     // Cache values needed after the asynchronous operation
@@ -95,16 +95,16 @@ class OptimisticUpdateUtils {
     final scaffoldMessenger = ScaffoldMessenger.of(context);
     
     // Dispatch event to save craving
-    cravingBloc.add(SaveCravingRequested(craving: craving));
+    trackingBloc.add(SaveCraving(craving: craving));
     
     // Listen for state changes to determine success/failure
-    late final StreamSubscription<CravingState> subscription;
-    subscription = cravingBloc.stream.listen((state) {
+    late final StreamSubscription<TrackingState> subscription;
+    subscription = trackingBloc.stream.listen((state) {
       // Only respond to state changes related to this operation
-      if (state.status == CravingStatus.error || state.status == CravingStatus.loaded) {
+      if (state.status == TrackingStatus.error || state.status == TrackingStatus.loaded) {
         subscription.cancel();
         
-        final hasError = state.status == CravingStatus.error;
+        final hasError = state.status == TrackingStatus.error;
         
         // Create retry action that works even after the async gap
         void retryAction() {
@@ -112,10 +112,7 @@ class OptimisticUpdateUtils {
             final failedCraving = state.failedCravings.first;
             if (failedCraving.id != null) {
               // Retry saving the failed craving
-              cravingBloc.add(SaveCravingRequested(craving: failedCraving.copyWith(
-                id: failedCraving.id!.startsWith('temp_') ? null : failedCraving.id,
-                syncStatus: SyncStatus.pending
-              )));
+              trackingBloc.add(RetrySyncCraving(id: failedCraving.id!));
             }
           }
         }

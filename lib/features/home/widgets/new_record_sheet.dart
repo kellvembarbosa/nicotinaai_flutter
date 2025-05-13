@@ -4,11 +4,9 @@ import 'dart:ui';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nicotinaai_flutter/blocs/auth/auth_bloc.dart';
 import 'package:nicotinaai_flutter/blocs/auth/auth_state.dart' as bloc_auth;
-import 'package:nicotinaai_flutter/blocs/smoking_record/smoking_record_bloc.dart';
-import 'package:nicotinaai_flutter/blocs/smoking_record/smoking_record_event.dart';
-import 'package:nicotinaai_flutter/blocs/smoking_record/smoking_record_state.dart';
 import 'package:nicotinaai_flutter/blocs/tracking/tracking_bloc.dart';
 import 'package:nicotinaai_flutter/blocs/tracking/tracking_event.dart';
+import 'package:nicotinaai_flutter/blocs/tracking/tracking_state.dart';
 import 'package:nicotinaai_flutter/core/theme/app_theme.dart';
 import 'package:nicotinaai_flutter/features/home/models/smoking_record_model.dart';
 import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
@@ -113,24 +111,29 @@ class _NewRecordSheetState extends State<NewRecordSheet> {
     // Specific size for this sheet 
     const initialSize = 0.80; // 80% of screen height
 
-    return BlocListener<SmokingRecordBloc, SmokingRecordState>(
+    return BlocListener<TrackingBloc, TrackingState>(
+      listenWhen: (previous, current) {
+        // Listen for changes in the status or error message
+        return previous.status != current.status ||
+               previous.errorMessage != current.errorMessage ||
+               // Listen for changes in the smoking records collection
+               previous.smokingRecords.length != current.smokingRecords.length;
+      },
       listener: (context, state) {
-        // Listen for changes in the smoking record state
-        if (state.status == SmokingRecordStatus.saving) {
+        // Listen for changes in the tracking state
+        if (state.status == TrackingStatus.saving) {
           // Show loading indicator
           if (kDebugMode) {
-            print('💾 Saving smoking record...');
+            print('💾 [TrackingBloc] Saving smoking record...');
           }
-        } else if (state.status == SmokingRecordStatus.loaded) {
+        } else if (state.status == TrackingStatus.loaded) {
           // The record was saved successfully
           if (kDebugMode) {
-            print('✅ Smoking record saved successfully!');
+            print('✅ [TrackingBloc] Smoking record saved successfully!');
           }
           
-          // Obter dados para atualização otimista usando o StatsCalculator
-          final smokingRecordBloc = BlocProvider.of<SmokingRecordBloc>(context);
+          // Obter TrackingBloc
           final trackingBloc = BlocProvider.of<TrackingBloc>(context);
-          final currentStats = trackingBloc.state.userStats;
           
           // Calcular quantidade de cigarros fumados com base na seleção
           int cigarettesSmoked = 1; // Valor padrão
@@ -147,40 +150,18 @@ class _NewRecordSheetState extends State<NewRecordSheet> {
           }
           
           if (kDebugMode) {
-            print('💡 [NewRecordSheet] Usando StatsCalculator para atualização otimista');
+            print('💡 [NewRecordSheet] Notificando TrackingBloc para atualizar estatísticas');
+            print('💡 [NewRecordSheet] Quantidade de cigarros: $cigarettesSmoked');
           }
           
-          // Disparar o evento SmokingRecordAdded para o TrackingBloc
-          trackingBloc.add(SmokingRecordAdded(amount: cigarettesSmoked));
+          // Disparar o evento para forçar a atualização das estatísticas
+          trackingBloc.add(ForceUpdateStats());
           
-          // Valores atualizados para retornar na interface (apenas para atualização imediata)
-          int currentStreakDays = 0; // Reinicia quando fuma
-          int moneySaved = 0;
-          
-          // Aplicar StatsCalculator para obter os valores atualizados
-          if (currentStats != null) {
-            final updatedStats = StatsCalculator.calculateAddSmoking(currentStats, cigarettesSmoked);
-            currentStreakDays = updatedStats.currentStreakDays ?? 0;
-            moneySaved = updatedStats.moneySaved;
-            
-            if (kDebugMode) {
-              print('💡 [NewRecordSheet] Valores calculados pelo StatsCalculator:');
-              print('  - Cigarros fumados: $cigarettesSmoked');
-              print('  - Dias sem fumar: $currentStreakDays (reiniciado)');
-              print('  - Economia: ${currentStats.moneySaved} -> ${updatedStats.moneySaved} centavos');
-            }
-          }
-          
-          // Close the sheet with data for optimistic update
+          // Close the sheet with success indication
           Navigator.of(context).pop({
             'registered': true,
-            'stats': {
-              'currentStreakDays': currentStreakDays,
-              'cigarettesAvoided': 0, // Reinicia quando fuma
-              'moneySaved': moneySaved,
-            }
           });
-        } else if (state.status == SmokingRecordStatus.error) {
+        } else if (state.status == TrackingStatus.error) {
           // The save operation failed
           if (kDebugMode) {
             print('❌ Error saving smoking record: ${state.errorMessage}');
@@ -189,7 +170,7 @@ class _NewRecordSheetState extends State<NewRecordSheet> {
           // Show error message
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Error: ${state.errorMessage}'),
+              content: Text('Error: ${state.errorMessage ?? "Unknown error"}'),
               backgroundColor: Colors.red,
               duration: const Duration(seconds: 5),
             ),
@@ -848,9 +829,9 @@ class _NewRecordSheetState extends State<NewRecordSheet> {
                   ),
 
                   // Register button with BlocBuilder
-                  BlocBuilder<SmokingRecordBloc, SmokingRecordState>(
+                  BlocBuilder<TrackingBloc, TrackingState>(
                     builder: (context, state) {
-                      final isLoading = state.status == SmokingRecordStatus.saving;
+                      final isLoading = state.status == TrackingStatus.saving;
                       
                       return ClipRRect(
                         borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
@@ -1453,7 +1434,7 @@ class _NewRecordSheetState extends State<NewRecordSheet> {
     if (!_isFormValid()) return;
 
     final authBloc = BlocProvider.of<AuthBloc>(context);
-    final recordBloc = BlocProvider.of<SmokingRecordBloc>(context);
+    final trackingBloc = BlocProvider.of<TrackingBloc>(context);
     final l10n = AppLocalizations.of(context);
 
     // Ensure user is authenticated
@@ -1485,11 +1466,11 @@ class _NewRecordSheetState extends State<NewRecordSheet> {
       context: context, // Used for achievement checks
     );
 
-    // Dispatch the event to save the record
-    recordBloc.add(SaveSmokingRecordRequested(record: record));
+    // Dispatch the event to save the record using the unified TrackingBloc
+    trackingBloc.add(SaveSmokingRecord(record: record));
     
     if (kDebugMode) {
-      print('💾 Dispatched SaveSmokingRecordRequested event to BLoC');
+      print('💾 [NewRecordSheet] Dispatched SaveSmokingRecord event to TrackingBloc');
     }
   }
 }
