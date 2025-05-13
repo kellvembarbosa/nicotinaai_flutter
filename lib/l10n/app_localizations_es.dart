@@ -51,7 +51,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get cigaretteAlternativesDescription => 'Sugerencias de actividades y productos para reemplazar el hábito';
 
   @override
-  String get savingsCalculator => 'Calculadora de ahorro';
+  String get savingsCalculator => 'Calculadora de Ahorro';
 
   @override
   String get savingsCalculatorDescription => 'Ve cuánto dinero estás ahorrando al reducir o dejar de fumar';

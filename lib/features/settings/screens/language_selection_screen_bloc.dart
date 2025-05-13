@@ -7,7 +7,7 @@ import 'package:nicotinaai_flutter/core/theme/app_theme.dart';
 import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
 
 class LanguageSelectionScreenBloc extends StatelessWidget {
-  static const String routeName = '/settings/language_bloc';
+  static const String routeName = '/settings/language';
 
   const LanguageSelectionScreenBloc({super.key});
 
@@ -31,7 +31,7 @@ class LanguageSelectionScreenBloc extends StatelessWidget {
           backgroundColor: context.backgroundColor,
           appBar: AppBar(
             title: Text(
-              "${localizations.language} (BLoC)",
+              localizations.language,
               style: context.titleStyle,
             ),
             centerTitle: true,

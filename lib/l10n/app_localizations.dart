@@ -184,7 +184,7 @@ abstract class AppLocalizations {
   /// Option for savings calculator
   ///
   /// In en, this message translates to:
-  /// **'Savings calculator'**
+  /// **'Savings Calculator'**
   String get savingsCalculator;
 
   /// Description for savings calculator

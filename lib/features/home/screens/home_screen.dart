@@ -14,6 +14,8 @@ import 'package:nicotinaai_flutter/blocs/tracking/tracking_state.dart';
 import 'package:nicotinaai_flutter/blocs/tracking/tracking_normalizer.dart';
 import 'package:nicotinaai_flutter/blocs/achievement/achievement_bloc.dart';
 import 'package:nicotinaai_flutter/blocs/achievement/achievement_state.dart';
+import 'package:nicotinaai_flutter/blocs/currency/currency_bloc.dart';
+import 'package:nicotinaai_flutter/blocs/currency/currency_state.dart';
 import 'package:nicotinaai_flutter/core/routes/app_routes.dart';
 import 'package:nicotinaai_flutter/core/theme/app_theme.dart';
 import 'package:nicotinaai_flutter/core/theme/theme_switch.dart';
@@ -50,7 +52,13 @@ class _HomeScreenState extends State<HomeScreen> {
   UserStats? _stats;
   // Health recovery IDs
   List<String> _userRecoveryIds = [];
-  Map<String, bool> _healthRecoveryStatus = {'taste': false, 'smell': false, 'circulation': false, 'lungs': false, 'heart': false};
+  Map<String, bool> _healthRecoveryStatus = {
+    'taste': false,
+    'smell': false,
+    'circulation': false,
+    'lungs': false,
+    'heart': false,
+  };
   // Next health recovery milestone
   Map<String, dynamic>? _nextHealthMilestone;
   // Flag para evitar múltiplas chamadas de atualização simultâneas
@@ -77,13 +85,14 @@ class _HomeScreenState extends State<HomeScreen> {
     final authBloc = BlocProvider.of<AuthBloc>(context);
     final authState = authBloc.state;
 
-    if (authState.status == bloc_auth.AuthStatus.authenticated && authState.user != null) {
+    if (authState.status == bloc_auth.AuthStatus.authenticated &&
+        authState.user != null) {
       final userId = authState.user!.id;
 
       // Solicitar dados de registros de fumo
       // Solicitar dados de estatísticas
       final trackingBloc = BlocProvider.of<TrackingBloc>(context);
-      
+
       // Carregar registros de fumo através do TrackingBloc unificado
       trackingBloc.add(LoadSmokingRecordsForUser(userId: userId));
       trackingBloc.add(LoadUserStats(forceRefresh: true));
@@ -109,7 +118,9 @@ class _HomeScreenState extends State<HomeScreen> {
       // Mais responsivo: Se a última atualização foi há menos de 2 segundos, ignorar
       if (timeSinceLastUpdate.inSeconds < 2) {
         if (kDebugMode) {
-          print('🕒 Última atualização foi há apenas ${timeSinceLastUpdate.inSeconds} segundos, ignorando');
+          print(
+            '🕒 Última atualização foi há apenas ${timeSinceLastUpdate.inSeconds} segundos, ignorando',
+          );
         }
         return;
       }
@@ -127,14 +138,26 @@ class _HomeScreenState extends State<HomeScreen> {
 
     if (kDebugMode) {
       if (hasLastSmokeDate) {
-        print('📅 Data do último cigarro no BLoC: ${trackingState.userStats!.lastSmokeDate}');
+        print(
+          '📅 Data do último cigarro no BLoC: ${trackingState.userStats!.lastSmokeDate}',
+        );
         if (trackingState.userStats != null) {
           print('📊 Stats atuais do TrackingBloc:');
-          print('   - Cravings Resisted: ${trackingState.userStats!.cravingsResisted}');
-          print('   - Dias sem fumar: ${trackingState.userStats!.currentStreakDays}');
-          print('   - Economia: ${trackingState.userStats!.moneySaved} centavos');
-          print('   - Minutos ganhos total: ${trackingState.userStats!.totalMinutesGained}');
-          print('   - Minutos ganhos hoje: ${trackingState.userStats!.minutesGainedToday}');
+          print(
+            '   - Cravings Resisted: ${trackingState.userStats!.cravingsResisted}',
+          );
+          print(
+            '   - Dias sem fumar: ${trackingState.userStats!.currentStreakDays}',
+          );
+          print(
+            '   - Economia: ${trackingState.userStats!.moneySaved} centavos',
+          );
+          print(
+            '   - Minutos ganhos total: ${trackingState.userStats!.totalMinutesGained}',
+          );
+          print(
+            '   - Minutos ganhos hoje: ${trackingState.userStats!.minutesGainedToday}',
+          );
         }
       } else {
         print('⚠️ Data do último cigarro não disponível no BLoC');
@@ -144,7 +167,9 @@ class _HomeScreenState extends State<HomeScreen> {
     // Se não temos data de último cigarro e já verificamos antes, limitar atualizações
     if (!hasLastSmokeDate && _hasCheckedHealthData) {
       if (kDebugMode) {
-        print('🛑 Limitando atualizações repetidas quando não há dados de saúde');
+        print(
+          '🛑 Limitando atualizações repetidas quando não há dados de saúde',
+        );
       }
       setState(() {
         _isUpdating = false;
@@ -168,7 +193,8 @@ class _HomeScreenState extends State<HomeScreen> {
           type = 'smell';
         else if (recovery.name.toLowerCase().contains('circulation'))
           type = 'circulation';
-        else if (recovery.name.toLowerCase().contains('lung') || recovery.name.toLowerCase().contains('breathing'))
+        else if (recovery.name.toLowerCase().contains('lung') ||
+            recovery.name.toLowerCase().contains('breathing'))
           type = 'lungs';
         else if (recovery.name.toLowerCase().contains('heart'))
           type = 'heart';
@@ -179,10 +205,17 @@ class _HomeScreenState extends State<HomeScreen> {
       }
 
       // Get list of recovery IDs user has achieved
-      final newUserRecoveryIds = userRecoveries.map((recovery) => recovery.recoveryId).toList();
+      final newUserRecoveryIds =
+          userRecoveries.map((recovery) => recovery.recoveryId).toList();
 
       // Reset health status
-      final Map<String, bool> newHealthRecoveryStatus = {'taste': false, 'smell': false, 'circulation': false, 'lungs': false, 'heart': false};
+      final Map<String, bool> newHealthRecoveryStatus = {
+        'taste': false,
+        'smell': false,
+        'circulation': false,
+        'lungs': false,
+        'heart': false,
+      };
 
       // Update recovery status based on user's achievements
       for (var recoveryId in newUserRecoveryIds) {
@@ -196,7 +229,7 @@ class _HomeScreenState extends State<HomeScreen> {
       if (mounted) {
         // Obter estatísticas atualizadas diretamente do BLoC state
         final updatedStats = trackingState.userStats;
-        
+
         // We no longer need these variables as we're using trackingBloc normalizer methods
         // Keeping the commented code for reference
         /*
@@ -208,28 +241,38 @@ class _HomeScreenState extends State<HomeScreen> {
                 StatsCalculator.calculateMinutesGained(updatedStats!.cigarettesAvoided) : 0);
         */
 
-        if (kDebugMode && updatedStats?.lastSmokeDate != null && _stats?.lastSmokeDate != null) {
+        if (kDebugMode &&
+            updatedStats?.lastSmokeDate != null &&
+            _stats?.lastSmokeDate != null) {
           // Verificar se a data mudou para debug
           final oldDate = _stats!.lastSmokeDate!;
           final newDate = updatedStats!.lastSmokeDate!;
           if (oldDate != newDate) {
-            print('🔄 Data do último cigarro atualizada: ${oldDate.toIso8601String()} -> ${newDate.toIso8601String()}');
+            print(
+              '🔄 Data do último cigarro atualizada: ${oldDate.toIso8601String()} -> ${newDate.toIso8601String()}',
+            );
           }
         }
 
         // Get trackingBloc to use normalizer methods for consistent data
         final trackingBloc = BlocProvider.of<TrackingBloc>(context);
-          
+
         setState(() {
           _userRecoveryIds = newUserRecoveryIds;
           _healthRecoveryStatus = newHealthRecoveryStatus;
           _stats = updatedStats;
-          _daysWithoutSmoking = trackingBloc.getDaysWithoutSmoking(); // Use normalizer method 
-          _minutesLifeGained = trackingBloc.getMinutesLifeGained(); // Use normalizer method
-          _breathCapacityPercent = trackingBloc.getBreathCapacityPercent(); // Use normalizer method
-          _cravingsResisted = trackingBloc.getCravingsResisted(); // Use normalizer method instead of direct state value
-          _moneySavedInCents = trackingBloc.getMoneySavedInCents(); // Use normalizer method
-          
+          _daysWithoutSmoking =
+              trackingBloc.getDaysWithoutSmoking(); // Use normalizer method
+          _minutesLifeGained =
+              trackingBloc.getMinutesLifeGained(); // Use normalizer method
+          _breathCapacityPercent =
+              trackingBloc.getBreathCapacityPercent(); // Use normalizer method
+          _cravingsResisted =
+              trackingBloc
+                  .getCravingsResisted(); // Use normalizer method instead of direct state value
+          _moneySavedInCents =
+              trackingBloc.getMoneySavedInCents(); // Use normalizer method
+
           // Debug para analisar o valor da economia e minutos ganhos
           if (kDebugMode) {
             print('📊 HomeScreen stats atualizadas (via trackingNormalizer):');
@@ -237,11 +280,13 @@ class _HomeScreenState extends State<HomeScreen> {
             print('   - Dias sem fumar: $_daysWithoutSmoking');
             print('   - Economia: $_moneySavedInCents centavos');
             print('   - Minutos ganhos total: $_minutesLifeGained');
-            
+
             // Compare with direct state values to verify the fix
             if (updatedStats != null) {
               print('📊 Valores anteriores (direto do state):');
-              print('   - Cravings resistidos: ${updatedStats.cravingsResisted}');
+              print(
+                '   - Cravings resistidos: ${updatedStats.cravingsResisted}',
+              );
             }
           }
 
@@ -251,7 +296,8 @@ class _HomeScreenState extends State<HomeScreen> {
           // Agora podemos definir que a carga inicial foi concluída
           _isInitialLoading = false;
           _isUpdating = false;
-          _hasCheckedHealthData = true; // Marcar que verificamos os dados de saúde
+          _hasCheckedHealthData =
+              true; // Marcar que verificamos os dados de saúde
         });
       } else {
         _isUpdating = false;
@@ -263,7 +309,8 @@ class _HomeScreenState extends State<HomeScreen> {
       if (mounted) {
         setState(() {
           _isUpdating = false;
-          _hasCheckedHealthData = true; // Marcar que verificamos os dados mesmo em caso de erro
+          _hasCheckedHealthData =
+              true; // Marcar que verificamos os dados mesmo em caso de erro
         });
       } else {
         _isUpdating = false;
@@ -277,18 +324,26 @@ class _HomeScreenState extends State<HomeScreen> {
 
     // Se o usuário não tem dias sem fumar ou estatísticas, não tentamos carregar o próximo milestone
     final trackingBloc = BlocProvider.of<TrackingBloc>(context);
-    final hasLastSmokeDate = trackingBloc.state.userStats?.lastSmokeDate != null;
+    final hasLastSmokeDate =
+        trackingBloc.state.userStats?.lastSmokeDate != null;
 
-    if (!hasLastSmokeDate || _daysWithoutSmoking == null || (_daysWithoutSmoking ?? 0) <= 0) {
+    if (!hasLastSmokeDate ||
+        _daysWithoutSmoking == null ||
+        (_daysWithoutSmoking ?? 0) <= 0) {
       if (kDebugMode) {
-        print('⚠️ Skipping next health milestone load: no last smoke date or days without smoking');
+        print(
+          '⚠️ Skipping next health milestone load: no last smoke date or days without smoking',
+        );
       }
       return;
     }
 
     try {
       // Get the next health milestone
-      final nextMilestone = await HealthRecoveryUtils.getNextHealthRecoveryMilestone(_daysWithoutSmoking ?? 0);
+      final nextMilestone =
+          await HealthRecoveryUtils.getNextHealthRecoveryMilestone(
+            _daysWithoutSmoking ?? 0,
+          );
 
       if (mounted) {
         setState(() {
@@ -314,7 +369,8 @@ class _HomeScreenState extends State<HomeScreen> {
     // Obter dados do usuário do AuthBloc
     return BlocBuilder<AuthBloc, bloc_auth.AuthState>(
       builder: (context, authState) {
-        if (authState.status == bloc_auth.AuthStatus.authenticated && authState.user != null) {
+        if (authState.status == bloc_auth.AuthStatus.authenticated &&
+            authState.user != null) {
           final user = authState.user!;
           final l10n = AppLocalizations.of(context);
 
@@ -327,21 +383,37 @@ class _HomeScreenState extends State<HomeScreen> {
                     (previous, current) =>
                         // Adicionar verificação específica para o caso de estado inicial
                         previous.lastUpdated != current.lastUpdated ||
-                        (previous.userStats == null && current.userStats != null) ||
+                        (previous.userStats == null &&
+                            current.userStats != null) ||
                         // Listen specifically for changes in key stats values
-                        previous.userStats?.cravingsResisted != current.userStats?.cravingsResisted ||
-                        previous.userStats?.currentStreakDays != current.userStats?.currentStreakDays ||
-                        previous.userStats?.moneySaved != current.userStats?.moneySaved ||
-                        (previous.userStats?.lastSmokeDate?.millisecondsSinceEpoch ?? 0) !=
-                            (current.userStats?.lastSmokeDate?.millisecondsSinceEpoch ?? 0) ||
+                        previous.userStats?.cravingsResisted !=
+                            current.userStats?.cravingsResisted ||
+                        previous.userStats?.currentStreakDays !=
+                            current.userStats?.currentStreakDays ||
+                        previous.userStats?.moneySaved !=
+                            current.userStats?.moneySaved ||
+                        (previous
+                                    .userStats
+                                    ?.lastSmokeDate
+                                    ?.millisecondsSinceEpoch ??
+                                0) !=
+                            (current
+                                    .userStats
+                                    ?.lastSmokeDate
+                                    ?.millisecondsSinceEpoch ??
+                                0) ||
                         // Also listen for changes in loading state or update timestamp
                         previous.isStatsLoading != current.isStatsLoading,
                 listener: (context, state) {
                   // Atualizar dados locais quando o estado do TrackingBloc mudar
                   if (state.isLoaded || !state.isStatsLoading) {
                     if (kDebugMode) {
-                      print('🔄 [HomeScreen] TrackingBloc state changed, reloading data');
-                      print('📊 [HomeScreen] Cravings resistidos: ${state.userStats?.cravingsResisted ?? 0}');
+                      print(
+                        '🔄 [HomeScreen] TrackingBloc state changed, reloading data',
+                      );
+                      print(
+                        '📊 [HomeScreen] Cravings resistidos: ${state.userStats?.cravingsResisted ?? 0}',
+                      );
                     }
                     _loadData(state);
                   }
@@ -351,14 +423,20 @@ class _HomeScreenState extends State<HomeScreen> {
               BlocListener<TrackingBloc, TrackingState>(
                 listenWhen: (previous, current) {
                   // Importante: detectar mudanças na quantidade de registros ou status
-                  return previous.smokingRecords.length != current.smokingRecords.length ||
+                  return previous.smokingRecords.length !=
+                          current.smokingRecords.length ||
                       previous.status != current.status ||
-                      (previous.status == TrackingStatus.saving && current.status == TrackingStatus.loaded);
+                      (previous.status == TrackingStatus.saving &&
+                          current.status == TrackingStatus.loaded);
                 },
                 listener: (context, state) {
                   if (kDebugMode) {
-                    print('🔄 [HomeScreen] TrackingBloc state mudou: ${state.status}');
-                    print('📊 [HomeScreen] Número de registros: ${state.smokingRecords.length}');
+                    print(
+                      '🔄 [HomeScreen] TrackingBloc state mudou: ${state.status}',
+                    );
+                    print(
+                      '📊 [HomeScreen] Número de registros: ${state.smokingRecords.length}',
+                    );
                   }
 
                   // Sempre forçar atualização quando o estado mudar significativamente
@@ -377,37 +455,47 @@ class _HomeScreenState extends State<HomeScreen> {
             child: BlocBuilder<TrackingBloc, TrackingState>(
               builder: (context, trackingState) {
                 // Verificar se está carregando os dados
-                bool isLoading = _isInitialLoading || trackingState.isStatsLoading || trackingState.isLogsLoading || _isUpdating;
+                bool isLoading =
+                    _isInitialLoading ||
+                    trackingState.isStatsLoading ||
+                    trackingState.isLogsLoading ||
+                    _isUpdating;
 
                 // Reduzido para 1 segundo (em vez de 5) para maior responsividade
                 bool canUpdate = true;
                 if (_lastUpdateTime != null) {
-                  final timeSinceLastUpdate = DateTime.now().difference(_lastUpdateTime!);
+                  final timeSinceLastUpdate = DateTime.now().difference(
+                    _lastUpdateTime!,
+                  );
                   canUpdate = timeSinceLastUpdate.inSeconds >= 1;
                 }
 
                 // Simplificar a lógica de detecção de mudanças
                 // O lastUpdated do trackingState é o gatilho principal para atualizações
-                final bool shouldUpdate = 
-                    trackingState.isLoaded && 
-                    canUpdate && 
+                final bool shouldUpdate =
+                    trackingState.isLoaded &&
+                    canUpdate &&
                     (
-                      // Usar lastUpdated como principal indicador de mudança
-                      trackingState.lastUpdated != null && 
-                      (
-                        _lastUpdateTime == null || 
-                        trackingState.lastUpdated! > _lastUpdateTime!.millisecondsSinceEpoch
-                      )
-                    );
+                    // Usar lastUpdated como principal indicador de mudança
+                    trackingState.lastUpdated != null &&
+                        (_lastUpdateTime == null ||
+                            trackingState.lastUpdated! >
+                                _lastUpdateTime!.millisecondsSinceEpoch));
 
                 // Atualiza quando o lastUpdated muda, indicando novos dados do BLoC
                 if (shouldUpdate && !_isUpdating) {
                   WidgetsBinding.instance.addPostFrameCallback((_) {
                     if (mounted && !_isUpdating) {
                       if (kDebugMode) {
-                        print('🔄 Atualizando dados devido à mudança no lastUpdated do TrackingBloc');
-                        print('   - TrackingBloc lastUpdated: ${trackingState.lastUpdated}');
-                        print('   - HomeScreen lastUpdateTime: ${_lastUpdateTime?.millisecondsSinceEpoch}');
+                        print(
+                          '🔄 Atualizando dados devido à mudança no lastUpdated do TrackingBloc',
+                        );
+                        print(
+                          '   - TrackingBloc lastUpdated: ${trackingState.lastUpdated}',
+                        );
+                        print(
+                          '   - HomeScreen lastUpdateTime: ${_lastUpdateTime?.millisecondsSinceEpoch}',
+                        );
                       }
                       _loadData(trackingState);
                     }
@@ -420,7 +508,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     title: Text(l10n.appName, style: context.titleStyle),
                     backgroundColor: context.backgroundColor,
                     elevation: 0,
-                    actions: const [ThemeSwitch(useIcons: true), SizedBox(width: 8)],
+                    actions: const [
+                      ThemeSwitch(useIcons: true),
+                      SizedBox(width: 8),
+                    ],
                   ),
                   body: SafeArea(
                     child: SingleChildScrollView(
@@ -436,18 +527,38 @@ class _HomeScreenState extends State<HomeScreen> {
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(l10n.homeGreeting(user.name?.split(' ')[0] ?? 'Usuário'), style: context.headlineStyle),
+                                    Text(
+                                      l10n.homeGreeting(
+                                        user.name?.split(' ')[0] ?? 'Usuário',
+                                      ),
+                                      style: context.headlineStyle,
+                                    ),
                                     const SizedBox(height: 4),
                                     Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         _daysWithoutSmoking == null || isLoading
-                                            ? SkeletonLoading(width: 150, height: 16, borderRadius: 4)
-                                            : Text(l10n.homeDaysWithoutSmoking(_daysWithoutSmoking!), style: context.subtitleStyle),
-                                        if (_stats?.lastSmokeDate != null && !isLoading)
+                                            ? SkeletonLoading(
+                                              width: 150,
+                                              height: 16,
+                                              borderRadius: 4,
+                                            )
+                                            : Text(
+                                              l10n.homeDaysWithoutSmoking(
+                                                _daysWithoutSmoking!,
+                                              ),
+                                              style: context.subtitleStyle,
+                                            ),
+                                        if (_stats?.lastSmokeDate != null &&
+                                            !isLoading)
                                           Text(
                                             'Último: ${_formatLastSmokeDate(_stats!.lastSmokeDate!)}',
-                                            style: TextStyle(fontSize: 12, color: context.subtitleColor.withOpacity(0.8)),
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              color: context.subtitleColor
+                                                  .withOpacity(0.8),
+                                            ),
                                           ),
                                       ],
                                     ),
@@ -455,10 +566,16 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                                 CircleAvatar(
                                   radius: 26,
-                                  backgroundColor: context.primaryColor.withOpacity(0.2),
+                                  backgroundColor: context.primaryColor
+                                      .withOpacity(0.2),
                                   child: Text(
-                                    user.name?.substring(0, 1).toUpperCase() ?? 'U',
-                                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: context.primaryColor),
+                                    user.name?.substring(0, 1).toUpperCase() ??
+                                        'U',
+                                    style: TextStyle(
+                                      fontSize: 22,
+                                      fontWeight: FontWeight.bold,
+                                      color: context.primaryColor,
+                                    ),
                                   ),
                                 ),
                               ],
@@ -471,14 +588,26 @@ class _HomeScreenState extends State<HomeScreen> {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text(l10n.homeTodayStats, style: context.titleStyle),
+                                Text(
+                                  l10n.homeTodayStats,
+                                  style: context.titleStyle,
+                                ),
                                 TextButton(
                                   onPressed: () {
                                     // Navigate to statistics dashboard
-                                    context.go(AppRoutes.statisticsDashboard.path);
+                                    context.go(
+                                      AppRoutes.statisticsDashboard.path,
+                                    );
                                   },
-                                  style: TextButton.styleFrom(foregroundColor: context.primaryColor),
-                                  child: const Text('View All', style: TextStyle(fontWeight: FontWeight.w600)),
+                                  style: TextButton.styleFrom(
+                                    foregroundColor: context.primaryColor,
+                                  ),
+                                  child: const Text(
+                                    'View All',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
                                 ),
                               ],
                             ),
@@ -494,7 +623,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                 Expanded(
                                   child: _buildDailyStatCard(
                                     context,
-                                    isLoading ? null : '${BlocProvider.of<TrackingBloc>(context).getCravingsResistedToday()}',
+                                    isLoading
+                                        ? null
+                                        : '${BlocProvider.of<TrackingBloc>(context).getCravingsResistedToday()}',
                                     l10n.homeCravingsResisted,
                                     Colors.orange,
                                     Icons.smoke_free,
@@ -505,7 +636,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                 Expanded(
                                   child: _buildDailyStatCard(
                                     context,
-                                    BlocProvider.of<TrackingBloc>(context).getMinutesGainedTodayFormatted(),
+                                    BlocProvider.of<TrackingBloc>(
+                                      context,
+                                    ).getMinutesGainedTodayFormatted(),
                                     l10n.homeMinutesGainedToday,
                                     Colors.teal,
                                     Icons.favorite,
@@ -518,7 +651,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
                           // Botões de registro
                           Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 10,
+                            ),
                             child: Row(
                               children: [
                                 Expanded(
@@ -530,23 +666,35 @@ class _HomeScreenState extends State<HomeScreen> {
                                     Icons.air,
                                     () {
                                       // Use the BLoC version of RegisterCravingSheet
-                                      RegisterCravingSheet.show(context).then((result) {
+                                      RegisterCravingSheet.show(context).then((
+                                        result,
+                                      ) {
                                         // Only update if a craving was actually registered and we have data
-                                        if (result != null && result['registered'] == true) {
+                                        if (result != null &&
+                                            result['registered'] == true) {
                                           if (kDebugMode) {
-                                            print("🔄 Updating after registering craving with BLoC");
-                                            print("📊 Optimistic update data: ${result['stats']}");
+                                            print(
+                                              "🔄 Updating after registering craving with BLoC",
+                                            );
+                                            print(
+                                              "📊 Optimistic update data: ${result['stats']}",
+                                            );
                                           }
 
                                           // Agora apenas observamos as mudanças no BLoC via BlocListener
                                           // em vez de atualizar diretamente a UI
 
                                           // Force full update of statistics (via BLoC) - isso vai acionar o BlocListener
-                                          final trackingBloc = BlocProvider.of<TrackingBloc>(context);
+                                          final trackingBloc =
+                                              BlocProvider.of<TrackingBloc>(
+                                                context,
+                                              );
 
                                           // Já não precisamos definir explicitamente valores da UI, o BLoC cuidará disso
                                           if (kDebugMode) {
-                                            print('🔢 Delegando atualização para o TrackingBloc via CravingAdded event');
+                                            print(
+                                              '🔢 Delegando atualização para o TrackingBloc via CravingAdded event',
+                                            );
                                           }
                                         }
                                       });
@@ -563,24 +711,36 @@ class _HomeScreenState extends State<HomeScreen> {
                                     Icons.smoking_rooms,
                                     () {
                                       // Usar a versão BLoC da sheet
-                                      NewRecordSheet.show(context).then((result) {
+                                      NewRecordSheet.show(context).then((
+                                        result,
+                                      ) {
                                         // Só atualiza se um record foi realmente registrado
-                                        if (result != null && result['registered'] == true) {
+                                        if (result != null &&
+                                            result['registered'] == true) {
                                           if (kDebugMode) {
-                                            print("🔄 Atualizando após registrar cigarro com BLoC");
-                                            print("📊 Dados para atualização otimista: ${result['stats']}");
+                                            print(
+                                              "🔄 Atualizando após registrar cigarro com BLoC",
+                                            );
+                                            print(
+                                              "📊 Dados para atualização otimista: ${result['stats']}",
+                                            );
                                           }
 
                                           // Agora apenas observamos as mudanças no BLoC via BlocListener
                                           // em vez de atualizar diretamente a UI
 
                                           // Forçar atualização completa das estatísticas (via BLoC)
-                                          final trackingBloc = BlocProvider.of<TrackingBloc>(context);
+                                          final trackingBloc =
+                                              BlocProvider.of<TrackingBloc>(
+                                                context,
+                                              );
                                           trackingBloc.add(ForceUpdateStats());
 
                                           // Já não precisamos definir explicitamente valores da UI, o BLoC cuidará disso
                                           if (kDebugMode) {
-                                            print('🔢 Delegando atualização para o TrackingBloc via SmokingRecordAdded event');
+                                            print(
+                                              '🔢 Delegando atualização para o TrackingBloc via SmokingRecordAdded event',
+                                            );
                                           }
                                         }
                                       });
@@ -595,17 +755,32 @@ class _HomeScreenState extends State<HomeScreen> {
                           Column(
                             children: [
                               Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 20,
+                                  vertical: 10,
+                                ),
                                 child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Text(l10n.healthRecovery, style: context.titleStyle),
+                                    Text(
+                                      l10n.healthRecovery,
+                                      style: context.titleStyle,
+                                    ),
                                     TextButton(
                                       onPressed: () {
                                         // Navigate to health recovery screen
-                                        context.push(AppRoutes.healthRecovery.path);
+                                        context.push(
+                                          AppRoutes.healthRecovery.path,
+                                        );
                                       },
-                                      child: Text(l10n.seeAll, style: TextStyle(fontWeight: FontWeight.w600, color: context.primaryColor)),
+                                      child: Text(
+                                        l10n.seeAll,
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                          color: context.primaryColor,
+                                        ),
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -614,11 +789,15 @@ class _HomeScreenState extends State<HomeScreen> {
                               // Health Recovery Widget or Placeholder
                               BlocBuilder<TrackingBloc, TrackingState>(
                                 builder: (context, state) {
-                                  final hasLastSmokeDate = state.userStats?.lastSmokeDate != null;
+                                  final hasLastSmokeDate =
+                                      state.userStats?.lastSmokeDate != null;
 
                                   // Se não tem data do último cigarro, mostramos um widget de placeholder
                                   if (!hasLastSmokeDate) {
-                                    return _buildHealthRecoveryPlaceholder(context, l10n);
+                                    return _buildHealthRecoveryPlaceholder(
+                                      context,
+                                      l10n,
+                                    );
                                   }
 
                                   // Se tem data, mostramos o widget normal
@@ -628,9 +807,18 @@ class _HomeScreenState extends State<HomeScreen> {
                                     showHeader: false,
                                     onRecoveryTap: (recovery, isAchieved) {
                                       if (recovery.id == 'all') {
-                                        context.push(AppRoutes.healthRecovery.path);
+                                        context.push(
+                                          AppRoutes.healthRecovery.path,
+                                        );
                                       } else {
-                                        context.push(AppRoutes.healthRecoveryDetail.withParams(params: {'recoveryId': recovery.id}));
+                                        context.push(
+                                          AppRoutes.healthRecoveryDetail
+                                              .withParams(
+                                                params: {
+                                                  'recoveryId': recovery.id,
+                                                },
+                                              ),
+                                        );
                                       }
                                     },
                                   );
@@ -649,7 +837,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                 Expanded(
                                   child: _buildStatisticCard(
                                     context,
-                                    _minutesLifeGained == null ? null : '$_minutesLifeGained',
+                                    _minutesLifeGained == null
+                                        ? null
+                                        : '$_minutesLifeGained',
                                     l10n.homeMinutesLifeGained,
                                     Colors.green,
                                     Icons.access_time,
@@ -660,7 +850,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                 Expanded(
                                   child: _buildStatisticCard(
                                     context,
-                                    _breathCapacityPercent == null ? null : '$_breathCapacityPercent%',
+                                    _breathCapacityPercent == null
+                                        ? null
+                                        : '$_breathCapacityPercent%',
                                     l10n.homeLungCapacity,
                                     Colors.blue,
                                     Icons.air,
@@ -692,8 +884,16 @@ class _HomeScreenState extends State<HomeScreen> {
                           // Next milestone - only show if we have days without smoking
                           if (_stats?.lastSmokeDate != null)
                             Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 20),
-                              child: context.isDarkMode ? _buildGlassMorphicNextMilestone(context, l10n) : _buildNextMilestone(context, l10n),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                              ),
+                              child:
+                                  context.isDarkMode
+                                      ? _buildGlassMorphicNextMilestone(
+                                        context,
+                                        l10n,
+                                      )
+                                      : _buildNextMilestone(context, l10n),
                             ),
 
                           const SizedBox(height: 24),
@@ -704,14 +904,24 @@ class _HomeScreenState extends State<HomeScreen> {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text(l10n.homeRecentAchievements, style: context.titleStyle),
+                                Text(
+                                  l10n.homeRecentAchievements,
+                                  style: context.titleStyle,
+                                ),
                                 TextButton(
                                   onPressed: () {
                                     // Navigate to achievements screen
                                     context.go(AppRoutes.achievements.path);
                                   },
-                                  style: TextButton.styleFrom(foregroundColor: context.primaryColor),
-                                  child: Text(l10n.homeSeeAll, style: const TextStyle(fontWeight: FontWeight.w600)),
+                                  style: TextButton.styleFrom(
+                                    foregroundColor: context.primaryColor,
+                                  ),
+                                  child: Text(
+                                    l10n.homeSeeAll,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
                                 ),
                               ],
                             ),
@@ -722,11 +932,21 @@ class _HomeScreenState extends State<HomeScreen> {
                           // Achievement cards
                           BlocBuilder<TrackingBloc, TrackingState>(
                             builder: (context, trackingState) {
-                              return BlocBuilder<AchievementBloc, AchievementState>(
+                              return BlocBuilder<
+                                AchievementBloc,
+                                AchievementState
+                              >(
                                 builder: (context, achievementState) {
                                   // Check if BLoCs are loaded and we have achievements
-                                  bool hasRecoveries = trackingState.isLoaded && trackingState.userHealthRecoveries.isNotEmpty;
-                                  bool hasAchievements = achievementState.userAchievements.isNotEmpty;
+                                  bool hasRecoveries =
+                                      trackingState.isLoaded &&
+                                      trackingState
+                                          .userHealthRecoveries
+                                          .isNotEmpty;
+                                  bool hasAchievements =
+                                      achievementState
+                                          .userAchievements
+                                          .isNotEmpty;
 
                                   return (hasRecoveries || hasAchievements)
                                       // Show real user achievements when available
@@ -734,8 +954,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                         height: 140,
                                         child: ListView(
                                           scrollDirection: Axis.horizontal,
-                                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                                          children: _buildRecentAchievements(context, l10n),
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 16,
+                                          ),
+                                          children: _buildRecentAchievements(
+                                            context,
+                                            l10n,
+                                          ),
                                         ),
                                       )
                                       // Show motivational card when we don't have achievements or we're loading
@@ -762,7 +987,11 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildHealthIndicator(BuildContext context, String title, bool isActive) {
+  Widget _buildHealthIndicator(
+    BuildContext context,
+    String title,
+    bool isActive,
+  ) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 4),
       width: 80,
@@ -804,7 +1033,11 @@ class _HomeScreenState extends State<HomeScreen> {
           const SizedBox(height: 8),
           Text(
             title,
-            style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: isActive ? context.primaryColor : context.subtitleColor),
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+              color: isActive ? context.primaryColor : context.subtitleColor,
+            ),
             textAlign: TextAlign.center,
           ),
         ],
@@ -813,7 +1046,14 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   // Versão atualizada com skeleton loading
-  Widget _buildStatisticCard(BuildContext context, String? value, String label, Color color, IconData icon, bool isLoading) {
+  Widget _buildStatisticCard(
+    BuildContext context,
+    String? value,
+    String label,
+    Color color,
+    IconData icon,
+    bool isLoading,
+  ) {
     // Verificamos apenas se o valor está carregando ou é nulo, permitindo zero
     final shouldShowSkeleton = isLoading || value == null;
     return Container(
@@ -821,26 +1061,53 @@ class _HomeScreenState extends State<HomeScreen> {
       decoration: BoxDecoration(
         color: context.cardColor,
         borderRadius: BorderRadius.circular(16),
-        border: context.isDarkMode ? Border.all(color: context.borderColor) : null,
-        boxShadow: context.isDarkMode ? null : [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4))],
+        border:
+            context.isDarkMode ? Border.all(color: context.borderColor) : null,
+        boxShadow:
+            context.isDarkMode
+                ? null
+                : [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
             padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(color: color.withOpacity(context.isDarkMode ? 0.2 : 0.15), borderRadius: BorderRadius.circular(8)),
-            child: Icon(icon, color: color.withOpacity(context.isDarkMode ? 0.9 : 1.0), size: 20),
+            decoration: BoxDecoration(
+              color: color.withOpacity(context.isDarkMode ? 0.2 : 0.15),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(
+              icon,
+              color: color.withOpacity(context.isDarkMode ? 0.9 : 1.0),
+              size: 20,
+            ),
           ),
           const SizedBox(height: 12),
           shouldShowSkeleton
               ? SkeletonLoading(width: 80, height: 24, borderRadius: 4)
               : Text(
                 value!,
-                style: context.textTheme.headlineMedium!.copyWith(fontWeight: FontWeight.bold, color: context.contentColor, fontSize: 24),
+                style: context.textTheme.headlineMedium!.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: context.contentColor,
+                  fontSize: 24,
+                ),
               ),
           const SizedBox(height: 4),
-          Text(label, style: context.textTheme.bodySmall!.copyWith(color: context.subtitleColor, height: 1.2)),
+          Text(
+            label,
+            style: context.textTheme.bodySmall!.copyWith(
+              color: context.subtitleColor,
+              height: 1.2,
+            ),
+          ),
         ],
       ),
     );
@@ -853,7 +1120,10 @@ class _HomeScreenState extends State<HomeScreen> {
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [context.primaryColor.withOpacity(0.7), context.primaryColor],
+            colors: [
+              context.primaryColor.withOpacity(0.7),
+              context.primaryColor,
+            ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -864,7 +1134,10 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildGlassMorphicNextMilestone(BuildContext context, AppLocalizations l10n) {
+  Widget _buildGlassMorphicNextMilestone(
+    BuildContext context,
+    AppLocalizations l10n,
+  ) {
     return GestureDetector(
       onTap: _onNextMilestoneTap,
       child: ClipRRect(
@@ -876,7 +1149,10 @@ class _HomeScreenState extends State<HomeScreen> {
             decoration: BoxDecoration(
               color: context.primaryColor.withOpacity(0.2),
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: context.primaryColor.withOpacity(0.3), width: 1.5),
+              border: Border.all(
+                color: context.primaryColor.withOpacity(0.3),
+                width: 1.5,
+              ),
             ),
             child: _buildMilestoneContent(context, Colors.white, l10n),
           ),
@@ -889,14 +1165,22 @@ class _HomeScreenState extends State<HomeScreen> {
   void _onNextMilestoneTap() {
     if (_nextHealthMilestone != null) {
       // Navigate to the health recovery detail screen for this milestone
-      context.push(AppRoutes.healthRecoveryDetail.withParams(params: {'recoveryId': _nextHealthMilestone!['id']}));
+      context.push(
+        AppRoutes.healthRecoveryDetail.withParams(
+          params: {'recoveryId': _nextHealthMilestone!['id']},
+        ),
+      );
     } else {
       // Navigate to the health recovery list screen if we don't have a specific milestone
       context.push(AppRoutes.healthRecovery.path);
     }
   }
 
-  Widget _buildMilestoneContent(BuildContext context, Color textColor, AppLocalizations l10n) {
+  Widget _buildMilestoneContent(
+    BuildContext context,
+    Color textColor,
+    AppLocalizations l10n,
+  ) {
     // If we have a next milestone, display it, otherwise use the default static content
     final hasMilestone = _nextHealthMilestone != null;
 
@@ -904,8 +1188,17 @@ class _HomeScreenState extends State<HomeScreen> {
       children: [
         Container(
           padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(color: Colors.white.withOpacity(0.2), borderRadius: BorderRadius.circular(12)),
-          child: Icon(hasMilestone ? _nextHealthMilestone!['icon'] as IconData : Icons.flag_rounded, color: textColor, size: 24),
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.2),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Icon(
+            hasMilestone
+                ? _nextHealthMilestone!['icon'] as IconData
+                : Icons.flag_rounded,
+            color: textColor,
+            size: 24,
+          ),
         ),
         const SizedBox(width: 16),
         Expanded(
@@ -913,14 +1206,21 @@ class _HomeScreenState extends State<HomeScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                hasMilestone ? '${_nextHealthMilestone!['name']}' : l10n.homeNextMilestone,
-                style: context.textTheme.titleMedium!.copyWith(fontWeight: FontWeight.w600, color: textColor),
+                hasMilestone
+                    ? '${_nextHealthMilestone!['name']}'
+                    : l10n.homeNextMilestone,
+                style: context.textTheme.titleMedium!.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: textColor,
+                ),
               ),
               const SizedBox(height: 4),
               if (hasMilestone)
                 Text(
                   'In ${_nextHealthMilestone!['daysRemaining']} days: ${_nextHealthMilestone!['description']}',
-                  style: context.textTheme.bodyMedium!.copyWith(color: textColor.withOpacity(0.85)),
+                  style: context.textTheme.bodyMedium!.copyWith(
+                    color: textColor.withOpacity(0.85),
+                  ),
                 )
               else
                 Text(
@@ -935,7 +1235,9 @@ class _HomeScreenState extends State<HomeScreen> {
                             ? 30 - (_daysWithoutSmoking ?? 0)
                             : 1,
                       ),
-                  style: context.textTheme.bodyMedium!.copyWith(color: textColor.withOpacity(0.85)),
+                  style: context.textTheme.bodyMedium!.copyWith(
+                    color: textColor.withOpacity(0.85),
+                  ),
                 ),
             ],
           ),
@@ -944,7 +1246,13 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildAchievementCard(BuildContext context, String milestone, String title, String description, Color color) {
+  Widget _buildAchievementCard(
+    BuildContext context,
+    String milestone,
+    String title,
+    String description,
+    Color color,
+  ) {
     return GestureDetector(
       onTap: () {
         // Sem navegação, apenas exibe os detalhes da conquista no lugar atual
@@ -955,17 +1263,33 @@ class _HomeScreenState extends State<HomeScreen> {
         decoration: BoxDecoration(
           color: context.cardColor,
           borderRadius: BorderRadius.circular(16),
-          border: context.isDarkMode ? Border.all(color: context.borderColor) : null,
-          boxShadow: context.isDarkMode ? null : [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4))],
+          border:
+              context.isDarkMode
+                  ? Border.all(color: context.borderColor)
+                  : null,
+          boxShadow:
+              context.isDarkMode
+                  ? null
+                  : [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
         ),
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min, // Keep the column as small as possible
+          mainAxisSize:
+              MainAxisSize.min, // Keep the column as small as possible
           children: [
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(color: color.withOpacity(context.isDarkMode ? 0.2 : 0.15), borderRadius: BorderRadius.circular(12)),
+              decoration: BoxDecoration(
+                color: color.withOpacity(context.isDarkMode ? 0.2 : 0.15),
+                borderRadius: BorderRadius.circular(12),
+              ),
               child: Text(
                 milestone,
                 style: context.textTheme.labelSmall!.copyWith(
@@ -1005,7 +1329,14 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   // Versão atualizada com skeleton loading
-  Widget _buildDailyStatCard(BuildContext context, String? value, String label, Color color, IconData icon, bool isLoading) {
+  Widget _buildDailyStatCard(
+    BuildContext context,
+    String? value,
+    String label,
+    Color color,
+    IconData icon,
+    bool isLoading,
+  ) {
     // Apenas verifique se está carregando ou é nulo (permite zero)
     final shouldShowSkeleton = isLoading || value == null;
     return Container(
@@ -1013,8 +1344,18 @@ class _HomeScreenState extends State<HomeScreen> {
       decoration: BoxDecoration(
         color: context.cardColor,
         borderRadius: BorderRadius.circular(16),
-        border: context.isDarkMode ? Border.all(color: context.borderColor) : null,
-        boxShadow: context.isDarkMode ? null : [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4))],
+        border:
+            context.isDarkMode ? Border.all(color: context.borderColor) : null,
+        boxShadow:
+            context.isDarkMode
+                ? null
+                : [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1023,8 +1364,15 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [
               Container(
                 padding: const EdgeInsets.all(6),
-                decoration: BoxDecoration(color: color.withOpacity(context.isDarkMode ? 0.2 : 0.15), borderRadius: BorderRadius.circular(8)),
-                child: Icon(icon, color: color.withOpacity(context.isDarkMode ? 0.9 : 1.0), size: 18),
+                decoration: BoxDecoration(
+                  color: color.withOpacity(context.isDarkMode ? 0.2 : 0.15),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(
+                  icon,
+                  color: color.withOpacity(context.isDarkMode ? 0.9 : 1.0),
+                  size: 18,
+                ),
               ),
               const Spacer(),
               if (!isLoading) ...[
@@ -1033,7 +1381,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 const SizedBox(width: 2),
                 Text(
                   _getStreakPercentage(),
-                  style: context.textTheme.labelSmall!.copyWith(fontWeight: FontWeight.w600, color: Colors.green, fontSize: 12),
+                  style: context.textTheme.labelSmall!.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: Colors.green,
+                    fontSize: 12,
+                  ),
                 ),
               ],
             ],
@@ -1043,16 +1395,33 @@ class _HomeScreenState extends State<HomeScreen> {
               ? SkeletonLoading(width: 60, height: 24, borderRadius: 4)
               : Text(
                 value!,
-                style: context.textTheme.headlineMedium!.copyWith(fontWeight: FontWeight.bold, color: context.contentColor, fontSize: 24),
+                style: context.textTheme.headlineMedium!.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: context.contentColor,
+                  fontSize: 24,
+                ),
               ),
           const SizedBox(height: 4),
-          Text(label, style: context.textTheme.bodySmall!.copyWith(color: context.subtitleColor, height: 1.2)),
+          Text(
+            label,
+            style: context.textTheme.bodySmall!.copyWith(
+              color: context.subtitleColor,
+              height: 1.2,
+            ),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildActionButton(BuildContext context, String title, String subtitle, Color color, IconData icon, VoidCallback onTap) {
+  Widget _buildActionButton(
+    BuildContext context,
+    String title,
+    String subtitle,
+    Color color,
+    IconData icon,
+    VoidCallback onTap,
+  ) {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(16),
@@ -1069,12 +1438,27 @@ class _HomeScreenState extends State<HomeScreen> {
             Container(
               width: 48,
               height: 48,
-              decoration: BoxDecoration(color: color.withOpacity(0.2), shape: BoxShape.circle),
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.2),
+                shape: BoxShape.circle,
+              ),
               child: Center(child: Icon(icon, color: color, size: 28)),
             ),
             const SizedBox(height: 12),
-            Text(title, textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold, color: context.contentColor, fontSize: 16)),
-            Text(subtitle, textAlign: TextAlign.center, style: TextStyle(color: context.subtitleColor, fontSize: 12)),
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: context.contentColor,
+                fontSize: 16,
+              ),
+            ),
+            Text(
+              subtitle,
+              textAlign: TextAlign.center,
+              style: TextStyle(color: context.subtitleColor, fontSize: 12),
+            ),
           ],
         ),
       ),
@@ -1153,17 +1537,23 @@ class _HomeScreenState extends State<HomeScreen> {
   String? _calculateDailyMinutesGained() {
     // Obter o BLoC para usar o normalizador
     final trackingBloc = BlocProvider.of<TrackingBloc>(context);
-    
+
     // Usar o método específico do TrackingNormalizer para calcular minutos ganhos hoje
     // Este método já implementa a lógica de filtrar apenas os cravings do dia atual
     final minutesGainedToday = trackingBloc.getMinutesGainedToday();
-    
+
     if (kDebugMode) {
-      print('📊 [HomeScreen] Minutos ganhos hoje (via TrackingNormalizer): $minutesGainedToday min');
-      print('📊 [HomeScreen] Cravings resistidos hoje: ${trackingBloc.getCravingsResistedToday()}');
-      print('📊 [HomeScreen] Minutos por craving: ${ImprovedStatsCalculator.MINUTES_PER_CIGARETTE}');
+      print(
+        '📊 [HomeScreen] Minutos ganhos hoje (via TrackingNormalizer): $minutesGainedToday min',
+      );
+      print(
+        '📊 [HomeScreen] Cravings resistidos hoje: ${trackingBloc.getCravingsResistedToday()}',
+      );
+      print(
+        '📊 [HomeScreen] Minutos por craving: ${ImprovedStatsCalculator.MINUTES_PER_CIGARETTE}',
+      );
     }
-    
+
     return '$minutesGainedToday min';
   }
 
@@ -1176,7 +1566,10 @@ class _HomeScreenState extends State<HomeScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         decoration: BoxDecoration(
           color: context.primaryColor.withOpacity(0.08),
-          border: Border.all(color: context.primaryColor.withOpacity(0.2), width: 1.0),
+          border: Border.all(
+            color: context.primaryColor.withOpacity(0.2),
+            width: 1.0,
+          ),
           borderRadius: BorderRadius.circular(16),
         ),
         child: Column(
@@ -1188,24 +1581,46 @@ class _HomeScreenState extends State<HomeScreen> {
               children: [
                 Container(
                   padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(color: context.primaryColor.withOpacity(0.12), borderRadius: BorderRadius.circular(12)),
-                  child: Icon(Icons.emoji_events, color: context.primaryColor, size: 22),
+                  decoration: BoxDecoration(
+                    color: context.primaryColor.withOpacity(0.12),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(
+                    Icons.emoji_events,
+                    color: context.primaryColor,
+                    size: 22,
+                  ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
                     l10n.importantAchievements,
-                    style: context.textTheme.titleMedium!.copyWith(fontWeight: FontWeight.bold, color: context.primaryColor, fontSize: 20),
+                    style: context.textTheme.titleMedium!.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: context.primaryColor,
+                      fontSize: 20,
+                    ),
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 16),
-            Text(l10n.achievementsDescription, style: context.textTheme.bodyMedium!.copyWith(color: context.contentColor, height: 1.4, fontSize: 15)),
+            Text(
+              l10n.achievementsDescription,
+              style: context.textTheme.bodyMedium!.copyWith(
+                color: context.contentColor,
+                height: 1.4,
+                fontSize: 15,
+              ),
+            ),
             const SizedBox(height: 16),
             Text(
               l10n.congratulations,
-              style: context.textTheme.bodyMedium!.copyWith(color: context.primaryColor, fontWeight: FontWeight.bold, fontSize: 15),
+              style: context.textTheme.bodyMedium!.copyWith(
+                color: context.primaryColor,
+                fontWeight: FontWeight.bold,
+                fontSize: 15,
+              ),
             ),
           ],
         ),
@@ -1215,7 +1630,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // Builds a list of real achievements based on the user's health recoveries
   /// Health recovery placeholder widget when the user doesn't have data yet
-  Widget _buildHealthRecoveryPlaceholder(BuildContext context, AppLocalizations l10n) {
+  Widget _buildHealthRecoveryPlaceholder(
+    BuildContext context,
+    AppLocalizations l10n,
+  ) {
     return SizedBox(
       height: 140,
       child: ListView.builder(
@@ -1229,14 +1647,23 @@ class _HomeScreenState extends State<HomeScreen> {
             decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.surface,
               borderRadius: BorderRadius.circular(16),
-              boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 8, offset: const Offset(0, 2))],
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
             ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Container(
                   padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(color: context.primaryColor.withOpacity(0.1), shape: BoxShape.circle),
+                  decoration: BoxDecoration(
+                    color: context.primaryColor.withOpacity(0.1),
+                    shape: BoxShape.circle,
+                  ),
                   child: Icon(
                     index == 0
                         ? Icons.favorite
@@ -1252,9 +1679,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 8),
                   child: Text(
                     l10n.comingSoon,
-                    style: Theme.of(
-                      context,
-                    ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold, color: context.contentColor.withOpacity(0.7)),
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: context.contentColor.withOpacity(0.7),
+                    ),
                     textAlign: TextAlign.center,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -1263,7 +1691,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 8),
                   child: Text(
                     l10n.registerFirstCigarette,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(color: context.subtitleColor, fontSize: 10),
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: context.subtitleColor,
+                      fontSize: 10,
+                    ),
                     textAlign: TextAlign.center,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
@@ -1277,7 +1708,10 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  List<Widget> _buildRecentAchievements(BuildContext context, AppLocalizations l10n) {
+  List<Widget> _buildRecentAchievements(
+    BuildContext context,
+    AppLocalizations l10n,
+  ) {
     final achievements = <Widget>[];
 
     // 1. Get health recovery achievements
@@ -1303,7 +1737,8 @@ class _HomeScreenState extends State<HomeScreen> {
           cardColor = Colors.teal;
         } else if (recoveryDetails.name.toLowerCase().contains('circulation')) {
           cardColor = Colors.red;
-        } else if (recoveryDetails.name.toLowerCase().contains('lung') || recoveryDetails.name.toLowerCase().contains('breathing')) {
+        } else if (recoveryDetails.name.toLowerCase().contains('lung') ||
+            recoveryDetails.name.toLowerCase().contains('breathing')) {
           cardColor = Colors.blue;
         } else if (recoveryDetails.name.toLowerCase().contains('heart')) {
           cardColor = Colors.pink;
@@ -1324,7 +1759,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
     // 2. Get achievements from AchievementBloc
     final achievementBloc = BlocProvider.of<AchievementBloc>(context);
-    final userAchievements = achievementBloc.state.userAchievements.where((a) => a.isUnlocked).toList();
+    final userAchievements =
+        achievementBloc.state.userAchievements
+            .where((a) => a.isUnlocked)
+            .toList();
 
     for (var achievement in userAchievements) {
       // Verificar se já existe um card para esta conquista pelo nome
@@ -1386,7 +1824,15 @@ class _HomeScreenState extends State<HomeScreen> {
           milestone = '✓'; // Fallback para um check mark
         }
 
-        achievements.add(_buildAchievementCard(context, milestone, achievement.definition.name, achievement.definition.description, cardColor));
+        achievements.add(
+          _buildAchievementCard(
+            context,
+            milestone,
+            achievement.definition.name,
+            achievement.definition.description,
+            cardColor,
+          ),
+        );
       }
     }
 
@@ -1416,7 +1862,15 @@ class _HomeScreenState extends State<HomeScreen> {
       }
 
       if (!alreadyExists) {
-        achievements.add(_buildAchievementCard(context, '24h', l10n.homeFirstDay, l10n.homeFirstDayDescription, Colors.amber));
+        achievements.add(
+          _buildAchievementCard(
+            context,
+            '24h',
+            l10n.homeFirstDay,
+            l10n.homeFirstDayDescription,
+            Colors.amber,
+          ),
+        );
       }
     }
 
@@ -1445,7 +1899,15 @@ class _HomeScreenState extends State<HomeScreen> {
       }
 
       if (!alreadyExists) {
-        achievements.add(_buildAchievementCard(context, '3 ${l10n.days}', l10n.homeOvercoming, l10n.homeOvercomingDescription, Colors.green));
+        achievements.add(
+          _buildAchievementCard(
+            context,
+            '3 ${l10n.days}',
+            l10n.homeOvercoming,
+            l10n.homeOvercomingDescription,
+            Colors.green,
+          ),
+        );
       }
     }
 
@@ -1475,7 +1937,13 @@ class _HomeScreenState extends State<HomeScreen> {
 
       if (!alreadyExists) {
         achievements.add(
-          _buildAchievementCard(context, '7 ${l10n.days}', l10n.homePersistence, l10n.homePersistenceDescription, context.primaryColor),
+          _buildAchievementCard(
+            context,
+            '7 ${l10n.days}',
+            l10n.homePersistence,
+            l10n.homePersistenceDescription,
+            context.primaryColor,
+          ),
         );
       }
     }
@@ -1506,10 +1974,12 @@ class _HomeScreenState extends State<HomeScreen> {
       }
 
       if (!alreadyExists) {
+        // Usar o CurrencyBloc para formatação consistente
+        final currencyBloc = context.read<CurrencyBloc>();
         achievements.add(
           _buildAchievementCard(
             context,
-            _currencyUtils.formatWithDeviceLocale(2500, context: context),
+            currencyBloc.format(2500),
             l10n.achievementInitialSavings,
             l10n.achievementInitialSavingsDescription,
             Colors.amber.shade700,
@@ -1521,7 +1991,13 @@ class _HomeScreenState extends State<HomeScreen> {
     // If there are no specific achievements, add at least one motivational message
     if (achievements.isEmpty) {
       achievements.add(
-        _buildAchievementCard(context, l10n.supportWhenNeeded, l10n.homeNextMilestone, l10n.homeNextMilestoneDescription(1), context.primaryColor),
+        _buildAchievementCard(
+          context,
+          l10n.supportWhenNeeded,
+          l10n.homeNextMilestone,
+          l10n.homeNextMilestoneDescription(1),
+          context.primaryColor,
+        ),
       );
     }
 
@@ -1529,61 +2005,107 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   // Versão atualizada com skeleton loading para valores monetários
+  // Agora usando o CurrencyBloc para formatação consistente em vez do CurrencyUtils diretamente
   Widget _buildMoneyStatisticCard(
     BuildContext context,
     int? valueInCents,
     String label,
     Color color,
     IconData icon,
-    dynamic user, // Can be null, will use device locale
+    dynamic user, // Can be null, will use CurrencyBloc
     bool isLoading,
   ) {
     // Apenas verifique se está carregando ou é nulo (permite zero)
     final shouldShowSkeleton = isLoading || valueInCents == null;
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: context.cardColor,
-        borderRadius: BorderRadius.circular(16),
-        border: context.isDarkMode ? Border.all(color: context.borderColor) : null,
-        boxShadow: context.isDarkMode ? null : [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4))],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
+
+    // Usar BlocBuilder para atualizar quando a moeda mudar
+    return BlocBuilder<CurrencyBloc, CurrencyState>(
+      builder: (context, currencyState) {
+        final currencyBloc = context.read<CurrencyBloc>();
+
+        return Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: context.cardColor,
+            borderRadius: BorderRadius.circular(16),
+            border:
+                context.isDarkMode
+                    ? Border.all(color: context.borderColor)
+                    : null,
+            boxShadow:
+                context.isDarkMode
+                    ? null
+                    : [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.05),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(color: color.withOpacity(context.isDarkMode ? 0.2 : 0.15), borderRadius: BorderRadius.circular(10)),
-                child: Icon(icon, color: color.withOpacity(context.isDarkMode ? 0.9 : 1.0), size: 24),
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: color.withOpacity(context.isDarkMode ? 0.2 : 0.15),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Icon(
+                      icon,
+                      color: color.withOpacity(context.isDarkMode ? 0.9 : 1.0),
+                      size: 24,
+                    ),
+                  ),
+                  const Spacer(),
+                  if (_daysWithoutSmoking != null &&
+                      (_daysWithoutSmoking ?? 0) > 0 &&
+                      !isLoading) ...[
+                    // Só mostrar quando não estiver carregando
+                    const Icon(
+                      Icons.arrow_upward,
+                      color: Colors.green,
+                      size: 16,
+                    ),
+                    const SizedBox(width: 2),
+                    Text(
+                      _getStreakPercentage(),
+                      style: context.textTheme.labelSmall!.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: Colors.green,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ],
               ),
-              const Spacer(),
-              if (_daysWithoutSmoking != null && (_daysWithoutSmoking ?? 0) > 0 && !isLoading) ...[
-                // Só mostrar quando não estiver carregando
-                const Icon(Icons.arrow_upward, color: Colors.green, size: 16),
-                const SizedBox(width: 2),
-                Text(
-                  _getStreakPercentage(),
-                  style: context.textTheme.labelSmall!.copyWith(fontWeight: FontWeight.w600, color: Colors.green, fontSize: 12),
+              const SizedBox(height: 16),
+              shouldShowSkeleton
+                  ? SkeletonLoading(width: 120, height: 28, borderRadius: 4)
+                  : Text(
+                    // Usar CurrencyBloc para formatação consistente
+                    currencyBloc.format(valueInCents!),
+                    style: context.textTheme.headlineMedium!.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: context.contentColor,
+                      fontSize: 28,
+                    ),
+                  ),
+              const SizedBox(height: 8),
+              Text(
+                label,
+                style: context.textTheme.bodyMedium!.copyWith(
+                  color: context.subtitleColor,
+                  height: 1.2,
                 ),
-              ],
+              ),
             ],
           ),
-          const SizedBox(height: 16),
-          shouldShowSkeleton
-              ? SkeletonLoading(width: 120, height: 28, borderRadius: 4)
-              : Text(
-                // Use device locale if user is null - valueInCents will never be null here due to shouldShowSkeleton check
-                user == null
-                    ? _currencyUtils.formatWithDeviceLocale(valueInCents!, context: context)
-                    : _currencyUtils.format(valueInCents!, user: user),
-                style: context.textTheme.headlineMedium!.copyWith(fontWeight: FontWeight.bold, color: context.contentColor, fontSize: 28),
-              ),
-          const SizedBox(height: 8),
-          Text(label, style: context.textTheme.bodyMedium!.copyWith(color: context.subtitleColor, height: 1.2)),
-        ],
-      ),
+        );
+      },
     );
   }
 }

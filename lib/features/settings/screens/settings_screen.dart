@@ -13,7 +13,7 @@ import 'package:nicotinaai_flutter/blocs/theme/theme_state.dart' as theme_state;
 import 'package:nicotinaai_flutter/core/routes/app_routes.dart';
 import 'package:nicotinaai_flutter/core/theme/app_theme.dart';
 import 'package:nicotinaai_flutter/core/theme/theme_settings.dart';
-import 'package:nicotinaai_flutter/features/tracking/screens/dashboard_screen.dart';
+import 'package:nicotinaai_flutter/features/tracking/screens/statistics_dashboard_screen.dart';
 import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
 import 'package:nicotinaai_flutter/services/notification_service.dart';
 

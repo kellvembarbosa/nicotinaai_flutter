@@ -1260,7 +1260,7 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen>
     
     // Fixed height for consistent card sizes
     return SizedBox(
-      height: 80, // Fixed height for all cards
+      height: 90, // Increased height to accommodate content
       child: Container(
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(16),
@@ -1287,16 +1287,19 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen>
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
+                mainAxisSize: MainAxisSize.max, // Changed to max to take available space
                 children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        _getCravingIntensityText(craving.intensity),
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: context.contentColor,
+                      Flexible(
+                        child: Text(
+                          _getCravingIntensityText(craving.intensity),
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: context.contentColor,
+                          ),
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                       Text(
@@ -1308,32 +1311,23 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen>
                       ),
                     ],
                   ),
-                  const SizedBox(height: 4),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          dateFormat.format(craving.timestamp),
-                          style: TextStyle(fontSize: 12, color: context.subtitleColor),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      if (craving.location != null) ...[
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            craving.location!,
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: context.subtitleColor.withAlpha(179),
-                            ),
-                            overflow: TextOverflow.ellipsis,
-                            textAlign: TextAlign.end,
-                          ),
-                        ),
-                      ],
-                    ],
+                  const Spacer(flex: 1),
+                  // Separate rows for date and location to prevent overflow
+                  Text(
+                    dateFormat.format(craving.timestamp),
+                    style: TextStyle(fontSize: 12, color: context.subtitleColor),
+                    overflow: TextOverflow.ellipsis,
                   ),
+                  if (craving.location != null)
+                    Text(
+                      craving.location!,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: context.subtitleColor.withAlpha(179),
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                    ),
                 ],
               ),
             ),

@@ -236,7 +236,7 @@ class SuperwallTrackingAdapterFactory implements TrackingAdapterFactory {
   String get adapterName => 'Superwall';
 
   @override
-  TrackingAdapter createAdapter([TrackingAdapterConfig? config]) {
+  TrackingAdapter create(TrackingAdapterConfig config) {
     return SuperwallTrackingAdapter();
   }
 }

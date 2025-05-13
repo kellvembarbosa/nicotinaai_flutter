@@ -40,7 +40,7 @@ enum AppRoutes {
   // currencyBloc substituído por currency regular
   currencyBloc('/settings/currency'),
   themeBloc('/settings/theme_bloc'),
-  languageBloc('/settings/language_bloc'),
+  languageBloc('/settings/language'),
   privacyPolicy('/privacy-policy'),
   termsOfService('/terms-of-service'),
   about('/about'),

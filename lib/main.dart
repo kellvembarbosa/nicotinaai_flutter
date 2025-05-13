@@ -21,9 +21,11 @@ import 'package:nicotinaai_flutter/services/analytics/analytics_service.dart';
 import 'package:nicotinaai_flutter/services/notification_service.dart';
 import 'package:nicotinaai_flutter/services/supabase_diagnostic.dart';
 import 'package:nicotinaai_flutter/features/settings/repositories/settings_repository.dart';
-import 'package:superwallkit_flutter/superwallkit_flutter.dart';
+import 'package:superwallkit_flutter/superwallkit_flutter.dart' as sw;
 import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:nicotinaai_flutter/services/revenue_cat_service.dart';
+import 'package:nicotinaai_flutter/services/revenue_cat_purchase_controller.dart';
+import 'package:flutter/foundation.dart';
 
 // BLoC imports
 import 'package:nicotinaai_flutter/blocs/app_bloc_observer.dart';
@@ -51,9 +53,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Configura a aparência da barra de status
-  SystemChrome.setSystemUIOverlayStyle(
-    const SystemUiOverlayStyle(statusBarColor: Colors.transparent),
-  );
+  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(statusBarColor: Colors.transparent));
 
   // Initialize BlocObserver for debugging
   Bloc.observer = AppBlocObserver();
@@ -68,9 +68,7 @@ void main() async {
   try {
     // Verifica se o Firebase já está inicializado
     if (Firebase.apps.isEmpty) {
-      await Firebase.initializeApp(
-        options: DefaultFirebaseOptions.currentPlatform,
-      );
+      await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
       debugPrint('✅ Firebase initialized successfully');
     } else {
       debugPrint('✅ Firebase was already initialized, skipping');
@@ -85,7 +83,7 @@ void main() async {
     final revenueCatService = RevenueCatService();
     await revenueCatService.initialize(
       apiKey: _getRevenueCatApiKey(),
-      observerMode: false, // Set to true to use with Superwall
+      observerMode: false, // Definir como false, pois o Superwall precisa que o RevenueCat gerencie as compras
     );
     debugPrint('✅ RevenueCat initialized successfully');
   } catch (e) {
@@ -93,16 +91,18 @@ void main() async {
     // Continue without RevenueCat if it fails
   }
 
-  // Initialize Superwall
+  // Initialize Superwall with RevenueCat integration
   try {
-    await Superwall.instance.configure(
-      apiKey: 'pk_8828c0ca657f179fcb24a7532d6cf8d5309d7879506a7e25',
-      options: SuperwallOptions(
-        paywallsLoggingEnabled: true,
-        dangerousSettings: DangerousSettings(disableForFreeUsers: false),
-      ),
-    );
-    debugPrint('✅ Superwall initialized successfully');
+    // Create RevenueCat purchase controller
+    final purchaseController = RevenueCatPurchaseController();
+
+    // Configure Superwall with purchase controller
+    sw.Superwall.configure(_getSuperwallApiKey(), purchaseController: purchaseController);
+
+    // Sync subscription status initially
+    await purchaseController.configureAndSyncSubscriptionStatus();
+
+    debugPrint('✅ Superwall initialized with RevenueCat integration');
   } catch (e) {
     debugPrint('⚠️ Superwall initialization error: $e');
     // Continue without Superwall if it fails
@@ -165,9 +165,7 @@ void main() async {
       debugPrint('✅ Table smoking_logs exists');
     } catch (e) {
       debugPrint('❌ Table smoking_logs does not exist or is not accessible');
-      debugPrint(
-        '⚠️ SECURITY NOTE: Tables should be created using Supabase migrations or MCP functions',
-      );
+      debugPrint('⚠️ SECURITY NOTE: Tables should be created using Supabase migrations or MCP functions');
 
       // Log diagnostic info
       await SupabaseDiagnostic.logDiagnosticReport(tableName: 'smoking_logs');
@@ -175,23 +173,14 @@ void main() async {
 
     // Check viewed_achievements
     try {
-      await SupabaseConfig.client
-          .from('viewed_achievements')
-          .select('*')
-          .limit(1);
+      await SupabaseConfig.client.from('viewed_achievements').select('*').limit(1);
       debugPrint('✅ Table viewed_achievements exists');
     } catch (e) {
-      debugPrint(
-        '❌ Table viewed_achievements does not exist or is not accessible',
-      );
-      debugPrint(
-        '⚠️ SECURITY NOTE: Tables should be created using Supabase migrations or MCP functions',
-      );
+      debugPrint('❌ Table viewed_achievements does not exist or is not accessible');
+      debugPrint('⚠️ SECURITY NOTE: Tables should be created using Supabase migrations or MCP functions');
 
       // Log diagnostic info
-      await SupabaseDiagnostic.logDiagnosticReport(
-        tableName: 'viewed_achievements',
-      );
+      await SupabaseDiagnostic.logDiagnosticReport(tableName: 'viewed_achievements');
     }
   } else {
     debugPrint('✅ Todas as tabelas essenciais estão disponíveis');
@@ -204,9 +193,7 @@ void main() async {
   final settingsRepository = SettingsRepository();
 
   // Initialize achievement notification service
-  final achievementNotifications = AchievementNotificationService(
-    FlutterLocalNotificationsPlugin(),
-  );
+  final achievementNotifications = AchievementNotificationService(FlutterLocalNotificationsPlugin());
 
   runApp(
     MyApp(
@@ -227,6 +214,16 @@ String _getRevenueCatApiKey() {
     return 'appl_pkpgHbMNmUpYHENUhNpCfhJVxYX'; // iOS API key
   } else {
     throw Exception('Unsupported platform for RevenueCat');
+  }
+}
+
+String _getSuperwallApiKey() {
+  if (defaultTargetPlatform == TargetPlatform.android) {
+    return 'pk_8828c0ca657f179fcb24a7532d6cf8d5309d7879506a7e25'; // Android API key
+  } else if (defaultTargetPlatform == TargetPlatform.iOS) {
+    return 'pk_8828c0ca657f179fcb24a7532d6cf8d5309d7879506a7e25'; // iOS API key
+  } else {
+    return 'pk_8828c0ca657f179fcb24a7532d6cf8d5309d7879506a7e25'; // iOS API key
   }
 }
 
@@ -251,22 +248,13 @@ class MyApp extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         // Auth BLoC
-        BlocProvider<AuthBloc>(
-          create: (context) => AuthBloc(authRepository: authRepository),
-        ),
+        BlocProvider<AuthBloc>(create: (context) => AuthBloc(authRepository: authRepository)),
 
         // Skeleton BLoC for testing
-        BlocProvider<SkeletonBloc>(
-          create: (context) => SkeletonBloc(fetchData: () async => "Test data"),
-        ),
+        BlocProvider<SkeletonBloc>(create: (context) => SkeletonBloc(fetchData: () async => "Test data")),
 
         // TrackingBloc
-        BlocProvider<TrackingBloc>(
-          create:
-              (context) =>
-                  TrackingBloc(repository: trackingRepository)
-                    ..add(InitializeTracking()),
-        ),
+        BlocProvider<TrackingBloc>(create: (context) => TrackingBloc(repository: trackingRepository)..add(InitializeTracking())),
 
         // Unified TrackingBloc now handles both cravings and smoking records
 
@@ -276,10 +264,7 @@ class MyApp extends StatelessWidget {
         BlocProvider<CurrencyBloc>(
           create: (context) {
             final authBloc = context.read<AuthBloc>();
-            return CurrencyBloc(
-              authBloc: authBloc,
-              authRepository: authRepository,
-            )..add(InitializeCurrency());
+            return CurrencyBloc(authBloc: authBloc, authRepository: authRepository)..add(InitializeCurrency());
           },
         ),
 
@@ -318,15 +303,9 @@ class MyApp extends StatelessWidget {
         // AchievementBloc - Substitui o AchievementProvider
         BlocProvider<AchievementBloc>(
           create: (context) {
-            final achievementService = AchievementService(
-              SupabaseConfig.client,
-              trackingRepository,
-            );
+            final achievementService = AchievementService(SupabaseConfig.client, trackingRepository);
 
-            final achievementBloc = AchievementBloc(
-              service: achievementService,
-              notificationService: achievementNotifications,
-            );
+            final achievementBloc = AchievementBloc(service: achievementService, notificationService: achievementNotifications);
 
             // Inicializa o bloc
             achievementBloc.add(InitializeAchievements());
@@ -343,11 +322,7 @@ class MyApp extends StatelessWidget {
         ),
 
         // AnalyticsBloc - Novo BLoC para analytics
-        BlocProvider<AnalyticsBloc>(
-          create:
-              (context) =>
-                  AnalyticsBloc()..add(const InitializeAnalyticsEvent()),
-        ),
+        BlocProvider<AnalyticsBloc>(create: (context) => AnalyticsBloc()..add(const InitializeAnalyticsEvent())),
 
         // Todos os providers legados foram removidos
       ],
@@ -358,10 +333,7 @@ class MyApp extends StatelessWidget {
           final onboardingBloc = context.read<OnboardingBloc>();
 
           // Criar router usando BLoCs para evitar loop de reconstrução
-          final appRouter = AppRouter(
-            authBloc: authBloc,
-            onboardingBloc: onboardingBloc,
-          );
+          final appRouter = AppRouter(authBloc: authBloc, onboardingBloc: onboardingBloc);
 
           // Use BlocBuilder para obter o tema e locale atuais
           return BlocBuilder<LocaleBloc, LocaleState>(
@@ -379,8 +351,7 @@ class MyApp extends StatelessWidget {
 
                     // Configuração de localização usando LocaleBloc
                     locale: localeState.locale,
-                    localizationsDelegates:
-                        AppLocalizations.localizationsDelegates,
+                    localizationsDelegates: AppLocalizations.localizationsDelegates,
                     supportedLocales: localeState.supportedLocales,
 
                     routerConfig: appRouter.router,
