@@ -18,6 +18,7 @@ import 'package:nicotinaai_flutter/blocs/achievement/achievement_bloc.dart';
 import 'package:nicotinaai_flutter/blocs/achievement/achievement_state.dart';
 import 'package:nicotinaai_flutter/blocs/currency/currency_bloc.dart';
 import 'package:nicotinaai_flutter/blocs/currency/currency_state.dart';
+import 'package:nicotinaai_flutter/services/analytics/analytics_service.dart';
 import 'package:nicotinaai_flutter/core/routes/app_routes.dart';
 import 'package:nicotinaai_flutter/core/theme/app_theme.dart';
 import 'package:nicotinaai_flutter/core/theme/theme_switch.dart';
@@ -682,39 +683,53 @@ class _HomeScreenState extends State<HomeScreen> {
                                     Colors.redAccent,
                                     Icons.air,
                                     () {
-                                      // Use the BLoC version of RegisterCravingSheet
-                                      RegisterCravingSheet.show(context).then((
-                                        result,
-                                      ) {
-                                        // Only update if a craving was actually registered and we have data
-                                        if (result != null &&
-                                            result['registered'] == true) {
-                                          if (kDebugMode) {
-                                            print(
-                                              "🔄 Updating after registering craving with BLoC",
-                                            );
-                                            print(
-                                              "📊 Optimistic update data: ${result['stats']}",
-                                            );
-                                          }
+                                      // Use AnalyticsService para rastrear o evento e restringir a usuários pagos
+                                      final analyticsService = AnalyticsService();
+                                      
+                                      // Rastrear evento e mostrar paywall se necessário
+                                      analyticsService.trackEventOnlyPaid(
+                                        'open_craving_registration', 
+                                        parameters: {
+                                          'source': 'home_screen',
+                                        },
+                                        onPaidFeature: () {
+                                          // Esta parte só executa para usuários pagos ou após o fluxo de paywall
+                                          
+                                          // Show the craving registration sheet
+                                          RegisterCravingSheet.show(context).then((
+                                            result,
+                                          ) {
+                                            // Only update if a craving was actually registered and we have data
+                                            if (result != null &&
+                                                result['registered'] == true) {
+                                              if (kDebugMode) {
+                                                print(
+                                                  "🔄 Updating after registering craving with BLoC",
+                                                );
+                                                print(
+                                                  "📊 Optimistic update data: ${result['stats']}",
+                                                );
+                                              }
 
-                                          // Agora apenas observamos as mudanças no BLoC via BlocListener
-                                          // em vez de atualizar diretamente a UI
+                                              // Agora apenas observamos as mudanças no BLoC via BlocListener
+                                              // em vez de atualizar diretamente a UI
 
-                                          // Force full update of statistics (via BLoC) - isso vai acionar o BlocListener
-                                          final trackingBloc =
-                                              BlocProvider.of<TrackingBloc>(
-                                                context,
-                                              );
+                                              // Force full update of statistics (via BLoC) - isso vai acionar o BlocListener
+                                              final trackingBloc =
+                                                  BlocProvider.of<TrackingBloc>(
+                                                    context,
+                                                  );
 
-                                          // Já não precisamos definir explicitamente valores da UI, o BLoC cuidará disso
-                                          if (kDebugMode) {
-                                            print(
-                                              '🔢 Delegando atualização para o TrackingBloc via CravingAdded event',
-                                            );
-                                          }
-                                        }
-                                      });
+                                              // Já não precisamos definir explicitamente valores da UI, o BLoC cuidará disso
+                                              if (kDebugMode) {
+                                                print(
+                                                  '🔢 Delegando atualização para o TrackingBloc via CravingAdded event',
+                                                );
+                                              }
+                                            }
+                                          });
+                                        },
+                                      );
                                     },
                                   ),
                                 ),
@@ -727,53 +742,61 @@ class _HomeScreenState extends State<HomeScreen> {
                                     Colors.blueAccent,
                                     Icons.smoking_rooms,
                                     () {
-                                      // Track new record button click
-                                      final analyticsBloc = BlocProvider.of<AnalyticsBloc>(context);
-                                      analyticsBloc.add(const TrackCustomEvent(
-                                        'new_record_button_clicked',
-                                        parameters: {'source': 'home_screen'},
-                                      ));
+                                      // Use AnalyticsService para rastrear o evento e restringir a usuários pagos
+                                      final analyticsService = AnalyticsService();
                                       
-                                      // Usar a versão BLoC da sheet
-                                      NewRecordSheet.show(context).then((
-                                        result,
-                                      ) {
-                                        // Só atualiza se um record foi realmente registrado
-                                        if (result != null &&
-                                            result['registered'] == true) {
-                                          // Track successful record creation
-                                          analyticsBloc.add(const TrackCustomEvent(
-                                            'smoking_record_created',
-                                            parameters: {'source': 'new_record_sheet'},
-                                          ));
+                                      // Rastrear evento e mostrar paywall se necessário
+                                      analyticsService.trackEventOnlyPaid(
+                                        'open_smoking_record', 
+                                        parameters: {
+                                          'source': 'home_screen',
+                                        },
+                                        onPaidFeature: () {
+                                          // Esta parte só executa para usuários pagos ou após o fluxo de paywall
                                           
-                                          if (kDebugMode) {
-                                            print(
-                                              "🔄 Atualizando após registrar cigarro com BLoC",
-                                            );
-                                            print(
-                                              "📊 Dados para atualização otimista: ${result['stats']}",
-                                            );
-                                          }
+                                          // Usar a versão BLoC da sheet
+                                          NewRecordSheet.show(context).then((
+                                            result,
+                                          ) {
+                                            // Só atualiza se um record foi realmente registrado
+                                            if (result != null &&
+                                                result['registered'] == true) {
+                                              // Track successful record creation
+                                              final analyticsBloc = BlocProvider.of<AnalyticsBloc>(context);
+                                              analyticsBloc.add(const TrackCustomEvent(
+                                                'smoking_record_created',
+                                                parameters: {'source': 'new_record_sheet'},
+                                              ));
+                                              
+                                              if (kDebugMode) {
+                                                print(
+                                                  "🔄 Atualizando após registrar cigarro com BLoC",
+                                                );
+                                                print(
+                                                  "📊 Dados para atualização otimista: ${result['stats']}",
+                                                );
+                                              }
 
-                                          // Agora apenas observamos as mudanças no BLoC via BlocListener
-                                          // em vez de atualizar diretamente a UI
+                                              // Agora apenas observamos as mudanças no BLoC via BlocListener
+                                              // em vez de atualizar diretamente a UI
 
-                                          // Forçar atualização completa das estatísticas (via BLoC)
-                                          final trackingBloc =
-                                              BlocProvider.of<TrackingBloc>(
-                                                context,
-                                              );
-                                          trackingBloc.add(ForceUpdateStats());
+                                              // Forçar atualização completa das estatísticas (via BLoC)
+                                              final trackingBloc =
+                                                  BlocProvider.of<TrackingBloc>(
+                                                    context,
+                                                  );
+                                              trackingBloc.add(ForceUpdateStats());
 
-                                          // Já não precisamos definir explicitamente valores da UI, o BLoC cuidará disso
-                                          if (kDebugMode) {
-                                            print(
-                                              '🔢 Delegando atualização para o TrackingBloc via SmokingRecordAdded event',
-                                            );
-                                          }
-                                        }
-                                      });
+                                              // Já não precisamos definir explicitamente valores da UI, o BLoC cuidará disso
+                                              if (kDebugMode) {
+                                                print(
+                                                  '🔢 Delegando atualização para o TrackingBloc via SmokingRecordAdded event',
+                                                );
+                                              }
+                                            }
+                                          });
+                                        },
+                                      );
                                     },
                                   ),
                                 ),

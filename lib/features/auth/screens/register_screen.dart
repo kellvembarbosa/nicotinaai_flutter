@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -12,6 +13,7 @@ import 'package:nicotinaai_flutter/features/auth/screens/splash_screen.dart';
 import 'package:nicotinaai_flutter/widgets/app_icon_widget.dart';
 import 'package:nicotinaai_flutter/widgets/platform_loading_indicator.dart';
 import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
+import 'package:nicotinaai_flutter/utils/url_launcher_utils.dart';
 
 class RegisterScreen extends StatefulWidget {
   // Rota definida no AppRoutes
@@ -269,9 +271,71 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               _termsAccepted = !_termsAccepted;
                             });
                           },
-                          child: Text(
-                            l10n.termsConditionsAgree,
-                            style: theme.textTheme.bodyMedium,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              RichText(
+                                text: TextSpan(
+                                  style: theme.textTheme.bodyMedium,
+                                  children: [
+                                    TextSpan(
+                                      text: l10n.termsConditionsAgree,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              SizedBox(height: 4),
+                              Wrap(
+                                children: [
+                                  GestureDetector(
+                                    onTap: () {
+                                      context.read<AnalyticsBloc>().add(
+                                        const TrackCustomEvent(
+                                          'terms_link_clicked',
+                                          parameters: {'source': 'register_screen'},
+                                        ),
+                                      );
+                                      UrlLauncherUtils.launchURL(
+                                        'https://nicotina.ai/legal/terms-of-service',
+                                        context: context,
+                                      );
+                                    },
+                                    child: Text(
+                                      l10n.termsOfUse,
+                                      style: theme.textTheme.bodySmall!.copyWith(
+                                        color: theme.colorScheme.primary,
+                                        decoration: TextDecoration.underline,
+                                      ),
+                                    ),
+                                  ),
+                                  Text(
+                                    " | ",
+                                    style: theme.textTheme.bodySmall,
+                                  ),
+                                  GestureDetector(
+                                    onTap: () {
+                                      context.read<AnalyticsBloc>().add(
+                                        const TrackCustomEvent(
+                                          'privacy_policy_clicked',
+                                          parameters: {'source': 'register_screen'},
+                                        ),
+                                      );
+                                      UrlLauncherUtils.launchURL(
+                                        'https://nicotina.ai/legal/privacy-policy',
+                                        context: context,
+                                      );
+                                    },
+                                    child: Text(
+                                      l10n.privacyPolicy,
+                                      style: theme.textTheme.bodySmall!.copyWith(
+                                        color: theme.colorScheme.primary,
+                                        decoration: TextDecoration.underline,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
                           ),
                         ),
                       ),

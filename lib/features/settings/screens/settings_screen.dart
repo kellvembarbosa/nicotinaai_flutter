@@ -18,6 +18,7 @@ import 'package:nicotinaai_flutter/core/theme/theme_settings.dart';
 import 'package:nicotinaai_flutter/features/tracking/screens/statistics_dashboard_screen.dart';
 import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
 import 'package:nicotinaai_flutter/services/notification_service.dart';
+import 'package:nicotinaai_flutter/utils/url_launcher_utils.dart';
 
 class SettingsScreen extends StatefulWidget {
   static const String routeName = '/settings';
@@ -465,6 +466,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ));
                 
                 // Abrir política de privacidade
+                UrlLauncherUtils.launchURL(
+                  'https://nicotina.ai/legal/privacy-policy',
+                  context: context,
+                );
               },
             ),
             _buildSettingItem(
@@ -481,6 +486,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ));
                 
                 // Abrir termos de uso
+                UrlLauncherUtils.launchURL(
+                  'https://nicotina.ai/legal/terms-of-service',
+                  context: context,
+                );
               },
             ),
             _buildSettingItem(
