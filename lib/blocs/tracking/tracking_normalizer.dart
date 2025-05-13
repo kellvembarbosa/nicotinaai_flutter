@@ -70,8 +70,32 @@ extension TrackingNormalizer on TrackingBloc {
       return 0;
     }
     
-    // Usar o valor normalizado
-    return stats.totalMinutesGained ?? 0;
+    // Calcular minutos ganhos com base em cravings resistidos (6 minutos por craving)
+    int totalCravingsResisted = getCravingsResisted();
+    int minutesFromCravings = totalCravingsResisted * ImprovedStatsCalculator.MINUTES_PER_CIGARETTE;
+    
+    if (kDebugMode) {
+      print('🔍 [TrackingNormalizer] Minutes of Life Gained calculation:');
+      print('   - From stats.totalMinutesGained: ${stats.totalMinutesGained ?? 0}');
+      print('   - Total cravings resisted: $totalCravingsResisted');
+      print('   - Minutes per craving: ${ImprovedStatsCalculator.MINUTES_PER_CIGARETTE}');
+      print('   - Minutes from cravings: $minutesFromCravings');
+      
+      // Debug unifiedCravings
+      print('   - unifiedCravings count: ${state.unifiedCravings.length}');
+      print('   - resisted cravings count: ${state.unifiedCravings.where((c) => c.resisted).length}');
+      
+      // Print all cravings timestamps for debugging
+      for (final c in state.unifiedCravings.where((c) => c.resisted).take(5)) {
+        print('   - resisted craving: ${c.id} at ${c.timestamp.toIso8601String()}');
+      }
+      if (state.unifiedCravings.where((c) => c.resisted).length > 5) {
+        print('   - ... and ${state.unifiedCravings.where((c) => c.resisted).length - 5} more');
+      }
+    }
+    
+    // Usar o número real de cravings resistidos para calcular, não o valor do DB
+    return minutesFromCravings;
   }
   
   /// Obtém o percentual de capacidade pulmonar de forma consistente
@@ -92,6 +116,12 @@ extension TrackingNormalizer on TrackingBloc {
     // 2. The count of unified cravings marked as resisted that might not be in the DB yet
     int databaseValue = stats.cravingsResisted;
     
+    // Count ALL unified cravings that are marked as resisted regardless of sync status
+    // This is more accurate than just using the database value
+    int allResistedCravings = state.unifiedCravings
+        .where((c) => c.resisted)
+        .length;
+    
     // Count pending or failed unified cravings that are marked as resisted
     // These might not be reflected in the stats.cravingsResisted value yet
     int pendingResisted = state.unifiedCravings
@@ -102,12 +132,37 @@ extension TrackingNormalizer on TrackingBloc {
     
     if (kDebugMode) {
       print('📊 [TrackingNormalizer] Calculating cravings resisted:');
-      print('   - From database: $databaseValue');
+      print('   - From database (stats.cravingsResisted): $databaseValue');
+      print('   - Total resisted cravings in unifiedCravings: $allResistedCravings');
       print('   - Pending/failed resisted cravings: $pendingResisted');
-      print('   - Total: ${databaseValue + pendingResisted}');
+      print('   - Final calculation (database + pending): ${databaseValue + pendingResisted}');
+      
+      // Show more details about unified cravings for debugging
+      print('   - All cravings in unifiedCravings: ${state.unifiedCravings.length}');
+      
+      // Count by sync status
+      int syncedCount = state.unifiedCravings
+          .where((c) => c.resisted && c.syncStatus == SyncStatus.synced)
+          .length;
+      int pendingCount = state.unifiedCravings
+          .where((c) => c.resisted && c.syncStatus == SyncStatus.pending)
+          .length;
+      int failedCount = state.unifiedCravings
+          .where((c) => c.resisted && c.syncStatus == SyncStatus.failed)
+          .length;
+      
+      print('   - Synced resisted cravings: $syncedCount');
+      print('   - Pending resisted cravings: $pendingCount');
+      print('   - Failed resisted cravings: $failedCount');
+      
+      // The most accurate count would be max of database value or all resisted in unified cravings
+      int bestEstimateCount = allResistedCravings > databaseValue ? allResistedCravings : databaseValue;
+      print('   - Best estimate of total resisted cravings: $bestEstimateCount');
     }
     
-    return databaseValue + pendingResisted;
+    // Use the better of the two values: either database value or all resisted in unified cravings
+    // This ensures we don't undercount cravings
+    return allResistedCravings > databaseValue ? allResistedCravings : databaseValue;
   }
   
   /// Obtém os cravings resistidos apenas no dia atual
