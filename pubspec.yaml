@@ -78,6 +78,8 @@ dependencies:
   bloc: ^9.0.0
   equatable: ^2.0.7
   posthog_flutter: ^5.0.0
+  superwallkit_flutter: ^2.1.0
+  purchases_flutter: ^8.8.0
 
 dev_dependencies:
   flutter_test:
