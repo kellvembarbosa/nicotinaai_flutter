@@ -81,6 +81,7 @@ dependencies:
   posthog_flutter: ^5.0.0
   superwallkit_flutter: ^2.1.0
   purchases_flutter: ^8.8.0
+  flutter_native_splash: ^2.4.6
 
 dev_dependencies:
   flutter_test:
