@@ -19,16 +19,31 @@ class SuperwallTrackingAdapter implements TrackingAdapter {
 
   /// Track evento normal ou feature pag
   @override
-  Future<void> trackEvent(String eventName, {Map<String, dynamic>? parameters}) async {
+  Future<void> trackEvent(
+    String eventName, {
+    Map<String, dynamic>? parameters,
+  }) async {
     if (!_isInitialized || !_isTrackingEnabled) return;
 
-    sw.Superwall.shared.registerPlacement(eventName, params: parameters?.cast<String, Object>());
+    sw.Superwall.shared.registerPlacement(
+      eventName,
+      params: parameters?.cast<String, Object>(),
+    );
   }
 
   /// Track apenas para features pagas (executa a função e registra o evento)
-  Future<void> trackEventOnlyPaid(String eventName, {Map<String, dynamic>? parameters, required VoidCallback onPaidFeature}) async {
+  @override
+  Future<void> trackEventOnlyPaid(
+    String eventName, {
+    Map<String, dynamic>? parameters,
+    VoidCallback? onPaidFeature,
+  }) async {
     if (!_isInitialized || !_isTrackingEnabled) return;
-    sw.Superwall.shared.registerPlacement(eventName, params: parameters?.cast<String, Object>(), feature: onPaidFeature);
+    sw.Superwall.shared.registerPlacement(
+      eventName,
+      params: parameters?.cast<String, Object>(),
+      feature: onPaidFeature,
+    );
   }
 
   @override

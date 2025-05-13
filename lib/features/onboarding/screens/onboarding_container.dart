@@ -6,8 +6,10 @@ import 'package:nicotinaai_flutter/blocs/onboarding/onboarding_bloc.dart';
 import 'package:nicotinaai_flutter/blocs/onboarding/onboarding_event.dart';
 import 'package:nicotinaai_flutter/blocs/onboarding/onboarding_state.dart';
 import 'package:nicotinaai_flutter/core/theme/app_theme.dart';
+import 'package:nicotinaai_flutter/features/onboarding/widgets/navigation_buttons.dart';
 import 'package:nicotinaai_flutter/features/onboarding/widgets/progress_bar.dart';
 import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
+import 'package:nicotinaai_flutter/services/analytics/analytics_service.dart';
 
 enum OnboardingContentType {
   /// Conteúdo regular, sem requisitos especiais de layout
@@ -35,6 +37,9 @@ class OnboardingContainer extends StatefulWidget {
   /// Tipo de conteúdo que será exibido
   final OnboardingContentType contentType;
   
+  /// Nome da tela para analytics
+  final String? screenName;
+  
   const OnboardingContainer({
     Key? key,
     required this.title,
@@ -46,6 +51,7 @@ class OnboardingContainer extends StatefulWidget {
     required this.onNext,
     this.isLoading = false,
     this.contentType = OnboardingContentType.regular,
+    this.screenName,
   }) : super(key: key);
   
   @override
@@ -213,166 +219,33 @@ class _OnboardingContainerState extends State<OnboardingContainer> {
   }
   
   Widget _buildNavigationRow(BuildContext context, OnboardingState state) {
-    // Se não tiver botão voltar, exibe apenas o botão próximo com largura completa
-    if (!widget.showBackButton) {
-      return SizedBox(
-        width: double.infinity,
-        child: ElevatedButton(
-          onPressed: widget.canProceed ? 
-            widget.onNext : 
-            () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(AppLocalizations.of(context).pleaseCompleteAllFields),
-                  behavior: SnackBarBehavior.floating,
-                  backgroundColor: Colors.redAccent,
-                  duration: const Duration(seconds: 2),
-                  action: SnackBarAction(
-                    label: AppLocalizations.of(context).understood,
-                    textColor: Colors.white,
-                    onPressed: () {
-                      ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                    },
-                  ),
-                ),
-              );
-            },
-          style: ElevatedButton.styleFrom(
-            backgroundColor: context.primaryColor,
-            foregroundColor: Colors.white,
-            disabledBackgroundColor: null, // Removendo para evitar visual de desabilitado
-            disabledForegroundColor: null, // Removendo para evitar visual de desabilitado
-            elevation: 0,
-            padding: const EdgeInsets.symmetric(
-              horizontal: 24,
-              vertical: 14,
-            ),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-          ),
-          child: widget.isLoading
-            // Indicador de carregamento quando isLoading for true
-            ? const SizedBox(
-                height: 20,
-                width: 20,
-                child: CircularProgressIndicator(
-                  color: Colors.white,
-                  strokeWidth: 2.5,
-                ),
-              )
-            // Conteúdo normal do botão quando não estiver carregando
-            : Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    widget.nextButtonText ?? AppLocalizations.of(context).continueButton,
-                    style: const TextStyle(fontWeight: FontWeight.w600),
-                  ),
-                  const SizedBox(width: 8),
-                  const Icon(Icons.arrow_forward, size: 18),
-                ],
-              ),
+    // Se o botão estiver em status de carregamento, mostrar indicador
+    if (widget.isLoading) {
+      return Center(
+        child: CircularProgressIndicator(
+          color: context.primaryColor,
         ),
       );
     }
     
-    // Layout com botão de voltar menor e botão de continuar expandido
-    return Row(
-      children: [
-        // Botão voltar (compacto)
-        OutlinedButton(
-          onPressed: () {
-            context.read<OnboardingBloc>().add(PreviousOnboardingStep());
-          },
-          style: OutlinedButton.styleFrom(
-            side: BorderSide(color: context.borderColor),
-            foregroundColor: context.contentColor,
-            padding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 14,
-            ),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(Icons.arrow_back, size: 18),
-              const SizedBox(width: 8),
-              Text(
-                AppLocalizations.of(context).back,
-                style: const TextStyle(fontWeight: FontWeight.w500),
-              ),
-            ],
-          ),
-        ),
-        
-        // Espaçamento entre os botões
-        const SizedBox(width: 12),
-        
-        // Botão próximo (expandido)
-        Expanded(
-          child: ElevatedButton(
-            onPressed: widget.canProceed ? 
-              widget.onNext : 
-              () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(AppLocalizations.of(context).pleaseCompleteAllFields),
-                    behavior: SnackBarBehavior.floating,
-                    backgroundColor: Colors.redAccent,
-                    duration: const Duration(seconds: 2),
-                    action: SnackBarAction(
-                      label: AppLocalizations.of(context).understood,
-                      textColor: Colors.white,
-                      onPressed: () {
-                        ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                      },
-                    ),
-                  ),
-                );
-              },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: context.primaryColor,
-              foregroundColor: Colors.white,
-              disabledBackgroundColor: null, // Removendo para evitar visual de desabilitado
-              disabledForegroundColor: null, // Removendo para evitar visual de desabilitado
-              elevation: 0,
-              padding: const EdgeInsets.symmetric(
-                horizontal: 24,
-                vertical: 14,
-              ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-            child: widget.isLoading
-              // Indicador de carregamento quando isLoading for true
-              ? const SizedBox(
-                  height: 20,
-                  width: 20,
-                  child: CircularProgressIndicator(
-                    color: Colors.white,
-                    strokeWidth: 2.5,
-                  ),
-                )
-              // Conteúdo normal do botão quando não estiver carregando
-              : Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      widget.nextButtonText ?? AppLocalizations.of(context).continueButton,
-                      style: const TextStyle(fontWeight: FontWeight.w600),
-                    ),
-                    const SizedBox(width: 8),
-                    const Icon(Icons.arrow_forward, size: 18),
-                  ],
-                ),
-          ),
-        ),
-      ],
+    // Trackear visualização da tela ao montar os botões (faz sentido aqui pois ocorre uma vez por tela)
+    if (widget.screenName != null) {
+      AnalyticsService().trackEvent(
+        'onboarding_screen_view',
+        parameters: {'screen': widget.screenName!},
+      );
+    }
+    
+    // Usar o widget NavigationButtons que já tem tracking implementado
+    return NavigationButtons(
+      onBack: () {
+        context.read<OnboardingBloc>().add(PreviousOnboardingStep());
+      },
+      onNext: widget.onNext,
+      canGoBack: widget.showBackButton,
+      disableNext: !widget.canProceed,
+      nextText: widget.nextButtonText,
+      screenName: widget.screenName,
     );
   }
 }

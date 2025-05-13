@@ -11,7 +11,8 @@ class PostHogTrackingAdapter implements TrackingAdapter {
   final String _apiKey;
   final String _host;
 
-  PostHogTrackingAdapter(this._apiKey, {String? host}) : _host = host ?? 'https://app.posthog.com';
+  PostHogTrackingAdapter(this._apiKey, {String? host})
+    : _host = host ?? 'https://app.posthog.com';
 
   @override
   Future<void> initialize() async {
@@ -25,14 +26,18 @@ class PostHogTrackingAdapter implements TrackingAdapter {
       config.sessionReplay = true;
       config.sessionReplayConfig.maskAllTexts = false;
       config.sessionReplayConfig.maskAllImages = false;
-      config.sessionReplayConfig.throttleDelay = const Duration(milliseconds: 1000);
+      config.sessionReplayConfig.throttleDelay = const Duration(
+        milliseconds: 1000,
+      );
       config.flushAt = 1;
       config.host = _host;
-      
+
       // O método setup retorna Future<void>, não uma instância de Posthog
       await _posthog.setup(config);
 
-      debugPrint('✅ [PostHogTracking] Initialized with API key: ${_apiKey.substring(0, 8)}...');
+      debugPrint(
+        '✅ [PostHogTracking] Initialized with API key: ${_apiKey.substring(0, 8)}...',
+      );
       _isInitialized = true;
     } catch (e) {
       debugPrint('❌ [PostHogTracking] Error initializing: $e');
@@ -40,25 +45,33 @@ class PostHogTrackingAdapter implements TrackingAdapter {
   }
 
   @override
-  Future<void> trackEvent(String eventName, {Map<String, dynamic>? parameters}) async {
+  Future<void> trackEvent(
+    String eventName, {
+    Map<String, dynamic>? parameters,
+  }) async {
     if (!_isInitialized) {
       await initialize();
     }
 
     if (!_isTrackingEnabled) {
-      debugPrint('⚠️ [PostHogTracking] Tracking disabled, event not logged: $eventName');
+      debugPrint(
+        '⚠️ [PostHogTracking] Tracking disabled, event not logged: $eventName',
+      );
       return;
     }
 
     try {
       // Converter Map<String, dynamic>? para Map<String, Object>?
-      final convertedParams = parameters != null 
-          ? parameters.map((key, value) => MapEntry(key, value as Object)) 
-          : null;
+      final convertedParams =
+          parameters != null
+              ? parameters.map((key, value) => MapEntry(key, value as Object))
+              : null;
 
       await _posthog.capture(eventName: eventName, properties: convertedParams);
 
-      debugPrint('📊 [PostHogTracking] Logged event: $eventName with parameters: $parameters');
+      debugPrint(
+        '📊 [PostHogTracking] Logged event: $eventName with parameters: $parameters',
+      );
     } catch (e) {
       debugPrint('❌ [PostHogTracking] Error logging event: $e');
     }
@@ -71,13 +84,17 @@ class PostHogTrackingAdapter implements TrackingAdapter {
     }
 
     if (!_isTrackingEnabled) {
-      debugPrint('⚠️ [PostHogTracking] Tracking disabled, user properties not set');
+      debugPrint(
+        '⚠️ [PostHogTracking] Tracking disabled, user properties not set',
+      );
       return;
     }
 
     try {
       // Converter Map<String, dynamic> para Map<String, Object>
-      final convertedProps = properties.map((key, value) => MapEntry(key, value as Object));
+      final convertedProps = properties.map(
+        (key, value) => MapEntry(key, value as Object),
+      );
 
       if (properties.containsKey('user_id')) {
         final userId = properties['user_id'].toString();
@@ -92,7 +109,10 @@ class PostHogTrackingAdapter implements TrackingAdapter {
         // Get the current distinct ID to maintain identity
         final distinctId = await _posthog.getDistinctId();
 
-        await _posthog.identify(userId: distinctId, userProperties: convertedProps);
+        await _posthog.identify(
+          userId: distinctId,
+          userProperties: convertedProps,
+        );
       }
 
       debugPrint('👤 [PostHogTracking] Set user properties: $properties');
@@ -127,7 +147,36 @@ class PostHogTrackingAdapter implements TrackingAdapter {
 
     // Como o PostHog não tem um método optOut(), usamos nossa própria lógica
     // para desabilitar o tracking sem desligar o adaptador
-    debugPrint('🔄 [PostHogTracking] Tracking ${value ? 'enabled' : 'disabled'}');
+    debugPrint(
+      '🔄 [PostHogTracking] Tracking ${value ? 'enabled' : 'disabled'}',
+    );
+  }
+
+  @override
+  Future<void> trackEventOnlyPaid(
+    String eventName, {
+    Map<String, dynamic>? parameters,
+    VoidCallback? onPaidFeature,
+  }) async {
+    // Implementação específica para eventos pagos
+    if (!_isInitialized) {
+      await initialize();
+    }
+
+    if (!_isTrackingEnabled) {
+      debugPrint(
+        '⚠️ [PostHogTracking] Tracking disabled, event not logged: $eventName',
+      );
+      return;
+    }
+
+    print('🔒 [PostHogTracking] Tracking paid feature: $eventName');
+
+    // Execute the paid feature callback if provided
+    onPaidFeature?.call();
+
+    // Track the event
+    return trackEvent(eventName, parameters: parameters);
   }
 }
 

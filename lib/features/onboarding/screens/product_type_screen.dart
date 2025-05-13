@@ -79,6 +79,11 @@ class _ProductTypeScreenState extends State<ProductTypeScreen> {
                 },
                 label: localizations.cigaretteOnly,
                 description: localizations.traditionalCigarettes,
+                analyticsEventName: 'onboarding_product_type_selected',
+                analyticsProperties: {
+                  'type': 'cigarette_only',
+                  'screen': 'product_type'
+                },
                 child: _selectedProductType == ProductType.cigaretteOnly 
                     ? _buildProductIcon(Icons.smoking_rooms) 
                     : null,
@@ -95,6 +100,11 @@ class _ProductTypeScreenState extends State<ProductTypeScreen> {
                 },
                 label: localizations.vapeOnly,
                 description: localizations.electronicDevices,
+                analyticsEventName: 'onboarding_product_type_selected',
+                analyticsProperties: {
+                  'type': 'vape_only',
+                  'screen': 'product_type'
+                },
                 child: _selectedProductType == ProductType.vapeOnly 
                     ? _buildProductIcon(Icons.air) 
                     : null,
@@ -111,6 +121,11 @@ class _ProductTypeScreenState extends State<ProductTypeScreen> {
                 },
                 label: localizations.both,
                 description: localizations.useBoth,
+                analyticsEventName: 'onboarding_product_type_selected',
+                analyticsProperties: {
+                  'type': 'both',
+                  'screen': 'product_type'
+                },
                 child: _selectedProductType == ProductType.both 
                     ? Row(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -164,6 +179,7 @@ class _ProductTypeScreenState extends State<ProductTypeScreen> {
             }
           },
           canProceed: _selectedProductType != null,
+          screenName: 'product_type',
         );
       }
     );

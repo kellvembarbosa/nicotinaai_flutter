@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:nicotinaai_flutter/core/theme/app_theme.dart';
+import 'package:nicotinaai_flutter/services/analytics/analytics_service.dart';
 
 class OptionCard extends StatelessWidget {
   final bool selected;
@@ -8,6 +9,8 @@ class OptionCard extends StatelessWidget {
   final String label;
   final String? description;
   final Widget? child;
+  final String? analyticsEventName;
+  final Map<String, dynamic>? analyticsProperties;
   
   const OptionCard({
     Key? key,
@@ -16,6 +19,8 @@ class OptionCard extends StatelessWidget {
     required this.label,
     this.description,
     this.child,
+    this.analyticsEventName,
+    this.analyticsProperties,
   }) : super(key: key);
   
   @override
@@ -36,7 +41,16 @@ class OptionCard extends StatelessWidget {
       color: Colors.transparent,
       borderRadius: BorderRadius.circular(8), // Reduzido para 8
       child: InkWell(
-        onTap: onPress,
+        onTap: () {
+          // Trackear o evento se fornecido
+          if (analyticsEventName != null) {
+            AnalyticsService().trackEvent(
+              analyticsEventName!,
+              parameters: analyticsProperties ?? {'option': label},
+            );
+          }
+          onPress();
+        },
         borderRadius: BorderRadius.circular(8), // Reduzido para 8
         child: Ink(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8), // Ultra compacto
@@ -61,7 +75,16 @@ class OptionCard extends StatelessWidget {
       color: Colors.transparent,
       borderRadius: BorderRadius.circular(8), // Reduzido para 8
       child: InkWell(
-        onTap: onPress,
+        onTap: () {
+          // Trackear o evento se fornecido
+          if (analyticsEventName != null) {
+            AnalyticsService().trackEvent(
+              analyticsEventName!,
+              parameters: analyticsProperties ?? {'option': label},
+            );
+          }
+          onPress();
+        },
         borderRadius: BorderRadius.circular(8), // Reduzido para 8
         child: ClipRRect(
           borderRadius: BorderRadius.circular(8), // Reduzido para 8

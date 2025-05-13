@@ -8,6 +8,9 @@ abstract class TrackingAdapter {
   /// Track an event
   Future<void> trackEvent(String eventName, {Map<String, dynamic>? parameters});
   
+  /// Track an event for paid features
+  Future<void> trackEventOnlyPaid(String eventName, {Map<String, dynamic>? parameters, VoidCallback? onPaidFeature});
+  
   /// Set user properties
   Future<void> setUserProperties(Map<String, dynamic> properties);
   

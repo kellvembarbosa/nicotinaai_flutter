@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
+import 'package:nicotinaai_flutter/services/analytics/analytics_service.dart';
 
 class NavigationButtons extends StatelessWidget {
   final VoidCallback onBack;
@@ -8,6 +9,7 @@ class NavigationButtons extends StatelessWidget {
   final bool canGoBack;
   final bool disableNext;
   final String? nextText;
+  final String? screenName;
   
   const NavigationButtons({
     Key? key,
@@ -16,6 +18,7 @@ class NavigationButtons extends StatelessWidget {
     this.canGoBack = true,
     this.disableNext = false,
     this.nextText,
+    this.screenName,
   }) : super(key: key);
   
   @override
@@ -27,6 +30,15 @@ class NavigationButtons extends StatelessWidget {
         child: ElevatedButton(
           onPressed: disableNext ? 
             () {
+              // Trackear tentativa sem preenchimento dos campos
+              AnalyticsService().trackEvent(
+                'onboarding_incomplete_attempt',
+                parameters: {
+                  'screen': screenName ?? 'unknown',
+                  'button': nextText ?? 'continue',
+                },
+              );
+              
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text(AppLocalizations.of(context).pleaseCompleteAllFields),
@@ -42,7 +54,17 @@ class NavigationButtons extends StatelessWidget {
                   ),
                 ),
               );
-            } : onNext,
+            } : () {
+              // Trackear clique no botão de continuar
+              AnalyticsService().trackEvent(
+                'onboarding_next',
+                parameters: {
+                  'screen': screenName ?? 'unknown',
+                  'button': nextText ?? 'continue',
+                },
+              );
+              onNext();
+            },
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFF2962FF), // Azul primário
             foregroundColor: Colors.white,
@@ -79,7 +101,16 @@ class NavigationButtons extends StatelessWidget {
       children: [
         // Botão voltar (compacto)
         OutlinedButton(
-          onPressed: onBack,
+          onPressed: () {
+            // Trackear clique no botão voltar
+            AnalyticsService().trackEvent(
+              'onboarding_back',
+              parameters: {
+                'screen': screenName ?? 'unknown',
+              },
+            );
+            onBack();
+          },
           style: OutlinedButton.styleFrom(
             side: BorderSide(color: Colors.grey[300]!),
             shape: RoundedRectangleBorder(
@@ -114,6 +145,15 @@ class NavigationButtons extends StatelessWidget {
           child: ElevatedButton(
             onPressed: disableNext ? 
               () {
+                // Trackear tentativa sem preenchimento dos campos
+                AnalyticsService().trackEvent(
+                  'onboarding_incomplete_attempt',
+                  parameters: {
+                    'screen': screenName ?? 'unknown',
+                    'button': nextText ?? 'continue',
+                  },
+                );
+                
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text(AppLocalizations.of(context).pleaseCompleteAllFields),
@@ -129,7 +169,17 @@ class NavigationButtons extends StatelessWidget {
                     ),
                   ),
                 );
-              } : onNext,
+              } : () {
+                // Trackear clique no botão de continuar
+                AnalyticsService().trackEvent(
+                  'onboarding_next',
+                  parameters: {
+                    'screen': screenName ?? 'unknown',
+                    'button': nextText ?? 'continue',
+                  },
+                );
+                onNext();
+              },
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF2962FF), // Azul primário
               foregroundColor: Colors.white,
