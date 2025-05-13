@@ -56,7 +56,7 @@
   "@cigaretteAlternativesDescription": {
     "description": "Description for cigarette alternatives"
   },
-  "savingsCalculator": "Savings calculator",
+  "savingsCalculator": "Savings Calculator",
   "@savingsCalculator": {
     "description": "Option for savings calculator"
   },

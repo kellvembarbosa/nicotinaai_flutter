@@ -71,7 +71,7 @@
     "description": "Description for cigarette alternatives"
   },
   
-  "savingsCalculator": "Calculadora de economia",
+  "savingsCalculator": "Calculadora de Economia",
   "@savingsCalculator": {
     "description": "Option for savings calculator"
   },
