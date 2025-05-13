@@ -6,9 +6,10 @@ import 'package:nicotinaai_flutter/blocs/auth/auth_state.dart';
 import 'package:nicotinaai_flutter/blocs/tracking/tracking_bloc.dart';
 import 'package:nicotinaai_flutter/blocs/tracking/tracking_event.dart';
 import 'package:nicotinaai_flutter/blocs/tracking/tracking_state.dart';
+import 'package:nicotinaai_flutter/blocs/tracking/tracking_normalizer.dart';
 import 'package:nicotinaai_flutter/features/tracking/models/user_stats.dart';
-// Removed imports for deleted screens
 import 'package:nicotinaai_flutter/utils/currency_utils.dart';
+import 'package:nicotinaai_flutter/utils/improved_stats_calculator.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({Key? key}) : super(key: key);
@@ -173,43 +174,80 @@ class _DashboardScreenState extends State<DashboardScreen> {
       );
     }
     
-    return GridView.count(
-      crossAxisCount: 2,
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      childAspectRatio: 1.5,
-      crossAxisSpacing: 10,
-      mainAxisSpacing: 10,
+    // Obter o TrackingBloc para acessar os valores normalizados
+    final trackingBloc = context.read<TrackingBloc>();
+    final totalMinutesGained = stats.totalMinutesGained ?? trackingBloc.getMinutesLifeGained();
+    
+    // Formatação de tempo para minutos de vida ganhos
+    final String formattedMinutesGained = _formatTimeGained(totalMinutesGained);
+    
+    // Ajustar número de cards por linha para melhorar o layout
+    return Column(
       children: [
-        _statCard(
-          context,
-          'Current Streak',
-          '${stats.currentStreakDays} days',
-          Icons.local_fire_department,
-          Colors.orange,
+        // Primeira linha: 2 cards - streak e cigarettes avoided
+        Row(
+          children: [
+            Expanded(
+              child: _statCard(
+                context,
+                'Current Streak',
+                '${stats.currentStreakDays} days',
+                Icons.local_fire_department,
+                Colors.orange,
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: _statCard(
+                context,
+                'Cigarettes Avoided',
+                stats.cigarettesAvoided.toString(),
+                Icons.smoke_free,
+                Colors.green,
+              ),
+            ),
+          ],
         ),
-        _statCard(
-          context,
-          'Cigarettes Avoided',
-          stats.cigarettesAvoided.toString(),
-          Icons.smoke_free,
-          Colors.green,
+        
+        const SizedBox(height: 10),
+        
+        // Segunda linha: 2 cards - money saved e cravings resisted
+        Row(
+          children: [
+            Expanded(
+              child: _statCard(
+                context,
+                'Money Saved',
+                formattedMoneySaved,
+                Icons.account_balance_wallet,
+                Colors.blue,
+                subtitle: 'Based on ${stats.cigarettesAvoided} cigarettes avoided',
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: _statCard(
+                context,
+                'Cravings Resisted',
+                stats.cravingsResisted.toString(),
+                Icons.fitness_center,
+                Colors.purple,
+                subtitle: '+${stats.cravingsResisted * 5} XP earned',
+              ),
+            ),
+          ],
         ),
+        
+        const SizedBox(height: 10),
+        
+        // Terceira linha: 1 card grande - Total Minutes Gained (largo)
         _statCard(
           context,
-          'Money Saved',
-          formattedMoneySaved, // Usando o valor formatado pelo CurrencyUtils
-          Icons.account_balance_wallet,
-          Colors.blue,
-          subtitle: 'Based on ${stats.cravingsResisted} cravings resisted',
-        ),
-        _statCard(
-          context,
-          'Cravings Resisted',
-          stats.cravingsResisted.toString(),
-          Icons.fitness_center,
-          Colors.purple,
-          subtitle: '+${stats.cravingsResisted * 5} XP earned',
+          'Total Minutes of Life Gained',
+          formattedMinutesGained,
+          Icons.favorite,
+          Colors.teal,
+          subtitle: '6 minutes gained per craving resisted',
         ),
       ],
     );
@@ -423,6 +461,22 @@ class _DashboardScreenState extends State<DashboardScreen> {
         return Colors.blue;
       default:
         return Colors.grey;
+    }
+  }
+  
+  /// Converte minutos em uma representação de dias/horas/minutos
+  String _formatTimeGained(int minutes) {
+    final int days = minutes ~/ 1440; // 24 * 60
+    final int remainingMinutes = minutes % 1440;
+    final int hours = remainingMinutes ~/ 60;
+    final int mins = remainingMinutes % 60;
+    
+    if (days > 0) {
+      return '$days days, $hours hrs';
+    } else if (hours > 0) {
+      return '$hours hrs, $mins mins';
+    } else {
+      return '$mins minutes';
     }
   }
 }
