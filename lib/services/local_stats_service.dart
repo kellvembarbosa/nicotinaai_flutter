@@ -184,11 +184,13 @@ class LocalStatsService {
         print('- Minutos ganhos total: $totalMinutesGained');
       }
       
-      // 8. Salvar no Supabase via upsert
-      await SupabaseConfig.client
-          .from('user_stats')
-          .upsert(updateData)
-          .select();
+      // 8. Salvar no Supabase usando a função upsert_user_stats para evitar violação de constraint
+      final response = await SupabaseConfig.client
+          .rpc('upsert_user_stats', 
+              params: {
+                'p_user_id': userIdToUse,
+                'p_stats': updateData
+              });
       
       // 9. Obter estatísticas atualizadas
       final updatedStatsResponse = await SupabaseConfig.client
