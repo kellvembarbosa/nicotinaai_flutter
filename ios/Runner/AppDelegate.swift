@@ -11,8 +11,13 @@ import UserNotifications
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
-    // Configurar Firebase
-    FirebaseApp.configure()
+    // Configurar Firebase - certifique-se de que seja chamado apenas uma vez
+    if FirebaseApp.app() == nil {
+      FirebaseApp.configure()
+      print("Firebase configured successfully")
+    } else {
+      print("Firebase was already configured")
+    }
     
     // Registrar para notificações remotas
     if #available(iOS 10.0, *) {
@@ -36,6 +41,12 @@ import UserNotifications
     // Definir delegado para o Messaging do Firebase
     Messaging.messaging().delegate = self
     
+    // Configurar APNs para funcionar em simulador (apenas para debug)
+    #if targetEnvironment(simulator)
+    print("Running on simulator - enabling APNs emulation")
+    Messaging.messaging().isAPNSTokenAutoRegistrationEnabled = false
+    #endif
+    
     GeneratedPluginRegistrant.register(with: self)
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
@@ -43,7 +54,16 @@ import UserNotifications
   // Lidar com o recebimento de token de APNs
   override func application(_ application: UIApplication,
                             didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
-    Messaging.messaging().apnsToken = deviceToken
+    // Format and log the token for debugging
+    let tokenParts = deviceToken.map { String(format: "%02.2hhx", $0) }
+    let token = tokenParts.joined()
+    print("APNS device token: \(token)")
+    
+    // Use a dispatch queue to not block the main thread during token registration
+    DispatchQueue.main.async {
+      Messaging.messaging().apnsToken = deviceToken
+    }
+    
     super.application(application, didRegisterForRemoteNotificationsWithDeviceToken: deviceToken)
   }
   
@@ -57,22 +77,37 @@ import UserNotifications
 // Extensão para lidar com o token FCM
 extension AppDelegate: MessagingDelegate {
   func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
-    print("Firebase registration token: \(String(describing: fcmToken))")
+    print("Firebase registration token received: \(String(describing: fcmToken))")
     
-    let dataDict: [String: String] = ["token": fcmToken ?? ""]
-    NotificationCenter.default.post(
-      name: Notification.Name("FCMToken"),
-      object: nil,
-      userInfo: dataDict
-    )
-    
-    // Adicional: imprimir detalhes sobre o APNs token para debug
-    if let apnsToken = Messaging.messaging().apnsToken {
-      let tokenParts = apnsToken.map { String(format: "%02.2hhx", $0) }
-      let token = tokenParts.joined()
-      print("APNS token: \(token)")
-    } else {
-      print("No APNS token available")
+    // Adicionar atraso para garantir que o token seja processado corretamente
+    DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+      let dataDict: [String: String] = ["token": fcmToken ?? ""]
+      NotificationCenter.default.post(
+        name: Notification.Name("FCMToken"),
+        object: nil,
+        userInfo: dataDict
+      )
+      
+      // Adicional: imprimir detalhes sobre o APNs token para debug
+      if let apnsToken = Messaging.messaging().apnsToken {
+        let tokenParts = apnsToken.map { String(format: "%02.2hhx", $0) }
+        let token = tokenParts.joined()
+        print("APNS token available: \(token)")
+      } else {
+        print("No APNS token available - this might cause FCM token issues")
+      }
+      
+      // Forçar atualização do FCM token se necessário
+      if fcmToken == nil {
+        print("Attempting to force FCM token refresh...")
+        Messaging.messaging().token { token, error in
+          if let error = error {
+            print("Error fetching FCM token: \(error)")
+          } else if let token = token {
+            print("Successfully fetched FCM token after force refresh: \(token)")
+          }
+        }
+      }
     }
   }
 }

@@ -27,12 +27,14 @@ import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:nicotinaai_flutter/services/revenue_cat_service.dart';
 import 'package:nicotinaai_flutter/services/revenue_cat_purchase_controller.dart';
 import 'package:flutter/foundation.dart';
+import 'package:nicotinaai_flutter/widgets/connectivity_overlay.dart';
 
 // BLoC imports
 import 'package:nicotinaai_flutter/blocs/app_bloc_observer.dart';
 import 'package:nicotinaai_flutter/blocs/auth/auth_bloc.dart';
 import 'package:nicotinaai_flutter/blocs/achievement/achievement_bloc.dart';
 import 'package:nicotinaai_flutter/blocs/achievement/achievement_event.dart';
+import 'package:nicotinaai_flutter/blocs/connectivity/connectivity_bloc.dart';
 import 'package:nicotinaai_flutter/blocs/currency/currency_bloc.dart';
 import 'package:nicotinaai_flutter/blocs/currency/currency_event.dart';
 import 'package:nicotinaai_flutter/blocs/locale/locale_bloc.dart';
@@ -259,6 +261,11 @@ class MyApp extends StatelessWidget {
         // Auth BLoC
         BlocProvider<AuthBloc>(create: (context) => AuthBloc(authRepository: authRepository)),
 
+        // Connectivity BLoC
+        BlocProvider<ConnectivityBloc>(
+          create: (context) => ConnectivityBloc()..add(ConnectivityStarted()),
+        ),
+
         // Skeleton BLoC for testing
         BlocProvider<SkeletonBloc>(create: (context) => SkeletonBloc(fetchData: () async => "Test data")),
 
@@ -369,6 +376,11 @@ class MyApp extends StatelessWidget {
                     supportedLocales: localeState.supportedLocales,
 
                     routerConfig: appRouter.router,
+                    
+                    // Envolver toda a aplicação com ConnectivityOverlay
+                    builder: (context, child) {
+                      return ConnectivityOverlay(child: child!);
+                    },
                   );
                 },
               );

@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'dart:io';
 import 'dart:convert';
+import 'dart:async';
 // Firebase Core imported for FirebaseException
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -13,6 +14,7 @@ import 'package:nicotinaai_flutter/config/supabase_config.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 
 /// Background message handler for Firebase Cloud Messaging
 @pragma('vm:entry-point')
@@ -37,6 +39,9 @@ class NotificationService {
   
   // Device info
   final DeviceInfoPlugin _deviceInfo = DeviceInfoPlugin();
+  
+  // Connectivity checker
+  final Connectivity _connectivity = Connectivity();
   
   // Lazy getter for Supabase client to prevent initialization issues
   SupabaseClient get _supabaseClient {
@@ -86,19 +91,56 @@ class NotificationService {
         
         debugPrint('💬 Permissão de notificações já concedida: ${settings.authorizationStatus}');
         
-        // Obtém o token apenas se já temos permissão
-        final token = await _messaging.getToken();
-        if (token != null) {
-          _cachedFcmToken = token;
-          
-          // Salvar em SharedPreferences para uso posterior
+        // Verificar a conectividade antes de obter o token
+        final connectivityResult = await _connectivity.checkConnectivity();
+        if (connectivityResult == ConnectivityResult.none) {
+          debugPrint('❌ Sem conexão com a internet. O token FCM será obtido quando houver conexão.');
+          // Armazenar informação para tentar novamente quando houver conexão
           final prefs = await SharedPreferences.getInstance();
-          await prefs.setString(_fcmTokenKey, token);
+          await prefs.setBool('pending_fcm_token_request', true);
+          return;
+        }
+        
+        // Obtém o token apenas se já temos permissão
+        try {
+          final token = await _messaging.getToken();
+          if (token != null) {
+            _cachedFcmToken = token;
+            
+            // Salvar em SharedPreferences para uso posterior
+            final prefs = await SharedPreferences.getInstance();
+            await prefs.setString(_fcmTokenKey, token);
+            
+            debugPrint('FCM Token obtido e armazenado: $token');
+            
+            // Tentar salvar o token se o usuário já estiver logado
+            await saveTokenToDatabase(token);
+          }
+        } catch (tokenError) {
+          debugPrint('Erro ao obter token FCM: $tokenError');
           
-          debugPrint('FCM Token obtido e armazenado: $token');
-          
-          // Tentar salvar o token se o usuário já estiver logado
-          await saveTokenToDatabase(token);
+          // Tente novamente com um pequeno delay (pode ajudar em casos de problemas de timing)
+          await Future.delayed(const Duration(seconds: 2));
+          try {
+            final token = await _messaging.getToken();
+            if (token != null) {
+              _cachedFcmToken = token;
+              
+              // Salvar em SharedPreferences para uso posterior
+              final prefs = await SharedPreferences.getInstance();
+              await prefs.setString(_fcmTokenKey, token);
+              
+              debugPrint('FCM Token obtido e armazenado com retry: $token');
+              
+              // Tentar salvar o token se o usuário já estiver logado
+              await saveTokenToDatabase(token);
+            }
+          } catch (retryError) {
+            debugPrint('Erro na segunda tentativa de obter token FCM: $retryError');
+            // Armazenar informação para tentar novamente mais tarde
+            final prefs = await SharedPreferences.getInstance();
+            await prefs.setBool('pending_fcm_token_request', true);
+          }
         }
       } else {
         debugPrint('💬 Permissão de notificações não concedida: ${settings.authorizationStatus}');
@@ -107,6 +149,45 @@ class NotificationService {
     } catch (e) {
       debugPrint('Não foi possível verificar permissões ou obter token FCM: $e');
       // Não mostrar erro, já que o usuário terá oportunidade de conceder permissão no onboarding
+    }
+    
+    // Configurar listener de conectividade para tentar obter token FCM quando a conexão for restaurada
+    _connectivity.onConnectivityChanged.listen((resultList) {
+      // A partir da versão 6.1.4 o onConnectivityChanged retorna uma List<ConnectivityResult>
+      if (resultList.isNotEmpty) {
+        var result = resultList.first;
+        _handleConnectivityChange(result);
+      }
+    });
+  }
+  
+  // Método para lidar com alterações de conectividade
+  Future<void> _handleConnectivityChange(ConnectivityResult result) async {
+    if (result != ConnectivityResult.none) {
+      // Verificar se há solicitação pendente de token FCM
+      final prefs = await SharedPreferences.getInstance();
+      final pendingRequest = prefs.getBool('pending_fcm_token_request') ?? false;
+      if (pendingRequest) {
+        debugPrint('🔄 Conexão restaurada. Tentando obter token FCM novamente...');
+        // Verificar permissões primeiro
+        final settings = await _messaging.getNotificationSettings();
+        if (settings.authorizationStatus == AuthorizationStatus.authorized ||
+            settings.authorizationStatus == AuthorizationStatus.provisional) {
+          try {
+            final token = await _messaging.getToken();
+            if (token != null) {
+              _cachedFcmToken = token;
+              await prefs.setString(_fcmTokenKey, token);
+              debugPrint('✅ FCM Token obtido após conexão restaurada: $token');
+              await saveTokenToDatabase(token);
+              // Limpar flag de solicitação pendente
+              await prefs.setBool('pending_fcm_token_request', false);
+            }
+          } catch (e) {
+            debugPrint('❌ Erro ao obter token FCM após conexão restaurada: $e');
+          }
+        }
+      }
     }
   }
 
@@ -172,6 +253,17 @@ class NotificationService {
         );
       }
       
+      // Verificar a conectividade antes de solicitar permissão
+      final connectivityResult = await _connectivity.checkConnectivity();
+      if (connectivityResult == ConnectivityResult.none) {
+        debugPrint('❌ Sem conexão com a internet ao solicitar permissão de notificação.');
+        throw FirebaseException(
+          plugin: 'firebase_messaging',
+          code: 'network_error',
+          message: 'Sem conexão com a internet. Verifique sua conexão e tente novamente.',
+        );
+      }
+      
       // Solicitar permissão
       final settings = await _messaging.requestPermission(
         alert: true,
@@ -181,6 +273,30 @@ class NotificationService {
       );
       
       debugPrint('Permission status: ${settings.authorizationStatus}');
+      
+      // Se autorizado, obter o token imediatamente
+      if (settings.authorizationStatus == AuthorizationStatus.authorized ||
+          settings.authorizationStatus == AuthorizationStatus.provisional) {
+        try {
+          final token = await _messaging.getToken();
+          if (token != null) {
+            _cachedFcmToken = token;
+            
+            // Salvar em SharedPreferences para uso posterior
+            final prefs = await SharedPreferences.getInstance();
+            await prefs.setString(_fcmTokenKey, token);
+            
+            debugPrint('FCM Token obtido e armazenado após permissão: $token');
+            
+            // Tentar salvar o token se o usuário já estiver logado
+            await saveTokenToDatabase(token);
+          }
+        } catch (tokenError) {
+          debugPrint('Erro ao obter token FCM após permissão: $tokenError');
+          // Não propagar este erro, já que a permissão foi obtida com sucesso
+        }
+      }
+      
       return settings;
     } catch (e) {
       // Capturar e tratar erros específicos do Firebase
@@ -650,14 +766,39 @@ class NotificationService {
         return;
       }
       
+      // Verificar a conectividade antes de tentar operações de rede
+      final connectivityResult = await _connectivity.checkConnectivity();
+      if (connectivityResult == ConnectivityResult.none) {
+        debugPrint('Sem conexão ao tentar salvar token após login. Tentará novamente quando houver conexão.');
+        // Armazenar para tentar mais tarde
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setBool('pending_fcm_token_save', true);
+        return;
+      }
+      
       // Recupera o token armazenado
       final token = await getCachedToken();
       
       // Se não tiver token armazenado, tenta obter um novo
       if (token == null || token.isEmpty) {
-        final newToken = await _messaging.getToken();
-        if (newToken != null) {
-          await saveTokenToDatabase(newToken);
+        try {
+          final newToken = await _messaging.getToken();
+          if (newToken != null) {
+            await saveTokenToDatabase(newToken);
+          }
+        } catch (tokenError) {
+          debugPrint('Erro ao obter novo token FCM após login: $tokenError');
+          
+          // Tentar com delay em caso de problemas de conectividade temporários
+          await Future.delayed(const Duration(seconds: 3));
+          try {
+            final newToken = await _messaging.getToken();
+            if (newToken != null) {
+              await saveTokenToDatabase(newToken);
+            }
+          } catch (retryError) {
+            debugPrint('Erro na segunda tentativa de obter token FCM após login: $retryError');
+          }
         }
       } else {
         // Usa o token armazenado
@@ -712,21 +853,98 @@ class NotificationService {
         return null;
       }
       
-      final token = await _messaging.getToken();
-      
-      if (token == null || token.isEmpty) {
-        debugPrint('Token FCM vazio ou nulo. Verifique as configurações do Firebase.');
-      } else {
-        debugPrint('Token FCM obtido com sucesso: ${token.substring(0, 10)}...');
+      // Verificar conexão com a internet
+      final connectivityResult = await _connectivity.checkConnectivity();
+      if (connectivityResult == ConnectivityResult.none) {
+        debugPrint('❌ Sem conexão com a internet ao tentar obter token FCM.');
+        throw FirebaseException(
+          plugin: 'firebase_messaging',
+          code: 'network_error',
+          message: 'Sem conexão com a internet ao tentar obter token FCM.',
+        );
+      }
+
+      // Verificar se já temos um token em cache antes de solicitar um novo
+      final cachedToken = await getCachedToken();
+      if (cachedToken != null && cachedToken.isNotEmpty) {
+        debugPrint('Usando token FCM em cache: ${cachedToken.substring(0, min(10, cachedToken.length))}...');
+        return cachedToken;
       }
       
+      // Usar uma alternativa para obter o token com melhor tratamento de erros
+      String? token;
+      try {
+        // Usar uma Completer para ter um timeout mais robusto
+        final completer = Completer<String?>();
+        
+        // Definir um timeout de 10 segundos para a operação
+        Future.delayed(const Duration(seconds: 10)).then((_) {
+          if (!completer.isCompleted) {
+            debugPrint('⚠️ Timeout ao obter token FCM após 10 segundos');
+            completer.complete(null);
+          }
+        });
+        
+        // Solicitar o token
+        _messaging.getToken().then((value) {
+          if (!completer.isCompleted) {
+            completer.complete(value);
+          }
+        }).catchError((error) {
+          if (!completer.isCompleted) {
+            debugPrint('Erro ao obter token FCM na primeira tentativa: $error');
+            completer.completeError(error);
+          }
+        });
+        
+        // Aguardar o resultado com timeout
+        token = await completer.future.catchError((error) {
+          return null; // Retorna null em caso de erro para tentar novamente
+        });
+        
+        // Se não conseguiu na primeira tentativa, tenta novamente após delay
+        if (token == null) {
+          debugPrint('Tentando obter token FCM novamente após atraso...');
+          await Future.delayed(const Duration(seconds: 3));
+          
+          token = await _messaging.getToken().timeout(
+            const Duration(seconds: 10),
+            onTimeout: () {
+              debugPrint('⚠️ Segunda tentativa também atingiu timeout');
+              return null;
+            },
+          );
+        }
+      } catch (e) {
+        debugPrint('❌ Erro ao obter token FCM: $e');
+        
+        // Uma última tentativa com operação direta após um delay maior
+        await Future.delayed(const Duration(seconds: 5));
+        try {
+          token = await _messaging.getToken();
+        } catch (finalError) {
+          debugPrint('❌ Falha definitiva ao obter token FCM: $finalError');
+          return null;
+        }
+      }
+      
+      if (token == null || token.isEmpty) {
+        debugPrint('❌ Token FCM vazio ou nulo após múltiplas tentativas.');
+        return null;
+      }
+      
+      // Armazenar o token em cache
+      _cachedFcmToken = token;
+      
+      // Salvar em SharedPreferences para uso posterior
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_fcmTokenKey, token);
+      
+      debugPrint('✅ Token FCM obtido com sucesso: ${token.substring(0, min(10, token.length))}...');
       return token;
     } catch (e) {
       // Capturar e registrar erros na obtenção do token
-      debugPrint('Erro ao obter token FCM: $e');
-      
-      // Retornar null em caso de erro, em vez de propagar a exceção
-      // Isso permite que o fluxo de onboarding continue mesmo sem o token
+      debugPrint('❌ Erro crítico ao obter token FCM: $e');
       return null;
     }
   }
