@@ -61,6 +61,9 @@ class AppFeedbackBloc extends Bloc<AppFeedbackEvent, AppFeedbackState> {
     Emitter<AppFeedbackState> emit,
   ) async {
     try {
+      // Emitir estado de loading primeiro
+      emit(FeedbackLoading());
+      
       _rating = event.rating;
       
       // High ratings (4-5) should prompt for app store review
@@ -93,6 +96,9 @@ class AppFeedbackBloc extends Bloc<AppFeedbackEvent, AppFeedbackState> {
     Emitter<AppFeedbackState> emit,
   ) async {
     try {
+      // Emitir estado de loading primeiro
+      emit(FeedbackLoading());
+      
       final success = await _feedbackService.submitSatisfactionFeedback(
         isSatisfied: _isSatisfied,
         feedbackText: event.feedbackText,

@@ -13,6 +13,8 @@ class AppFeedbackInitial extends AppFeedbackState {}
 
 class FeedbackPromptReady extends AppFeedbackState {}
 
+class FeedbackLoading extends AppFeedbackState {}
+
 class SatisfactionSubmitted extends AppFeedbackState {
   final bool isSatisfied;
 

@@ -11,14 +11,16 @@ import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
 class AppFeedbackDialog extends StatelessWidget {
   final VoidCallback? onClosed;
 
-  const AppFeedbackDialog({Key? key, this.onClosed}) : super(key: key);
+  // Removed const from constructor since we have a non-constant field
+  AppFeedbackDialog({Key? key, this.onClosed}) : super(key: key);
 
+  // This field cannot be initialized with a constant value
   final InAppReview _inAppReview = InAppReview.instance;
-  
+
   Future<void> _requestReview() async {
     // Check if the store is available
     final isAvailable = await _inAppReview.isAvailable();
-    
+
     if (isAvailable) {
       try {
         // Request the review
@@ -32,7 +34,7 @@ class AppFeedbackDialog extends StatelessWidget {
       await _openStorePage();
     }
   }
-  
+
   Future<void> _openStorePage() async {
     try {
       await _inAppReview.openStoreListing(
@@ -56,10 +58,12 @@ class AppFeedbackDialog extends StatelessWidget {
       },
       builder: (context, state) {
         // Get localizations
-        final l10n = AppLocalizations.of(context)!;
-        
+        final l10n = AppLocalizations.of(context);
+
         return Dialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
           child: Padding(
             padding: const EdgeInsets.all(20.0),
             child: _buildContent(context, state, l10n),
@@ -69,7 +73,11 @@ class AppFeedbackDialog extends StatelessWidget {
     );
   }
 
-  Widget _buildContent(BuildContext context, AppFeedbackState state, AppLocalizations l10n) {
+  Widget _buildContent(
+    BuildContext context,
+    AppFeedbackState state,
+    AppLocalizations l10n,
+  ) {
     if (state is SatisfactionSubmitted) {
       return state.isSatisfied
           ? _buildRatingScreen(context, l10n)
@@ -89,18 +97,11 @@ class AppFeedbackDialog extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(
-            Icons.thumb_up_alt_outlined,
-            size: 60,
-            color: Colors.blue,
-          ),
+          const Icon(Icons.thumb_up_alt_outlined, size: 60, color: Colors.blue),
           const SizedBox(height: 20),
           Text(
             l10n.howIsYourExperience,
-            style: const TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-            ),
+            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 12),
@@ -122,8 +123,8 @@ class AppFeedbackDialog extends StatelessWidget {
                   ),
                   onPressed: () {
                     context.read<AppFeedbackBloc>().add(
-                          const SubmitSatisfaction(isSatisfied: false),
-                        );
+                      const SubmitSatisfaction(isSatisfied: false),
+                    );
                   },
                   child: Text(l10n.notReally),
                 ),
@@ -136,8 +137,8 @@ class AppFeedbackDialog extends StatelessWidget {
                   ),
                   onPressed: () {
                     context.read<AppFeedbackBloc>().add(
-                          const SubmitSatisfaction(isSatisfied: true),
-                        );
+                      const SubmitSatisfaction(isSatisfied: true),
+                    );
                   },
                   child: Text(l10n.yesImEnjoying),
                 ),
@@ -161,18 +162,11 @@ class AppFeedbackDialog extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(
-            Icons.star_outline,
-            size: 60,
-            color: Colors.amber,
-          ),
+          const Icon(Icons.star_outline, size: 60, color: Colors.amber),
           const SizedBox(height: 20),
           Text(
             l10n.rateApp,
-            style: const TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-            ),
+            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 12),
@@ -184,19 +178,18 @@ class AppFeedbackDialog extends StatelessWidget {
           const SizedBox(height: 32),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [1, 2, 3, 4, 5].map((rating) {
-              return _buildRatingStar(
-                context,
-                rating, 
-                onTap: () {
-                  context.read<AppFeedbackBloc>().add(
-                        SubmitRating(
-                          rating: AppRating.values[rating - 1],
-                        ),
+            children:
+                [1, 2, 3, 4, 5].map((rating) {
+                  return _buildRatingStar(
+                    context,
+                    rating,
+                    onTap: () {
+                      context.read<AppFeedbackBloc>().add(
+                        SubmitRating(rating: AppRating.values[rating - 1]),
                       );
-                },
-              );
-            }).toList(),
+                    },
+                  );
+                }).toList(),
           ),
           const SizedBox(height: 16),
           TextButton(
@@ -210,16 +203,16 @@ class AppFeedbackDialog extends StatelessWidget {
     );
   }
 
-  Widget _buildRatingStar(BuildContext context, int rating, {required VoidCallback onTap}) {
+  Widget _buildRatingStar(
+    BuildContext context,
+    int rating, {
+    required VoidCallback onTap,
+  }) {
     return InkWell(
       onTap: onTap,
       child: Column(
         children: [
-          Icon(
-            Icons.star,
-            size: 36,
-            color: Theme.of(context).primaryColor,
-          ),
+          Icon(Icons.star, size: 36, color: Theme.of(context).primaryColor),
           const SizedBox(height: 8),
           Text(
             rating.toString(),
@@ -232,11 +225,11 @@ class AppFeedbackDialog extends StatelessWidget {
 
   Widget _buildFeedbackFormScreen(BuildContext context, AppLocalizations l10n) {
     final TextEditingController feedbackController = TextEditingController();
-    
+
     return StatefulBuilder(
       builder: (context, setState) {
         String selectedCategory = 'Interface';
-        
+
         return SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -271,27 +264,29 @@ class AppFeedbackDialog extends StatelessWidget {
               const SizedBox(height: 24),
               Text(
                 l10n.feedbackCategory,
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const SizedBox(height: 8),
               DropdownButtonFormField<String>(
                 value: selectedCategory,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                ),
-                items: [
-                  'Interface',
-                  'Features',
-                  'Performance',
-                  'Accuracy of statistics',
-                  'Notifications',
-                  'Other',
-                ].map((category) {
-                  return DropdownMenuItem<String>(
-                    value: category,
-                    child: Text(category),
-                  );
-                }).toList(),
+                decoration: const InputDecoration(border: OutlineInputBorder()),
+                items:
+                    [
+                      'Interface',
+                      'Features',
+                      'Performance',
+                      'Accuracy of statistics',
+                      'Notifications',
+                      'Other',
+                    ].map((category) {
+                      return DropdownMenuItem<String>(
+                        value: category,
+                        child: Text(category),
+                      );
+                    }).toList(),
                 onChanged: (value) {
                   if (value != null) {
                     setState(() {
@@ -303,7 +298,10 @@ class AppFeedbackDialog extends StatelessWidget {
               const SizedBox(height: 16),
               Text(
                 l10n.yourFeedback,
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const SizedBox(height: 8),
               TextField(
@@ -323,7 +321,9 @@ class AppFeedbackDialog extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(vertical: 12),
                       ),
                       onPressed: () {
-                        context.read<AppFeedbackBloc>().add(DismissFeedbackPrompt());
+                        context.read<AppFeedbackBloc>().add(
+                          DismissFeedbackPrompt(),
+                        );
                       },
                       child: Text(l10n.cancel),
                     ),
@@ -337,11 +337,11 @@ class AppFeedbackDialog extends StatelessWidget {
                       onPressed: () {
                         if (feedbackController.text.trim().isNotEmpty) {
                           context.read<AppFeedbackBloc>().add(
-                                SubmitFeedbackText(
-                                  feedbackText: feedbackController.text.trim(),
-                                  feedbackCategory: selectedCategory,
-                                ),
-                              );
+                            SubmitFeedbackText(
+                              feedbackText: feedbackController.text.trim(),
+                              feedbackCategory: selectedCategory,
+                            ),
+                          );
                         }
                       },
                       child: Text(l10n.sendFeedback),
@@ -356,23 +356,19 @@ class AppFeedbackDialog extends StatelessWidget {
     );
   }
 
-  Widget _buildReviewRequestScreen(BuildContext context, AppLocalizations l10n) {
+  Widget _buildReviewRequestScreen(
+    BuildContext context,
+    AppLocalizations l10n,
+  ) {
     return SingleChildScrollView(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(
-            Icons.rate_review_outlined,
-            size: 60,
-            color: Colors.green,
-          ),
+          const Icon(Icons.rate_review_outlined, size: 60, color: Colors.green),
           const SizedBox(height: 20),
           Text(
             l10n.thankYouForFeedback,
-            style: const TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-            ),
+            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 12),
@@ -411,23 +407,20 @@ class AppFeedbackDialog extends StatelessWidget {
     );
   }
 
-  Widget _buildErrorScreen(BuildContext context, String message, AppLocalizations l10n) {
+  Widget _buildErrorScreen(
+    BuildContext context,
+    String message,
+    AppLocalizations l10n,
+  ) {
     return SingleChildScrollView(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(
-            Icons.error_outline,
-            size: 60,
-            color: Colors.red,
-          ),
+          const Icon(Icons.error_outline, size: 60, color: Colors.red),
           const SizedBox(height: 20),
           Text(
             l10n.feedbackError,
-            style: const TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-            ),
+            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 12),

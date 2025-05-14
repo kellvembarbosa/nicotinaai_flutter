@@ -3,6 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nicotinaai_flutter/blocs/app_feedback/app_feedback_bloc.dart';
 import 'package:nicotinaai_flutter/blocs/app_feedback/app_feedback_event.dart';
 import 'package:nicotinaai_flutter/blocs/app_feedback/app_feedback_state.dart';
+import 'package:nicotinaai_flutter/blocs/onboarding/onboarding_bloc.dart';
+import 'package:nicotinaai_flutter/blocs/onboarding/onboarding_event.dart';
+import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
 import 'package:nicotinaai_flutter/services/app_feedback_service.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -38,7 +41,9 @@ class OnboardingFeedbackScreen extends StatelessWidget {
         }
       },
       builder: (context, state) {
-        if (state is SatisfactionSubmitted) {
+        if (state is FeedbackLoading) {
+          return _buildLoadingScreen(context);
+        } else if (state is SatisfactionSubmitted) {
           return state.isSatisfied
               ? _buildRatingScreen(context)
               : _buildFeedbackFormScreen(context);
@@ -53,76 +58,20 @@ class OnboardingFeedbackScreen extends StatelessWidget {
       },
     );
   }
-
-  Widget _buildSatisfactionScreen(BuildContext context) {
+  
+  Widget _buildLoadingScreen(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    
     return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.all(24.0),
+      child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
-              Icons.thumb_up_alt_outlined,
-              size: 80,
-              color: Colors.blue,
-            ),
-            const SizedBox(height: 24),
-            const Text(
-              'Como está sendo sua experiência?',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 16),
-            const Text(
-              'Estamos trabalhando continuamente para melhorar o app. '
-              'Você está gostando do Nicotina.AI?',
-              style: TextStyle(fontSize: 16),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 40),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Expanded(
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.grey[300],
-                      foregroundColor: Colors.black87,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                    ),
-                    onPressed: () {
-                      context.read<AppFeedbackBloc>().add(
-                            const SubmitSatisfaction(isSatisfied: false),
-                          );
-                    },
-                    child: const Text('Não muito'),
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                    ),
-                    onPressed: () {
-                      context.read<AppFeedbackBloc>().add(
-                            const SubmitSatisfaction(isSatisfied: true),
-                          );
-                    },
-                    child: const Text('Sim, estou gostando!'),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            TextButton(
-              onPressed: () {
-                context.read<AppFeedbackBloc>().add(DismissFeedbackPrompt());
-              },
-              child: const Text('Pular'),
+            const CircularProgressIndicator(),
+            const SizedBox(height: 20),
+            Text(
+              l10n.loading,
+              style: const TextStyle(fontSize: 16),
             ),
           ],
         ),
@@ -130,58 +79,143 @@ class OnboardingFeedbackScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildRatingScreen(BuildContext context) {
-    return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(
-              Icons.star_outline,
-              size: 80,
-              color: Colors.amber,
-            ),
-            const SizedBox(height: 24),
-            const Text(
-              'Como você avaliaria o app?',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
+  Widget _buildSatisfactionScreen(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).unfocus(),
+      child: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(
+                Icons.thumb_up_alt_outlined,
+                size: 80,
+                color: Colors.blue,
               ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 16),
-            const Text(
-              'Sua opinião é muito importante para nós.',
-              style: TextStyle(fontSize: 16),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 40),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [1, 2, 3, 4, 5].map((rating) {
-                return _buildRatingStar(
-                  context,
-                  rating, 
-                  onTap: () {
-                    context.read<AppFeedbackBloc>().add(
-                          SubmitRating(
-                            rating: AppRating.values[rating - 1],
-                          ),
-                        );
-                  },
-                );
-              }).toList(),
-            ),
-            const SizedBox(height: 40),
-            TextButton(
-              onPressed: () {
-                context.read<AppFeedbackBloc>().add(DismissFeedbackPrompt());
-              },
-              child: const Text('Mais tarde'),
-            ),
-          ],
+              const SizedBox(height: 24),
+              Text(
+                l10n.howIsYourExperience,
+                style: const TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
+              Text(
+                l10n.weAreConstantlyImproving,
+                style: const TextStyle(fontSize: 16),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 40),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Expanded(
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.grey[300],
+                        foregroundColor: Colors.black87,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                      ),
+                      onPressed: () {
+                        context.read<AppFeedbackBloc>().add(
+                              const SubmitSatisfaction(isSatisfied: false),
+                            );
+                      },
+                      child: Text(l10n.notReally),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                      ),
+                      onPressed: () {
+                        context.read<AppFeedbackBloc>().add(
+                              const SubmitSatisfaction(isSatisfied: true),
+                            );
+                      },
+                      child: Text(l10n.yesILikeIt),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              TextButton(
+                onPressed: () {
+                  context.read<AppFeedbackBloc>().add(DismissFeedbackPrompt());
+                },
+                child: Text(l10n.skip),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRatingScreen(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).unfocus(),
+      child: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(
+                Icons.star_outline,
+                size: 80,
+                color: Colors.amber,
+              ),
+              const SizedBox(height: 24),
+              Text(
+                l10n.howWouldYouRateApp,
+                style: const TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
+              Text(
+                l10n.yourOpinionMatters,
+                style: const TextStyle(fontSize: 16),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 40),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [1, 2, 3, 4, 5].map((rating) {
+                  return _buildRatingStar(
+                    context,
+                    rating, 
+                    onTap: () {
+                      context.read<AppFeedbackBloc>().add(
+                            SubmitRating(
+                              rating: AppRating.values[rating - 1],
+                            ),
+                          );
+                    },
+                  );
+                }).toList(),
+              ),
+              const SizedBox(height: 40),
+              TextButton(
+                onPressed: () {
+                  context.read<AppFeedbackBloc>().add(DismissFeedbackPrompt());
+                },
+                child: Text(l10n.later),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -208,127 +242,141 @@ class OnboardingFeedbackScreen extends StatelessWidget {
   }
 
   Widget _buildFeedbackFormScreen(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final TextEditingController feedbackController = TextEditingController();
+    final focusNode = FocusNode();
     
     return StatefulBuilder(
       builder: (context, setState) {
         String selectedCategory = 'Interface';
         
-        return SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Center(
-                  child: Icon(
-                    Icons.feedback_outlined,
-                    size: 80,
-                    color: Colors.orange,
-                  ),
-                ),
-                const SizedBox(height: 24),
-                const Center(
-                  child: Text(
-                    'Poderia nos dizer o que não está bom?',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                const Center(
-                  child: Text(
-                    'Ajude-nos a melhorar contando o que podemos fazer melhor:',
-                    style: TextStyle(fontSize: 16),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-                const SizedBox(height: 32),
-                const Text(
-                  'Categoria do feedback:',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 8),
-                DropdownButtonFormField<String>(
-                  value: selectedCategory,
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                  ),
-                  items: [
-                    'Interface',
-                    'Funcionalidades',
-                    'Desempenho',
-                    'Precisão das estatísticas',
-                    'Notificações',
-                    'Outro',
-                  ].map((category) {
-                    return DropdownMenuItem<String>(
-                      value: category,
-                      child: Text(category),
-                    );
-                  }).toList(),
-                  onChanged: (value) {
-                    if (value != null) {
-                      setState(() {
-                        selectedCategory = value;
-                      });
-                    }
-                  },
-                ),
-                const SizedBox(height: 16),
-                const Text(
-                  'Seu feedback:',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 8),
-                TextField(
-                  controller: feedbackController,
-                  maxLines: 5,
-                  decoration: const InputDecoration(
-                    hintText: 'Descreva o que podemos melhorar...',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-                const SizedBox(height: 32),
-                Row(
+        return GestureDetector(
+          // Fecha o teclado quando clicar fora do campo de texto
+          onTap: () => focusNode.unfocus(),
+          child: SafeArea(
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: OutlinedButton(
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                        ),
-                        onPressed: () {
-                          context.read<AppFeedbackBloc>().add(DismissFeedbackPrompt());
-                        },
-                        child: const Text('Cancelar'),
+                    Center(
+                      child: Icon(
+                        Icons.feedback_outlined,
+                        size: 80,
+                        color: Theme.of(context).primaryColor,
                       ),
                     ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 16),
+                    const SizedBox(height: 24),
+                    Center(
+                      child: Text(
+                        l10n.whatCouldBeBetter,
+                        style: const TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
                         ),
-                        onPressed: () {
-                          if (feedbackController.text.trim().isNotEmpty) {
-                            context.read<AppFeedbackBloc>().add(
-                                  SubmitFeedbackText(
-                                    feedbackText: feedbackController.text.trim(),
-                                    feedbackCategory: selectedCategory,
-                                  ),
-                                );
-                          }
-                        },
-                        child: const Text('Enviar feedback'),
+                        textAlign: TextAlign.center,
                       ),
+                    ),
+                    const SizedBox(height: 16),
+                    Center(
+                      child: Text(
+                        l10n.helpUsImprove,
+                        style: const TextStyle(fontSize: 16),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                    const SizedBox(height: 32),
+                    Text(
+                      l10n.feedbackCategory,
+                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 8),
+                    DropdownButtonFormField<String>(
+                      value: selectedCategory,
+                      decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                      ),
+                      items: [
+                        l10n.interface, 
+                        l10n.features,
+                        l10n.performance,
+                        l10n.statisticsAccuracy,
+                        l10n.notifications,
+                        l10n.other,
+                      ].map((category) {
+                        return DropdownMenuItem<String>(
+                          value: category.toString(),
+                          child: Text(category.toString()),
+                        );
+                      }).toList(),
+                      onChanged: (value) {
+                        if (value != null) {
+                          setState(() {
+                            selectedCategory = value;
+                          });
+                        }
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      l10n.yourFeedback,
+                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 8),
+                    TextField(
+                      controller: feedbackController,
+                      focusNode: focusNode,
+                      maxLines: 5,
+                      decoration: InputDecoration(
+                        hintText: l10n.describeWhatToImprove,
+                        border: const OutlineInputBorder(),
+                      ),
+                    ),
+                    const SizedBox(height: 32),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: OutlinedButton(
+                            style: OutlinedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                            ),
+                            onPressed: () {
+                              context.read<AppFeedbackBloc>().add(DismissFeedbackPrompt());
+                            },
+                            child: Text(l10n.cancel),
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                            ),
+                            onPressed: () {
+                              if (feedbackController.text.trim().isNotEmpty) {
+                                // Esconder o teclado antes de enviar
+                                focusNode.unfocus();
+                                context.read<AppFeedbackBloc>().add(
+                                      SubmitFeedbackText(
+                                        feedbackText: feedbackController.text.trim(),
+                                        feedbackCategory: selectedCategory,
+                                      ),
+                                    );
+                                
+                                // Ao completar, o listener do Bloc vai chamar onComplete
+                                // que vai chamar context.read<OnboardingBloc>().add(NextOnboardingStep());
+                              }
+                            },
+                            child: Text(l10n.sendFeedback),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
-              ],
+              ),
             ),
           ),
         );
@@ -337,102 +385,120 @@ class OnboardingFeedbackScreen extends StatelessWidget {
   }
 
   Widget _buildReviewRequestScreen(BuildContext context) {
-    return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(
-              Icons.rate_review_outlined,
-              size: 80,
-              color: Colors.green,
-            ),
-            const SizedBox(height: 24),
-            const Text(
-              'Que bom que você está gostando!',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
+    final l10n = AppLocalizations.of(context)!;
+    
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).unfocus(),
+      child: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.rate_review_outlined,
+                size: 80,
+                color: Theme.of(context).primaryColor,
               ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 16),
-            const Text(
-              'Seu feedback positivo nos motiva a continuar melhorando. '
-              'Você gostaria de avaliar o app na loja?',
-              style: TextStyle(fontSize: 16),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 40),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+              const SizedBox(height: 24),
+              Text(
+                l10n.gladYouLikeIt,
+                style: const TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
               ),
-              onPressed: () {
-                // Launch app store and mark as reviewed
-                _launchAppStore(context);
-                context.read<AppFeedbackBloc>().add(MarkAppReviewed());
-              },
-              child: const Text('Avaliar agora'),
-            ),
-            const SizedBox(height: 16),
-            TextButton(
-              onPressed: () {
-                context.read<AppFeedbackBloc>().add(MarkAppReviewed());
-              },
-              child: const Text('Já avaliei'),
-            ),
-            TextButton(
-              onPressed: () {
-                context.read<AppFeedbackBloc>().add(DismissFeedbackPrompt());
-              },
-              child: const Text('Mais tarde'),
-            ),
-          ],
+              const SizedBox(height: 16),
+              Text(
+                l10n.wouldYouRateOnStore,
+                style: const TextStyle(fontSize: 16),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 40),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                ),
+                onPressed: () {
+                  // Launch app store and mark as reviewed
+                  _launchAppStore(context);
+                  context.read<AppFeedbackBloc>().add(MarkAppReviewed());
+                  
+                  // Avança para a próxima tela após completar
+                  context.read<OnboardingBloc>().add(NextOnboardingStep());
+                },
+                child: Text(l10n.rateNow),
+              ),
+              const SizedBox(height: 16),
+              TextButton(
+                onPressed: () {
+                  context.read<AppFeedbackBloc>().add(MarkAppReviewed());
+                  
+                  // Avança para a próxima tela
+                  context.read<OnboardingBloc>().add(NextOnboardingStep());
+                },
+                child: Text(l10n.alreadyRated),
+              ),
+              TextButton(
+                onPressed: () {
+                  context.read<AppFeedbackBloc>().add(DismissFeedbackPrompt());
+                },
+                child: Text(l10n.later),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 
   Widget _buildErrorScreen(BuildContext context, String message) {
-    return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(
-              Icons.error_outline,
-              size: 80,
-              color: Colors.red,
-            ),
-            const SizedBox(height: 24),
-            const Text(
-              'Ops, algo deu errado',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
+    final l10n = AppLocalizations.of(context)!;
+    
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).unfocus(),
+      child: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(
+                Icons.error_outline,
+                size: 80,
+                color: Colors.red,
               ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'Não foi possível salvar seu feedback: $message',
-              style: const TextStyle(fontSize: 16),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 40),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+              const SizedBox(height: 24),
+              Text(
+                l10n.somethingWentWrong,
+                style: const TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
               ),
-              onPressed: () {
-                context.read<AppFeedbackBloc>().add(DismissFeedbackPrompt());
-              },
-              child: const Text('Entendi'),
-            ),
-          ],
+              const SizedBox(height: 16),
+              Text(
+                '${l10n.couldNotSaveFeedback}: $message',
+                style: const TextStyle(fontSize: 16),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 40),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                ),
+                onPressed: () {
+                  context.read<AppFeedbackBloc>().add(DismissFeedbackPrompt());
+                  
+                  // Avança para a próxima tela mesmo com erro
+                  context.read<OnboardingBloc>().add(NextOnboardingStep());
+                },
+                child: Text(l10n.understood),
+              ),
+            ],
+          ),
         ),
       ),
     );

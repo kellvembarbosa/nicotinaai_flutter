@@ -2701,17 +2701,35 @@ abstract class AppLocalizations {
   /// **'Yes, I\'m enjoying it!'**
   String get yesImEnjoying;
 
+  /// No description provided for @yesILikeIt.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes, I like it!'**
+  String get yesILikeIt;
+
   /// No description provided for @rateApp.
   ///
   /// In en, this message translates to:
   /// **'How would you rate the app?'**
   String get rateApp;
 
+  /// No description provided for @howWouldYouRateApp.
+  ///
+  /// In en, this message translates to:
+  /// **'How would you rate our app?'**
+  String get howWouldYouRateApp;
+
   /// No description provided for @yourOpinionMatters.
   ///
   /// In en, this message translates to:
   /// **'Your opinion matters to us'**
   String get yourOpinionMatters;
+
+  /// No description provided for @weAreConstantlyImproving.
+  ///
+  /// In en, this message translates to:
+  /// **'We are constantly improving our app based on user feedback'**
+  String get weAreConstantlyImproving;
 
   /// No description provided for @later.
   ///
@@ -2755,6 +2773,12 @@ abstract class AppLocalizations {
   /// **'Performance'**
   String get performance;
 
+  /// No description provided for @statisticsAccuracy.
+  ///
+  /// In en, this message translates to:
+  /// **'Statistics Accuracy'**
+  String get statisticsAccuracy;
+
   /// No description provided for @accuracyOfStatistics.
   ///
   /// In en, this message translates to:
@@ -2773,6 +2797,18 @@ abstract class AppLocalizations {
   /// **'Describe what we can improve...'**
   String get describeProblem;
 
+  /// No description provided for @describeWhatToImprove.
+  ///
+  /// In en, this message translates to:
+  /// **'Describe what we could improve...'**
+  String get describeWhatToImprove;
+
+  /// No description provided for @whatCouldBeBetter.
+  ///
+  /// In en, this message translates to:
+  /// **'What could be better?'**
+  String get whatCouldBeBetter;
+
   /// No description provided for @sendFeedback.
   ///
   /// In en, this message translates to:
@@ -2784,6 +2820,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'We appreciate your feedback!'**
   String get thankYouForFeedback;
+
+  /// No description provided for @gladYouLikeIt.
+  ///
+  /// In en, this message translates to:
+  /// **'We\'re glad you like it!'**
+  String get gladYouLikeIt;
+
+  /// No description provided for @wouldYouRateOnStore.
+  ///
+  /// In en, this message translates to:
+  /// **'Would you rate us on the app store?'**
+  String get wouldYouRateOnStore;
 
   /// No description provided for @rateAppStore.
   ///

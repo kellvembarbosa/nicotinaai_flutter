@@ -1352,10 +1352,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get yesImEnjoying => 'Yes, I\'m enjoying it!';
 
   @override
+  String get yesILikeIt => 'Yes, I like it!';
+
+  @override
   String get rateApp => 'How would you rate the app?';
 
   @override
+  String get howWouldYouRateApp => 'How would you rate our app?';
+
+  @override
   String get yourOpinionMatters => 'Your opinion matters to us';
+
+  @override
+  String get weAreConstantlyImproving => 'We are constantly improving our app based on user feedback';
 
   @override
   String get later => 'Later';
@@ -1379,6 +1388,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get performance => 'Performance';
 
   @override
+  String get statisticsAccuracy => 'Statistics Accuracy';
+
+  @override
   String get accuracyOfStatistics => 'Accuracy of statistics';
 
   @override
@@ -1388,10 +1400,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get describeProblem => 'Describe what we can improve...';
 
   @override
+  String get describeWhatToImprove => 'Describe what we could improve...';
+
+  @override
+  String get whatCouldBeBetter => 'What could be better?';
+
+  @override
   String get sendFeedback => 'Send feedback';
 
   @override
   String get thankYouForFeedback => 'We appreciate your feedback!';
+
+  @override
+  String get gladYouLikeIt => 'We\'re glad you like it!';
+
+  @override
+  String get wouldYouRateOnStore => 'Would you rate us on the app store?';
 
   @override
   String get rateAppStore => 'Would you like to rate the app in the store?';
