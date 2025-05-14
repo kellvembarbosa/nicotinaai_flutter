@@ -82,6 +82,7 @@ class LocalStatsService {
       
       // Contadores
       int cravingsResisted = 0;
+      int cravingsCount = cravings.length;
       int cigarettesSmoked = 0;
       int smokingRecordsCount = smokingLogs.length;
       
@@ -165,6 +166,7 @@ class LocalStatsService {
         'cigarettes_avoided': cigarettesAvoided,
         'money_saved': moneySaved,
         'cravings_resisted': cravingsResisted,
+        'cravings_count': cravingsCount,
         'current_streak_days': currentStreakDays,
         'longest_streak_days': longestStreakDays,
         'last_smoke_date': lastSmokeDate?.toIso8601String(),
@@ -178,6 +180,7 @@ class LocalStatsService {
       if (kDebugMode) {
         print('📊 [LocalStatsService] Dados calculados:');
         print('- Cravings resistidas: $cravingsResisted');
+        print('- Total de cravings: $cravingsCount');
         print('- Cigarros evitados: $cigarettesAvoided');
         print('- Economia: $moneySaved centavos');
         print('- Dias sem fumar: $currentStreakDays');

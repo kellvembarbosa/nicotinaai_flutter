@@ -23,6 +23,7 @@ class UserStats {
   // Novos campos para o sistema centralizado
   final int? cigarettesSmoked;
   final int? smokingRecordsCount; // Number of smoking records
+  final int? cravingsCount; // Total count of cravings
   final int? minutesGainedToday; // Minutos ganhos hoje
   final int? totalMinutesGained; // Total de minutos ganhos durante todo o período
 
@@ -50,6 +51,7 @@ class UserStats {
     this.currencyCode,
     this.cigarettesSmoked = 0,
     this.smokingRecordsCount = 0,
+    this.cravingsCount = 0,
     this.minutesGainedToday = 0,
     this.totalMinutesGained = 0,
     this.lastUpdated,
@@ -78,6 +80,7 @@ class UserStats {
     String? currencyCode,
     int? cigarettesSmoked,
     int? smokingRecordsCount,
+    int? cravingsCount,
     int? minutesGainedToday,
     int? totalMinutesGained,
     int? lastUpdated,
@@ -103,6 +106,7 @@ class UserStats {
       currencyCode: currencyCode ?? this.currencyCode,
       cigarettesSmoked: cigarettesSmoked ?? this.cigarettesSmoked,
       smokingRecordsCount: smokingRecordsCount ?? this.smokingRecordsCount,
+      cravingsCount: cravingsCount ?? this.cravingsCount,
       minutesGainedToday: minutesGainedToday ?? this.minutesGainedToday,
       totalMinutesGained: totalMinutesGained ?? this.totalMinutesGained,
       lastUpdated: lastUpdated ?? this.lastUpdated ?? DateTime.now().millisecondsSinceEpoch,
@@ -167,6 +171,7 @@ class UserStats {
       currencyCode: json['currency_code'],
       cigarettesSmoked: json['cigarettes_smoked'] ?? 0,
       smokingRecordsCount: json['smoking_records_count'] ?? 0,
+      cravingsCount: json['cravings_count'] ?? 0,
       minutesGainedToday: json['minutes_gained_today'] ?? 0,
       totalMinutesGained: json['total_minutes_gained'] ?? 0,
     );
@@ -195,6 +200,7 @@ class UserStats {
       if (currencyCode != null) 'currency_code': currencyCode,
       if (cigarettesSmoked != null) 'cigarettes_smoked': cigarettesSmoked,
       if (smokingRecordsCount != null) 'smoking_records_count': smokingRecordsCount,
+      if (cravingsCount != null) 'cravings_count': cravingsCount,
       if (minutesGainedToday != null) 'minutes_gained_today': minutesGainedToday,
       if (totalMinutesGained != null) 'total_minutes_gained': totalMinutesGained,
     };
@@ -223,6 +229,7 @@ class UserStats {
       other.currencyCode == currencyCode &&
       other.cigarettesSmoked == cigarettesSmoked &&
       other.smokingRecordsCount == smokingRecordsCount &&
+      other.cravingsCount == cravingsCount &&
       other.minutesGainedToday == minutesGainedToday &&
       other.totalMinutesGained == totalMinutesGained &&
       other.lastUpdated == lastUpdated;
@@ -248,6 +255,7 @@ class UserStats {
       currencyCode.hashCode ^
       cigarettesSmoked.hashCode ^
       smokingRecordsCount.hashCode ^
+      cravingsCount.hashCode ^
       minutesGainedToday.hashCode ^
       totalMinutesGained.hashCode ^
       lastUpdated.hashCode;
