@@ -10,6 +10,7 @@ import 'package:nicotinaai_flutter/features/settings/screens/settings_screen.dar
 import 'package:nicotinaai_flutter/blocs/auth/auth_bloc.dart';
 import 'package:nicotinaai_flutter/blocs/auth/auth_state.dart';
 import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
+import 'package:nicotinaai_flutter/services/feedback_trigger_service.dart';
 
 /// MainScreen with tab navigation
 class MainScreen extends StatefulWidget {
@@ -25,6 +26,9 @@ class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
   bool _hasInitializedAchievements = false;
   
+  // Feedback trigger service
+  final FeedbackTriggerService _feedbackService = FeedbackTriggerService();
+  
   // Always use the standard HomeScreen implementation
   Widget get _homeScreen => const HomeScreen();
   
@@ -38,13 +42,29 @@ class _MainScreenState extends State<MainScreen> {
   @override
   void initState() {
     super.initState();
+    // Initialize the feedback service
+    _feedbackService.init();
+    
     // Schedule achievement initialization for after the first frame
     // Using a delayed execution to prevent initialization during router redirects
     Future.delayed(Duration(milliseconds: 500), () {
       if (mounted) {
         _initializeAchievementsOnce();
+        
+        // Track screen visit
+        _feedbackService.trackScreenVisit();
+        
+        // Check if feedback should be shown
+        _checkForFeedback();
       }
     });
+  }
+  
+  // Check if feedback should be shown
+  Future<void> _checkForFeedback() async {
+    if (mounted) {
+      await _feedbackService.checkAndTriggerFeedback(context);
+    }
   }
   
   // Initialize achievements only once with additional safeguards
@@ -62,6 +82,17 @@ class _MainScreenState extends State<MainScreen> {
   void _changeTab(int index) {
     setState(() {
       _currentIndex = index;
+    });
+    
+    // Track screen visit when changing tabs
+    _feedbackService.trackScreenVisit();
+    
+    // Check if feedback should be shown after tab change
+    // We use a small delay to allow the tab change animation to complete
+    Future.delayed(Duration(milliseconds: 300), () {
+      if (mounted) {
+        _checkForFeedback();
+      }
     });
   }
 

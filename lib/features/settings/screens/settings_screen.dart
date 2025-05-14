@@ -19,6 +19,7 @@ import 'package:nicotinaai_flutter/core/theme/theme_settings.dart';
 import 'package:nicotinaai_flutter/features/tracking/screens/statistics_dashboard_screen.dart';
 import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
 import 'package:nicotinaai_flutter/services/notification_service.dart';
+import 'package:nicotinaai_flutter/services/feedback_trigger_service.dart';
 import 'package:nicotinaai_flutter/utils/url_launcher_utils.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -33,12 +34,26 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   // Notification service and state
   final NotificationService _notificationService = NotificationService();
+  final FeedbackTriggerService _feedbackService = FeedbackTriggerService();
   bool _areNotificationsEnabled = true;
 
   @override
   void initState() {
     super.initState();
     _loadNotificationSettings();
+    
+    // Track screen visit for feedback
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _feedbackService.trackScreenVisit();
+      _checkForFeedback();
+    });
+  }
+  
+  // Check if feedback should be shown
+  Future<void> _checkForFeedback() async {
+    if (mounted) {
+      await _feedbackService.checkAndTriggerFeedback(context);
+    }
   }
 
   Future<void> _loadNotificationSettings() async {

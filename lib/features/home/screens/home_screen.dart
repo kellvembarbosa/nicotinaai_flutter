@@ -19,6 +19,7 @@ import 'package:nicotinaai_flutter/blocs/achievement/achievement_state.dart';
 import 'package:nicotinaai_flutter/blocs/currency/currency_bloc.dart';
 import 'package:nicotinaai_flutter/blocs/currency/currency_state.dart';
 import 'package:nicotinaai_flutter/services/analytics/analytics_service.dart';
+import 'package:nicotinaai_flutter/services/feedback_trigger_service.dart';
 import 'package:nicotinaai_flutter/core/routes/app_routes.dart';
 import 'package:nicotinaai_flutter/core/theme/app_theme.dart';
 import 'package:nicotinaai_flutter/core/theme/theme_switch.dart';
@@ -74,6 +75,8 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _isInitialLoading = true;
   // Currency formatter
   final CurrencyUtils _currencyUtils = CurrencyUtils();
+  // Feedback trigger service
+  final FeedbackTriggerService _feedbackService = FeedbackTriggerService();
 
   @override
   void initState() {
@@ -81,6 +84,9 @@ class _HomeScreenState extends State<HomeScreen> {
     // Evite chamar BLoC diretamente em initState
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _initializeBlocs();
+      
+      // Track screen visit for feedback
+      _feedbackService.trackScreenVisit();
       
       // Track screen view for analytics
       final analyticsBloc = BlocProvider.of<AnalyticsBloc>(context);

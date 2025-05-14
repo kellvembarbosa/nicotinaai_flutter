@@ -7,15 +7,41 @@ import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
 import 'package:nicotinaai_flutter/blocs/achievement/achievement_bloc.dart';
 import 'package:nicotinaai_flutter/blocs/achievement/achievement_event.dart';
 import 'package:nicotinaai_flutter/blocs/achievement/achievement_state.dart';
+import 'package:nicotinaai_flutter/services/feedback_trigger_service.dart';
 
 import '../models/user_achievement.dart';
 import '../models/achievement_definition.dart';
 
-class AchievementDetailScreen extends StatelessWidget {
+class AchievementDetailScreen extends StatefulWidget {
   static const String routeName = '/achievement-detail';
   final String achievementId;
   
   const AchievementDetailScreen({required this.achievementId, super.key});
+  
+  @override
+  State<AchievementDetailScreen> createState() => _AchievementDetailScreenState();
+}
+
+class _AchievementDetailScreenState extends State<AchievementDetailScreen> {
+  // Feedback trigger service instance
+  final FeedbackTriggerService _feedbackService = FeedbackTriggerService();
+  
+  @override
+  void initState() {
+    super.initState();
+    
+    // Track screen visit for feedback
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _feedbackService.trackScreenVisit();
+    });
+  }
+  
+  // Check if feedback should be shown
+  Future<void> _checkForFeedback() async {
+    if (mounted) {
+      await _feedbackService.checkAndTriggerFeedback(context);
+    }
+  }
   
   @override
   Widget build(BuildContext context) {
@@ -24,7 +50,7 @@ class AchievementDetailScreen extends StatelessWidget {
     return BlocBuilder<AchievementBloc, AchievementState>(
       builder: (context, state) {
         // Find the achievement
-        final achievement = state.getAchievementById(achievementId);
+        final achievement = state.getAchievementById(widget.achievementId);
         
         if (achievement == null) {
           return Scaffold(
@@ -48,7 +74,10 @@ class AchievementDetailScreen extends StatelessWidget {
           // Use addPostFrameCallback to avoid build-time side effects
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (context.mounted) {
-              context.read<AchievementBloc>().add(MarkAchievementAsViewed(achievementId));
+              context.read<AchievementBloc>().add(MarkAchievementAsViewed(widget.achievementId));
+              
+              // Check for feedback after achievement is viewed
+              _checkForFeedback();
             }
           });
         }

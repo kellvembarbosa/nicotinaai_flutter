@@ -8,6 +8,7 @@ import 'package:nicotinaai_flutter/blocs/achievement/achievement_event.dart';
 import 'package:nicotinaai_flutter/blocs/achievement/achievement_state.dart';
 import 'package:nicotinaai_flutter/core/theme/app_theme.dart';
 import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
+import 'package:nicotinaai_flutter/services/feedback_trigger_service.dart';
 
 class AchievementsScreen extends StatefulWidget {
   static const String routeName = '/achievements';
@@ -21,6 +22,8 @@ class AchievementsScreen extends StatefulWidget {
 class _AchievementsScreenState extends State<AchievementsScreen> with SingleTickerProviderStateMixin {
   late TabController _tabController;
   late List<String> _categories;
+  // Feedback trigger service instance
+  final FeedbackTriggerService _feedbackService = FeedbackTriggerService();
 
   bool _hasLoadedAchievements = false;
 
@@ -40,7 +43,19 @@ class _AchievementsScreenState extends State<AchievementsScreen> with SingleTick
         if (achievementBloc.state.status == AchievementStatus.initial) {
           achievementBloc.add(InitializeAchievements());
         }
+        
+        // Track screen visit for feedback
+        _feedbackService.trackScreenVisit();
+        // Check if feedback should be shown
+        _checkForFeedback();
       });
+    }
+  }
+  
+  // Check if feedback should be shown
+  Future<void> _checkForFeedback() async {
+    if (mounted) {
+      await _feedbackService.checkAndTriggerFeedback(context);
     }
   }
 

@@ -53,6 +53,9 @@ enum AppRoutes {
   // Achievement routes
   achievementDetail('/achievement/:achievementId'),
   
+  // Feedback route
+  appFeedback('/feedback'),
+  
   // Settings routes
   packPrice('/settings/pack-price'),
   cigarettesPerDay('/settings/cigarettes-per-day'),

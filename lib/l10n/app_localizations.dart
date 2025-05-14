@@ -2664,6 +2664,162 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'One month ago'**
   String get oneMonthAgo;
+
+  /// No description provided for @feedbackTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'We value your feedback'**
+  String get feedbackTitle;
+
+  /// No description provided for @skip.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip'**
+  String get skip;
+
+  /// No description provided for @howIsYourExperience.
+  ///
+  /// In en, this message translates to:
+  /// **'How\'s your experience?'**
+  String get howIsYourExperience;
+
+  /// No description provided for @enjoyingApp.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you enjoying the app?'**
+  String get enjoyingApp;
+
+  /// No description provided for @notReally.
+  ///
+  /// In en, this message translates to:
+  /// **'Not really'**
+  String get notReally;
+
+  /// No description provided for @yesImEnjoying.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes, I\'m enjoying it!'**
+  String get yesImEnjoying;
+
+  /// No description provided for @rateApp.
+  ///
+  /// In en, this message translates to:
+  /// **'How would you rate the app?'**
+  String get rateApp;
+
+  /// No description provided for @yourOpinionMatters.
+  ///
+  /// In en, this message translates to:
+  /// **'Your opinion matters to us'**
+  String get yourOpinionMatters;
+
+  /// No description provided for @later.
+  ///
+  /// In en, this message translates to:
+  /// **'Later'**
+  String get later;
+
+  /// No description provided for @tellUsIssues.
+  ///
+  /// In en, this message translates to:
+  /// **'Tell us what\'s not good'**
+  String get tellUsIssues;
+
+  /// No description provided for @helpUsImprove.
+  ///
+  /// In en, this message translates to:
+  /// **'Help us improve by telling us what we can do better:'**
+  String get helpUsImprove;
+
+  /// No description provided for @feedbackCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Feedback category'**
+  String get feedbackCategory;
+
+  /// No description provided for @interface.
+  ///
+  /// In en, this message translates to:
+  /// **'Interface'**
+  String get interface;
+
+  /// No description provided for @features.
+  ///
+  /// In en, this message translates to:
+  /// **'Features'**
+  String get features;
+
+  /// No description provided for @performance.
+  ///
+  /// In en, this message translates to:
+  /// **'Performance'**
+  String get performance;
+
+  /// No description provided for @accuracyOfStatistics.
+  ///
+  /// In en, this message translates to:
+  /// **'Accuracy of statistics'**
+  String get accuracyOfStatistics;
+
+  /// No description provided for @yourFeedback.
+  ///
+  /// In en, this message translates to:
+  /// **'Your feedback'**
+  String get yourFeedback;
+
+  /// No description provided for @describeProblem.
+  ///
+  /// In en, this message translates to:
+  /// **'Describe what we can improve...'**
+  String get describeProblem;
+
+  /// No description provided for @sendFeedback.
+  ///
+  /// In en, this message translates to:
+  /// **'Send feedback'**
+  String get sendFeedback;
+
+  /// No description provided for @thankYouForFeedback.
+  ///
+  /// In en, this message translates to:
+  /// **'We appreciate your feedback!'**
+  String get thankYouForFeedback;
+
+  /// No description provided for @rateAppStore.
+  ///
+  /// In en, this message translates to:
+  /// **'Would you like to rate the app in the store?'**
+  String get rateAppStore;
+
+  /// No description provided for @alreadyRated.
+  ///
+  /// In en, this message translates to:
+  /// **'I already rated'**
+  String get alreadyRated;
+
+  /// No description provided for @rateNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Rate now'**
+  String get rateNow;
+
+  /// No description provided for @feedbackError.
+  ///
+  /// In en, this message translates to:
+  /// **'Oops, something went wrong'**
+  String get feedbackError;
+
+  /// No description provided for @couldNotSaveFeedback.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save your feedback'**
+  String get couldNotSaveFeedback;
+
+  /// No description provided for @understand.
+  ///
+  /// In en, this message translates to:
+  /// **'I understand'**
+  String get understand;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

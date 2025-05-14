@@ -18,6 +18,7 @@ import 'package:nicotinaai_flutter/features/achievements/services/achievement_se
 import 'package:nicotinaai_flutter/features/achievements/services/achievement_notification_service.dart';
 import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
 import 'package:nicotinaai_flutter/services/analytics/analytics_service.dart';
+import 'package:nicotinaai_flutter/services/app_feedback_service.dart';
 import 'package:nicotinaai_flutter/services/notification_service.dart';
 import 'package:nicotinaai_flutter/services/supabase_diagnostic.dart';
 import 'package:nicotinaai_flutter/features/settings/repositories/settings_repository.dart';
@@ -47,6 +48,8 @@ import 'package:nicotinaai_flutter/blocs/tracking/tracking_bloc.dart';
 import 'package:nicotinaai_flutter/blocs/tracking/tracking_event.dart';
 import 'package:nicotinaai_flutter/blocs/analytics/analytics_bloc.dart';
 import 'package:nicotinaai_flutter/blocs/analytics/analytics_event.dart';
+import 'package:nicotinaai_flutter/blocs/app_feedback/app_feedback_bloc.dart';
+import 'package:nicotinaai_flutter/blocs/app_feedback/app_feedback_event.dart';
 
 void main() async {
   // Garante que os widgets estão iniciados antes de chamar código nativo
@@ -191,7 +194,10 @@ void main() async {
   final onboardingRepository = OnboardingRepository();
   final trackingRepository = TrackingRepository();
   final settingsRepository = SettingsRepository();
-
+  
+  // Cria serviços
+  final appFeedbackService = AppFeedbackService();
+  
   // Initialize achievement notification service
   final achievementNotifications = AchievementNotificationService(FlutterLocalNotificationsPlugin());
 
@@ -202,6 +208,7 @@ void main() async {
       trackingRepository: trackingRepository,
       achievementNotifications: achievementNotifications,
       settingsRepository: settingsRepository,
+      appFeedbackService: appFeedbackService,
     ),
   );
 }
@@ -233,6 +240,7 @@ class MyApp extends StatelessWidget {
   final TrackingRepository trackingRepository;
   final AchievementNotificationService achievementNotifications;
   final SettingsRepository settingsRepository;
+  final AppFeedbackService appFeedbackService;
 
   const MyApp({
     required this.authRepository,
@@ -240,6 +248,7 @@ class MyApp extends StatelessWidget {
     required this.trackingRepository,
     required this.achievementNotifications,
     required this.settingsRepository,
+    required this.appFeedbackService,
     super.key,
   });
 
@@ -323,6 +332,11 @@ class MyApp extends StatelessWidget {
 
         // AnalyticsBloc - Novo BLoC para analytics
         BlocProvider<AnalyticsBloc>(create: (context) => AnalyticsBloc()..add(const InitializeAnalyticsEvent())),
+        
+        // AppFeedbackBloc - Novo BLoC para feedback do usuário
+        BlocProvider<AppFeedbackBloc>(
+          create: (context) => AppFeedbackBloc(feedbackService: appFeedbackService),
+        ),
 
         // Todos os providers legados foram removidos
       ],

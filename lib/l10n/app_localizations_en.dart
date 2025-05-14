@@ -1332,4 +1332,82 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get oneMonthAgo => 'One month ago';
+
+  @override
+  String get feedbackTitle => 'We value your feedback';
+
+  @override
+  String get skip => 'Skip';
+
+  @override
+  String get howIsYourExperience => 'How\'s your experience?';
+
+  @override
+  String get enjoyingApp => 'Are you enjoying the app?';
+
+  @override
+  String get notReally => 'Not really';
+
+  @override
+  String get yesImEnjoying => 'Yes, I\'m enjoying it!';
+
+  @override
+  String get rateApp => 'How would you rate the app?';
+
+  @override
+  String get yourOpinionMatters => 'Your opinion matters to us';
+
+  @override
+  String get later => 'Later';
+
+  @override
+  String get tellUsIssues => 'Tell us what\'s not good';
+
+  @override
+  String get helpUsImprove => 'Help us improve by telling us what we can do better:';
+
+  @override
+  String get feedbackCategory => 'Feedback category';
+
+  @override
+  String get interface => 'Interface';
+
+  @override
+  String get features => 'Features';
+
+  @override
+  String get performance => 'Performance';
+
+  @override
+  String get accuracyOfStatistics => 'Accuracy of statistics';
+
+  @override
+  String get yourFeedback => 'Your feedback';
+
+  @override
+  String get describeProblem => 'Describe what we can improve...';
+
+  @override
+  String get sendFeedback => 'Send feedback';
+
+  @override
+  String get thankYouForFeedback => 'We appreciate your feedback!';
+
+  @override
+  String get rateAppStore => 'Would you like to rate the app in the store?';
+
+  @override
+  String get alreadyRated => 'I already rated';
+
+  @override
+  String get rateNow => 'Rate now';
+
+  @override
+  String get feedbackError => 'Oops, something went wrong';
+
+  @override
+  String get couldNotSaveFeedback => 'Could not save your feedback';
+
+  @override
+  String get understand => 'I understand';
 }

@@ -2031,5 +2031,33 @@
   "errorOccurred": "Ocurrió un error",
   "@errorOccurred": {
     "description": "Generic error message displayed when an unknown error occurs"
-  }
+  },
+
+  "feedbackTitle": "Valoramos tu opinión",
+  "skip": "Omitir",
+  "howIsYourExperience": "¿Cómo ha sido tu experiencia?",
+  "enjoyingApp": "¿Estás disfrutando la aplicación?",
+  "notReally": "No realmente",
+  "yesImEnjoying": "¡Sí, me gusta!",
+  "rateApp": "¿Cómo calificarías la aplicación?",
+  "yourOpinionMatters": "Tu opinión es importante para nosotros",
+  "later": "Más tarde",
+  "tellUsIssues": "Cuéntanos qué no está bien",
+  "helpUsImprove": "Ayúdanos a mejorar diciéndonos qué podemos hacer mejor:",
+  "feedbackCategory": "Categoría del comentario",
+  "interface": "Interfaz",
+  "features": "Funciones",
+  "performance": "Rendimiento",
+  "accuracyOfStatistics": "Precisión de las estadísticas",
+  "notifications": "Notificaciones",
+  "yourFeedback": "Tu comentario",
+  "describeProblem": "Describe qué podemos mejorar...",
+  "sendFeedback": "Enviar comentario",
+  "thankYouForFeedback": "¡Agradecemos tu comentario!",
+  "rateAppStore": "¿Te gustaría calificar la aplicación en la tienda?",
+  "alreadyRated": "Ya he calificado",
+  "rateNow": "Calificar ahora",
+  "feedbackError": "Ups, algo salió mal",
+  "couldNotSaveFeedback": "No se pudo guardar tu comentario",
+  "understand": "Entiendo"
 }

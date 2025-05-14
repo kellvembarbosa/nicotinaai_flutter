@@ -23,6 +23,7 @@ import 'package:nicotinaai_flutter/features/settings/screens/reset_password_scre
 import 'package:nicotinaai_flutter/features/settings/screens/settings_screen.dart';
 import 'package:nicotinaai_flutter/features/settings/screens/theme_selection_screen_bloc.dart';
 import 'package:nicotinaai_flutter/features/onboarding/screens/onboarding_screen.dart';
+import 'package:nicotinaai_flutter/features/onboarding/screens/feedback_onboarding_screen.dart';
 import 'package:nicotinaai_flutter/features/tracking/screens/statistics_dashboard_screen.dart';
 // Removed imports for deleted screens
 import 'package:nicotinaai_flutter/features/tracking/screens/health_recovery_screen.dart';
@@ -142,6 +143,12 @@ class AppRouter {
           final achievementId = state.pathParameters['achievementId'] ?? '';
           return AchievementDetailScreen(achievementId: achievementId);
         },
+      ),
+      
+      // Feedback route
+      GoRoute(
+        path: AppRoutes.appFeedback.path,
+        builder: (context, state) => const FeedbackOnboardingScreen(),
       ),
       
       // Settings routes

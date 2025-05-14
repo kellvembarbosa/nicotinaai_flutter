@@ -13,6 +13,7 @@ import 'package:nicotinaai_flutter/core/theme/app_theme.dart';
 import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
 import 'package:flutter/services.dart';
 import 'package:nicotinaai_flutter/core/routes/app_routes.dart';
+import 'package:nicotinaai_flutter/services/feedback_trigger_service.dart';
 
 import '../models/user_achievement.dart';
 import '../models/time_period.dart';
@@ -32,6 +33,8 @@ class _AchievementsScreenState extends State<AchievementsScreen> with SingleTick
   late TabController _tabController;
   late List<String> _categories;
   String _currentCategory = 'all';
+  // Feedback trigger service instance
+  final FeedbackTriggerService _feedbackService = FeedbackTriggerService();
 
   // Flag para controlar carga única de achievements
   bool _hasLoadedAchievements = false;
@@ -44,6 +47,21 @@ class _AchievementsScreenState extends State<AchievementsScreen> with SingleTick
     
     // Load achievements quando a tela inicializa
     _loadAchievements();
+    
+    // Initialize feedback tracking
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // Track screen visit for feedback
+      _feedbackService.trackScreenVisit();
+      // Check if feedback should be shown
+      _checkForFeedback();
+    });
+  }
+  
+  // Check if feedback should be shown
+  Future<void> _checkForFeedback() async {
+    if (mounted) {
+      await _feedbackService.checkAndTriggerFeedback(context);
+    }
   }
   
   // Time tracking for achievement loading

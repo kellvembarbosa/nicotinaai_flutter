@@ -17,6 +17,7 @@ import 'package:nicotinaai_flutter/features/onboarding/screens/personalize_scree
 import 'package:nicotinaai_flutter/features/onboarding/screens/interests_screen.dart';
 import 'package:nicotinaai_flutter/features/onboarding/screens/locations_screen.dart';
 import 'package:nicotinaai_flutter/features/onboarding/screens/currency_selection_screen.dart';
+import 'package:nicotinaai_flutter/features/onboarding/screens/feedback_onboarding_screen.dart';
 
 class OnboardingScreen extends StatefulWidget {
   static const String routeName = '/onboarding';
@@ -112,6 +113,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           case 13:
             return const ProductTypeScreen();
           case 14:
+            return const FeedbackOnboardingScreen();
+          case 15:
             return const CompletionScreen();
           default:
             return const IntroductionScreen();

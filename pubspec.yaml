@@ -82,6 +82,7 @@ dependencies:
   superwallkit_flutter: ^2.1.0
   purchases_flutter: ^8.8.0
   flutter_native_splash: ^2.4.6
+  in_app_review: ^2.0.10
 
 dev_dependencies:
   flutter_test:
