@@ -259,7 +259,6 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen>
 
             // Pack price and per unit price cards - usando o mesmo estilo dos outros cards
             Container(
-              height: 180,
               margin: const EdgeInsets.only(bottom: 16),
               child: Row(
                 children: [
@@ -279,6 +278,7 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen>
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
                         children: [
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -302,7 +302,7 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen>
                               ),
                             ],
                           ),
-                          const Spacer(),
+                          const SizedBox(height: 16),
                           Text(
                             stats.packPrice != null
                                 ? context.read<CurrencyBloc>().format(
@@ -355,6 +355,7 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen>
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
                         children: [
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -378,7 +379,7 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen>
                               ),
                             ],
                           ),
-                          const Spacer(),
+                          const SizedBox(height: 16),
                           Text(
                             _calculateUnitPrice(
                               stats,
@@ -562,8 +563,8 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen>
             _buildSectionHeader(context, l10n.achievementCategorySavings),
             const SizedBox(height: 16),
 
-            SizedBox(
-              height: 250,
+            AspectRatio(
+              aspectRatio: 1.6, // Width to height ratio (wider than pie chart)
               child: Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
@@ -719,7 +720,6 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen>
 
             // Price per unit and cigarettes avoided - usando o mesmo estilo dos outros cards
             Container(
-              height: 180,
               margin: const EdgeInsets.only(bottom: 16),
               child: Row(
                 children: [
@@ -739,6 +739,7 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen>
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
                         children: [
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -762,7 +763,7 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen>
                               ),
                             ],
                           ),
-                          const Spacer(),
+                          const SizedBox(height: 16),
                           Text(
                             _calculateUnitPrice(stats, currencyBloc),
                             style: TextStyle(
@@ -809,6 +810,7 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen>
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
                         children: [
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -832,7 +834,7 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen>
                               ),
                             ],
                           ),
-                          const Spacer(),
+                          const SizedBox(height: 16),
                           Text(
                             '${context.read<TrackingBloc>().getCravingsResisted()}',
                             style: TextStyle(
@@ -954,8 +956,8 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen>
         _buildSectionHeader(context, 'Craving Outcomes'),
         const SizedBox(height: 16),
 
-        SizedBox(
-          height: 250,
+        AspectRatio(
+          aspectRatio: 1.4, // Width to height ratio
           child: Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
@@ -1258,81 +1260,79 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen>
       outcomeIndex = 2;
     }
     
-    // Fixed height for consistent card sizes
-    return SizedBox(
-      height: 90, // Increased height to accommodate content
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 12),
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: context.cardColor,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: outcomeColors[outcomeIndex].withAlpha(77)),
-        ),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: outcomeColors[outcomeIndex].withAlpha(51),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                outcomeIcons[outcomeIndex],
-                color: outcomeColors[outcomeIndex],
-                size: 20,
-              ),
+    // Using a more flexible layout approach without fixed height
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: context.cardColor,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: outcomeColors[outcomeIndex].withAlpha(77)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: outcomeColors[outcomeIndex].withAlpha(51),
+              shape: BoxShape.circle,
             ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.max, // Changed to max to take available space
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Flexible(
-                        child: Text(
-                          _getCravingIntensityText(craving.intensity),
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: context.contentColor,
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      Text(
-                        outcomeTexts[outcomeIndex],
+            child: Icon(
+              outcomeIcons[outcomeIndex],
+              color: outcomeColors[outcomeIndex],
+              size: 20,
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Flexible(
+                      child: Text(
+                        _getCravingIntensityText(craving.intensity),
                         style: TextStyle(
-                          color: outcomeColors[outcomeIndex],
-                          fontWeight: FontWeight.w500,
+                          fontWeight: FontWeight.bold,
+                          color: context.contentColor,
                         ),
+                        overflow: TextOverflow.ellipsis,
                       ),
-                    ],
-                  ),
-                  const Spacer(flex: 1),
-                  // Separate rows for date and location to prevent overflow
-                  Text(
-                    dateFormat.format(craving.timestamp),
-                    style: TextStyle(fontSize: 12, color: context.subtitleColor),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  if (craving.location != null)
-                    Text(
-                      craving.location!,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: context.subtitleColor.withAlpha(179),
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                      maxLines: 1,
                     ),
-                ],
-              ),
+                    Text(
+                      outcomeTexts[outcomeIndex],
+                      style: TextStyle(
+                        color: outcomeColors[outcomeIndex],
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                // Separate rows for date and location to prevent overflow
+                Text(
+                  dateFormat.format(craving.timestamp),
+                  style: TextStyle(fontSize: 12, color: context.subtitleColor),
+                  overflow: TextOverflow.ellipsis,
+                ),
+                if (craving.location != null)
+                  Text(
+                    craving.location!,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: context.subtitleColor.withAlpha(179),
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                  ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -1364,93 +1364,90 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen>
     double percentage = daysSmokeFree / daysRequired;
     if (percentage > 1) percentage = 1;
 
-    // Fixed height for consistent card sizes
-    return SizedBox(
-      height: 120, // Fixed height for all cards
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 16),
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: context.cardColor,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: statusColor.withAlpha(77)),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        recoveryDetails.name,
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: context.contentColor,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+    // Using a flexible layout without fixed height
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: context.cardColor,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: statusColor.withAlpha(77)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      recoveryDetails.name,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: context.contentColor,
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        isAchieved
-                            ? l10n.achievedOn(recovery.achievedAt)
-                            : l10n.daysToAchieve(daysRequired),
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: context.subtitleColor,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                  ),
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: statusColor.withAlpha(51),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    isAchieved ? l10n.achieved : l10n.progress,
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                      color: statusColor,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            if (!isAchieved) ...[
-              ClipRRect(
-                borderRadius: BorderRadius.circular(10),
-                child: LinearProgressIndicator(
-                  value: percentage,
-                  backgroundColor: Colors.grey.withAlpha(51),
-                  color: statusColor,
-                  minHeight: 10,
+                    const SizedBox(height: 4),
+                    Text(
+                      isAchieved
+                          ? l10n.achievedOn(recovery.achievedAt)
+                          : l10n.daysToAchieve(daysRequired),
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: context.subtitleColor,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
                 ),
               ),
-              const SizedBox(height: 8),
-              Text(
-                l10n.daysRemaining(
-                  (daysRequired - daysSmokeFree).clamp(0, daysRequired),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: statusColor.withAlpha(51),
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                style: TextStyle(fontSize: 12, color: statusColor),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
+                child: Text(
+                  isAchieved ? l10n.achieved : l10n.progress,
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: statusColor,
+                  ),
+                ),
               ),
             ],
+          ),
+          if (!isAchieved) ...[
+            const SizedBox(height: 12),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: LinearProgressIndicator(
+                value: percentage,
+                backgroundColor: Colors.grey.withAlpha(51),
+                color: statusColor,
+                minHeight: 10,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              l10n.daysRemaining(
+                (daysRequired - daysSmokeFree).clamp(0, daysRequired),
+              ),
+              style: TextStyle(fontSize: 12, color: statusColor),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
           ],
-        ),
+        ],
       ),
     );
   }
