@@ -39,13 +39,14 @@ serve(async (req) => {
       console.log(`No user stats or last smoke date found for user ${userId}, initializing...`);
 
       // Verificar se houve uma tentativa de registrar craving
-      const { data: cravings, error: cravingsError } = await supabase
+      // Get all cravings and filter in memory to avoid enum type issues
+      const { data: allCravings, error: cravingsError } = await supabase
         .from("cravings")
         .select("*")
         .eq("user_id", userId)
         .limit(1);
 
-      if (!cravingsError && cravings && cravings.length > 0) {
+      if (!cravingsError && allCravings && allCravings.length > 0) {
         // Há registros de cravings, podemos inicializar user_stats com a data atual
         const now = new Date();
 

@@ -293,34 +293,56 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
         return;
       }
       
-      // NOVA VALIDAÇÃO: Verificar se todas as etapas foram realmente concluídas
-      final allStepsCompleted = await _repository.hasCompletedAllSteps(
-        totalSteps: state.totalSteps
-      );
+      // Verificar se estamos na tela de conclusão (última etapa)
+      final isCompletionScreen = state.currentStep == state.totalSteps;
       
-      // Se não completou todas as etapas, atualiza o progresso com a etapa atual
-      // e retorna sem completar o onboarding
-      if (!allStepsCompleted) {
-        debugPrint('⚠️ [OnboardingBloc] Tentativa de completar onboarding sem finalizar todas as etapas!');
+      if (isCompletionScreen) {
+        // Se estamos na tela de conclusão, podemos completar sem verificações adicionais
+        debugPrint('✅ [OnboardingBloc] Estamos na tela de conclusão, completando diretamente...');
         
-        // Atualizar progresso para a etapa atual
+        // Forçar a atualização do progresso para marcar a última etapa como concluída
         try {
           await _repository.saveOnboardingProgress(
-            currentStep: state.currentStep,
-            lastCompletedStep: state.currentStep - 1,
+            currentStep: state.totalSteps,
+            lastCompletedStep: state.totalSteps - 1, // Marca a última etapa como completa
             totalSteps: state.totalSteps,
             onboardingId: state.onboarding?.id,
           );
-          
-          // Notificar o usuário que ele precisa completar todas as etapas
-          final remainingSteps = state.totalSteps - state.currentStep;
-          debugPrint('ℹ️ [OnboardingBloc] Faltam $remainingSteps etapas para completar o onboarding');
-          
-          // Não atualizar o estado, deixe o usuário continuar navegando normalmente
-          return;
+          debugPrint('✅ [OnboardingBloc] Progresso atualizado para última etapa');
         } catch (e) {
-          debugPrint('⚠️ [OnboardingBloc] Erro ao atualizar progresso: $e');
-          // Continuar com o código para completar o onboarding mesmo com o erro
+          debugPrint('⚠️ [OnboardingBloc] Erro ao atualizar progresso da última etapa: $e');
+          // Continuar mesmo com erro
+        }
+      } else {
+        // NOVA VALIDAÇÃO: Verificar se todas as etapas foram realmente concluídas
+        final allStepsCompleted = await _repository.hasCompletedAllSteps(
+          totalSteps: state.totalSteps
+        );
+        
+        // Se não completou todas as etapas, atualiza o progresso com a etapa atual
+        // e retorna sem completar o onboarding
+        if (!allStepsCompleted) {
+          debugPrint('⚠️ [OnboardingBloc] Tentativa de completar onboarding sem finalizar todas as etapas!');
+          
+          // Atualizar progresso para a etapa atual
+          try {
+            await _repository.saveOnboardingProgress(
+              currentStep: state.currentStep,
+              lastCompletedStep: state.currentStep - 1,
+              totalSteps: state.totalSteps,
+              onboardingId: state.onboarding?.id,
+            );
+            
+            // Notificar o usuário que ele precisa completar todas as etapas
+            final remainingSteps = state.totalSteps - state.currentStep;
+            debugPrint('ℹ️ [OnboardingBloc] Faltam $remainingSteps etapas para completar o onboarding');
+            
+            // Não atualizar o estado, deixe o usuário continuar navegando normalmente
+            return;
+          } catch (e) {
+            debugPrint('⚠️ [OnboardingBloc] Erro ao atualizar progresso: $e');
+            // Continuar com o código para completar o onboarding mesmo com o erro
+          }
         }
       }
       

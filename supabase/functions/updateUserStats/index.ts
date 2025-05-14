@@ -13,7 +13,7 @@ interface Craving {
   user_id: string;
   timestamp: string;
   trigger?: string;
-  outcome: string;
+  outcome: string | number; // Support both string enum and numeric value
 }
 
 interface UserStats {
@@ -31,7 +31,9 @@ interface UserStats {
   cigarettes_per_day?: number;
   cigarettes_per_pack?: number;
   pack_price?: number;
-  // Campo para armazenar minutos de vida ganhos
+  product_type?: number;
+  currency_code?: string;
+  // Minutes gained fields
   minutes_gained_today?: number;
   total_minutes_gained?: number;
 }
@@ -69,12 +71,11 @@ serve(async (req) => {
       );
     }
 
-    // Get cravings - using the correct enum value "RESISTED" (uppercase)
-    const { data: cravings, error: cravingsError } = await supabase
+    // Get all cravings first, we'll filter them in memory to support both string and integer values
+    const { data: allCravings, error: cravingsError } = await supabase
       .from("cravings")
       .select("*")
-      .eq("user_id", userId)
-      .eq("outcome", "RESISTED");
+      .eq("user_id", userId);
 
     if (cravingsError) {
       console.error("Error fetching cravings:", cravingsError);
@@ -83,6 +84,13 @@ serve(async (req) => {
         { headers: { "Content-Type": "application/json" }, status: 500 }
       );
     }
+
+    // Filter resisted cravings in memory - support both string "RESISTED" and integer 0
+    const cravings = allCravings.filter(craving => 
+      craving.outcome === "RESISTED" || 
+      craving.outcome === 0 || 
+      (typeof craving.outcome === 'string' && craving.outcome.toUpperCase() === 'RESISTED')
+    );
 
     // Get user's onboarding data for cigarette prices
     const { data: onboardingData, error: onboardingError } = await supabase
@@ -177,13 +185,18 @@ serve(async (req) => {
     const totalMinutesGained = cigarettesAvoided * MINUTES_PER_CIGARETTE;
 
     // Calculate minutes gained today based on cigarettes avoided today
-    // Pegamos as cravings resistidas de hoje
+    // Filter today's cravings - support both string "RESISTED" and integer 0
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     
-    const todayCravings = cravings ? cravings.filter(craving => {
+    const todayCravings = allCravings ? allCravings.filter(craving => {
       const cravingDate = new Date(craving.timestamp);
-      return cravingDate >= today;
+      const isToday = cravingDate >= today;
+      const isResisted = 
+        craving.outcome === "RESISTED" || 
+        craving.outcome === 0 || 
+        (typeof craving.outcome === 'string' && craving.outcome.toUpperCase() === 'RESISTED');
+      return isToday && isResisted;
     }) : [];
     
     const todayCravingsCount = todayCravings.length;

@@ -1,0 +1,330 @@
+// Supabase Edge Function to update user stats
+// This is a fixed version that ensures we don't zero out valid data
+// And prevents negative values in calculations
+
+import { serve } from "https://deno.land/std@0.170.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.5.0";
+
+// Define the payload structure
+interface Payload {
+  userId: string;
+}
+
+// Define the response structure
+interface Response {
+  status: number;
+  data: any;
+}
+
+console.log("updateUserStats function loaded");
+
+serve(async (req) => {
+  try {
+    // Create Supabase client with admin role
+    const supabaseClient = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+      {
+        global: {
+          headers: { Authorization: req.headers.get("Authorization")! },
+        },
+        auth: {
+          persistSession: false,
+        },
+      }
+    );
+
+    // Parse the payload
+    const payload: Payload = await req.json();
+    const { userId } = payload;
+
+    if (!userId) {
+      console.error("Missing userId in payload");
+      return new Response(
+        JSON.stringify({
+          status: 400,
+          data: { error: "Missing userId in payload" },
+        }),
+        {
+          headers: { "Content-Type": "application/json" },
+          status: 400,
+        }
+      );
+    }
+
+    console.log(`Updating stats for user ${userId}`);
+
+    // Get the user stats
+    let userStats = null;
+    try {
+      const { data: stats, error } = await supabaseClient
+        .from("user_stats")
+        .select("*")
+        .eq("user_id", userId)
+        .maybeSingle();
+
+      if (error) {
+        console.error("Error getting user stats:", error);
+        throw error;
+      }
+
+      userStats = stats;
+    } catch (error) {
+      console.error("Error getting user stats:", error);
+      throw error;
+    }
+
+    // Get all cravings for the user
+    const { data: cravings, error: cravingsError } = await supabaseClient
+      .from("cravings")
+      .select("*")
+      .eq("user_id", userId);
+
+    if (cravingsError) {
+      console.error("Error getting cravings:", cravingsError);
+      throw cravingsError;
+    }
+
+    // Get all smoking logs for the user
+    const { data: smokingLogs, error: smokingLogsError } = await supabaseClient
+      .from("smoking_logs")
+      .select("*")
+      .eq("user_id", userId)
+      .order("timestamp", { ascending: false });
+
+    if (smokingLogsError) {
+      console.error("Error getting smoking logs:", smokingLogsError);
+      throw smokingLogsError;
+    }
+
+    // Get onboarding data for the user
+    const { data: onboarding, error: onboardingError } = await supabaseClient
+      .from("onboarding")
+      .select("*")
+      .eq("user_id", userId)
+      .maybeSingle();
+
+    if (onboardingError) {
+      console.error("Error getting onboarding data:", onboardingError);
+      // Don't throw, onboarding data is optional
+    }
+
+    // Count resisted cravings - FIXED: Using textual comparison instead of numeric comparison
+    const resistedCravings = cravings.filter(
+      (craving) => craving.outcome === "RESISTED" || craving.outcome === 0
+    ).length;
+
+    // Get the last smoke date from the smoking logs
+    const lastSmokeDate =
+      smokingLogs.length > 0 ? smokingLogs[0].timestamp : null;
+
+    // Calculate days since last smoke - ENSURE NON-NEGATIVE
+    let daysSinceLastSmoke = 0;
+    if (lastSmokeDate) {
+      const now = new Date();
+      const lastSmoke = new Date(lastSmokeDate);
+      
+      // Calculate time difference in milliseconds
+      const diffTime = now.getTime() - lastSmoke.getTime();
+      
+      // Convert milliseconds to days and ensure non-negative
+      const daysDiff = diffTime / (1000 * 60 * 60 * 24);
+      
+      // Round down to nearest integer and ensure non-negative
+      daysSinceLastSmoke = Math.max(0, Math.floor(daysDiff));
+      
+      console.log(`Days since last smoke calculation:
+      - Now: ${now.toISOString()}
+      - Last smoke: ${lastSmoke.toISOString()}
+      - Diff in ms: ${diffTime}
+      - Diff in days: ${daysDiff}
+      - Rounded days: ${daysSinceLastSmoke}`);
+    }
+
+    // Get cigarettes per day from onboarding or use default
+    const cigarettesPerDay = onboarding?.cigarettes_per_day || 20;
+
+    // Get cigarettes per pack from user stats or use default
+    const cigarettesPerPack = userStats?.cigarettes_per_pack || 20;
+
+    // Get pack price from user stats or use default
+    const packPrice = userStats?.pack_price || 1000; // Default 10 currency units (in cents)
+
+    // Calculate cigarettes avoided based on days without smoking * cigarettes per day
+    // Ensure non-negative
+    const cigarettesAvoided = Math.max(0, daysSinceLastSmoke * cigarettesPerDay);
+
+    // Calculate money saved
+    // Formula: (cigarettes avoided * pack price) / cigarettes per pack
+    // Ensure non-negative
+    const moneySaved = Math.max(0, Math.round((cigarettesAvoided * packPrice) / cigarettesPerPack));
+
+    // Calculate minutes gained (6 minutes per cigarette avoided)
+    // Ensure non-negative
+    const totalMinutesGained = Math.max(0, cigarettesAvoided * 6);
+
+    // Calculate minutes gained today (using resisted cravings from today)
+    // For simplicity, use cravings resisted from the last 24 hours
+    const oneDayAgo = new Date();
+    oneDayAgo.setDate(oneDayAgo.getDate() - 1);
+
+    const resistedCravingsToday = cravings.filter(
+      (craving) =>
+        (craving.outcome === "RESISTED" || craving.outcome === 0) && 
+        new Date(craving.timestamp) > oneDayAgo
+    ).length;
+
+    // Minutes gained today = 6 minutes per craving resisted today
+    // Ensure non-negative
+    const minutesGainedToday = Math.max(0, resistedCravingsToday * 6);
+
+    // IMPORTANT: Check if we already have non-zero values in the database,
+    // and avoid overwriting them with zeros when that would be incorrect
+    let updatedValues: any = {
+      user_id: userId,
+      cravings_resisted: Math.max(0, resistedCravings || userStats?.cravings_resisted || 0),
+      current_streak_days: Math.max(0, daysSinceLastSmoke),
+      cigarettes_smoked: Math.max(0, smokingLogs.reduce((total, log) => total + log.quantity, 0)),
+      smoking_records_count: smokingLogs.length,
+      minutes_gained_today: Math.max(0, minutesGainedToday),
+      updated_at: new Date().toISOString(),
+    };
+
+    // Only update cigarettes_avoided if we have a valid calculation or it's currently zero
+    if (cigarettesAvoided > 0 || !userStats?.cigarettes_avoided) {
+      updatedValues.cigarettes_avoided = cigarettesAvoided;
+    } else if (userStats?.cigarettes_avoided) {
+      // Keep existing value if it's greater than calculated value (could be from previous records)
+      updatedValues.cigarettes_avoided = Math.max(0, Math.max(cigarettesAvoided, userStats.cigarettes_avoided));
+    }
+
+    // Only update money_saved if we have a valid calculation or it's currently zero
+    if (moneySaved > 0 || !userStats?.money_saved) {
+      updatedValues.money_saved = moneySaved;
+    } else if (userStats?.money_saved) {
+      // Keep existing value if it's greater than calculated value (could be from previous records)
+      updatedValues.money_saved = Math.max(0, Math.max(moneySaved, userStats.money_saved));
+    }
+
+    // Only update total_minutes_gained if we have a valid calculation or it's currently zero
+    if (totalMinutesGained > 0 || !userStats?.total_minutes_gained) {
+      updatedValues.total_minutes_gained = totalMinutesGained;
+    } else if (userStats?.total_minutes_gained) {
+      // Keep existing value if it's greater than calculated value (could be from previous records)
+      updatedValues.total_minutes_gained = Math.max(0, Math.max(totalMinutesGained, userStats.total_minutes_gained));
+    }
+
+    // Only update last_smoke_date if we have a valid date
+    if (lastSmokeDate) {
+      updatedValues.last_smoke_date = lastSmokeDate;
+    }
+
+    // Insert or update user stats
+    let result;
+    if (userStats) {
+      // Update
+      console.log("Updating existing user stats");
+      const { data, error } = await supabaseClient
+        .from("user_stats")
+        .update(updatedValues)
+        .eq("user_id", userId)
+        .select()
+        .single();
+
+      if (error) {
+        console.error("Error updating user stats:", error);
+        throw error;
+      }
+
+      result = data;
+    } else {
+      // Insert
+      console.log("Creating new user stats");
+      const { data, error } = await supabaseClient
+        .from("user_stats")
+        .insert(updatedValues)
+        .select()
+        .single();
+
+      if (error) {
+        console.error("Error inserting user stats:", error);
+        throw error;
+      }
+
+      result = data;
+    }
+
+    // Calculate daily values
+    // Get cravings from today
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const cravingsToday = cravings.filter(
+      (craving) => new Date(craving.timestamp) >= today
+    );
+
+    const resistedCravingsToday2 = cravingsToday.filter(
+      (craving) => craving.outcome === "RESISTED" || craving.outcome === 0
+    ).length;
+
+    const yieldedCravingsToday = cravingsToday.filter(
+      (craving) => craving.outcome === "SMOKED" || craving.outcome === 1
+    ).length;
+
+    const alternativeCravingsToday = cravingsToday.filter(
+      (craving) => craving.outcome === "ALTERNATIVE" || craving.outcome === 2
+    ).length;
+
+    // Get smoking logs from today
+    const smokingLogsToday = smokingLogs.filter(
+      (log) => new Date(log.timestamp) >= today
+    );
+
+    const cigarettesToday = smokingLogsToday.reduce(
+      (total, log) => total + log.quantity,
+      0
+    );
+
+    return new Response(
+      JSON.stringify({
+        status: 200,
+        message: "User stats updated successfully",
+        data: {
+          userStats: result,
+          daily: {
+            cravingsToday: cravingsToday.length,
+            resistedCravingsToday: resistedCravingsToday2,
+            yieldedCravingsToday,
+            alternativeCravingsToday,
+            cigarettesToday,
+          },
+          calculations: {
+            daysSinceLastSmoke,
+            cigarettesPerDay,
+            cigarettesPerPack,
+            packPrice,
+            cigarettesAvoided,
+            moneySaved,
+            totalMinutesGained,
+            minutesGainedToday,
+          },
+        },
+      }),
+      {
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+  } catch (error) {
+    console.error("Unexpected error:", error);
+    return new Response(
+      JSON.stringify({
+        status: 500,
+        data: { error: error.message },
+      }),
+      {
+        headers: { "Content-Type": "application/json" },
+        status: 500,
+      }
+    );
+  }
+});
