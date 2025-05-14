@@ -46,6 +46,12 @@ import UserNotifications
     Messaging.messaging().apnsToken = deviceToken
     super.application(application, didRegisterForRemoteNotificationsWithDeviceToken: deviceToken)
   }
+  
+  // Lidar com falhas no registro para notificações remotas
+  override func application(_ application: UIApplication,
+                           didFailToRegisterForRemoteNotificationsWithError error: Error) {
+    print("Failed to register for remote notifications: \(error)")
+  }
 }
 
 // Extensão para lidar com o token FCM
@@ -59,5 +65,14 @@ extension AppDelegate: MessagingDelegate {
       object: nil,
       userInfo: dataDict
     )
+    
+    // Adicional: imprimir detalhes sobre o APNs token para debug
+    if let apnsToken = Messaging.messaging().apnsToken {
+      let tokenParts = apnsToken.map { String(format: "%02.2hhx", $0) }
+      let token = tokenParts.joined()
+      print("APNS token: \(token)")
+    } else {
+      print("No APNS token available")
+    }
   }
 }

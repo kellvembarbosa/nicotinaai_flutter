@@ -41,42 +41,40 @@ class DefaultFirebaseOptions {
     }
   }
 
-  // Placeholder configurations - replace with actual Firebase configurations
+  // Web configuration - will need to be updated if web support is added
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'placeholder-api-key',
-    appId: '1:000000000000:web:0000000000000000000000',
-    messagingSenderId: '000000000000',
-    projectId: 'nicotinaai-app',
-    authDomain: 'nicotinaai-app.firebaseapp.com',
-    storageBucket: 'nicotinaai-app.appspot.com',
-    measurementId: 'G-0000000000',
+    apiKey: 'AIzaSyC1pn6ADCydmkiMYaGA9wdmRQa2DgXImkM',
+    appId: '1:583479321628:web:cc372828056bdcbe9aabd9',
+    messagingSenderId: '583479321628',
+    projectId: 'nicotinaai',
+    authDomain: 'nicotinaai.firebaseapp.com',
+    storageBucket: 'nicotinaai.firebasestorage.app',
+    measurementId: 'G-XXXXXXXXXX', // Placeholder - update if needed
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'placeholder-api-key',
-    appId: '1:000000000000:android:0000000000000000000000',
-    messagingSenderId: '000000000000',
-    projectId: 'nicotinaai-app',
-    storageBucket: 'nicotinaai-app.appspot.com',
+    apiKey: 'AIzaSyC1pn6ADCydmkiMYaGA9wdmRQa2DgXImkM',
+    appId: '1:583479321628:android:f4ffbb59a78e6b789aabd9',
+    messagingSenderId: '583479321628',
+    projectId: 'nicotinaai',
+    storageBucket: 'nicotinaai.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'placeholder-api-key',
-    appId: '1:000000000000:ios:0000000000000000000000',
-    messagingSenderId: '000000000000',
-    projectId: 'nicotinaai-app',
-    storageBucket: 'nicotinaai-app.appspot.com',
-    iosClientId: '000000000000-00000000000000000000000000000000.apps.googleusercontent.com',
-    iosBundleId: 'com.example.nicotinaaiFlutter',
+    apiKey: 'AIzaSyC1pn6ADCydmkiMYaGA9wdmRQa2DgXImkM',
+    appId: '1:583479321628:ios:cc372828056bdcbe9aabd9',
+    messagingSenderId: '583479321628',
+    projectId: 'nicotinaai',
+    storageBucket: 'nicotinaai.firebasestorage.app',
+    iosBundleId: 'ai.nicotina',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'placeholder-api-key',
-    appId: '1:000000000000:ios:0000000000000000000000',
-    messagingSenderId: '000000000000',
-    projectId: 'nicotinaai-app',
-    storageBucket: 'nicotinaai-app.appspot.com',
-    iosClientId: '000000000000-00000000000000000000000000000000.apps.googleusercontent.com',
-    iosBundleId: 'com.example.nicotinaaiFlutter',
+    apiKey: 'AIzaSyC1pn6ADCydmkiMYaGA9wdmRQa2DgXImkM',
+    appId: '1:583479321628:ios:cc372828056bdcbe9aabd9',
+    messagingSenderId: '583479321628',
+    projectId: 'nicotinaai',
+    storageBucket: 'nicotinaai.firebasestorage.app',
+    iosBundleId: 'ai.nicotina',
   );
 }

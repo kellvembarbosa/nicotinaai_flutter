@@ -31,7 +31,7 @@
 	<key>FacebookDisplayName</key>
 	<string>Nicotina.AI</string>
 	<key>FirebaseAppDelegateProxyEnabled</key>
-	<false/>
+	<true/>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSUserTrackingUsageDescription</key>
