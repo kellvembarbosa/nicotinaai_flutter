@@ -41,10 +41,18 @@ import UserNotifications
     // Definir delegado para o Messaging do Firebase
     Messaging.messaging().delegate = self
     
-    // Configurar APNs para funcionar em simulador (apenas para debug)
+    // Configurar para funcionar em simulador (apenas para debug)
     #if targetEnvironment(simulator)
-    print("Running on simulator - enabling APNs emulation")
-    Messaging.messaging().isAPNSTokenAutoRegistrationEnabled = false
+    print("Running on simulator - enabling special handling for Firebase Messaging")
+    // No simulator, we'll handle token fetching directly instead of relying on APNs
+    // Since there's no direct way to control APNs registration in newer Firebase SDKs
+    Messaging.messaging().token { token, error in
+      if let error = error {
+        print("Error getting FCM token in simulator: \(error)")
+      } else if let token = token {
+        print("Successfully retrieved FCM token in simulator: \(token)")
+      }
+    }
     #endif
     
     GeneratedPluginRegistrant.register(with: self)
