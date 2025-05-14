@@ -179,15 +179,45 @@ class _CompletionScreenState extends State<CompletionScreen> {
                 );
 
                 try {
-                  // Abordagem simplificada: completar onboarding com foco na UI
-                  print('✅ [CompletionScreen] Completando onboarding');
-
-                  // Usando o BLoC para completar o onboarding
+                  // VALIDAÇÃO: Verificar se todas as etapas foram concluídas
+                  print('🔍 [CompletionScreen] Verificando se todas as etapas foram concluídas');
+                  
+                  // Usando o BLoC para completar o onboarding - se não estiver completo,
+                  // o BLoC não marcará como concluído
                   context.read<OnboardingBloc>().add(CompleteOnboarding());
 
                   // Pequeno delay para garantir que o estado seja propagado
-                  await Future.delayed(const Duration(milliseconds: 300));
+                  await Future.delayed(const Duration(milliseconds: 500));
+                  
+                  // Verificar se o estado foi atualizado para completado após a tentativa
+                  final isCompleted = context.read<OnboardingBloc>().state.isCompleted;
+                  
+                  if (!isCompleted) {
+                    // Se não foi completado, provavelmente há etapas pendentes
+                    if (context.mounted) {
+                      Navigator.of(context).pop(); // Fechar diálogo de carregamento
+                      
+                      // Mostrar alerta informando que há etapas pendentes
+                      showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: Text(localizations.incompleteOnboarding),
+                          content: Text(localizations.completeAllStepsMessage),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(),
+                              child: Text(localizations.ok),
+                            ),
+                          ],
+                        ),
+                      );
+                    }
+                    return;
+                  }
 
+                  // Se chegou aqui, o onboarding foi completado com sucesso
+                  print('✅ [CompletionScreen] Onboarding completado com sucesso');
+                  
                   // Fechar o diálogo de carregamento e navegar
                   if (context.mounted) {
                     Navigator.of(context).pop();

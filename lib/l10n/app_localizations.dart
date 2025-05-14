@@ -97,6 +97,24 @@ abstract class AppLocalizations {
     Locale('pt')
   ];
 
+  /// Title for dialog when onboarding is incomplete
+  ///
+  /// In en, this message translates to:
+  /// **'Incomplete Onboarding'**
+  String get incompleteOnboarding;
+
+  /// Message shown when user tries to complete onboarding without finishing all steps
+  ///
+  /// In en, this message translates to:
+  /// **'Please complete all the onboarding steps before continuing.'**
+  String get completeAllStepsMessage;
+
+  /// Generic OK button text
+  ///
+  /// In en, this message translates to:
+  /// **'OK'**
+  String get ok;
+
   /// Text representing the plural of day
   ///
   /// In en, this message translates to:
@@ -2868,6 +2886,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'I understand'**
   String get understand;
+
+  /// No description provided for @stayInformed.
+  ///
+  /// In en, this message translates to:
+  /// **'Stay Informed'**
+  String get stayInformed;
+
+  /// No description provided for @receiveTimelyCues.
+  ///
+  /// In en, this message translates to:
+  /// **'Receive timely cues and important information'**
+  String get receiveTimelyCues;
+
+  /// No description provided for @importantReminders.
+  ///
+  /// In en, this message translates to:
+  /// **'IMPORTANT REMINDERS FOR YOUR JOURNEY'**
+  String get importantReminders;
+
+  /// No description provided for @notificationsHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications provide timely reminders, motivation, and important milestone alerts to help you stay on track with your goal.'**
+  String get notificationsHelp;
+
+  /// No description provided for @allowNotifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow Notifications'**
+  String get allowNotifications;
+
+  /// No description provided for @notificationsEnabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications enabled successfully!'**
+  String get notificationsEnabled;
+
+  /// No description provided for @notificationPermissionFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'There was a problem enabling notifications'**
+  String get notificationPermissionFailed;
+
+  /// No description provided for @requesting.
+  ///
+  /// In en, this message translates to:
+  /// **'Requesting...'**
+  String get requesting;
+
+  /// No description provided for @skipForNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip for now'**
+  String get skipForNow;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

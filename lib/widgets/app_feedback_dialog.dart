@@ -8,14 +8,21 @@ import 'package:nicotinaai_flutter/services/app_feedback_service.dart';
 import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
 
 /// Dialog to collect app feedback from users during normal app usage
-class AppFeedbackDialog extends StatelessWidget {
+class AppFeedbackDialog extends StatefulWidget {
   final VoidCallback? onClosed;
 
   // Removed const from constructor since we have a non-constant field
-  AppFeedbackDialog({Key? key, this.onClosed}) : super(key: key);
+  const AppFeedbackDialog({Key? key, this.onClosed}) : super(key: key);
 
+  @override
+  State<AppFeedbackDialog> createState() => _AppFeedbackDialogState();
+}
+
+class _AppFeedbackDialogState extends State<AppFeedbackDialog> {
   // This field cannot be initialized with a constant value
   final InAppReview _inAppReview = InAppReview.instance;
+  // Track if we've already triggered the review
+  bool _hasTriggeredReview = false;
 
   Future<void> _requestReview() async {
     // Check if the store is available
@@ -53,7 +60,7 @@ class AppFeedbackDialog extends StatelessWidget {
           // Close the dialog when feedback is completed or dismissed
           Navigator.of(context).pop();
           // Call the onClosed callback if provided
-          onClosed?.call();
+          widget.onClosed?.call();
         }
       },
       builder: (context, state) {
@@ -360,6 +367,21 @@ class AppFeedbackDialog extends StatelessWidget {
     BuildContext context,
     AppLocalizations l10n,
   ) {
+    // Automatically request review when this screen is shown for ratings 4-5
+    // We use Future.microtask to ensure the widget is fully built before showing the review prompt
+    if (!_hasTriggeredReview) {
+      _hasTriggeredReview = true;
+      Future.microtask(() async {
+        if (mounted) {
+          await _requestReview();
+          // Mark as reviewed after showing the review prompt
+          if (mounted) {
+            context.read<AppFeedbackBloc>().add(MarkAppReviewed());
+          }
+        }
+      });
+    }
+    
     return SingleChildScrollView(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -383,7 +405,7 @@ class AppFeedbackDialog extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
             ),
             onPressed: () async {
-              // Request in-app review and mark as reviewed
+              // In case the automatic prompt fails, allow manual triggering
               await _requestReview();
               context.read<AppFeedbackBloc>().add(MarkAppReviewed());
             },

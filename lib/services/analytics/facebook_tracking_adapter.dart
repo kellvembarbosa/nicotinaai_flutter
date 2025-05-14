@@ -20,17 +20,18 @@ class FacebookTrackingAdapter implements TrackingAdapter {
       await _facebookAppEvents.setAdvertiserTracking(enabled: true);
       await _facebookAppEvents.logEvent(name: 'fb_mobile_activate_app');
 
-      // Request tracking permission on iOS
+      // NÃO solicitar permissão de tracking automaticamente no iOS
+      // Será solicitado nas telas de login/registro
       if (Platform.isIOS) {
-        final status =
-            await AppTrackingTransparency.requestTrackingAuthorization();
+        // Verificar o status atual sem solicitar permissão
+        final status = await AppTrackingTransparency.trackingAuthorizationStatus;
         _hasTrackingPermission = status == TrackingStatus.authorized;
 
         debugPrint(
-          '🔍 [FacebookTracking] iOS Tracking Authorization Status: $status',
+          '🔍 [FacebookTracking] iOS Tracking Current Status: $status',
         );
 
-        // Update Facebook tracking based on permission
+        // Update Facebook tracking based on current permission
         await _facebookAppEvents.setAdvertiserTracking(
           enabled: _hasTrackingPermission,
         );
@@ -43,6 +44,34 @@ class FacebookTrackingAdapter implements TrackingAdapter {
       _isInitialized = true;
     } catch (e) {
       debugPrint('❌ [FacebookTracking] Error initializing: $e');
+    }
+  }
+  
+  /// Request app tracking transparency - can be called from login/register screens
+  Future<bool> requestTrackingAuthorization() async {
+    if (!Platform.isIOS) {
+      // On Android, no need to request tracking permission
+      _hasTrackingPermission = true;
+      return true;
+    }
+    
+    try {
+      final status = await AppTrackingTransparency.requestTrackingAuthorization();
+      _hasTrackingPermission = status == TrackingStatus.authorized;
+      
+      debugPrint(
+        '🔍 [FacebookTracking] iOS Tracking Authorization Status: $status',
+      );
+      
+      // Update Facebook tracking based on permission
+      await _facebookAppEvents.setAdvertiserTracking(
+        enabled: _hasTrackingPermission,
+      );
+      
+      return _hasTrackingPermission;
+    } catch (e) {
+      debugPrint('❌ [FacebookTracking] Error requesting tracking authorization: $e');
+      return false;
     }
   }
 

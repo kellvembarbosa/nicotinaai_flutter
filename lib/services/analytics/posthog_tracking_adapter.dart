@@ -21,14 +21,11 @@ class PostHogTrackingAdapter implements TrackingAdapter {
     try {
       // Inicializar PostHog - versão 5.0.0
       final config = PostHogConfig(_apiKey);
-      config.debug = true;
+      config.debug = kDebugMode;
       config.captureApplicationLifecycleEvents = true;
       config.sessionReplay = true;
       config.sessionReplayConfig.maskAllTexts = false;
       config.sessionReplayConfig.maskAllImages = false;
-      config.sessionReplayConfig.throttleDelay = const Duration(
-        milliseconds: 1000,
-      );
       config.flushAt = 1;
       config.host = _host;
 

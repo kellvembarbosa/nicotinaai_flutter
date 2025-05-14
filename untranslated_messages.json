@@ -41,7 +41,16 @@
     "yesterday",
     "oneWeekAgo",
     "twoWeeksAgo",
-    "oneMonthAgo"
+    "oneMonthAgo",
+    "stayInformed",
+    "receiveTimelyCues",
+    "importantReminders",
+    "notificationsHelp",
+    "allowNotifications",
+    "notificationsEnabled",
+    "notificationPermissionFailed",
+    "requesting",
+    "skipForNow"
   ],
 
   "pt": [
@@ -86,6 +95,15 @@
     "yesterday",
     "oneWeekAgo",
     "twoWeeksAgo",
-    "oneMonthAgo"
+    "oneMonthAgo",
+    "stayInformed",
+    "receiveTimelyCues",
+    "importantReminders",
+    "notificationsHelp",
+    "allowNotifications",
+    "notificationsEnabled",
+    "notificationPermissionFailed",
+    "requesting",
+    "skipForNow"
   ]
 }

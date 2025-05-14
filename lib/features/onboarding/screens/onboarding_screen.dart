@@ -18,6 +18,7 @@ import 'package:nicotinaai_flutter/features/onboarding/screens/interests_screen.
 import 'package:nicotinaai_flutter/features/onboarding/screens/locations_screen.dart';
 import 'package:nicotinaai_flutter/features/onboarding/screens/currency_selection_screen.dart';
 import 'package:nicotinaai_flutter/features/onboarding/screens/feedback_onboarding_screen.dart';
+import 'package:nicotinaai_flutter/features/onboarding/screens/notification_permission_screen.dart';
 
 class OnboardingScreen extends StatefulWidget {
   static const String routeName = '/onboarding';
@@ -115,6 +116,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           case 14:
             return const FeedbackOnboardingScreen();
           case 15:
+            return const NotificationPermissionScreen(); // Nova tela de permissão de notificação
+          case 16:
             return const CompletionScreen();
           default:
             return const IntroductionScreen();

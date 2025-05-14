@@ -228,6 +228,37 @@ class AnalyticsService {
   Future<void> logFeatureUsage(String featureName) async {
     await trackEvent('feature_used', parameters: {'feature': featureName});
   }
+  
+  /// Request tracking transparency permission (primarily for iOS)
+  /// Returns true if permission was granted, false otherwise
+  Future<bool> requestTrackingAuthorization() async {
+    // For iOS, we use the Facebook adapter to request tracking permission
+    // Try to find the Facebook adapter
+    try {
+      TrackingAdapter? facebookAdapter;
+      for (final adapter in _adapters) {
+        if (adapter.adapterName == 'Facebook') {
+          facebookAdapter = adapter;
+          break;
+        }
+      }
+      
+      if (facebookAdapter != null) {
+        if (facebookAdapter is FacebookTrackingAdapter) {
+          return await facebookAdapter.requestTrackingAuthorization();
+        } else {
+          debugPrint('🔄 [AnalyticsService] Facebook adapter found but not of correct type');
+        }
+      } else {
+        debugPrint('🔄 [AnalyticsService] Facebook adapter not found');
+      }
+    } catch (e) {
+      debugPrint('🔄 [AnalyticsService] Error requesting tracking authorization: $e');
+    }
+    
+    // On Android or if Facebook adapter is not available, return true by default
+    return true;
+  }
 
   /// Track an event on all adapters and handle paid feature access
   /// 

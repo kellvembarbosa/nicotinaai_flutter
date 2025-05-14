@@ -1,8 +1,8 @@
 import 'dart:math';
 import 'dart:io';
 import 'dart:convert';
-// Firebase Core imported in background handler
-// import 'package:firebase_core/firebase_core.dart';
+// Firebase Core imported for FirebaseException
+import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -69,25 +69,44 @@ class NotificationService {
     // Set up background message handler
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
     
-    // Request notification permissions
-    await _requestPermission();
+    // NÃO solicitar permissão aqui - será solicitada no onboarding
+    // await _requestPermission();
     
     // Setup FCM message handlers
     await _setupMessageHandlers();
     
-    // Get and cache the FCM token
-    final token = await _messaging.getToken();
-    if (token != null) {
-      _cachedFcmToken = token;
+    // Verificar se já temos permissão sem solicitar ao usuário
+    try {
+      // Verifica as configurações atuais sem exibir diálogo
+      final settings = await _messaging.getNotificationSettings();
       
-      // Salvar em SharedPreferences para uso posterior
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString(_fcmTokenKey, token);
-      
-      debugPrint('FCM Token obtido e armazenado: $token');
-      
-      // Tentar salvar o token se o usuário já estiver logado
-      await saveTokenToDatabase(token);
+      // Só tenta obter o token se o usuário já concedeu permissão anteriormente
+      if (settings.authorizationStatus == AuthorizationStatus.authorized ||
+          settings.authorizationStatus == AuthorizationStatus.provisional) {
+        
+        debugPrint('💬 Permissão de notificações já concedida: ${settings.authorizationStatus}');
+        
+        // Obtém o token apenas se já temos permissão
+        final token = await _messaging.getToken();
+        if (token != null) {
+          _cachedFcmToken = token;
+          
+          // Salvar em SharedPreferences para uso posterior
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setString(_fcmTokenKey, token);
+          
+          debugPrint('FCM Token obtido e armazenado: $token');
+          
+          // Tentar salvar o token se o usuário já estiver logado
+          await saveTokenToDatabase(token);
+        }
+      } else {
+        debugPrint('💬 Permissão de notificações não concedida: ${settings.authorizationStatus}');
+        debugPrint('💬 A permissão será solicitada durante o onboarding');
+      }
+    } catch (e) {
+      debugPrint('Não foi possível verificar permissões ou obter token FCM: $e');
+      // Não mostrar erro, já que o usuário terá oportunidade de conceder permissão no onboarding
     }
   }
 
@@ -141,15 +160,48 @@ class NotificationService {
     _areNotificationsEnabled = enabled;
   }
 
-  /// Request FCM permission
+  /// Request FCM permission - accessible from onboarding flow
+  Future<NotificationSettings> requestPermission() async {
+    try {
+      // Verificar se o Firebase está corretamente configurado
+      if (_messaging == null) {
+        throw FirebaseException(
+          plugin: 'firebase_messaging',
+          code: 'not_initialized',
+          message: 'Firebase Messaging não está inicializado corretamente',
+        );
+      }
+      
+      // Solicitar permissão
+      final settings = await _messaging.requestPermission(
+        alert: true,
+        badge: true,
+        sound: true,
+        provisional: false,
+      );
+      
+      debugPrint('Permission status: ${settings.authorizationStatus}');
+      return settings;
+    } catch (e) {
+      // Capturar e tratar erros específicos do Firebase
+      if (e.toString().contains('cannot parse response')) {
+        debugPrint('Erro de configuração do Firebase: não foi possível processar a resposta');
+        throw FirebaseException(
+          plugin: 'firebase_messaging',
+          code: 'parse_error',
+          message: 'Não foi possível processar a resposta do Firebase. Verifique se as configurações do Firebase estão corretas.',
+        );
+      } else {
+        // Repassar outros erros
+        debugPrint('Erro ao solicitar permissão de notificação: $e');
+        rethrow;
+      }
+    }
+  }
+  
+  /// Private method to keep backward compatibility
   Future<void> _requestPermission() async {
-    final settings = await _messaging.requestPermission(
-      alert: true,
-      badge: true,
-      sound: true,
-      provisional: false,
-    );
-    debugPrint('Permission status: ${settings.authorizationStatus}');
+    await requestPermission();
   }
 
   /// Set up FCM message handlers for different app states
@@ -653,19 +705,64 @@ class NotificationService {
   
   /// Get the FCM token
   Future<String?> getToken() async {
-    return await _messaging.getToken();
+    try {
+      // Verificar se o Firebase está devidamente configurado
+      if (_messaging == null) {
+        debugPrint('Firebase Messaging não está inicializado. Não é possível obter token FCM.');
+        return null;
+      }
+      
+      final token = await _messaging.getToken();
+      
+      if (token == null || token.isEmpty) {
+        debugPrint('Token FCM vazio ou nulo. Verifique as configurações do Firebase.');
+      } else {
+        debugPrint('Token FCM obtido com sucesso: ${token.substring(0, 10)}...');
+      }
+      
+      return token;
+    } catch (e) {
+      // Capturar e registrar erros na obtenção do token
+      debugPrint('Erro ao obter token FCM: $e');
+      
+      // Retornar null em caso de erro, em vez de propagar a exceção
+      // Isso permite que o fluxo de onboarding continue mesmo sem o token
+      return null;
+    }
   }
   
   /// Subscribe to a topic
   Future<void> subscribeToTopic(String topic) async {
-    await _messaging.subscribeToTopic(topic);
-    debugPrint('Subscribed to topic: $topic');
+    try {
+      // Verificar se o Firebase está devidamente configurado
+      if (_messaging == null) {
+        debugPrint('Firebase Messaging não está inicializado. Não é possível inscrever-se no tópico: $topic');
+        return;
+      }
+      
+      await _messaging.subscribeToTopic(topic);
+      debugPrint('Inscrito no tópico: $topic');
+    } catch (e) {
+      // Apenas registrar o erro, mas não propagar
+      debugPrint('Erro ao inscrever-se no tópico $topic: $e');
+    }
   }
   
   /// Unsubscribe from a topic
   Future<void> unsubscribeFromTopic(String topic) async {
-    await _messaging.unsubscribeFromTopic(topic);
-    debugPrint('Unsubscribed from topic: $topic');
+    try {
+      // Verificar se o Firebase está devidamente configurado
+      if (_messaging == null) {
+        debugPrint('Firebase Messaging não está inicializado. Não é possível cancelar inscrição no tópico: $topic');
+        return;
+      }
+      
+      await _messaging.unsubscribeFromTopic(topic);
+      debugPrint('Cancelou inscrição no tópico: $topic');
+    } catch (e) {
+      // Apenas registrar o erro, mas não propagar
+      debugPrint('Erro ao cancelar inscrição no tópico $topic: $e');
+    }
   }
   
   /// Get user notifications from database

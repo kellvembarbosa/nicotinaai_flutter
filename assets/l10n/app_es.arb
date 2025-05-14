@@ -1,5 +1,17 @@
 {
   "@@locale": "es",
+  "incompleteOnboarding": "Onboarding Incompleto",
+  "@incompleteOnboarding": {
+    "description": "Título para el diálogo cuando el onboarding está incompleto"
+  },
+  "completeAllStepsMessage": "Por favor, complete todos los pasos del onboarding antes de continuar.",
+  "@completeAllStepsMessage": {
+    "description": "Mensaje mostrado cuando el usuario intenta completar el onboarding sin finalizar todos los pasos"
+  },
+  "ok": "OK",
+  "@ok": {
+    "description": "Texto genérico para botón OK"
+  },
   
   "days": "días",
   "@days": {

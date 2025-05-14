@@ -8,6 +8,7 @@ import 'package:nicotinaai_flutter/blocs/auth/auth_event.dart';
 import 'package:nicotinaai_flutter/blocs/auth/auth_state.dart';
 import 'package:nicotinaai_flutter/core/routes/app_routes.dart';
 import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
+import 'package:nicotinaai_flutter/services/analytics/analytics_service.dart';
 import 'package:nicotinaai_flutter/widgets/app_icon_widget.dart';
 import 'package:nicotinaai_flutter/widgets/platform_loading_indicator.dart';
 
@@ -46,6 +47,11 @@ class _LoginScreenState extends State<LoginScreen> {
         listener: (context, state) {
           // Handle navigation based on auth state
           if (state.isAuthenticated) {
+            // Request tracking transparency after successful login (iOS only)
+            final analyticsService = AnalyticsService();
+            analyticsService.requestTrackingAuthorization();
+            
+            // Navigate to main screen
             context.go(AppRoutes.main.path);
           }
           

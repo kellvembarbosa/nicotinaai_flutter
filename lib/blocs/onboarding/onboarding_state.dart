@@ -48,7 +48,7 @@ class OnboardingState extends Equatable {
     this.onboarding,
     this.errorMessage,
     this.currentStep = 1,
-    this.totalSteps = 15, // total de telas (incluindo seleção de moeda e feedback)
+    this.totalSteps = 16, // total de telas (incluindo seleção de moeda, feedback e permissão de notificação)
     this.isNew = true,
   });
 
@@ -85,7 +85,7 @@ class OnboardingState extends Equatable {
     return OnboardingState(
       status: OnboardingStatus.completed,
       onboarding: onboarding,
-      currentStep: 15, // última etapa
+      currentStep: 16, // última etapa
     );
   }
 

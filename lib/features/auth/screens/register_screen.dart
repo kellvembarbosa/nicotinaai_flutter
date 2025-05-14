@@ -10,6 +10,7 @@ import 'package:nicotinaai_flutter/blocs/auth/auth_state.dart';
 import 'package:nicotinaai_flutter/core/routes/app_routes.dart';
 import 'package:nicotinaai_flutter/features/auth/screens/login_screen.dart';
 import 'package:nicotinaai_flutter/features/auth/screens/splash_screen.dart';
+import 'package:nicotinaai_flutter/services/analytics/analytics_service.dart';
 import 'package:nicotinaai_flutter/widgets/app_icon_widget.dart';
 import 'package:nicotinaai_flutter/widgets/platform_loading_indicator.dart';
 import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
@@ -68,6 +69,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
         listener: (context, state) {
           // Handle navigation on successful registration
           if (state.isAuthenticated) {
+            // Request tracking transparency after successful registration (iOS only)
+            final analyticsService = AnalyticsService();
+            analyticsService.requestTrackingAuthorization();
+            
             // Navegar para a SplashScreen em vez da rota inicial
             // A SplashScreen já tem a lógica para verificar onboarding e redirecionar adequadamente
             context.go(SplashScreen.routeName);

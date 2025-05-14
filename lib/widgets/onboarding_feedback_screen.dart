@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:in_app_review/in_app_review.dart';
 import 'package:nicotinaai_flutter/blocs/app_feedback/app_feedback_bloc.dart';
 import 'package:nicotinaai_flutter/blocs/app_feedback/app_feedback_event.dart';
 import 'package:nicotinaai_flutter/blocs/app_feedback/app_feedback_state.dart';
@@ -9,7 +10,7 @@ import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
 import 'package:nicotinaai_flutter/services/app_feedback_service.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class OnboardingFeedbackScreen extends StatelessWidget {
+class OnboardingFeedbackScreen extends StatefulWidget {
   final VoidCallback onComplete;
 
   const OnboardingFeedbackScreen({
@@ -17,10 +18,49 @@ class OnboardingFeedbackScreen extends StatelessWidget {
     required this.onComplete,
   }) : super(key: key);
 
-  void _launchAppStore(BuildContext context) async {
+  @override
+  State<OnboardingFeedbackScreen> createState() => _OnboardingFeedbackScreenState();
+}
+
+class _OnboardingFeedbackScreenState extends State<OnboardingFeedbackScreen> {
+  // Used for in-app review
+  final InAppReview _inAppReview = InAppReview.instance;
+  bool _hasTriggeredReview = false;
+  
+  // Request in-app review
+  Future<void> _requestInAppReview() async {
+    // Check if the store is available
+    final isAvailable = await _inAppReview.isAvailable();
+
+    if (isAvailable) {
+      try {
+        // Request the review
+        await _inAppReview.requestReview();
+      } catch (e) {
+        // Fallback to opening the store page if requesting review fails
+        await _openStorePage();
+      }
+    } else {
+      // If in-app review is not available, open the store listing
+      await _openStorePage();
+    }
+  }
+
+  Future<void> _openStorePage() async {
+    try {
+      await _inAppReview.openStoreListing(
+        appStoreId: '6744342233', // App Store ID
+      );
+    } catch (e) {
+      // Fallback to direct store links if needed
+      await _launchStoreUrl();
+    }
+  }
+  
+  Future<void> _launchStoreUrl() async {
     // Replace with your actual app store links
-    final Uri appStoreUrl = Uri.parse('https://apps.apple.com/your-app-id');
-    final Uri playStoreUrl = Uri.parse('https://play.google.com/store/apps/details?id=your.app.id');
+    final Uri appStoreUrl = Uri.parse('https://apps.apple.com/app/id6744342233');
+    final Uri playStoreUrl = Uri.parse('https://play.google.com/store/apps/details?id=app.nicotina.ai');
     
     // Choose the right URL based on platform
     final Uri url = Theme.of(context).platform == TargetPlatform.iOS
@@ -37,7 +77,7 @@ class OnboardingFeedbackScreen extends StatelessWidget {
     return BlocConsumer<AppFeedbackBloc, AppFeedbackState>(
       listener: (context, state) {
         if (state is FeedbackCompleted || state is FeedbackDismissed) {
-          onComplete();
+          widget.onComplete();
         }
       },
       builder: (context, state) {
@@ -387,6 +427,28 @@ class OnboardingFeedbackScreen extends StatelessWidget {
   Widget _buildReviewRequestScreen(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     
+    // Automatically request in-app review when this screen is shown for ratings 4-5
+    if (!_hasTriggeredReview) {
+      _hasTriggeredReview = true;
+      Future.microtask(() async {
+        if (mounted) {
+          await _requestInAppReview();
+          
+          // Mark as reviewed after showing the review prompt
+          if (mounted) {
+            context.read<AppFeedbackBloc>().add(MarkAppReviewed());
+            
+            // Aguardamos um breve momento e avançamos para a próxima tela
+            Future.delayed(const Duration(milliseconds: 500), () {
+              if (mounted) {
+                context.read<OnboardingBloc>().add(NextOnboardingStep());
+              }
+            });
+          }
+        }
+      });
+    }
+    
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: SafeArea(
@@ -420,9 +482,9 @@ class OnboardingFeedbackScreen extends StatelessWidget {
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
                 ),
-                onPressed: () {
-                  // Launch app store and mark as reviewed
-                  _launchAppStore(context);
+                onPressed: () async {
+                  // Em caso de falha da solicitação automática, permite acionamento manual
+                  await _requestInAppReview();
                   context.read<AppFeedbackBloc>().add(MarkAppReviewed());
                   
                   // Avança para a próxima tela após completar

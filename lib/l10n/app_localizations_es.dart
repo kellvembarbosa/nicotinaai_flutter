@@ -9,6 +9,15 @@ class AppLocalizationsEs extends AppLocalizations {
   AppLocalizationsEs([String locale = 'es']) : super(locale);
 
   @override
+  String get incompleteOnboarding => 'Onboarding Incompleto';
+
+  @override
+  String get completeAllStepsMessage => 'Por favor, complete todos los pasos del onboarding antes de continuar.';
+
+  @override
+  String get ok => 'OK';
+
+  @override
   String get days => 'días';
 
   @override
@@ -1434,4 +1443,31 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get understand => 'Entiendo';
+
+  @override
+  String get stayInformed => 'Stay Informed';
+
+  @override
+  String get receiveTimelyCues => 'Receive timely cues and important information';
+
+  @override
+  String get importantReminders => 'IMPORTANT REMINDERS FOR YOUR JOURNEY';
+
+  @override
+  String get notificationsHelp => 'Notifications provide timely reminders, motivation, and important milestone alerts to help you stay on track with your goal.';
+
+  @override
+  String get allowNotifications => 'Allow Notifications';
+
+  @override
+  String get notificationsEnabled => 'Notifications enabled successfully!';
+
+  @override
+  String get notificationPermissionFailed => 'There was a problem enabling notifications';
+
+  @override
+  String get requesting => 'Requesting...';
+
+  @override
+  String get skipForNow => 'Skip for now';
 }

@@ -184,39 +184,100 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
   }
 
   /// Manipulador do evento NextOnboardingStep
-  void _onNextOnboardingStep(
+  Future<void> _onNextOnboardingStep(
     NextOnboardingStep event,
     Emitter<OnboardingState> emit,
-  ) {
+  ) async {
     if (!state.canAdvance) return;
     
+    final nextStep = state.currentStep + 1;
+    
     emit(state.copyWith(
-      currentStep: state.currentStep + 1,
+      currentStep: nextStep,
     ));
+    
+    // Atualizar o progresso no banco de dados - assume que essa etapa foi concluída
+    try {
+      final lastCompletedStep = state.currentStep - 1; // A etapa que estava antes de avançar
+      
+      await _repository.saveOnboardingProgress(
+        currentStep: nextStep,
+        lastCompletedStep: lastCompletedStep,
+        totalSteps: state.totalSteps,
+        onboardingId: state.onboarding?.id,
+      );
+      
+      debugPrint('✅ [OnboardingBloc] Progresso salvo: etapa atual=$nextStep, última completada=$lastCompletedStep');
+    } catch (e) {
+      debugPrint('⚠️ [OnboardingBloc] Erro ao salvar progresso: $e');
+      // Não mudar o estado em caso de erro para não interromper o fluxo do usuário
+    }
   }
 
   /// Manipulador do evento PreviousOnboardingStep
-  void _onPreviousOnboardingStep(
+  Future<void> _onPreviousOnboardingStep(
     PreviousOnboardingStep event,
     Emitter<OnboardingState> emit,
-  ) {
+  ) async {
     if (!state.canGoBack) return;
     
+    final prevStep = state.currentStep - 1;
+    
     emit(state.copyWith(
-      currentStep: state.currentStep - 1,
+      currentStep: prevStep,
     ));
+    
+    // Atualizar apenas o currentStep, sem alterar o lastCompletedStep
+    try {
+      // Obter o progresso atual
+      final progress = await _repository.getOnboardingProgress();
+      
+      if (progress != null) {
+        await _repository.saveOnboardingProgress(
+          currentStep: prevStep,
+          // Manter o último step completado
+          lastCompletedStep: progress['last_completed_step'] ?? 0,
+          totalSteps: state.totalSteps,
+          onboardingId: state.onboarding?.id,
+        );
+        
+        debugPrint('✅ [OnboardingBloc] Progresso atualizado ao voltar: etapa atual=$prevStep');
+      }
+    } catch (e) {
+      debugPrint('⚠️ [OnboardingBloc] Erro ao atualizar progresso ao voltar: $e');
+    }
   }
 
   /// Manipulador do evento GoToOnboardingStep
-  void _onGoToOnboardingStep(
+  Future<void> _onGoToOnboardingStep(
     GoToOnboardingStep event,
     Emitter<OnboardingState> emit,
-  ) {
+  ) async {
     if (event.step < 1 || event.step > state.totalSteps) return;
     
     emit(state.copyWith(
       currentStep: event.step,
     ));
+    
+    // Atualizar apenas o currentStep, sem alterar o lastCompletedStep
+    try {
+      // Obter o progresso atual
+      final progress = await _repository.getOnboardingProgress();
+      
+      if (progress != null) {
+        await _repository.saveOnboardingProgress(
+          currentStep: event.step,
+          // Manter o último step completado
+          lastCompletedStep: progress['last_completed_step'] ?? 0,
+          totalSteps: state.totalSteps,
+          onboardingId: state.onboarding?.id,
+        );
+        
+        debugPrint('✅ [OnboardingBloc] Progresso atualizado ao ir para etapa específica: etapa atual=${event.step}');
+      }
+    } catch (e) {
+      debugPrint('⚠️ [OnboardingBloc] Erro ao atualizar progresso ao ir para etapa específica: $e');
+    }
   }
 
   /// Manipulador do evento CompleteOnboarding
@@ -225,11 +286,58 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
     Emitter<OnboardingState> emit,
   ) async {
     try {
-      debugPrint('🔄 [OnboardingBloc] Completando onboarding');
+      debugPrint('🔄 [OnboardingBloc] Verificando requisitos para completar onboarding');
       
       if (state.onboarding == null) {
         debugPrint('❌ [OnboardingBloc] Não há onboarding para completar');
         return;
+      }
+      
+      // NOVA VALIDAÇÃO: Verificar se todas as etapas foram realmente concluídas
+      final allStepsCompleted = await _repository.hasCompletedAllSteps(
+        totalSteps: state.totalSteps
+      );
+      
+      // Se não completou todas as etapas, atualiza o progresso com a etapa atual
+      // e retorna sem completar o onboarding
+      if (!allStepsCompleted) {
+        debugPrint('⚠️ [OnboardingBloc] Tentativa de completar onboarding sem finalizar todas as etapas!');
+        
+        // Atualizar progresso para a etapa atual
+        try {
+          await _repository.saveOnboardingProgress(
+            currentStep: state.currentStep,
+            lastCompletedStep: state.currentStep - 1,
+            totalSteps: state.totalSteps,
+            onboardingId: state.onboarding?.id,
+          );
+          
+          // Notificar o usuário que ele precisa completar todas as etapas
+          final remainingSteps = state.totalSteps - state.currentStep;
+          debugPrint('ℹ️ [OnboardingBloc] Faltam $remainingSteps etapas para completar o onboarding');
+          
+          // Não atualizar o estado, deixe o usuário continuar navegando normalmente
+          return;
+        } catch (e) {
+          debugPrint('⚠️ [OnboardingBloc] Erro ao atualizar progresso: $e');
+          // Continuar com o código para completar o onboarding mesmo com o erro
+        }
+      }
+      
+      // Se chegou aqui, todas as etapas foram completadas ou ocorreu um erro na verificação
+      debugPrint('✅ [OnboardingBloc] Todas as etapas foram completadas, finalizando onboarding');
+      
+      // Marca explicitamente a última etapa como completa
+      try {
+        await _repository.saveOnboardingProgress(
+          currentStep: state.totalSteps,
+          lastCompletedStep: state.totalSteps - 1, // A última etapa (índice 0-based)
+          totalSteps: state.totalSteps,
+          onboardingId: state.onboarding?.id,
+        );
+      } catch (e) {
+        debugPrint('⚠️ [OnboardingBloc] Erro ao atualizar última etapa: $e');
+        // Continuar mesmo com erro
       }
       
       // Sempre usar o onboarding atual, apenas atualizando o status para completo

@@ -30,7 +30,6 @@ import 'package:nicotinaai_flutter/features/tracking/widgets/health_recovery_wid
 import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
 import 'package:nicotinaai_flutter/utils/currency_utils.dart';
 import 'package:nicotinaai_flutter/utils/health_recovery_utils.dart';
-import 'package:nicotinaai_flutter/utils/stats_calculator.dart';
 import 'package:nicotinaai_flutter/utils/improved_stats_calculator.dart';
 import 'package:nicotinaai_flutter/widgets/skeleton_loading.dart';
 import 'package:nicotinaai_flutter/features/home/widgets/register_craving_sheet.dart';
@@ -84,13 +83,18 @@ class _HomeScreenState extends State<HomeScreen> {
     // Evite chamar BLoC diretamente em initState
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _initializeBlocs();
-      
+
       // Track screen visit for feedback
       _feedbackService.trackScreenVisit();
-      
+
       // Track screen view for analytics
       final analyticsBloc = BlocProvider.of<AnalyticsBloc>(context);
-      analyticsBloc.add(const TrackCustomEvent('home_screen_view', parameters: {'screen': 'home'}));
+      analyticsBloc.add(
+        const TrackCustomEvent(
+          'home_screen_view',
+          parameters: {'screen': 'home'},
+        ),
+      );
     });
   }
 
@@ -382,7 +386,7 @@ class _HomeScreenState extends State<HomeScreen> {
     // Track screen view impression for analytics
     final analyticsBloc = BlocProvider.of<AnalyticsBloc>(context);
     analyticsBloc.add(const TrackCustomEvent('home_screen_impression'));
-    
+
     // Obter dados do usuário do AuthBloc
     return BlocBuilder<AuthBloc, bloc_auth.AuthState>(
       builder: (context, authState) {
@@ -612,12 +616,15 @@ class _HomeScreenState extends State<HomeScreen> {
                                 TextButton(
                                   onPressed: () {
                                     // Track statistics dashboard navigation
-                                    final analyticsBloc = BlocProvider.of<AnalyticsBloc>(context);
-                                    analyticsBloc.add(const TrackCustomEvent(
-                                      'view_all_statistics_clicked',
-                                      parameters: {'source': 'home_screen'},
-                                    ));
-                                    
+                                    final analyticsBloc =
+                                        BlocProvider.of<AnalyticsBloc>(context);
+                                    analyticsBloc.add(
+                                      const TrackCustomEvent(
+                                        'view_all_statistics_clicked',
+                                        parameters: {'source': 'home_screen'},
+                                      ),
+                                    );
+
                                     // Navigate to statistics dashboard
                                     context.go(
                                       AppRoutes.statisticsDashboard.path,
@@ -690,21 +697,20 @@ class _HomeScreenState extends State<HomeScreen> {
                                     Icons.air,
                                     () {
                                       // Use AnalyticsService para rastrear o evento e restringir a usuários pagos
-                                      final analyticsService = AnalyticsService();
-                                      
+                                      final analyticsService =
+                                          AnalyticsService();
+
                                       // Rastrear evento e mostrar paywall se necessário
                                       analyticsService.trackEventOnlyPaid(
-                                        'open_craving_registration', 
-                                        parameters: {
-                                          'source': 'home_screen',
-                                        },
+                                        'open_craving_registration',
+                                        parameters: {'source': 'home_screen'},
                                         onPaidFeature: () {
                                           // Esta parte só executa para usuários pagos ou após o fluxo de paywall
-                                          
+
                                           // Show the craving registration sheet
-                                          RegisterCravingSheet.show(context).then((
-                                            result,
-                                          ) {
+                                          RegisterCravingSheet.show(
+                                            context,
+                                          ).then((result) {
                                             // Only update if a craving was actually registered and we have data
                                             if (result != null &&
                                                 result['registered'] == true) {
@@ -749,17 +755,16 @@ class _HomeScreenState extends State<HomeScreen> {
                                     Icons.smoking_rooms,
                                     () {
                                       // Use AnalyticsService para rastrear o evento e restringir a usuários pagos
-                                      final analyticsService = AnalyticsService();
-                                      
+                                      final analyticsService =
+                                          AnalyticsService();
+
                                       // Rastrear evento e mostrar paywall se necessário
                                       analyticsService.trackEventOnlyPaid(
-                                        'open_smoking_record', 
-                                        parameters: {
-                                          'source': 'home_screen',
-                                        },
+                                        'open_smoking_record',
+                                        parameters: {'source': 'home_screen'},
                                         onPaidFeature: () {
                                           // Esta parte só executa para usuários pagos ou após o fluxo de paywall
-                                          
+
                                           // Usar a versão BLoC da sheet
                                           NewRecordSheet.show(context).then((
                                             result,
@@ -768,12 +773,20 @@ class _HomeScreenState extends State<HomeScreen> {
                                             if (result != null &&
                                                 result['registered'] == true) {
                                               // Track successful record creation
-                                              final analyticsBloc = BlocProvider.of<AnalyticsBloc>(context);
-                                              analyticsBloc.add(const TrackCustomEvent(
-                                                'smoking_record_created',
-                                                parameters: {'source': 'new_record_sheet'},
-                                              ));
-                                              
+                                              final analyticsBloc =
+                                                  BlocProvider.of<
+                                                    AnalyticsBloc
+                                                  >(context);
+                                              analyticsBloc.add(
+                                                const TrackCustomEvent(
+                                                  'smoking_record_created',
+                                                  parameters: {
+                                                    'source':
+                                                        'new_record_sheet',
+                                                  },
+                                                ),
+                                              );
+
                                               if (kDebugMode) {
                                                 print(
                                                   "🔄 Atualizando após registrar cigarro com BLoC",
@@ -791,7 +804,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                                   BlocProvider.of<TrackingBloc>(
                                                     context,
                                                   );
-                                              trackingBloc.add(ForceUpdateStats());
+                                              trackingBloc.add(
+                                                ForceUpdateStats(),
+                                              );
 
                                               // Já não precisamos definir explicitamente valores da UI, o BLoC cuidará disso
                                               if (kDebugMode) {
@@ -829,12 +844,19 @@ class _HomeScreenState extends State<HomeScreen> {
                                     TextButton(
                                       onPressed: () {
                                         // Track health recovery navigation
-                                        final analyticsBloc = BlocProvider.of<AnalyticsBloc>(context);
-                                        analyticsBloc.add(const TrackCustomEvent(
-                                          'see_all_health_recovery_clicked',
-                                          parameters: {'source': 'home_screen'},
-                                        ));
-                                        
+                                        final analyticsBloc =
+                                            BlocProvider.of<AnalyticsBloc>(
+                                              context,
+                                            );
+                                        analyticsBloc.add(
+                                          const TrackCustomEvent(
+                                            'see_all_health_recovery_clicked',
+                                            parameters: {
+                                              'source': 'home_screen',
+                                            },
+                                          ),
+                                        );
+
                                         // Navigate to health recovery screen
                                         context.push(
                                           AppRoutes.healthRecovery.path,
@@ -977,12 +999,15 @@ class _HomeScreenState extends State<HomeScreen> {
                                 TextButton(
                                   onPressed: () {
                                     // Track achievements navigation
-                                    final analyticsBloc = BlocProvider.of<AnalyticsBloc>(context);
-                                    analyticsBloc.add(const TrackCustomEvent(
-                                      'see_all_achievements_clicked',
-                                      parameters: {'source': 'home_screen'},
-                                    ));
-                                    
+                                    final analyticsBloc =
+                                        BlocProvider.of<AnalyticsBloc>(context);
+                                    analyticsBloc.add(
+                                      const TrackCustomEvent(
+                                        'see_all_achievements_clicked',
+                                        parameters: {'source': 'home_screen'},
+                                      ),
+                                    );
+
                                     // Navigate to achievements screen
                                     context.go(AppRoutes.achievements.path);
                                   },
@@ -1238,18 +1263,20 @@ class _HomeScreenState extends State<HomeScreen> {
   void _onNextMilestoneTap() {
     // Track next milestone interaction
     final analyticsBloc = BlocProvider.of<AnalyticsBloc>(context);
-    
+
     if (_nextHealthMilestone != null) {
       // Track specific milestone interaction
-      analyticsBloc.add(TrackCustomEvent(
-        'next_milestone_clicked',
-        parameters: {
-          'milestone_id': _nextHealthMilestone!['id'],
-          'milestone_name': _nextHealthMilestone!['name'],
-          'days_remaining': _nextHealthMilestone!['daysRemaining'],
-        },
-      ));
-      
+      analyticsBloc.add(
+        TrackCustomEvent(
+          'next_milestone_clicked',
+          parameters: {
+            'milestone_id': _nextHealthMilestone!['id'],
+            'milestone_name': _nextHealthMilestone!['name'],
+            'days_remaining': _nextHealthMilestone!['daysRemaining'],
+          },
+        ),
+      );
+
       // Navigate to the health recovery detail screen for this milestone
       context.push(
         AppRoutes.healthRecoveryDetail.withParams(
@@ -1258,11 +1285,13 @@ class _HomeScreenState extends State<HomeScreen> {
       );
     } else {
       // Track generic milestone interaction
-      analyticsBloc.add(const TrackCustomEvent(
-        'next_milestone_clicked',
-        parameters: {'milestone_type': 'generic'},
-      ));
-      
+      analyticsBloc.add(
+        const TrackCustomEvent(
+          'next_milestone_clicked',
+          parameters: {'milestone_type': 'generic'},
+        ),
+      );
+
       // Navigate to the health recovery list screen if we don't have a specific milestone
       context.push(AppRoutes.healthRecovery.path);
     }

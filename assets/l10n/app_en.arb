@@ -1,5 +1,17 @@
 {
   "@@locale": "en",
+  "incompleteOnboarding": "Incomplete Onboarding",
+  "@incompleteOnboarding": {
+    "description": "Title for dialog when onboarding is incomplete"
+  },
+  "completeAllStepsMessage": "Please complete all the onboarding steps before continuing.",
+  "@completeAllStepsMessage": {
+    "description": "Message shown when user tries to complete onboarding without finishing all steps"
+  },
+  "ok": "OK",
+  "@ok": {
+    "description": "Generic OK button text"
+  },
   "days": "days",
   "@days": {
     "description": "Text representing the plural of day"
@@ -1773,5 +1785,15 @@
   "rateNow": "Rate now",
   "feedbackError": "Oops, something went wrong",
   "couldNotSaveFeedback": "Could not save your feedback",
-  "understand": "I understand"
+  "understand": "I understand",
+  
+  "stayInformed": "Stay Informed",
+  "receiveTimelyCues": "Receive timely cues and important information",
+  "importantReminders": "IMPORTANT REMINDERS FOR YOUR JOURNEY",
+  "notificationsHelp": "Notifications provide timely reminders, motivation, and important milestone alerts to help you stay on track with your goal.",
+  "allowNotifications": "Allow Notifications",
+  "notificationsEnabled": "Notifications enabled successfully!",
+  "notificationPermissionFailed": "There was a problem enabling notifications",
+  "requesting": "Requesting...",
+  "skipForNow": "Skip for now"
 }
