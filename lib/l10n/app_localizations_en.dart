@@ -1470,4 +1470,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get skipForNow => 'Skip for now';
+
+  @override
+  String get onboardingLoadError => 'Error loading onboarding';
+
+  @override
+  String get unknownError => 'Unknown error';
 }

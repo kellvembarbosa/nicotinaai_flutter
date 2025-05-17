@@ -457,7 +457,9 @@
     "notificationsEnabled",
     "notificationPermissionFailed",
     "requesting",
-    "skipForNow"
+    "skipForNow",
+    "onboardingLoadError",
+    "unknownError"
   ],
 
   "es": [
@@ -511,7 +513,9 @@
     "notificationsEnabled",
     "notificationPermissionFailed",
     "requesting",
-    "skipForNow"
+    "skipForNow",
+    "onboardingLoadError",
+    "unknownError"
   ],
 
   "fr": [
@@ -588,7 +592,9 @@
     "rateNow",
     "feedbackError",
     "couldNotSaveFeedback",
-    "understand"
+    "understand",
+    "onboardingLoadError",
+    "unknownError"
   ],
 
   "nl": [
@@ -1049,7 +1055,9 @@
     "notificationsEnabled",
     "notificationPermissionFailed",
     "requesting",
-    "skipForNow"
+    "skipForNow",
+    "onboardingLoadError",
+    "unknownError"
   ],
 
   "pl": [
@@ -1510,7 +1518,9 @@
     "notificationsEnabled",
     "notificationPermissionFailed",
     "requesting",
-    "skipForNow"
+    "skipForNow",
+    "onboardingLoadError",
+    "unknownError"
   ],
 
   "pt": [
@@ -1564,6 +1574,8 @@
     "notificationsEnabled",
     "notificationPermissionFailed",
     "requesting",
-    "skipForNow"
+    "skipForNow",
+    "onboardingLoadError",
+    "unknownError"
   ]
 }

@@ -2950,6 +2950,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Skip for now'**
   String get skipForNow;
+
+  /// Error message shown when onboarding fails to load
+  ///
+  /// In en, this message translates to:
+  /// **'Error loading onboarding'**
+  String get onboardingLoadError;
+
+  /// Message displayed when an unknown error occurs
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown error'**
+  String get unknownError;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

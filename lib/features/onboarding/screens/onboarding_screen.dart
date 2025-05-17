@@ -18,6 +18,7 @@ import 'package:nicotinaai_flutter/features/onboarding/screens/interests_screen.
 import 'package:nicotinaai_flutter/features/onboarding/screens/locations_screen.dart';
 import 'package:nicotinaai_flutter/features/onboarding/screens/currency_selection_screen.dart';
 import 'package:nicotinaai_flutter/features/onboarding/screens/feedback_onboarding_screen.dart';
+import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
 import 'package:nicotinaai_flutter/features/onboarding/screens/notification_permission_screen.dart';
 
 class OnboardingScreen extends StatefulWidget {
