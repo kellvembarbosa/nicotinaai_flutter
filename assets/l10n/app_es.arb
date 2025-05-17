@@ -2079,5 +2079,20 @@
   "rateNow": "Calificar ahora",
   "feedbackError": "Ups, algo salió mal",
   "couldNotSaveFeedback": "No se pudo guardar tu comentario",
-  "understand": "Entiendo"
+  "understand": "Entiendo",
+  
+  "welcomeToApp": "Bienvenido a NicotinaAI",
+  "@welcomeToApp": {
+    "description": "Welcome message on first launch language screen"
+  },
+  
+  "selectLanguage": "Selecciona tu idioma preferido",
+  "@selectLanguage": {
+    "description": "Instruction to select language on first launch"
+  },
+  
+  "continueButton": "Continuar",
+  "@continueButton": {
+    "description": "Continue button text"
+  }
 }

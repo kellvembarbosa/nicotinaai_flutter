@@ -180,7 +180,7 @@ class _FirstLaunchLanguageScreenState extends State<FirstLaunchLanguageScreen> w
                       const SizedBox(height: 24),
                       
                       Text(
-                        'Welcome to NicotinaAI',
+                        l10n.welcomeToApp,
                         style: context.textTheme.headlineMedium?.copyWith(
                           fontWeight: FontWeight.bold,
                           color: context.primaryColor,
@@ -191,7 +191,7 @@ class _FirstLaunchLanguageScreenState extends State<FirstLaunchLanguageScreen> w
                       const SizedBox(height: 12),
                       
                       Text(
-                        'Select your preferred language',
+                        l10n.selectLanguage,
                         style: context.textTheme.titleMedium?.copyWith(
                           color: context.contentColor.withOpacity(0.8),
                         ),
@@ -241,9 +241,9 @@ class _FirstLaunchLanguageScreenState extends State<FirstLaunchLanguageScreen> w
                               borderRadius: BorderRadius.circular(12),
                             ),
                           ),
-                          child: const Text(
-                            'Continue',
-                            style: TextStyle(
+                          child: Text(
+                            l10n.continueButton,
+                            style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
                             ),

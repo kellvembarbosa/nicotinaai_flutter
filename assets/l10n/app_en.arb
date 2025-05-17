@@ -1914,5 +1914,20 @@
   "errorLabel": "Error",
   "@errorLabel": {
     "description": "Generic label for error messages"
+  },
+  
+  "welcomeToApp": "Welcome to NicotinaAI",
+  "@welcomeToApp": {
+    "description": "Welcome message on first launch language screen"
+  },
+  
+  "selectLanguage": "Select your preferred language",
+  "@selectLanguage": {
+    "description": "Instruction to select language on first launch"
+  },
+  
+  "continueButton": "Continue",
+  "@continueButton": {
+    "description": "Continue button text"
   }
 }

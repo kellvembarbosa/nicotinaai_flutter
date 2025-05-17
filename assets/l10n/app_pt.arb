@@ -2169,5 +2169,20 @@
   "errorUserNotAuthenticated": "Erro: Usuário não autenticado",
   "@errorUserNotAuthenticated": {
     "description": "Error message when user is not authenticated"
+  },
+  
+  "welcomeToApp": "Bem-vindo ao NicotinaAI",
+  "@welcomeToApp": {
+    "description": "Welcome message on first launch language screen"
+  },
+  
+  "selectLanguage": "Selecione seu idioma preferido",
+  "@selectLanguage": {
+    "description": "Instruction to select language on first launch"
+  },
+  
+  "continueButton": "Continuar",
+  "@continueButton": {
+    "description": "Continue button text"
   }
 }
