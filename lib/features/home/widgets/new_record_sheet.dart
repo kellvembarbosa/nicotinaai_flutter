@@ -1445,7 +1445,7 @@ class _NewRecordSheetState extends State<NewRecordSheet> {
       // Show error message
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Error: User not authenticated'),
+          content: Text(l10n.errorUserNotAuthenticated),
           backgroundColor: Colors.red,
           duration: const Duration(seconds: 3),
         ),

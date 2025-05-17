@@ -2962,6 +2962,96 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Unknown error'**
   String get unknownError;
+
+  /// Text for showing today's date with time
+  ///
+  /// In en, this message translates to:
+  /// **'Today at {time}'**
+  String todayAt(String time);
+
+  /// Text for showing yesterday's date with time
+  ///
+  /// In en, this message translates to:
+  /// **'Yesterday at {time}'**
+  String yesterdayAt(String time);
+
+  /// Text for showing day of week with time
+  ///
+  /// In en, this message translates to:
+  /// **'{weekday} at {time}'**
+  String dayOfWeekAt(String weekday, String time);
+
+  /// Format for showing a complete date with time
+  ///
+  /// In en, this message translates to:
+  /// **'{day}/{month}/{year} at {time}'**
+  String dateTimeFormat(String day, String month, String year, String time);
+
+  /// Name of the day of the week: Monday
+  ///
+  /// In en, this message translates to:
+  /// **'Monday'**
+  String get monday;
+
+  /// Name of the day of the week: Tuesday
+  ///
+  /// In en, this message translates to:
+  /// **'Tuesday'**
+  String get tuesday;
+
+  /// Name of the day of the week: Wednesday
+  ///
+  /// In en, this message translates to:
+  /// **'Wednesday'**
+  String get wednesday;
+
+  /// Name of the day of the week: Thursday
+  ///
+  /// In en, this message translates to:
+  /// **'Thursday'**
+  String get thursday;
+
+  /// Name of the day of the week: Friday
+  ///
+  /// In en, this message translates to:
+  /// **'Friday'**
+  String get friday;
+
+  /// Name of the day of the week: Saturday
+  ///
+  /// In en, this message translates to:
+  /// **'Saturday'**
+  String get saturday;
+
+  /// Name of the day of the week: Sunday
+  ///
+  /// In en, this message translates to:
+  /// **'Sunday'**
+  String get sunday;
+
+  /// Error message when user is not authenticated
+  ///
+  /// In en, this message translates to:
+  /// **'Error: User not authenticated'**
+  String get errorUserNotAuthenticated;
+
+  /// Loading message when registering a resisted craving
+  ///
+  /// In en, this message translates to:
+  /// **'Registering resisted craving...'**
+  String get registeringCravingResisted;
+
+  /// Loading message when registering a craving
+  ///
+  /// In en, this message translates to:
+  /// **'Registering craving...'**
+  String get registeringCraving;
+
+  /// Error message shown when user is not authenticated
+  ///
+  /// In en, this message translates to:
+  /// **'Not authenticated'**
+  String get userNotAuthenticated;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

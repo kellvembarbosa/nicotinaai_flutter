@@ -633,9 +633,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                   style: TextButton.styleFrom(
                                     foregroundColor: context.primaryColor,
                                   ),
-                                  child: const Text(
-                                    'View All',
-                                    style: TextStyle(
+                                  child: Text(
+                                    l10n.seeAll,
+                                    style: const TextStyle(
                                       fontWeight: FontWeight.w600,
                                     ),
                                   ),
@@ -1599,6 +1599,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // Format the date of the last cigarette in a readable way
   String _formatLastSmokeDate(DateTime date) {
+    final l10n = AppLocalizations.of(context);
+    
     // Today
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
@@ -1608,20 +1610,26 @@ class _HomeScreenState extends State<HomeScreen> {
 
     // Difference in days
     final difference = today.difference(smokeDate).inDays;
+    
+    // Format time
+    final formattedTime = _formatTime(date);
 
     if (difference == 0) {
       // If today, show "Today at HH:MM"
-      return 'Hoje às ${_formatTime(date)}';
+      return l10n.todayAt(formattedTime);
     } else if (difference == 1) {
       // If yesterday
-      return 'Ontem às ${_formatTime(date)}';
+      return l10n.yesterdayAt(formattedTime);
     } else if (difference < 7) {
       // If in the last 7 days, show the day of the week
       final weekday = _getDayOfWeek(date.weekday);
-      return '$weekday às ${_formatTime(date)}';
+      return l10n.dayOfWeekAt(weekday, formattedTime);
     } else {
       // Complete format for older dates
-      return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year} às ${_formatTime(date)}';
+      final day = date.day.toString().padLeft(2, '0');
+      final month = date.month.toString().padLeft(2, '0');
+      final year = date.year.toString();
+      return l10n.dateTimeFormat(day, month, year, formattedTime);
     }
   }
 
@@ -1632,21 +1640,23 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // Return the name of the day of the week
   String _getDayOfWeek(int weekday) {
+    final l10n = AppLocalizations.of(context);
+    
     switch (weekday) {
       case 1:
-        return 'Segunda';
+        return l10n.monday;
       case 2:
-        return 'Terça';
+        return l10n.tuesday;
       case 3:
-        return 'Quarta';
+        return l10n.wednesday;
       case 4:
-        return 'Quinta';
+        return l10n.thursday;
       case 5:
-        return 'Sexta';
+        return l10n.friday;
       case 6:
-        return 'Sábado';
+        return l10n.saturday;
       case 7:
-        return 'Domingo';
+        return l10n.sunday;
       default:
         return '';
     }

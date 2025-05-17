@@ -9,10 +9,8 @@ import 'package:nicotinaai_flutter/blocs/tracking/tracking_event.dart';
 import 'package:nicotinaai_flutter/blocs/tracking/tracking_state.dart';
 import 'package:nicotinaai_flutter/core/theme/app_theme.dart';
 import 'package:nicotinaai_flutter/features/home/models/craving_model.dart';
-import 'package:nicotinaai_flutter/features/tracking/repositories/tracking_repository.dart';
 import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
 import 'package:nicotinaai_flutter/services/analytics/analytics_service.dart';
-import 'package:nicotinaai_flutter/utils/stats_calculator.dart';
 
 class RegisterCravingSheet extends StatefulWidget {
   const RegisterCravingSheet({super.key});
@@ -84,7 +82,7 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
       }
 
       // When the user has selected resist option, collapse that section and expand notes
-      if (_isResistSectionExpanded && (_didResist != null)) {
+      if (_isResistSectionExpanded) {
         _isResistSectionExpanded = false;
         _isNotesSectionExpanded = true;
       }
@@ -130,7 +128,7 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
             // Show success message
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text(l10n.cravingRecorded ?? "Craving saved successfully"),
+                content: Text(l10n.cravingRecorded),
                 backgroundColor: Colors.green,
                 duration: const Duration(seconds: 2),
               ),
@@ -139,7 +137,7 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
             // Show error message with proper localization
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text('Error: ${state.errorMessage ?? "Unknown error"}'),
+                content: Text('Error: ${state.errorMessage ?? l10n.unknownError}'),
                 backgroundColor: Colors.red,
                 duration: const Duration(seconds: 5),
               ),
@@ -426,12 +424,8 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
                                 borderRadius: BorderRadius.circular(12),
                                 side: BorderSide(
                                   color:
-                                      (_didResist != null)
-                                          ? Colors.red
-                                          : context.isDarkMode
-                                          ? Colors.grey[800]!
-                                          : Colors.grey[300]!,
-                                  width: (_didResist != null) ? 1.5 : 0.5,
+                                      Colors.red,
+                                  width: 1.5,
                                 ),
                               ),
                               child: Column(
@@ -457,8 +451,7 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
                                               style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.red),
                                             ),
                                           ),
-                                          if (_didResist != null)
-                                            Container(
+                                          Container(
                                               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                               decoration: BoxDecoration(
                                                 color: Colors.red.withOpacity(0.1),
@@ -1216,7 +1209,7 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
       // Show error message with proper localization
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text("Not authenticated"), backgroundColor: Colors.red, duration: const Duration(seconds: 3)));
+      ).showSnackBar(SnackBar(content: Text(l10n.userNotAuthenticated), backgroundColor: Colors.red, duration: const Duration(seconds: 3)));
       return;
     }
 
@@ -1234,10 +1227,10 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
     );
 
     if (kDebugMode) {
-      print('📊 [RegisterCravingSheet] Saving craving: resisted=${_didResist}');
+      print('📊 [RegisterCravingSheet] Saving craving: resisted=$_didResist');
     }
 
-    // Exibir indicador de carregamento
+    // Display loading indicator
     final scaffoldMessenger = ScaffoldMessenger.of(context);
     scaffoldMessenger.showSnackBar(
       SnackBar(
@@ -1249,7 +1242,7 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
               child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(Colors.white)),
             ),
             const SizedBox(width: 16),
-            Text(_didResist ? "Registrando craving resistido..." : "Registrando craving..."),
+            Text(_didResist ? l10n.registeringCravingResisted : l10n.registeringCraving),
           ],
         ),
         duration: const Duration(seconds: 1),
@@ -1276,7 +1269,7 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
         // Dispatch the save event directly to the TrackingBloc
         trackingBloc.add(SaveCraving(craving: craving));
         
-        // Forçar atualização completa para garantir contagem correta
+        // Force complete update to ensure correct counting
         trackingBloc.add(ForceUpdateStats());
         
         // Health recovery checks are now handled automatically in the TrackingBloc

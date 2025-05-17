@@ -2079,5 +2079,95 @@
   "rateNow": "Avaliar agora",
   "feedbackError": "Ops, algo deu errado",
   "couldNotSaveFeedback": "Não foi possível salvar seu feedback",
-  "understand": "Entendi"
+  "understand": "Entendi",
+  
+  "todayAt": "Hoje às {time}",
+  "@todayAt": {
+    "description": "Text for showing today's date with time",
+    "placeholders": {
+      "time": {
+        "type": "String",
+        "example": "14:30"
+      }
+    }
+  },
+  "yesterdayAt": "Ontem às {time}",
+  "@yesterdayAt": {
+    "description": "Text for showing yesterday's date with time",
+    "placeholders": {
+      "time": {
+        "type": "String",
+        "example": "14:30"
+      }
+    }
+  },
+  "dayOfWeekAt": "{weekday} às {time}",
+  "@dayOfWeekAt": {
+    "description": "Text for showing day of week with time",
+    "placeholders": {
+      "weekday": {
+        "type": "String",
+        "example": "Segunda-feira"
+      },
+      "time": {
+        "type": "String",
+        "example": "14:30"
+      }
+    }
+  },
+  "dateTimeFormat": "{day}/{month}/{year} às {time}",
+  "@dateTimeFormat": {
+    "description": "Format for showing a complete date with time",
+    "placeholders": {
+      "day": {
+        "type": "String",
+        "example": "01"
+      },
+      "month": {
+        "type": "String",
+        "example": "01"
+      },
+      "year": {
+        "type": "String",
+        "example": "2023"
+      },
+      "time": {
+        "type": "String",
+        "example": "14:30"
+      }
+    }
+  },
+  "monday": "Segunda-feira",
+  "@monday": {
+    "description": "Name of the day of the week: Monday"
+  },
+  "tuesday": "Terça-feira",
+  "@tuesday": {
+    "description": "Name of the day of the week: Tuesday"
+  },
+  "wednesday": "Quarta-feira",
+  "@wednesday": {
+    "description": "Name of the day of the week: Wednesday"
+  },
+  "thursday": "Quinta-feira",
+  "@thursday": {
+    "description": "Name of the day of the week: Thursday"
+  },
+  "friday": "Sexta-feira",
+  "@friday": {
+    "description": "Name of the day of the week: Friday"
+  },
+  "saturday": "Sábado",
+  "@saturday": {
+    "description": "Name of the day of the week: Saturday"
+  },
+  "sunday": "Domingo",
+  "@sunday": {
+    "description": "Name of the day of the week: Sunday"
+  },
+  
+  "errorUserNotAuthenticated": "Erro: Usuário não autenticado",
+  "@errorUserNotAuthenticated": {
+    "description": "Error message when user is not authenticated"
+  }
 }

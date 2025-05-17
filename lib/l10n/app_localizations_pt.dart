@@ -1476,4 +1476,57 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get unknownError => 'Unknown error';
+
+  @override
+  String todayAt(String time) {
+    return 'Hoje às $time';
+  }
+
+  @override
+  String yesterdayAt(String time) {
+    return 'Ontem às $time';
+  }
+
+  @override
+  String dayOfWeekAt(String weekday, String time) {
+    return '$weekday às $time';
+  }
+
+  @override
+  String dateTimeFormat(String day, String month, String year, String time) {
+    return '$day/$month/$year às $time';
+  }
+
+  @override
+  String get monday => 'Segunda-feira';
+
+  @override
+  String get tuesday => 'Terça-feira';
+
+  @override
+  String get wednesday => 'Quarta-feira';
+
+  @override
+  String get thursday => 'Quinta-feira';
+
+  @override
+  String get friday => 'Sexta-feira';
+
+  @override
+  String get saturday => 'Sábado';
+
+  @override
+  String get sunday => 'Domingo';
+
+  @override
+  String get errorUserNotAuthenticated => 'Erro: Usuário não autenticado';
+
+  @override
+  String get registeringCravingResisted => 'Registering resisted craving...';
+
+  @override
+  String get registeringCraving => 'Registering craving...';
+
+  @override
+  String get userNotAuthenticated => 'Not authenticated';
 }

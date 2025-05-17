@@ -1804,5 +1804,115 @@
   "unknownError": "Unknown error",
   "@unknownError": {
     "description": "Message displayed when an unknown error occurs"
+  },
+  
+  "todayAt": "Today at {time}",
+  "@todayAt": {
+    "description": "Text for showing today's date with time",
+    "placeholders": {
+      "time": {
+        "type": "String",
+        "example": "14:30"
+      }
+    }
+  },
+  "yesterdayAt": "Yesterday at {time}",
+  "@yesterdayAt": {
+    "description": "Text for showing yesterday's date with time",
+    "placeholders": {
+      "time": {
+        "type": "String",
+        "example": "14:30"
+      }
+    }
+  },
+  "dayOfWeekAt": "{weekday} at {time}",
+  "@dayOfWeekAt": {
+    "description": "Text for showing day of week with time",
+    "placeholders": {
+      "weekday": {
+        "type": "String",
+        "example": "Monday"
+      },
+      "time": {
+        "type": "String",
+        "example": "14:30"
+      }
+    }
+  },
+  "dateTimeFormat": "{day}/{month}/{year} at {time}",
+  "@dateTimeFormat": {
+    "description": "Format for showing a complete date with time",
+    "placeholders": {
+      "day": {
+        "type": "String",
+        "example": "01"
+      },
+      "month": {
+        "type": "String",
+        "example": "01"
+      },
+      "year": {
+        "type": "String",
+        "example": "2023"
+      },
+      "time": {
+        "type": "String",
+        "example": "14:30"
+      }
+    }
+  },
+  "monday": "Monday",
+  "@monday": {
+    "description": "Name of the day of the week: Monday"
+  },
+  "tuesday": "Tuesday",
+  "@tuesday": {
+    "description": "Name of the day of the week: Tuesday"
+  },
+  "wednesday": "Wednesday",
+  "@wednesday": {
+    "description": "Name of the day of the week: Wednesday"
+  },
+  "thursday": "Thursday",
+  "@thursday": {
+    "description": "Name of the day of the week: Thursday"
+  },
+  "friday": "Friday",
+  "@friday": {
+    "description": "Name of the day of the week: Friday"
+  },
+  "saturday": "Saturday",
+  "@saturday": {
+    "description": "Name of the day of the week: Saturday"
+  },
+  "sunday": "Sunday",
+  "@sunday": {
+    "description": "Name of the day of the week: Sunday"
+  },
+  
+  "errorUserNotAuthenticated": "Error: User not authenticated",
+  "@errorUserNotAuthenticated": {
+    "description": "Error message when user is not authenticated"
+  },
+  
+  "registeringCravingResisted": "Registering resisted craving...",
+  "@registeringCravingResisted": {
+    "description": "Loading message when registering a resisted craving"
+  },
+  
+  "registeringCraving": "Registering craving...",
+  "@registeringCraving": {
+    "description": "Loading message when registering a craving"
+  },
+  
+  "userNotAuthenticated": "Not authenticated",
+  "@userNotAuthenticated": {
+    "description": "Error message shown when user is not authenticated"
+  },
+  
+  "errorLabel": "Error",
+  "@errorLabel": {
+    "description": "Generic label for error messages"
   }
 }
