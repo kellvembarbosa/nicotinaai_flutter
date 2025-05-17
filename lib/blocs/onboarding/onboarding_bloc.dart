@@ -85,7 +85,52 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
         if (onboarding.completed) {
           emit(OnboardingState.completed(onboarding));
         } else {
-          emit(OnboardingState.loaded(onboarding, isNew: false));
+          // Verificar se há um passo atual salvo localmente para restaurar
+          final savedStep = await _getLocalCurrentStep();
+          
+          // Buscar dados de progresso do servidor para comparar
+          final serverProgress = await _repository.getOnboardingProgress();
+          final serverStep = serverProgress != null ? serverProgress['current_step'] as int : null;
+          
+          // Decidir qual passo usar (local ou servidor), priorizando o maior valor
+          int stepToUse = 1; // Valor padrão
+          
+          if (savedStep != null && serverStep != null) {
+            // Se temos ambos, usar o maior
+            stepToUse = savedStep > serverStep ? savedStep : serverStep;
+            debugPrint('🔄 [OnboardingBloc] Comparando passos - Local: $savedStep, Servidor: $serverStep, Escolhido: $stepToUse');
+          } else if (savedStep != null) {
+            // Se só temos o valor local
+            stepToUse = savedStep;
+            debugPrint('📱 [OnboardingBloc] Usando passo salvo localmente: $stepToUse');
+          } else if (serverStep != null) {
+            // Se só temos o valor do servidor
+            stepToUse = serverStep;
+            debugPrint('☁️ [OnboardingBloc] Usando passo do servidor: $stepToUse');
+          }
+          
+          // Validar o passo - não deve ser maior que o total de etapas
+          if (stepToUse > 16) {
+            debugPrint('⚠️ [OnboardingBloc] Passo $stepToUse inválido, resetando para 1');
+            stepToUse = 1;
+          }
+          
+          emit(OnboardingState.loaded(onboarding, isNew: false, currentStep: stepToUse));
+          
+          // Se restauramos de um passo salvo, atualizar o servidor para manter sincronizado
+          if (savedStep != null && (serverStep == null || savedStep > serverStep)) {
+            try {
+              await _repository.saveOnboardingProgress(
+                currentStep: stepToUse,
+                lastCompletedStep: stepToUse > 1 ? stepToUse - 1 : 0,
+                totalSteps: 16,
+                onboardingId: onboarding.id,
+              );
+              debugPrint('✅ [OnboardingBloc] Progresso atualizado no servidor após restaurar passo local');
+            } catch (e) {
+              debugPrint('⚠️ [OnboardingBloc] Erro ao atualizar progresso no servidor: $e');
+            }
+          }
         }
         
         _isInitializing = false;
@@ -103,9 +148,19 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
           // Tentar sincronizar sem bloquear
           _repository.saveOnboarding(localOnboarding).catchError((e) {
             debugPrint('⚠️ [OnboardingBloc] Erro ao sincronizar: $e');
+            return localOnboarding; // Retornar o objeto local em caso de erro
           });
         } else {
-          emit(OnboardingState.loaded(localOnboarding, isNew: false));
+          // Verificar se há um passo atual salvo
+          final savedStep = await _getLocalCurrentStep();
+          if (savedStep != null) {
+            // Validar o passo
+            final validStep = savedStep > 16 ? 1 : savedStep;
+            debugPrint('📱 [OnboardingBloc] Restaurando passo salvo localmente: $validStep');
+            emit(OnboardingState.loaded(localOnboarding, isNew: false, currentStep: validStep));
+          } else {
+            emit(OnboardingState.loaded(localOnboarding, isNew: false));
+          }
         }
         
         _isInitializing = false;
@@ -130,6 +185,7 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
       await _saveLocalOnboarding(newOnboarding);
       _repository.saveOnboarding(newOnboarding).catchError((e) {
         debugPrint('⚠️ [OnboardingBloc] Erro ao salvar: $e');
+        return newOnboarding; // Retornar o objeto local em caso de erro
       });
       
     } catch (e) {
@@ -196,6 +252,9 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
       currentStep: nextStep,
     ));
     
+    // Salvar o passo atual localmente para poder restaurar ao reabrir o app
+    await _saveCurrentStep(nextStep);
+    
     // Atualizar o progresso no banco de dados - assume que essa etapa foi concluída
     try {
       final lastCompletedStep = state.currentStep - 1; // A etapa que estava antes de avançar
@@ -226,6 +285,9 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
     emit(state.copyWith(
       currentStep: prevStep,
     ));
+    
+    // Salvar o passo atual localmente para poder restaurar ao reabrir o app
+    await _saveCurrentStep(prevStep);
     
     // Atualizar apenas o currentStep, sem alterar o lastCompletedStep
     try {
@@ -259,6 +321,9 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
       currentStep: event.step,
     ));
     
+    // Salvar o passo atual localmente para poder restaurar ao reabrir o app
+    await _saveCurrentStep(event.step);
+    
     // Atualizar apenas o currentStep, sem alterar o lastCompletedStep
     try {
       // Obter o progresso atual
@@ -285,6 +350,8 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
     CompleteOnboarding event,
     Emitter<OnboardingState> emit,
   ) async {
+    // Limpar todos os dados locais ao completar o onboarding
+    await _removeLocalOnboarding();
     try {
       debugPrint('🔄 [OnboardingBloc] Verificando requisitos para completar onboarding');
       
@@ -376,6 +443,7 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
       // Registrar evento de analytics
       AnalyticsService().logCompletedOnboarding().catchError((e) {
         debugPrint('⚠️ [OnboardingBloc] Analytics error: $e');
+        return false; // Return value to satisfy the Future<bool>
       });
       
       // Salvar no Supabase - não aguardar retorno para não bloquear UI
@@ -411,6 +479,7 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
           debugPrint('🔄 [OnboardingBloc] Tentando sincronizar dados do onboarding para UserStats mesmo após erro');
           OnboardingSyncService().syncOnboardingDataToUserStats().catchError((_) {
             debugPrint('⚠️ [OnboardingBloc] Falha na tentativa de sincronização após erro');
+            return false; // Indica que a sincronização falhou
           });
         }
       });
@@ -473,7 +542,7 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
             try {
               debugPrint('🔄 [OnboardingBloc] Tentando sincronizar estado completo para o Supabase');
               await _repository.completeOnboarding(onboarding.id!);
-              // Acabamos de marcar como completo no Supabase
+              debugPrint('✅ [OnboardingBloc] Onboarding marcado como completo no Supabase');
             } catch (e) {
               debugPrint('❌ [OnboardingBloc] Falha ao sincronizar para Supabase: $e');
               // O Supabase é a fonte primária da verdade
@@ -541,11 +610,38 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
     }
   }
   
+  /// Salva apenas o passo atual do onboarding
+  Future<void> _saveCurrentStep(int step) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setInt('onboarding_current_step', step);
+      debugPrint('✅ [OnboardingBloc] Passo atual ($step) salvo localmente');
+    } catch (e) {
+      debugPrint('⚠️ [OnboardingBloc] Erro ao salvar passo atual: $e');
+    }
+  }
+  
+  /// Recupera o passo atual do onboarding
+  Future<int?> _getLocalCurrentStep() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final step = prefs.getInt('onboarding_current_step');
+      if (step != null) {
+        debugPrint('✅ [OnboardingBloc] Passo atual ($step) recuperado localmente');
+      }
+      return step;
+    } catch (e) {
+      debugPrint('⚠️ [OnboardingBloc] Erro ao recuperar passo atual: $e');
+      return null;
+    }
+  }
+  
   /// Remove o onboarding salvo localmente
   Future<void> _removeLocalOnboarding() async {
     try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.remove('onboarding_data');
+      await prefs.remove('onboarding_current_step'); // Remove o passo salvo também
       debugPrint('✅ [OnboardingBloc] Dados locais removidos');
     } catch (e) {
       debugPrint('⚠️ [OnboardingBloc] Erro ao remover dados locais: $e');

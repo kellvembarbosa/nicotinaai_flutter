@@ -63,11 +63,12 @@ class OnboardingState extends Equatable {
   }
 
   /// Estado com dados carregados
-  factory OnboardingState.loaded(OnboardingModel onboarding, {bool isNew = false}) {
+  factory OnboardingState.loaded(OnboardingModel onboarding, {bool isNew = false, int currentStep = 1}) {
     return OnboardingState(
       status: OnboardingStatus.loaded,
       onboarding: onboarding,
       isNew: isNew,
+      currentStep: currentStep,
     );
   }
 
