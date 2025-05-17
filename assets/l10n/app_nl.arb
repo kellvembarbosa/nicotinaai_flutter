@@ -1,0 +1,19 @@
+{
+  "@@locale": "nl",
+  "appName": "NicotinaAI",
+  "welcomeBack": "Welkom terug",
+  "login": "Inloggen",
+  "email": "E-mail",
+  "password": "Wachtwoord",
+  "rememberMe": "Onthoud mij",
+  "forgotPassword": "Wachtwoord vergeten",
+  "noAccount": "Nog geen account?",
+  "register": "Registreren",
+  "days": "dagen",
+  "ok": "OK",
+  "cancel": "Annuleren",
+  "confirm": "Bevestigen",
+  "save": "Opslaan",
+  "delete": "Verwijderen",
+  "loading": "Laden..."
+}

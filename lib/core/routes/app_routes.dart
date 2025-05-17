@@ -6,6 +6,9 @@ enum AppRoutes {
   // Rota de splash/loading - ponto de entrada inicial do app
   splash('/splash'),
   
+  // Rota de seleção de idioma no primeiro lançamento
+  firstLaunchLanguage('/first-launch-language'),
+  
   // Rotas de autenticação
   login('/login'),
   register('/register'),

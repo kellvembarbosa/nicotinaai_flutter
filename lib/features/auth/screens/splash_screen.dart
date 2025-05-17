@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:nicotinaai_flutter/blocs/auth/auth_bloc.dart';
+import 'package:nicotinaai_flutter/blocs/locale/locale_bloc.dart';
+import 'package:nicotinaai_flutter/blocs/locale/locale_event.dart';
 import 'package:nicotinaai_flutter/blocs/onboarding/onboarding_bloc.dart';
 import 'package:nicotinaai_flutter/blocs/onboarding/onboarding_event.dart';
 import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
@@ -24,8 +26,38 @@ class _SplashScreenState extends State<SplashScreen> {
 
     // Deixar o sistema carregar um pouco antes de verificar status
     Future.delayed(Duration(milliseconds: 1500), () {
-      _checkAuthAndNavigate();
+      _checkLanguageAndNavigate();
     });
+  }
+
+  void _checkLanguageAndNavigate() async {
+    if (!mounted) return;
+
+    // Check language selection first
+    final localeBloc = context.read<LocaleBloc>();
+    
+    // Make sure we check the language selection status
+    localeBloc.add(CheckLanguageSelectionStatus());
+    
+    // Give it a moment to process
+    await Future.delayed(const Duration(milliseconds: 300));
+    
+    if (!mounted) return;
+    
+    // Check if language selection is complete
+    final isLanguageSelectionComplete = await localeBloc.isLanguageSelectionComplete();
+    
+    print('🔤 [SplashScreen] Verificando seleção de idioma: ${isLanguageSelectionComplete ? "COMPLETA" : "INCOMPLETA"}');
+    
+    // If language selection is not complete, go to language selection screen
+    if (!isLanguageSelectionComplete) {
+      print('🔤 [SplashScreen] Seleção de idioma incompleta, redirecionando para tela de seleção de idioma');
+      context.go(AppRoutes.firstLaunchLanguage.path);
+      return;
+    }
+    
+    // Otherwise continue with normal flow
+    _checkAuthAndNavigate();
   }
 
   void _checkAuthAndNavigate() async {

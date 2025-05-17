@@ -23,3 +23,9 @@ class ChangeLocale extends LocaleEvent {
 
 /// Event to reset to English (default locale)
 class ResetToDefaultLocale extends LocaleEvent {}
+
+/// Event to check if language selection has been completed
+class CheckLanguageSelectionStatus extends LocaleEvent {}
+
+/// Event to mark language selection as complete
+class MarkLanguageSelectionComplete extends LocaleEvent {}

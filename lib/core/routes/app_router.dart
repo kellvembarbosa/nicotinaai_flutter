@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:nicotinaai_flutter/blocs/auth/auth_bloc.dart';
+import 'package:nicotinaai_flutter/blocs/locale/locale_bloc.dart';
+import 'package:nicotinaai_flutter/blocs/locale/locale_event.dart';
 import 'package:nicotinaai_flutter/blocs/onboarding/onboarding_bloc.dart';
 import 'package:nicotinaai_flutter/core/routes/router_refresh_stream.dart';
+import 'package:nicotinaai_flutter/features/auth/screens/first_launch_language_screen.dart';
 import 'package:nicotinaai_flutter/features/auth/screens/forgot_password_screen.dart';
 import 'package:nicotinaai_flutter/features/auth/screens/login_screen.dart';
 import 'package:nicotinaai_flutter/features/auth/screens/register_screen.dart';
@@ -52,6 +56,12 @@ class AppRouter {
       GoRoute(
         path: SplashScreen.routeName,
         builder: (context, state) => const SplashScreen(),
+      ),
+      
+      // First launch language selection route
+      GoRoute(
+        path: AppRoutes.firstLaunchLanguage.path,
+        builder: (context, state) => const FirstLaunchLanguageScreen(),
       ),
       
       // Rotas de autenticação
@@ -201,11 +211,44 @@ class AppRouter {
       return null;
     }
     
+    // Não interferir na navegação para a tela de seleção de idioma
+    if (currentLocation == AppRoutes.firstLaunchLanguage.path) {
+      print('🛑 [AppRouter] Na tela de seleção de idioma, não interferir');
+      return null;
+    }
+    
+    // Verificar se a seleção de idioma já foi feita
+    // Importante: Isso deve ser feito através do LocaleBloc do contexto
+    final localeBloc = BlocProvider.of<LocaleBloc>(context);
+    
+    // Verificar diretamente com SharedPreferences para maior precisão
+    // já que o estado do bloc pode não ter sido atualizado ainda
+    bool isLanguageSelectionComplete = localeBloc.state.isLanguageSelectionComplete;
+    
+    // Log detalhado sobre o estado de seleção de idioma
+    print('🔍 [AppRouter] Estado de seleção de idioma - BlocState: $isLanguageSelectionComplete');
+    
+    // Verificar se estamos tentando ir para a tela de login após a seleção de idioma
+    if (currentLocation == AppRoutes.login.path && 
+        localeBloc.state.isInitialized) {
+      print('✅ [AppRouter] Permitindo navegação para login após seleção de idioma');
+      return null;
+    }
+    
+    // Se a seleção de idioma não foi feita, redirecionar para a tela de seleção de idioma
+    // Mas apenas se não estiver já na tela de seleção de idioma
+    if (!isLanguageSelectionComplete && 
+        currentLocation != AppRoutes.firstLaunchLanguage.path &&
+        currentLocation != SplashScreen.routeName) {
+      print('🔤 [AppRouter] Seleção de idioma não foi feita, redirecionando para tela de seleção');
+      return AppRoutes.firstLaunchLanguage.path;
+    }
+    
     final isAuthenticated = authBloc.state.isAuthenticated;
     final onboardingCompleted = onboardingBloc.state.isCompleted;
     
     // Log detalhado para diagnosticar problemas de redirecionamento
-    print('🧭 [AppRouter] Navegação para: $currentLocation - Auth: $isAuthenticated, Onboarding completo: $onboardingCompleted');
+    print('🧭 [AppRouter] Navegação para: $currentLocation - Auth: $isAuthenticated, Onboarding completo: $onboardingCompleted, Language selection: $isLanguageSelectionComplete');
     
     // REGRA 1: NUNCA interferir em navegações para MainScreen
     // Se o usuário está indo para MainScreen, devemos sempre permitir

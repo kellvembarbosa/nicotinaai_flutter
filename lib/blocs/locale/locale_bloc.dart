@@ -7,11 +7,49 @@ import 'package:nicotinaai_flutter/blocs/locale/locale_state.dart';
 
 class LocaleBloc extends Bloc<LocaleEvent, LocaleState> {
   final String _localeKey = 'app_locale';
+  final String _languageSelectionKey = 'language_selection_complete';
 
   LocaleBloc() : super(LocaleState.initial()) {
     on<InitializeLocale>(_onInitializeLocale);
     on<ChangeLocale>(_onChangeLocale);
     on<ResetToDefaultLocale>(_onResetToDefaultLocale);
+    on<CheckLanguageSelectionStatus>(_onCheckLanguageSelectionStatus);
+  }
+
+  /// Checks if the user has already completed the language selection process
+  Future<bool> isLanguageSelectionComplete() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      return prefs.getBool(_languageSelectionKey) ?? false;
+    } catch (e) {
+      print('⚠️ Error checking language selection status: $e');
+      return false;
+    }
+  }
+
+  /// Set the language selection as complete
+  Future<void> markLanguageSelectionComplete() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool(_languageSelectionKey, true);
+      print('✅ Language selection marked as complete');
+      
+      // Atualizar estado interno também para consistência imediata
+      add(CheckLanguageSelectionStatus());
+    } catch (e) {
+      print('⚠️ Error marking language selection as complete: $e');
+    }
+  }
+
+  /// Event handler for checking language selection status
+  Future<void> _onCheckLanguageSelectionStatus(
+    CheckLanguageSelectionStatus event,
+    Emitter<LocaleState> emit,
+  ) async {
+    final isComplete = await isLanguageSelectionComplete();
+    emit(state.copyWith(
+      isLanguageSelectionComplete: isComplete,
+    ));
   }
 
   /// Loads the saved locale from SharedPreferences and Supabase
@@ -22,6 +60,9 @@ class LocaleBloc extends Bloc<LocaleEvent, LocaleState> {
     emit(state.copyWith(status: LocaleStatus.loading));
 
     try {
+      // Check if language selection has been completed before
+      final isSelectionComplete = await isLanguageSelectionComplete();
+      
       // First check if we can get the locale from Supabase (this takes precedence)
       String? savedLocale;
       
@@ -78,6 +119,7 @@ class LocaleBloc extends Bloc<LocaleEvent, LocaleState> {
               status: LocaleStatus.loaded,
               locale: newLocale,
               isInitialized: true,
+              isLanguageSelectionComplete: isSelectionComplete,
             ));
             
             // Make sure SharedPreferences is in sync
@@ -97,6 +139,7 @@ class LocaleBloc extends Bloc<LocaleEvent, LocaleState> {
         status: LocaleStatus.loaded,
         locale: defaultLocale,
         isInitialized: true,
+        isLanguageSelectionComplete: isSelectionComplete,
       ));
     } catch (e) {
       emit(state.copyWith(
@@ -146,15 +189,18 @@ class LocaleBloc extends Bloc<LocaleEvent, LocaleState> {
     if (!state.supportedLocales.contains(event.locale)) return;
 
     try {
-      // Update state first for responsive UI
+      // First save to preferences to ensure persistence
+      await _saveLocaleToPreferences(event.locale);
+      
+      // Update state for UI to reflect change
       emit(state.copyWith(
         status: LocaleStatus.loaded,
         locale: event.locale,
       ));
-
-      // Use helper to save the locale
-      await _saveLocaleToPreferences(event.locale);
+      
+      print('🔤 Locale changed to: ${event.locale.languageCode}_${event.locale.countryCode}');
     } catch (e) {
+      print('⚠️ Error changing locale: $e');
       emit(state.copyWith(
         status: LocaleStatus.error,
         errorMessage: 'Failed to change locale: $e',

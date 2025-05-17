@@ -8,6 +8,7 @@ class LocaleState extends Equatable {
   final Locale locale;
   final List<Locale> supportedLocales;
   final bool isInitialized;
+  final bool isLanguageSelectionComplete;
   final String? errorMessage;
 
   const LocaleState({
@@ -15,6 +16,7 @@ class LocaleState extends Equatable {
     required this.locale,
     required this.supportedLocales,
     required this.isInitialized,
+    this.isLanguageSelectionComplete = false,
     this.errorMessage,
   });
 
@@ -26,8 +28,14 @@ class LocaleState extends Equatable {
           Locale('en', 'US'), // English (US) - default
           Locale('pt', 'BR'), // Portuguese (Brazil)
           Locale('es', 'ES'), // Spanish (Spain)
+          Locale('fr', 'FR'), // French (France)
+          Locale('it'), // Italian
+          Locale('de'), // German
+          Locale('nl'), // Dutch
+          Locale('pl'), // Polish
         ],
         isInitialized: false,
+        isLanguageSelectionComplete: false,
       );
 
   /// Returns a copy of the current state with the provided new values
@@ -36,6 +44,7 @@ class LocaleState extends Equatable {
     Locale? locale,
     List<Locale>? supportedLocales,
     bool? isInitialized,
+    bool? isLanguageSelectionComplete,
     String? errorMessage,
   }) {
     return LocaleState(
@@ -43,6 +52,7 @@ class LocaleState extends Equatable {
       locale: locale ?? this.locale,
       supportedLocales: supportedLocales ?? this.supportedLocales,
       isInitialized: isInitialized ?? this.isInitialized,
+      isLanguageSelectionComplete: isLanguageSelectionComplete ?? this.isLanguageSelectionComplete,
       errorMessage: errorMessage ?? this.errorMessage,
     );
   }
@@ -52,13 +62,37 @@ class LocaleState extends Equatable {
 
   /// Returns the language name for a given locale
   String getLanguageName(Locale locale) {
-    switch ('${locale.languageCode}_${locale.countryCode}') {
+    // Para compatibilidade, verificamos primeiro pelo código e país
+    String fullCode = '${locale.languageCode}_${locale.countryCode}';
+    switch (fullCode) {
       case 'pt_BR':
         return 'Português (Brasil)';
       case 'en_US':
         return 'English (US)';
       case 'es_ES':
         return 'Español';
+      case 'fr_FR':
+        return 'Français';
+    }
+    
+    // Se não encontrou com o código completo, tenta só o código do idioma
+    switch (locale.languageCode) {
+      case 'pt':
+        return 'Português (Brasil)';
+      case 'en':
+        return 'English (US)';
+      case 'es':
+        return 'Español';
+      case 'fr':
+        return 'Français';
+      case 'it':
+        return 'Italiano';
+      case 'de':
+        return 'Deutsch';
+      case 'nl':
+        return 'Nederlands';
+      case 'pl':
+        return 'Polski';
       default:
         return 'Unknown';
     }
@@ -70,6 +104,7 @@ class LocaleState extends Equatable {
         locale,
         supportedLocales,
         isInitialized,
+        isLanguageSelectionComplete,
         errorMessage,
       ];
 }

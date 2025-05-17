@@ -1,0 +1,19 @@
+{
+  "@@locale": "pl",
+  "appName": "NicotinaAI",
+  "welcomeBack": "Witamy ponownie",
+  "login": "Zaloguj się",
+  "email": "E-mail",
+  "password": "Hasło",
+  "rememberMe": "Zapamiętaj mnie",
+  "forgotPassword": "Zapomniałeś hasła",
+  "noAccount": "Nie masz konta?",
+  "register": "Zarejestruj się",
+  "days": "dni",
+  "ok": "OK",
+  "cancel": "Anuluj",
+  "confirm": "Potwierdź",
+  "save": "Zapisz",
+  "delete": "Usuń",
+  "loading": "Ładowanie..."
+}

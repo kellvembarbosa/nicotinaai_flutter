@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -137,7 +138,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         );
 
                         // Navegar para tela de edição de perfil
-                        context.push(AppRoutes.editProfile.path);
+                        // Use GoRouter.of instead of context.push to avoid assertion error
+                        final router = GoRouter.of(context);
+                        if (router != null) {
+                          router.push(AppRoutes.editProfile.path);
+                        } else {
+                          print('⚠️ Router not found in context!');
+                          // Fallback navigation
+                          Navigator.pushNamed(context, AppRoutes.editProfile.path);
+                        }
                       },
                       icon: const Icon(Icons.edit),
                       label: Text(localizations.editProfile),
@@ -244,7 +253,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                 );
 
-                context.push(AppRoutes.languageBloc.path);
+                // Use GoRouter.of instead of context.push to avoid assertion error
+                final router = GoRouter.of(context);
+                if (router != null) {
+                  router.push(AppRoutes.languageBloc.path);
+                } else {
+                  print('⚠️ Router not found in context!');
+                  // Fallback navigation
+                  Navigator.pushNamed(context, AppRoutes.languageBloc.path);
+                }
               },
               trailing: BlocBuilder<LocaleBloc, locale_state.LocaleState>(
                 builder:
@@ -278,7 +295,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                 );
 
-                context.push(AppRoutes.themeBloc.path);
+                // Use GoRouter.of instead of context.push to avoid assertion error
+                final router = GoRouter.of(context);
+                if (router != null) {
+                  router.push(AppRoutes.themeBloc.path);
+                } else {
+                  print('⚠️ Router not found in context!');
+                  // Fallback navigation
+                  Navigator.pushNamed(context, AppRoutes.themeBloc.path);
+                }
               },
               trailing: BlocBuilder<ThemeBloc, theme_state.ThemeState>(
                 builder:
@@ -311,7 +336,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 );
 
                 // Navegar para tela de configuração de cigarros por dia
-                context.push(AppRoutes.cigarettesPerDay.path);
+                // Use GoRouter.of instead of context.push to avoid assertion error
+                final router = GoRouter.of(context);
+                if (router != null) {
+                  router.push(AppRoutes.cigarettesPerDay.path);
+                } else {
+                  print('⚠️ Router not found in context!');
+                  // Fallback navigation
+                  Navigator.pushNamed(context, AppRoutes.cigarettesPerDay.path);
+                }
               },
             ),
             _buildSettingItem(
@@ -330,7 +363,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 );
 
                 // Navegar para tela de configuração de preço do maço
-                context.push(AppRoutes.packPrice.path);
+                // Use GoRouter.of instead of context.push to avoid assertion error
+                final router = GoRouter.of(context);
+                if (router != null) {
+                  router.push(AppRoutes.packPrice.path);
+                } else {
+                  print('⚠️ Router not found in context!');
+                  // Fallback navigation
+                  Navigator.pushNamed(context, AppRoutes.packPrice.path);
+                }
               },
             ),
             _buildSettingItem(
@@ -352,7 +393,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                 );
 
-                context.push(AppRoutes.currencyBloc.path);
+                // Use GoRouter.of instead of context.push to avoid assertion error
+                final router = GoRouter.of(context);
+                if (router != null) {
+                  router.push(AppRoutes.currencyBloc.path);
+                } else {
+                  print('⚠️ Router not found in context!');
+                  // Fallback navigation
+                  Navigator.pushNamed(context, AppRoutes.currencyBloc.path);
+                }
               },
               trailing: BlocBuilder<CurrencyBloc, CurrencyState>(
                 builder:
@@ -380,7 +429,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 );
 
                 // Navegar para tela de configuração de data de parada
-                context.push(AppRoutes.quitDate.path);
+                // Use GoRouter.of instead of context.push to avoid assertion error
+                final router = GoRouter.of(context);
+                if (router != null) {
+                  router.push(AppRoutes.quitDate.path);
+                } else {
+                  print('⚠️ Router not found in context!');
+                  // Fallback navigation
+                  Navigator.pushNamed(context, AppRoutes.quitDate.path);
+                }
               },
             ),
 
@@ -404,7 +461,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 );
 
                 // Navegar para tela de redefinição de senha
-                context.push(AppRoutes.resetPassword.path);
+                // Use GoRouter.of instead of context.push to avoid assertion error
+                final router = GoRouter.of(context);
+                if (router != null) {
+                  router.push(AppRoutes.resetPassword.path);
+                } else {
+                  print('⚠️ Router not found in context!');
+                  // Fallback navigation
+                  Navigator.pushNamed(context, AppRoutes.resetPassword.path);
+                }
               },
             ),
             _buildSettingItem(
@@ -423,7 +488,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 );
 
                 // Navegar para tela de exclusão de conta
-                context.push(AppRoutes.deleteAccount.path);
+                // Use GoRouter.of instead of context.push to avoid assertion error
+                final router = GoRouter.of(context);
+                if (router != null) {
+                  router.push(AppRoutes.deleteAccount.path);
+                } else {
+                  print('⚠️ Router not found in context!');
+                  // Fallback navigation
+                  Navigator.pushNamed(context, AppRoutes.deleteAccount.path);
+                }
               },
               textColor: Colors.red,
               iconColor: Colors.red,
@@ -485,12 +558,41 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 ),
                               );
 
+                              // First close the dialog
                               Navigator.of(context).pop();
-                              context.read<AuthBloc>().add(
-                                LogoutRequested(context: context),
-                              );
-                              if (context.mounted) {
-                                context.go('/login');
+                              
+                              // Perform a direct logout using a combination of Repository and navigation
+                              try {
+                                // Get the AuthBloc
+                                final authBloc = context.read<AuthBloc>();
+                                
+                                // Declare the subscription variable before assigning it
+                                late final StreamSubscription subscription;
+                                
+                                // Add a listener to the AuthBloc to detect when logout is complete
+                                subscription = authBloc.stream.listen((state) {
+                                  if (!state.isAuthenticated && context.mounted) {
+                                    print('✅ Logout complete, user is no longer authenticated.');
+                                    
+                                    // Cancel subscription to avoid memory leaks
+                                    subscription.cancel();
+                                    
+                                    // Manual navigation after logout is complete
+                                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                                      print('🚀 Manually navigating to login screen after logout');
+                                      Navigator.pushNamedAndRemoveUntil(context, AppRoutes.login.path, (route) => false);
+                                    });
+                                  }
+                                });
+                                
+                                // Trigger the logout
+                                authBloc.add(const LogoutRequested());
+                                print('🔄 Logout requested, waiting for completion...');
+                                
+                              } catch (e) {
+                                print('⚠️ Error during logout: $e');
+                                // Fallback navigation on error
+                                Navigator.pushNamedAndRemoveUntil(context, AppRoutes.login.path, (route) => false);
                               }
                             },
                             style: ElevatedButton.styleFrom(

@@ -361,7 +361,9 @@ class MyApp extends StatelessWidget {
             builder: (context, localeState) {
               return BlocBuilder<ThemeBloc, theme_state.ThemeState>(
                 builder: (context, themeState) {
-                  return MaterialApp.router(
+                  // Vamos usar MaterialApp normal com routes separados para que 
+                  // o Navigator.pushNamed funcione para a tela de login
+                  return MaterialApp(
                     title: 'NicotinaAI',
                     debugShowCheckedModeBanner: false,
 
@@ -375,7 +377,21 @@ class MyApp extends StatelessWidget {
                     localizationsDelegates: AppLocalizations.localizationsDelegates,
                     supportedLocales: localeState.supportedLocales,
 
-                    routerConfig: appRouter.router,
+                    // Usamos o router para a navegação principal
+                    home: Router(
+                      routerDelegate: appRouter.router.routerDelegate,
+                      routeInformationParser: appRouter.router.routeInformationParser,
+                      routeInformationProvider: appRouter.router.routeInformationProvider,
+                    ),
+                    
+                    // Defina rotas nomeadas para pushNamedAndRemoveUntil
+                    routes: {
+                      '/login': (context) => Scaffold(
+                        body: Center(
+                          child: Text(AppLocalizations.of(context).loading),
+                        ),
+                      ),
+                    },
                     
                     // Envolver toda a aplicação com ConnectivityOverlay
                     builder: (context, child) {
