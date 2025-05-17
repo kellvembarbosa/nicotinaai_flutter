@@ -52,8 +52,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
       ),
     );
     
-    // Navegação usando GoRouter
-    context.go(AppRoutes.login.path);
+    // Use GoRouter.of instead of context.go to avoid assertion error
+    final router = GoRouter.of(context);
+    if (router != null) {
+      router.go(AppRoutes.login.path);
+    } else {
+      print('⚠️ Router not found in context!');
+      // Fallback navigation
+      Navigator.pushNamedAndRemoveUntil(context, AppRoutes.login.path, (route) => false);
+    }
   }
 
   @override
@@ -75,7 +82,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
             
             // Navegar para a SplashScreen em vez da rota inicial
             // A SplashScreen já tem a lógica para verificar onboarding e redirecionar adequadamente
-            context.go(SplashScreen.routeName);
+            // Use GoRouter.of instead of context.go to avoid assertion error
+            final router = GoRouter.of(context);
+            if (router != null) {
+              router.go(SplashScreen.routeName);
+            } else {
+              print('⚠️ Router not found in context during navigation to splash!');
+              // Fallback navigation
+              Navigator.pushNamedAndRemoveUntil(context, SplashScreen.routeName, (route) => false);
+            }
           }
           
           // Show error messages

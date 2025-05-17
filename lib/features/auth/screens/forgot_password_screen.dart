@@ -30,12 +30,23 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   }
 
   void _navigateToLogin() {
+    if (!mounted) return;
+    
     context.read<AnalyticsBloc>().add(
       const TrackCustomEvent(
         'forgot_password_back_to_login_clicked',
       ),
     );
-    context.go(AppRoutes.login.path);
+    
+    // Use GoRouter.of instead of context.go to avoid assertion error
+    final router = GoRouter.of(context);
+    if (router != null) {
+      router.go(AppRoutes.login.path);
+    } else {
+      print('⚠️ Router not found in context!');
+      // Fallback navigation
+      Navigator.pushNamedAndRemoveUntil(context, AppRoutes.login.path, (route) => false);
+    }
   }
 
   @override

@@ -473,5 +473,8 @@
   "notificationsEnabled": "Notifiche abilitate con successo!",
   "notificationPermissionFailed": "C'è stato un problema nell'abilitare le notifiche",
   "requesting": "Richiedendo...",
-  "skipForNow": "Salta per ora"
+  "skipForNow": "Salta per ora",
+  
+  "onboardingLoadError": "Errore nel caricamento dell'onboarding",
+  "unknownError": "Errore sconosciuto"
 }

@@ -63,12 +63,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'Ocorreu um erro ao carregar o onboarding',
+                    AppLocalizations.of(context).onboardingLoadError,
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    state.errorMessage ?? 'Erro desconhecido',
+                    state.errorMessage ?? AppLocalizations.of(context).unknownError,
                     style: Theme.of(context).textTheme.bodyMedium,
                   ),
                   const SizedBox(height: 24),
@@ -77,7 +77,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       context.read<OnboardingBloc>().add(ClearOnboardingError());
                       context.read<OnboardingBloc>().add(InitializeOnboarding());
                     },
-                    child: const Text('Tentar novamente'),
+                    child: Text(AppLocalizations.of(context).tryAgain),
                   ),
                 ],
               ),

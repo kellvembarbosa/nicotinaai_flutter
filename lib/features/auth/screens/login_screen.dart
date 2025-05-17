@@ -36,7 +36,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     
     return Scaffold(
@@ -52,7 +52,15 @@ class _LoginScreenState extends State<LoginScreen> {
             analyticsService.requestTrackingAuthorization();
             
             // Navigate to main screen
-            context.go(AppRoutes.main.path);
+            // Use GoRouter.of instead of context.go to avoid assertion error
+            final router = GoRouter.of(context);
+            if (router != null) {
+              router.go(AppRoutes.main.path);
+            } else {
+              print('⚠️ Router not found in context during navigation to main!');
+              // Fallback navigation
+              Navigator.pushNamedAndRemoveUntil(context, AppRoutes.main.path, (route) => false);
+            }
           }
           
           // Show error messages
@@ -174,7 +182,15 @@ class _LoginScreenState extends State<LoginScreen> {
                                 'login_forgot_password_clicked',
                               ),
                             );
-                            context.push(AppRoutes.forgotPassword.path);
+                            // Use GoRouter.of instead of context.push to avoid assertion error
+                            final router = GoRouter.of(context);
+                            if (router != null) {
+                              router.push(AppRoutes.forgotPassword.path);
+                            } else {
+                              print('⚠️ Router not found in context!');
+                              // Fallback navigation
+                              Navigator.pushNamed(context, AppRoutes.forgotPassword.path);
+                            }
                           },
                       child: Text(l10n.forgotPassword),
                     ),
@@ -216,7 +232,15 @@ class _LoginScreenState extends State<LoginScreen> {
                                   'login_register_clicked',
                                 ),
                               );
-                              context.push(AppRoutes.register.path);
+                              // Use GoRouter.of instead of context.push to avoid assertion error
+                              final router = GoRouter.of(context);
+                              if (router != null) {
+                                router.push(AppRoutes.register.path);
+                              } else {
+                                print('⚠️ Router not found in context!');
+                                // Fallback navigation
+                                Navigator.pushNamed(context, AppRoutes.register.path);
+                              }
                             },
                         child: Text(l10n.register),
                       ),

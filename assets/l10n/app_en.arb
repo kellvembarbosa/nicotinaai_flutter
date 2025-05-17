@@ -1795,5 +1795,14 @@
   "notificationsEnabled": "Notifications enabled successfully!",
   "notificationPermissionFailed": "There was a problem enabling notifications",
   "requesting": "Requesting...",
-  "skipForNow": "Skip for now"
+  "skipForNow": "Skip for now",
+  
+  "onboardingLoadError": "Error loading onboarding",
+  "@onboardingLoadError": {
+    "description": "Error message shown when onboarding fails to load"
+  },
+  "unknownError": "Unknown error",
+  "@unknownError": {
+    "description": "Message displayed when an unknown error occurs"
+  }
 }
