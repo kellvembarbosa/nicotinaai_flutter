@@ -24,13 +24,13 @@ class SkeletonWidget<T> extends StatelessWidget {
   final bool autoLoad;
 
   const SkeletonWidget({
-    Key? key,
+    super.key,
     required this.fetchData,
     required this.builder,
     required this.loadingWidget,
     this.errorWidget,
     this.autoLoad = true,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -70,9 +70,9 @@ class HealthRecoveryListSkeleton extends StatelessWidget {
   final Future<List<dynamic>> Function() fetchHealthRecoveries;
 
   const HealthRecoveryListSkeleton({
-    Key? key,
+    super.key,
     required this.fetchHealthRecoveries,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -376,6 +376,11 @@ class MyApp extends StatelessWidget {
                     locale: localeState.locale,
                     localizationsDelegates: AppLocalizations.localizationsDelegates,
                     supportedLocales: localeState.supportedLocales,
+                    // Debug: log the locale being applied
+                    onGenerateTitle: (context) {
+                      print('🌍 MaterialApp applying locale: ${localeState.locale.languageCode}_${localeState.locale.countryCode}');
+                      return 'NicotinaAI';
+                    },
 
                     // Usamos o router para a navegação principal
                     home: Router(

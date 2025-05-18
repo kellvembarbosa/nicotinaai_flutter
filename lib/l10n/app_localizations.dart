@@ -149,6 +149,132 @@ abstract class AppLocalizations {
   /// **'days'**
   String get days;
 
+  /// Welcome message on first launch language screen
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome to NicotinaAI'**
+  String get welcomeToApp;
+
+  /// Instruction to select language on first launch
+  ///
+  /// In en, this message translates to:
+  /// **'Select your preferred language'**
+  String get selectLanguage;
+
+  /// Continue button text
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get continueButton;
+
+  /// First step achievement
+  ///
+  /// In en, this message translates to:
+  /// **'First Step'**
+  String get achievementFirstStep;
+
+  /// First step achievement description
+  ///
+  /// In en, this message translates to:
+  /// **'Complete the onboarding process'**
+  String get achievementFirstStepDescription;
+
+  /// One day achievement
+  ///
+  /// In en, this message translates to:
+  /// **'One Day Wonder'**
+  String get achievementOneDayWonder;
+
+  /// One day achievement description
+  ///
+  /// In en, this message translates to:
+  /// **'Stay smoke-free for 1 day'**
+  String get achievementOneDayWonderDescription;
+
+  /// Week warrior achievement
+  ///
+  /// In en, this message translates to:
+  /// **'Week Warrior'**
+  String get achievementWeekWarrior;
+
+  /// Week warrior achievement description
+  ///
+  /// In en, this message translates to:
+  /// **'Stay smoke-free for 7 days'**
+  String get achievementWeekWarriorDescription;
+
+  /// Month master achievement
+  ///
+  /// In en, this message translates to:
+  /// **'Month Master'**
+  String get achievementMonthMaster;
+
+  /// Month master achievement description
+  ///
+  /// In en, this message translates to:
+  /// **'Stay smoke-free for 30 days'**
+  String get achievementMonthMasterDescription;
+
+  /// Money mindful achievement
+  ///
+  /// In en, this message translates to:
+  /// **'Money Mindful'**
+  String get achievementMoneyMindful;
+
+  /// Money mindful achievement description
+  ///
+  /// In en, this message translates to:
+  /// **'Save \$50 by not smoking'**
+  String get achievementMoneyMindfulDescription;
+
+  /// Centurion achievement
+  ///
+  /// In en, this message translates to:
+  /// **'Centurion'**
+  String get achievementCenturion;
+
+  /// Centurion achievement description
+  ///
+  /// In en, this message translates to:
+  /// **'Save \$100 by not smoking'**
+  String get achievementCenturionDescription;
+
+  /// Craving crusher achievement
+  ///
+  /// In en, this message translates to:
+  /// **'Craving Crusher'**
+  String get achievementCravingCrusher;
+
+  /// Craving crusher achievement description
+  ///
+  /// In en, this message translates to:
+  /// **'Successfully resist 10 cravings'**
+  String get achievementCravingCrusherDescription;
+
+  /// Text shown when content is loading
+  ///
+  /// In en, this message translates to:
+  /// **'Loading...'**
+  String get loading;
+
+  /// The name of the app
+  ///
+  /// In en, this message translates to:
+  /// **'NicotinaAI'**
+  String get appName;
+
+  /// Text shown when a page is not found
+  ///
+  /// In en, this message translates to:
+  /// **'Page not found'**
+  String get pageNotFound;
+
+  /// Motivational message for the user
+  ///
+  /// In en, this message translates to:
+  /// **'Keep going! You\'re doing great!'**
+  String get motivationalMessage;
+
   /// Title for help screen
   ///
   /// In en, this message translates to:
@@ -164,7 +290,7 @@ abstract class AppLocalizations {
   /// Explanation text on help screen
   ///
   /// In en, this message translates to:
-  /// **'We offer different resources to support your journey. Select all that you believe can help.'**
+  /// **'We offer different resources to support your journey. Select everything you think might help.'**
   String get helpScreenExplanation;
 
   /// Option for daily tips
@@ -176,7 +302,7 @@ abstract class AppLocalizations {
   /// Description for daily tips
   ///
   /// In en, this message translates to:
-  /// **'Receive practical advice every day to support your journey'**
+  /// **'Receive practical tips every day to support your journey'**
   String get dailyTipsDescription;
 
   /// Option for custom reminders
@@ -236,7 +362,7 @@ abstract class AppLocalizations {
   /// Description for savings calculator
   ///
   /// In en, this message translates to:
-  /// **'See how much money you\'re saving by reducing or quitting'**
+  /// **'See how much money you\'re saving by reducing or quitting smoking'**
   String get savingsCalculatorDescription;
 
   /// Text explaining that preferences can be modified later
@@ -248,13 +374,13 @@ abstract class AppLocalizations {
   /// Title for personalize screen
   ///
   /// In en, this message translates to:
-  /// **'When do you usually smoke more?'**
+  /// **'When do you usually smoke the most?'**
   String get personalizeScreenTitle;
 
   /// Subtitle for personalize screen
   ///
   /// In en, this message translates to:
-  /// **'Select the times when you feel more like smoking'**
+  /// **'Select the times when you feel the most urge to smoke'**
   String get personalizeScreenSubtitle;
 
   /// Option for smoking after meals
@@ -292,18 +418,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'When I\'m bored'**
   String get whenBored;
-
-  /// Days without smoking counter
-  ///
-  /// In en, this message translates to:
-  /// **'{days} days without smoking'**
-  String homeDaysWithoutSmoking(int days);
-
-  /// Greeting with user name
-  ///
-  /// In en, this message translates to:
-  /// **'Hello, {name}! 👋'**
-  String homeGreeting(String name);
 
   /// Health recovery section title
   ///
@@ -358,12 +472,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Next Milestone'**
   String get homeNextMilestone;
-
-  /// Next milestone description
-  ///
-  /// In en, this message translates to:
-  /// **'In {days} days: Blood flow improves'**
-  String homeNextMilestoneDescription(int days);
 
   /// Recent achievements section title
   ///
@@ -461,10 +569,10 @@ abstract class AppLocalizations {
   /// **'Habits'**
   String get achievementCategoryHabits;
 
-  /// Unlocked achievements label
+  /// Title for achievement notification
   ///
   /// In en, this message translates to:
-  /// **'Unlocked!'**
+  /// **'Achievement Unlocked!'**
   String get achievementUnlocked;
 
   /// In progress achievements label
@@ -484,24 +592,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Your Current Progress'**
   String get achievementCurrentProgress;
-
-  /// Achievement level
-  ///
-  /// In en, this message translates to:
-  /// **'Level {level}'**
-  String achievementLevel(int level);
-
-  /// Days without smoking on achievements screen
-  ///
-  /// In en, this message translates to:
-  /// **'{days} days without smoking'**
-  String achievementDaysWithoutSmoking(int days);
-
-  /// Next achievement level
-  ///
-  /// In en, this message translates to:
-  /// **'Next level: {time}'**
-  String achievementNextLevel(String time);
 
   /// CO2 benefit label
   ///
@@ -554,7 +644,7 @@ abstract class AppLocalizations {
   /// Improved circulation achievement description
   ///
   /// In en, this message translates to:
-  /// **'Oxygen levels normalized'**
+  /// **'Normalized oxygen levels'**
   String get achievementImprovedCirculationDescription;
 
   /// Initial savings achievement
@@ -578,7 +668,7 @@ abstract class AppLocalizations {
   /// Two weeks achievement description
   ///
   /// In en, this message translates to:
-  /// **'Two complete weeks without smoking!'**
+  /// **'Two full weeks without smoking!'**
   String get achievementTwoWeeksDescription;
 
   /// Substantial savings achievement
@@ -614,7 +704,7 @@ abstract class AppLocalizations {
   /// One month achievement description
   ///
   /// In en, this message translates to:
-  /// **'A whole month without smoking!'**
+  /// **'A full month without smoking!'**
   String get achievementOneMonthDescription;
 
   /// New exercise habit achievement
@@ -629,18 +719,6 @@ abstract class AppLocalizations {
   /// **'Record 5 days of exercise'**
   String get achievementNewHabitExerciseDescription;
 
-  /// Percentage completed
-  ///
-  /// In en, this message translates to:
-  /// **'{percent}% completed'**
-  String percentCompleted(int percent);
-
-  /// Name of the application
-  ///
-  /// In en, this message translates to:
-  /// **'NicotinaAI'**
-  String get appName;
-
   /// Login screen title
   ///
   /// In en, this message translates to:
@@ -650,7 +728,7 @@ abstract class AppLocalizations {
   /// Login screen subtitle
   ///
   /// In en, this message translates to:
-  /// **'Log in to continue'**
+  /// **'Login to continue'**
   String get loginToContinue;
 
   /// Email field label
@@ -680,7 +758,7 @@ abstract class AppLocalizations {
   /// Link for password recovery
   ///
   /// In en, this message translates to:
-  /// **'Forgot password'**
+  /// **'Forgot my password'**
   String get forgotPassword;
 
   /// Login button
@@ -695,7 +773,7 @@ abstract class AppLocalizations {
   /// **'Don\'t have an account?'**
   String get noAccount;
 
-  /// Register button text
+  /// Link for account registration
   ///
   /// In en, this message translates to:
   /// **'Register'**
@@ -725,7 +803,7 @@ abstract class AppLocalizations {
   /// **'Settings'**
   String get settings;
 
-  /// Location option: Home
+  /// Home screen title
   ///
   /// In en, this message translates to:
   /// **'Home'**
@@ -776,7 +854,7 @@ abstract class AppLocalizations {
   /// Description of language item
   ///
   /// In en, this message translates to:
-  /// **'Change the language of the app'**
+  /// **'Change the app language'**
   String get changeLanguage;
 
   /// Item to change theme
@@ -860,7 +938,7 @@ abstract class AppLocalizations {
   /// Description of reset password item
   ///
   /// In en, this message translates to:
-  /// **'Change your access password'**
+  /// **'Change your login password'**
   String get changePassword;
 
   /// Item to delete account
@@ -896,7 +974,7 @@ abstract class AppLocalizations {
   /// Description of logout item
   ///
   /// In en, this message translates to:
-  /// **'Disconnect from your account'**
+  /// **'Log out from your account'**
   String get logoutFromAccount;
 
   /// Title of logout dialog
@@ -908,7 +986,7 @@ abstract class AppLocalizations {
   /// Logout confirmation message
   ///
   /// In en, this message translates to:
-  /// **'Are you sure you want to logout from your account?'**
+  /// **'Are you sure you want to log out of your account?'**
   String get logoutConfirmation;
 
   /// About section title
@@ -950,14 +1028,8 @@ abstract class AppLocalizations {
   /// Description of about the app item
   ///
   /// In en, this message translates to:
-  /// **'Version and app information'**
+  /// **'App version and information'**
   String get appInfo;
-
-  /// App version
-  ///
-  /// In en, this message translates to:
-  /// **'Version {version}'**
-  String version(String version);
 
   /// Cancel button
   ///
@@ -971,7 +1043,7 @@ abstract class AppLocalizations {
   /// **'Confirm'**
   String get confirm;
 
-  /// Save button text
+  /// Save button
   ///
   /// In en, this message translates to:
   /// **'Save'**
@@ -1031,7 +1103,7 @@ abstract class AppLocalizations {
   /// **'Low'**
   String get low;
 
-  /// Intensity level: Moderate
+  /// Moderate consumption level
   ///
   /// In en, this message translates to:
   /// **'Moderate'**
@@ -1196,7 +1268,7 @@ abstract class AppLocalizations {
   /// Help text for price input
   ///
   /// In en, this message translates to:
-  /// **'This information helps us show how much you\'ll save by reducing or quitting smoking.'**
+  /// **'This information helps us show you how much you\'ll save by reducing or quitting smoking.'**
   String get priceHelp;
 
   /// Question about product type
@@ -1256,7 +1328,7 @@ abstract class AppLocalizations {
   /// Help text explaining importance of product type
   ///
   /// In en, this message translates to:
-  /// **'Different products contain different amounts of nicotine and may require distinct strategies for reduction or cessation.'**
+  /// **'Different products contain different amounts of nicotine and may require different strategies for reduction or cessation.'**
   String get productTypeHelp;
 
   /// Error message when no product type is selected
@@ -1346,13 +1418,13 @@ abstract class AppLocalizations {
   /// Subtitle for timeline question
   ///
   /// In en, this message translates to:
-  /// **'Establish a deadline that seems achievable to you'**
+  /// **'Set a deadline that seems achievable to you'**
   String get establishDeadline;
 
   /// Explanation about setting a realistic timeline
   ///
   /// In en, this message translates to:
-  /// **'A realistic timeline increases your chances of success. Choose a deadline that you\'re comfortable with.'**
+  /// **'A realistic timeline increases your chances of success. Choose a timeframe you\'re comfortable with.'**
   String get timelineExplanation;
 
   /// Option for 7-day timeline
@@ -1376,7 +1448,7 @@ abstract class AppLocalizations {
   /// Description for 14-day timeline
   ///
   /// In en, this message translates to:
-  /// **'A balanced timeframe for habit change'**
+  /// **'A balanced timeframe for changing habits'**
   String get fourteenDaysDescription;
 
   /// Option for 30-day timeline
@@ -1394,7 +1466,7 @@ abstract class AppLocalizations {
   /// Option for no deadline
   ///
   /// In en, this message translates to:
-  /// **'No set deadline'**
+  /// **'No defined deadline'**
   String get noDeadline;
 
   /// Description for no deadline
@@ -1406,7 +1478,7 @@ abstract class AppLocalizations {
   /// Help text for timeline selection
   ///
   /// In en, this message translates to:
-  /// **'Don\'t worry if you don\'t achieve your goal exactly on schedule. Continuous progress is what matters.'**
+  /// **'Don\'t worry if you don\'t achieve your goal exactly within the timeframe. What matters is continuous progress.'**
   String get timelineHelp;
 
   /// Error message when no timeline is selected
@@ -1414,12 +1486,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Please select a timeline'**
   String get pleaseSelectTimeline;
-
-  /// Question about quitting challenge with goal text placeholder
-  ///
-  /// In en, this message translates to:
-  /// **'What makes it difficult to {goalText} for you?'**
-  String challengeQuestion(String goalText);
 
   /// Subtitle for challenge question
   ///
@@ -1430,7 +1496,7 @@ abstract class AppLocalizations {
   /// Explanation about importance of identifying challenges
   ///
   /// In en, this message translates to:
-  /// **'Understanding what makes cigarettes hard to quit is the first step in overcoming that obstacle.'**
+  /// **'Understanding what makes quitting cigarettes difficult is the first step to overcoming that obstacle.'**
   String get challengeExplanation;
 
   /// Option for stress/anxiety challenge
@@ -1478,13 +1544,13 @@ abstract class AppLocalizations {
   /// Description for physical dependence challenge
   ///
   /// In en, this message translates to:
-  /// **'I experience physical symptoms when I go without smoking'**
+  /// **'I experience physical symptoms when I\'m without smoking'**
   String get dependenceDescription;
 
   /// Help text for challenge selection
   ///
   /// In en, this message translates to:
-  /// **'Your answers help us personalize more effective tips and strategies for your specific case.'**
+  /// **'Your answers help us personalize advice and strategies that are more effective for your specific case.'**
   String get challengeHelp;
 
   /// Error message when no challenge is selected
@@ -1508,7 +1574,7 @@ abstract class AppLocalizations {
   /// Explanation about importance of identifying locations
   ///
   /// In en, this message translates to:
-  /// **'Knowing your usual locations helps us identify patterns and create specific strategies.'**
+  /// **'Knowing your usual places helps us identify patterns and create specific strategies.'**
   String get locationsExplanation;
 
   /// Option for smoking at home
@@ -1538,13 +1604,13 @@ abstract class AppLocalizations {
   /// Option for smoking in car/transport
   ///
   /// In en, this message translates to:
-  /// **'In car/transport'**
+  /// **'In the car/transport'**
   String get inCar;
 
   /// Details for car location
   ///
   /// In en, this message translates to:
-  /// **'During travel'**
+  /// **'During trips'**
   String get carDetails;
 
   /// Option for smoking at social events
@@ -1586,19 +1652,13 @@ abstract class AppLocalizations {
   /// Help text for locations selection
   ///
   /// In en, this message translates to:
-  /// **'Identifying the most common locations helps avoid triggers and create strategies for habit change.'**
+  /// **'Identifying the most common places helps to avoid triggers and create strategies to change habits.'**
   String get locationsHelp;
-
-  /// Continue button text
-  ///
-  /// In en, this message translates to:
-  /// **'Continue'**
-  String get continueButton;
 
   /// Title for completion screen
   ///
   /// In en, this message translates to:
-  /// **'All done!'**
+  /// **'All Done!'**
   String get allDone;
 
   /// Subtitle for completion screen
@@ -1619,18 +1679,6 @@ abstract class AppLocalizations {
   /// **'Congratulations on taking the first step!'**
   String get congratulations;
 
-  /// Text explaining personalized plan for reducing consumption
-  ///
-  /// In en, this message translates to:
-  /// **'We\'ve created a personalized plan based on your answers to help you reduce consumption {timelineText}.'**
-  String personalizedPlanReduce(String timelineText);
-
-  /// Text explaining personalized plan for quitting smoking
-  ///
-  /// In en, this message translates to:
-  /// **'We\'ve created a personalized plan based on your answers to help you quit smoking {timelineText}.'**
-  String personalizedPlanQuit(String timelineText);
-
   /// Title for personalized summary section
   ///
   /// In en, this message translates to:
@@ -1642,12 +1690,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Daily consumption'**
   String get dailyConsumption;
-
-  /// Value for cigarettes per day
-  ///
-  /// In en, this message translates to:
-  /// **'{count} cigarettes per day'**
-  String cigarettesPerDayValue(int count);
 
   /// Label for potential monthly savings
   ///
@@ -1715,12 +1757,6 @@ abstract class AppLocalizations {
   /// **'With our science-based technology'**
   String get resultsDescription;
 
-  /// Error message during completion
-  ///
-  /// In en, this message translates to:
-  /// **'Error completing: {error}'**
-  String loadingError(String error);
-
   /// Developer section title
   ///
   /// In en, this message translates to:
@@ -1784,13 +1820,13 @@ abstract class AppLocalizations {
   /// Toggle for list view display
   ///
   /// In en, this message translates to:
-  /// **'List View'**
+  /// **'List view'**
   String get listView;
 
   /// Toggle for grid view display
   ///
   /// In en, this message translates to:
-  /// **'Grid View'**
+  /// **'Grid view'**
   String get gridView;
 
   /// Text for timeline at user's own pace
@@ -1832,7 +1868,7 @@ abstract class AppLocalizations {
   /// Subtitle for craving button
   ///
   /// In en, this message translates to:
-  /// **'Track when you feel urges'**
+  /// **'When you feel the urge'**
   String get registerCravingSubtitle;
 
   /// Button to register a new smoking record
@@ -1844,7 +1880,7 @@ abstract class AppLocalizations {
   /// Subtitle for smoking record button
   ///
   /// In en, this message translates to:
-  /// **'Record when you smoke'**
+  /// **'When you smoke'**
   String get newRecordSubtitle;
 
   /// Question asking user's location when registering a craving
@@ -1934,7 +1970,7 @@ abstract class AppLocalizations {
   /// Trigger option: After meal
   ///
   /// In en, this message translates to:
-  /// **'After meal'**
+  /// **'After eating'**
   String get afterMeal;
 
   /// Trigger option: Coffee
@@ -2120,7 +2156,7 @@ abstract class AppLocalizations {
   /// Text explaining currency preselection
   ///
   /// In en, this message translates to:
-  /// **'We\'ve preselected your local currency. You can change it if necessary.'**
+  /// **'We\'ve preselected your local currency. You can change it if needed.'**
   String get preselectedCurrency;
 
   /// Message shown when user tries to proceed without completing required fields
@@ -2141,58 +2177,40 @@ abstract class AppLocalizations {
   /// **'Common pack prices'**
   String get commonPrices;
 
-  /// No description provided for @refresh.
+  /// Button text to refresh content
   ///
   /// In en, this message translates to:
   /// **'Refresh'**
   String get refresh;
 
-  /// No description provided for @errorLoadingNotifications.
+  /// Error message when notifications fail to load
   ///
   /// In en, this message translates to:
   /// **'Error loading notifications'**
   String get errorLoadingNotifications;
 
-  /// No description provided for @noNotificationsYet.
+  /// Message shown when there are no notifications
   ///
   /// In en, this message translates to:
   /// **'No notifications yet!'**
   String get noNotificationsYet;
 
-  /// No description provided for @emptyNotificationsDescription.
+  /// Description for empty notifications list
   ///
   /// In en, this message translates to:
   /// **'Continue using the app to receive motivational messages and achievements.'**
   String get emptyNotificationsDescription;
 
-  /// No description provided for @motivationalMessage.
-  ///
-  /// In en, this message translates to:
-  /// **'Motivational Message'**
-  String get motivationalMessage;
-
-  /// No description provided for @claimReward.
-  ///
-  /// In en, this message translates to:
-  /// **'Claim {xp} XP'**
-  String claimReward(int xp);
-
-  /// No description provided for @rewardClaimed.
-  ///
-  /// In en, this message translates to:
-  /// **'Reward claimed: {xp} XP'**
-  String rewardClaimed(int xp);
-
-  /// No description provided for @dailyMotivation.
+  /// Title for daily motivation section
   ///
   /// In en, this message translates to:
   /// **'Daily Motivation'**
   String get dailyMotivation;
 
-  /// No description provided for @dailyMotivationDescription.
+  /// Description for daily motivation card
   ///
   /// In en, this message translates to:
-  /// **'Your personalized daily motivation is here. Open to get your XP reward!'**
+  /// **'Your personalized daily motivation is here. Open it to get your XP reward!'**
   String get dailyMotivationDescription;
 
   /// Retry button text for failed operations
@@ -2204,7 +2222,7 @@ abstract class AppLocalizations {
   /// Success message when a resisted craving is recorded
   ///
   /// In en, this message translates to:
-  /// **'Craving resisted successfully recorded!'**
+  /// **'Craving resistance successfully recorded!'**
   String get cravingResistedRecorded;
 
   /// Success message when a craving is recorded
@@ -2237,16 +2255,10 @@ abstract class AppLocalizations {
   /// **'Sync error'**
   String get syncError;
 
-  /// Text shown while loading content
-  ///
-  /// In en, this message translates to:
-  /// **'Loading...'**
-  String get loading;
-
   /// Button text to try an operation again
   ///
   /// In en, this message translates to:
-  /// **'Try Again'**
+  /// **'Try again'**
   String get tryAgain;
 
   /// Message shown when data loading fails
@@ -2264,7 +2276,7 @@ abstract class AppLocalizations {
   /// Message shown when no recent health recoveries are available
   ///
   /// In en, this message translates to:
-  /// **'No recent health recoveries to display'**
+  /// **'No recent health recoveries to show'**
   String get noRecentRecoveries;
 
   /// Button text to view all health recoveries
@@ -2297,46 +2309,22 @@ abstract class AppLocalizations {
   /// **'Progress'**
   String get progress;
 
-  /// Text showing days required to achieve a recovery
-  ///
-  /// In en, this message translates to:
-  /// **'{days} days to achieve'**
-  String daysToAchieve(int days);
-
-  /// Text showing days remaining to achieve a recovery
-  ///
-  /// In en, this message translates to:
-  /// **'{days} days remaining'**
-  String daysRemaining(int days);
-
-  /// Text showing when a recovery was achieved
-  ///
-  /// In en, this message translates to:
-  /// **'Achieved on {date}'**
-  String achievedOn(DateTime date);
-
-  /// Text showing days without smoking
-  ///
-  /// In en, this message translates to:
-  /// **'{days} days smoke-free'**
-  String daysSmokeFree(int days);
-
   /// Encouragement message
   ///
   /// In en, this message translates to:
-  /// **'Keep Going!'**
+  /// **'Keep going!'**
   String get keepGoing;
 
   /// Detailed encouragement message
   ///
   /// In en, this message translates to:
-  /// **'You\'re making great progress. Each day without smoking brings you closer to achieving this health milestone.'**
+  /// **'You\'re making great progress. Each day without smoking brings you closer to reaching this health milestone.'**
   String get encouragementMessage;
 
   /// Message shown when a health recovery is achieved
   ///
   /// In en, this message translates to:
-  /// **'Your body has already recovered in this area. Keep up the good work to maintain and improve your health even further.'**
+  /// **'Your body has already recovered in this area. Keep up the good work to maintain and further improve your health.'**
   String get recoveryAchievedMessage;
 
   /// Title for science information section
@@ -2348,19 +2336,19 @@ abstract class AppLocalizations {
   /// General scientific information about health recovery
   ///
   /// In en, this message translates to:
-  /// **'When you stop smoking, your body begins a series of healing processes. These start within minutes of your last cigarette and continue for years, gradually restoring your health to that of a non-smoker.'**
+  /// **'When you quit smoking, your body begins a series of healing processes. These start minutes after your last cigarette and continue for years, gradually restoring your health to that of a non-smoker.'**
   String get generalHealthScienceInfo;
 
   /// Scientific information about taste recovery
   ///
   /// In en, this message translates to:
-  /// **'When you smoke, chemicals in tobacco damage taste buds and reduce your ability to taste flavors. After just a few days without smoking, these taste receptors begin to heal, allowing you to experience more flavors and enjoy food more fully.'**
+  /// **'When you smoke, chemicals in tobacco damage taste buds and reduce your ability to taste. After just a few days without smoking, these taste receptors begin to heal, allowing you to experience more flavors and enjoy food more.'**
   String get tasteScienceInfo;
 
   /// Scientific information about smell recovery
   ///
   /// In en, this message translates to:
-  /// **'Smoking damages the olfactory nerves that transmit scent information to your brain. Within days of quitting, these nerves begin to recover, gradually improving your sense of smell and allowing you to detect more subtle scents.'**
+  /// **'Smoking damages the olfactory nerves that transmit smell information to the brain. Within a few days after quitting, these nerves begin to recover, gradually improving your sense of smell and allowing you to detect more subtle odors.'**
   String get smellScienceInfo;
 
   /// Scientific information about blood oxygen recovery
@@ -2372,31 +2360,31 @@ abstract class AppLocalizations {
   /// Scientific information about carbon monoxide elimination
   ///
   /// In en, this message translates to:
-  /// **'Cigarette smoke contains carbon monoxide, which displaces oxygen in your blood. Within 12 hours of quitting, carbon monoxide levels return to normal, and your body\'s oxygen levels increase significantly.'**
+  /// **'Cigarette smoke contains carbon monoxide, which displaces oxygen in your blood. Within 12 hours after quitting, carbon monoxide levels return to normal, and oxygen levels in your body significantly increase.'**
   String get carbonMonoxideScienceInfo;
 
   /// Scientific information about nicotine expulsion
   ///
   /// In en, this message translates to:
-  /// **'Nicotine has a half-life of about 2 hours, meaning it takes approximately 72 hours (3 days) for all nicotine to be eliminated from your body. Once nicotine is gone, physical withdrawal symptoms begin to decrease.'**
+  /// **'Nicotine has a half-life of approximately 2 hours, meaning it takes about 72 hours (3 days) for all nicotine to be eliminated from your body. Once nicotine is gone, physical withdrawal symptoms begin to diminish.'**
   String get nicotineScienceInfo;
 
   /// Scientific information about improved breathing
   ///
   /// In en, this message translates to:
-  /// **'After 7 days without smoking, lung function begins to improve as inflammation decreases and the lungs start to clear accumulated mucus. You\'ll notice less coughing and easier breathing, especially during physical activity.'**
+  /// **'After 7 days without smoking, lung function begins to improve as inflammation decreases and lungs begin to clear accumulated mucus. You\'ll notice less coughing and easier breathing, especially during physical activity.'**
   String get improvedBreathingScienceInfo;
 
   /// Scientific information about improved circulation
   ///
   /// In en, this message translates to:
-  /// **'After two weeks of not smoking, your circulation improves significantly. Blood vessels dilate, blood pressure normalizes, and more oxygen reaches your muscles and organs, making physical activity easier and less strenuous.'**
+  /// **'After two weeks without smoking, your circulation significantly improves. Blood vessels dilate, blood pressure normalizes, and more oxygen reaches your muscles and organs, making physical activity easier and less strenuous.'**
   String get improvedCirculationScienceInfo;
 
   /// Scientific information about decreased coughing
   ///
   /// In en, this message translates to:
-  /// **'One month after quitting, the cilia (tiny hair-like structures) in your lungs begin to regrow. These help clean your lungs and reduce infections. Your coughing and shortness of breath continue to decrease.'**
+  /// **'One month after quitting, the cilia (tiny hair-like structures) in your lungs begin to regrow. These help clean your lungs and reduce infections. Your cough and shortness of breath continue to decrease.'**
   String get decreasedCoughingScienceInfo;
 
   /// Scientific information about lung cilia recovery
@@ -2408,7 +2396,7 @@ abstract class AppLocalizations {
   /// Scientific information about reduced heart disease risk
   ///
   /// In en, this message translates to:
-  /// **'After one year without smoking, your risk of coronary heart disease decreases to about half that of a smoker. Your heart function continues to improve as blood vessels heal and circulation enhances.'**
+  /// **'After a year without smoking, your risk of coronary heart disease decreases to about half that of a smoker. Your heart function continues to improve as blood vessels heal and circulation improves.'**
   String get reducedHeartDiseaseRiskScienceInfo;
 
   /// Button text to view health recoveries screen
@@ -2432,7 +2420,7 @@ abstract class AppLocalizations {
   /// Description for health recovery tracking feature
   ///
   /// In en, this message translates to:
-  /// **'See how your body heals after quitting smoking'**
+  /// **'See how your body recovers after quitting smoking'**
   String get healthRecoveryDescription;
 
   /// Generic error message when an operation fails
@@ -2440,30 +2428,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Something went wrong, please try again'**
   String get somethingWentWrong;
-
-  /// Title for profile information section
-  ///
-  /// In en, this message translates to:
-  /// **'Profile Information'**
-  String get profileInformation;
-
-  /// Description for edit profile screen
-  ///
-  /// In en, this message translates to:
-  /// **'Update your profile information below.'**
-  String get editProfileDescription;
-
-  /// Placeholder for name input field
-  ///
-  /// In en, this message translates to:
-  /// **'Enter your name'**
-  String get enterName;
-
-  /// Success message when profile is updated
-  ///
-  /// In en, this message translates to:
-  /// **'Profile updated successfully'**
-  String get profileUpdatedSuccessfully;
 
   /// Text displayed for features that are not yet available
   ///
@@ -2483,47 +2447,251 @@ abstract class AppLocalizations {
   /// **'An error occurred'**
   String get errorOccurred;
 
-  /// Message shown when a page is not found
+  /// Title for feedback dialog
   ///
   /// In en, this message translates to:
-  /// **'Page not found'**
-  String get pageNotFound;
+  /// **'We value your feedback'**
+  String get feedbackTitle;
 
-  /// Message shown when password reset link is sent
+  /// Skip button text
   ///
   /// In en, this message translates to:
-  /// **'Reset link sent!'**
-  String get resetLinkSent;
+  /// **'Skip'**
+  String get skip;
 
-  /// Instructions to check email after password reset request
+  /// Question about user experience
   ///
   /// In en, this message translates to:
-  /// **'Check your email for instructions to reset your password.'**
-  String get checkEmailInstructions;
+  /// **'How is your experience?'**
+  String get howIsYourExperience;
 
-  /// Button text to go back to login screen
+  /// Question if user is enjoying the app
   ///
   /// In en, this message translates to:
-  /// **'Back to login'**
-  String get backToLogin;
+  /// **'Are you enjoying the app?'**
+  String get enjoyingApp;
 
-  /// Instructions on forgot password screen
+  /// Negative response to enjoying app question
   ///
   /// In en, this message translates to:
-  /// **'Enter your email address and we\'ll send you instructions to reset your password.'**
-  String get forgotPasswordInstructions;
+  /// **'Not really'**
+  String get notReally;
 
-  /// Button text to send password reset link
+  /// Positive response to enjoying app question
   ///
   /// In en, this message translates to:
-  /// **'Send reset link'**
-  String get sendResetLink;
+  /// **'Yes, I\'m enjoying it!'**
+  String get yesImEnjoying;
 
-  /// Title for registration screen
+  /// Positive response to liking app question
   ///
   /// In en, this message translates to:
-  /// **'Create Account'**
-  String get createAccount;
+  /// **'Yes, I like it!'**
+  String get yesILikeIt;
+
+  /// Question about rating the app
+  ///
+  /// In en, this message translates to:
+  /// **'Would you rate the app?'**
+  String get rateApp;
+
+  /// Question about rating the app on scale
+  ///
+  /// In en, this message translates to:
+  /// **'How would you rate our app?'**
+  String get howWouldYouRateApp;
+
+  /// Statement about value of user opinion
+  ///
+  /// In en, this message translates to:
+  /// **'Your opinion matters to us'**
+  String get yourOpinionMatters;
+
+  /// Statement about app improvement process
+  ///
+  /// In en, this message translates to:
+  /// **'We are constantly improving our app based on user feedback'**
+  String get weAreConstantlyImproving;
+
+  /// Later button text
+  ///
+  /// In en, this message translates to:
+  /// **'Later'**
+  String get later;
+
+  /// Prompt for negative feedback
+  ///
+  /// In en, this message translates to:
+  /// **'Tell us what\'s not right'**
+  String get tellUsIssues;
+
+  /// Request for improvement suggestions
+  ///
+  /// In en, this message translates to:
+  /// **'Help us improve by telling us what we can do better:'**
+  String get helpUsImprove;
+
+  /// Label for feedback category selection
+  ///
+  /// In en, this message translates to:
+  /// **'Feedback category'**
+  String get feedbackCategory;
+
+  /// Feedback category: Interface
+  ///
+  /// In en, this message translates to:
+  /// **'Interface'**
+  String get interface;
+
+  /// Feedback category: Features
+  ///
+  /// In en, this message translates to:
+  /// **'Features'**
+  String get features;
+
+  /// Feedback category: Performance
+  ///
+  /// In en, this message translates to:
+  /// **'Performance'**
+  String get performance;
+
+  /// Feedback category: Statistics Accuracy
+  ///
+  /// In en, this message translates to:
+  /// **'Statistics Accuracy'**
+  String get statisticsAccuracy;
+
+  /// Feedback category: Accuracy of statistics
+  ///
+  /// In en, this message translates to:
+  /// **'Accuracy of statistics'**
+  String get accuracyOfStatistics;
+
+  /// Label for feedback input field
+  ///
+  /// In en, this message translates to:
+  /// **'Your feedback'**
+  String get yourFeedback;
+
+  /// Placeholder for feedback description
+  ///
+  /// In en, this message translates to:
+  /// **'Describe what we can improve...'**
+  String get describeProblem;
+
+  /// Placeholder for improvement suggestions
+  ///
+  /// In en, this message translates to:
+  /// **'Describe what we could improve...'**
+  String get describeWhatToImprove;
+
+  /// Question about potential improvements
+  ///
+  /// In en, this message translates to:
+  /// **'What could be better?'**
+  String get whatCouldBeBetter;
+
+  /// Button text to submit feedback
+  ///
+  /// In en, this message translates to:
+  /// **'Send feedback'**
+  String get sendFeedback;
+
+  /// Acknowledgment message for feedback
+  ///
+  /// In en, this message translates to:
+  /// **'Thank you for your feedback!'**
+  String get thankYouForFeedback;
+
+  /// Response to positive feedback
+  ///
+  /// In en, this message translates to:
+  /// **'We\'re glad you like it!'**
+  String get gladYouLikeIt;
+
+  /// Request to rate app on store
+  ///
+  /// In en, this message translates to:
+  /// **'Would you rate our app on the store?'**
+  String get wouldYouRateOnStore;
+
+  /// Request to rate app on app store
+  ///
+  /// In en, this message translates to:
+  /// **'Would you like to rate the app on the store?'**
+  String get rateAppStore;
+
+  /// Response that user has already rated
+  ///
+  /// In en, this message translates to:
+  /// **'I\'ve already rated'**
+  String get alreadyRated;
+
+  /// Button to rate app now
+  ///
+  /// In en, this message translates to:
+  /// **'Rate now'**
+  String get rateNow;
+
+  /// Error message for feedback submission
+  ///
+  /// In en, this message translates to:
+  /// **'Oops, something went wrong'**
+  String get feedbackError;
+
+  /// Error message when feedback cannot be saved
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save your feedback'**
+  String get couldNotSaveFeedback;
+
+  /// Acknowledgment button text
+  ///
+  /// In en, this message translates to:
+  /// **'I understand'**
+  String get understand;
+
+  /// Name of the day of the week: Monday
+  ///
+  /// In en, this message translates to:
+  /// **'Monday'**
+  String get monday;
+
+  /// Name of the day of the week: Tuesday
+  ///
+  /// In en, this message translates to:
+  /// **'Tuesday'**
+  String get tuesday;
+
+  /// Name of the day of the week: Wednesday
+  ///
+  /// In en, this message translates to:
+  /// **'Wednesday'**
+  String get wednesday;
+
+  /// Name of the day of the week: Thursday
+  ///
+  /// In en, this message translates to:
+  /// **'Thursday'**
+  String get thursday;
+
+  /// Name of the day of the week: Friday
+  ///
+  /// In en, this message translates to:
+  /// **'Friday'**
+  String get friday;
+
+  /// Name of the day of the week: Saturday
+  ///
+  /// In en, this message translates to:
+  /// **'Saturday'**
+  String get saturday;
+
+  /// Name of the day of the week: Sunday
+  ///
+  /// In en, this message translates to:
+  /// **'Sunday'**
+  String get sunday;
 
   /// Subtitle for registration screen
   ///
@@ -2585,509 +2753,35 @@ abstract class AppLocalizations {
   /// **'Already have an account?'**
   String get alreadyAccount;
 
-  /// No description provided for @currentPassword.
+  /// Title shown after password reset link is sent
   ///
   /// In en, this message translates to:
-  /// **'Current Password'**
-  String get currentPassword;
+  /// **'Reset link sent'**
+  String get resetLinkSent;
 
-  /// No description provided for @newPassword.
+  /// Message shown after password reset link is sent
   ///
   /// In en, this message translates to:
-  /// **'New Password'**
-  String get newPassword;
+  /// **'Check your email for instructions on how to reset your password'**
+  String get checkEmailInstructions;
 
-  /// No description provided for @changePasswordDescription.
+  /// Instructions on the forgot password screen
   ///
   /// In en, this message translates to:
-  /// **'Enter your current password and a new password to update your access credentials.'**
-  String get changePasswordDescription;
+  /// **'Enter your email and we\'ll send you instructions to reset your password'**
+  String get forgotPasswordInstructions;
 
-  /// No description provided for @passwordChangedSuccessfully.
+  /// Button text to send password reset link
   ///
   /// In en, this message translates to:
-  /// **'Password changed successfully'**
-  String get passwordChangedSuccessfully;
+  /// **'Send reset link'**
+  String get sendResetLink;
 
-  /// No description provided for @forgotPasswordTitle.
+  /// Link to go back to the login screen
   ///
   /// In en, this message translates to:
-  /// **'Forgot your password?'**
-  String get forgotPasswordTitle;
-
-  /// No description provided for @forgotPasswordSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'We can send you a link to reset your password via email.'**
-  String get forgotPasswordSubtitle;
-
-  /// No description provided for @deleteAccountWarningTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'This Action Cannot Be Undone'**
-  String get deleteAccountWarningTitle;
-
-  /// No description provided for @deleteAccountWarning.
-  ///
-  /// In en, this message translates to:
-  /// **'All your data, including tracking history, achievements, and settings will be permanently deleted. This action cannot be reversed.'**
-  String get deleteAccountWarning;
-
-  /// No description provided for @confirmDeleteAccount.
-  ///
-  /// In en, this message translates to:
-  /// **'I understand this is permanent'**
-  String get confirmDeleteAccount;
-
-  /// No description provided for @confirmDeleteAccountSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'I understand that all my data will be permanently deleted and cannot be recovered.'**
-  String get confirmDeleteAccountSubtitle;
-
-  /// No description provided for @confirmDeleteRequired.
-  ///
-  /// In en, this message translates to:
-  /// **'Please confirm that you understand this action is permanent.'**
-  String get confirmDeleteRequired;
-
-  /// No description provided for @accountDeleted.
-  ///
-  /// In en, this message translates to:
-  /// **'Your account has been deleted successfully.'**
-  String get accountDeleted;
-
-  /// No description provided for @changeDate.
-  ///
-  /// In en, this message translates to:
-  /// **'Change date'**
-  String get changeDate;
-
-  /// No description provided for @selectDate.
-  ///
-  /// In en, this message translates to:
-  /// **'Select date'**
-  String get selectDate;
-
-  /// No description provided for @clearDate.
-  ///
-  /// In en, this message translates to:
-  /// **'Clear date'**
-  String get clearDate;
-
-  /// No description provided for @suggestedDates.
-  ///
-  /// In en, this message translates to:
-  /// **'Suggested dates'**
-  String get suggestedDates;
-
-  /// No description provided for @today.
-  ///
-  /// In en, this message translates to:
-  /// **'Today'**
-  String get today;
-
-  /// No description provided for @yesterday.
-  ///
-  /// In en, this message translates to:
-  /// **'Yesterday'**
-  String get yesterday;
-
-  /// No description provided for @oneWeekAgo.
-  ///
-  /// In en, this message translates to:
-  /// **'One week ago'**
-  String get oneWeekAgo;
-
-  /// No description provided for @twoWeeksAgo.
-  ///
-  /// In en, this message translates to:
-  /// **'Two weeks ago'**
-  String get twoWeeksAgo;
-
-  /// No description provided for @oneMonthAgo.
-  ///
-  /// In en, this message translates to:
-  /// **'One month ago'**
-  String get oneMonthAgo;
-
-  /// No description provided for @feedbackTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'We value your feedback'**
-  String get feedbackTitle;
-
-  /// No description provided for @skip.
-  ///
-  /// In en, this message translates to:
-  /// **'Skip'**
-  String get skip;
-
-  /// No description provided for @howIsYourExperience.
-  ///
-  /// In en, this message translates to:
-  /// **'How\'s your experience?'**
-  String get howIsYourExperience;
-
-  /// No description provided for @enjoyingApp.
-  ///
-  /// In en, this message translates to:
-  /// **'Are you enjoying the app?'**
-  String get enjoyingApp;
-
-  /// No description provided for @notReally.
-  ///
-  /// In en, this message translates to:
-  /// **'Not really'**
-  String get notReally;
-
-  /// No description provided for @yesImEnjoying.
-  ///
-  /// In en, this message translates to:
-  /// **'Yes, I\'m enjoying it!'**
-  String get yesImEnjoying;
-
-  /// No description provided for @yesILikeIt.
-  ///
-  /// In en, this message translates to:
-  /// **'Yes, I like it!'**
-  String get yesILikeIt;
-
-  /// No description provided for @rateApp.
-  ///
-  /// In en, this message translates to:
-  /// **'How would you rate the app?'**
-  String get rateApp;
-
-  /// No description provided for @howWouldYouRateApp.
-  ///
-  /// In en, this message translates to:
-  /// **'How would you rate our app?'**
-  String get howWouldYouRateApp;
-
-  /// No description provided for @yourOpinionMatters.
-  ///
-  /// In en, this message translates to:
-  /// **'Your opinion matters to us'**
-  String get yourOpinionMatters;
-
-  /// No description provided for @weAreConstantlyImproving.
-  ///
-  /// In en, this message translates to:
-  /// **'We are constantly improving our app based on user feedback'**
-  String get weAreConstantlyImproving;
-
-  /// No description provided for @later.
-  ///
-  /// In en, this message translates to:
-  /// **'Later'**
-  String get later;
-
-  /// No description provided for @tellUsIssues.
-  ///
-  /// In en, this message translates to:
-  /// **'Tell us what\'s not good'**
-  String get tellUsIssues;
-
-  /// No description provided for @helpUsImprove.
-  ///
-  /// In en, this message translates to:
-  /// **'Help us improve by telling us what we can do better:'**
-  String get helpUsImprove;
-
-  /// No description provided for @feedbackCategory.
-  ///
-  /// In en, this message translates to:
-  /// **'Feedback category'**
-  String get feedbackCategory;
-
-  /// No description provided for @interface.
-  ///
-  /// In en, this message translates to:
-  /// **'Interface'**
-  String get interface;
-
-  /// No description provided for @features.
-  ///
-  /// In en, this message translates to:
-  /// **'Features'**
-  String get features;
-
-  /// No description provided for @performance.
-  ///
-  /// In en, this message translates to:
-  /// **'Performance'**
-  String get performance;
-
-  /// No description provided for @statisticsAccuracy.
-  ///
-  /// In en, this message translates to:
-  /// **'Statistics Accuracy'**
-  String get statisticsAccuracy;
-
-  /// No description provided for @accuracyOfStatistics.
-  ///
-  /// In en, this message translates to:
-  /// **'Accuracy of statistics'**
-  String get accuracyOfStatistics;
-
-  /// No description provided for @yourFeedback.
-  ///
-  /// In en, this message translates to:
-  /// **'Your feedback'**
-  String get yourFeedback;
-
-  /// No description provided for @describeProblem.
-  ///
-  /// In en, this message translates to:
-  /// **'Describe what we can improve...'**
-  String get describeProblem;
-
-  /// No description provided for @describeWhatToImprove.
-  ///
-  /// In en, this message translates to:
-  /// **'Describe what we could improve...'**
-  String get describeWhatToImprove;
-
-  /// No description provided for @whatCouldBeBetter.
-  ///
-  /// In en, this message translates to:
-  /// **'What could be better?'**
-  String get whatCouldBeBetter;
-
-  /// No description provided for @sendFeedback.
-  ///
-  /// In en, this message translates to:
-  /// **'Send feedback'**
-  String get sendFeedback;
-
-  /// No description provided for @thankYouForFeedback.
-  ///
-  /// In en, this message translates to:
-  /// **'We appreciate your feedback!'**
-  String get thankYouForFeedback;
-
-  /// No description provided for @gladYouLikeIt.
-  ///
-  /// In en, this message translates to:
-  /// **'We\'re glad you like it!'**
-  String get gladYouLikeIt;
-
-  /// No description provided for @wouldYouRateOnStore.
-  ///
-  /// In en, this message translates to:
-  /// **'Would you rate us on the app store?'**
-  String get wouldYouRateOnStore;
-
-  /// No description provided for @rateAppStore.
-  ///
-  /// In en, this message translates to:
-  /// **'Would you like to rate the app in the store?'**
-  String get rateAppStore;
-
-  /// No description provided for @alreadyRated.
-  ///
-  /// In en, this message translates to:
-  /// **'I already rated'**
-  String get alreadyRated;
-
-  /// No description provided for @rateNow.
-  ///
-  /// In en, this message translates to:
-  /// **'Rate now'**
-  String get rateNow;
-
-  /// No description provided for @feedbackError.
-  ///
-  /// In en, this message translates to:
-  /// **'Oops, something went wrong'**
-  String get feedbackError;
-
-  /// No description provided for @couldNotSaveFeedback.
-  ///
-  /// In en, this message translates to:
-  /// **'Could not save your feedback'**
-  String get couldNotSaveFeedback;
-
-  /// No description provided for @understand.
-  ///
-  /// In en, this message translates to:
-  /// **'I understand'**
-  String get understand;
-
-  /// No description provided for @stayInformed.
-  ///
-  /// In en, this message translates to:
-  /// **'Stay Informed'**
-  String get stayInformed;
-
-  /// No description provided for @receiveTimelyCues.
-  ///
-  /// In en, this message translates to:
-  /// **'Receive timely cues and important information'**
-  String get receiveTimelyCues;
-
-  /// No description provided for @importantReminders.
-  ///
-  /// In en, this message translates to:
-  /// **'IMPORTANT REMINDERS FOR YOUR JOURNEY'**
-  String get importantReminders;
-
-  /// No description provided for @notificationsHelp.
-  ///
-  /// In en, this message translates to:
-  /// **'Notifications provide timely reminders, motivation, and important milestone alerts to help you stay on track with your goal.'**
-  String get notificationsHelp;
-
-  /// No description provided for @allowNotifications.
-  ///
-  /// In en, this message translates to:
-  /// **'Allow Notifications'**
-  String get allowNotifications;
-
-  /// No description provided for @notificationsEnabled.
-  ///
-  /// In en, this message translates to:
-  /// **'Notifications enabled successfully!'**
-  String get notificationsEnabled;
-
-  /// No description provided for @notificationPermissionFailed.
-  ///
-  /// In en, this message translates to:
-  /// **'There was a problem enabling notifications'**
-  String get notificationPermissionFailed;
-
-  /// No description provided for @requesting.
-  ///
-  /// In en, this message translates to:
-  /// **'Requesting...'**
-  String get requesting;
-
-  /// No description provided for @skipForNow.
-  ///
-  /// In en, this message translates to:
-  /// **'Skip for now'**
-  String get skipForNow;
-
-  /// Error message shown when onboarding fails to load
-  ///
-  /// In en, this message translates to:
-  /// **'Error loading onboarding'**
-  String get onboardingLoadError;
-
-  /// Message displayed when an unknown error occurs
-  ///
-  /// In en, this message translates to:
-  /// **'Unknown error'**
-  String get unknownError;
-
-  /// Text for showing today's date with time
-  ///
-  /// In en, this message translates to:
-  /// **'Today at {time}'**
-  String todayAt(String time);
-
-  /// Text for showing yesterday's date with time
-  ///
-  /// In en, this message translates to:
-  /// **'Yesterday at {time}'**
-  String yesterdayAt(String time);
-
-  /// Text for showing day of week with time
-  ///
-  /// In en, this message translates to:
-  /// **'{weekday} at {time}'**
-  String dayOfWeekAt(String weekday, String time);
-
-  /// Format for showing a complete date with time
-  ///
-  /// In en, this message translates to:
-  /// **'{day}/{month}/{year} at {time}'**
-  String dateTimeFormat(String day, String month, String year, String time);
-
-  /// Name of the day of the week: Monday
-  ///
-  /// In en, this message translates to:
-  /// **'Monday'**
-  String get monday;
-
-  /// Name of the day of the week: Tuesday
-  ///
-  /// In en, this message translates to:
-  /// **'Tuesday'**
-  String get tuesday;
-
-  /// Name of the day of the week: Wednesday
-  ///
-  /// In en, this message translates to:
-  /// **'Wednesday'**
-  String get wednesday;
-
-  /// Name of the day of the week: Thursday
-  ///
-  /// In en, this message translates to:
-  /// **'Thursday'**
-  String get thursday;
-
-  /// Name of the day of the week: Friday
-  ///
-  /// In en, this message translates to:
-  /// **'Friday'**
-  String get friday;
-
-  /// Name of the day of the week: Saturday
-  ///
-  /// In en, this message translates to:
-  /// **'Saturday'**
-  String get saturday;
-
-  /// Name of the day of the week: Sunday
-  ///
-  /// In en, this message translates to:
-  /// **'Sunday'**
-  String get sunday;
-
-  /// Error message when user is not authenticated
-  ///
-  /// In en, this message translates to:
-  /// **'Error: User not authenticated'**
-  String get errorUserNotAuthenticated;
-
-  /// Loading message when registering a resisted craving
-  ///
-  /// In en, this message translates to:
-  /// **'Registering resisted craving...'**
-  String get registeringCravingResisted;
-
-  /// Loading message when registering a craving
-  ///
-  /// In en, this message translates to:
-  /// **'Registering craving...'**
-  String get registeringCraving;
-
-  /// Error message shown when user is not authenticated
-  ///
-  /// In en, this message translates to:
-  /// **'Not authenticated'**
-  String get userNotAuthenticated;
-
-  /// Generic label for error messages
-  ///
-  /// In en, this message translates to:
-  /// **'Error'**
-  String get errorLabel;
-
-  /// Welcome message on first launch language screen
-  ///
-  /// In en, this message translates to:
-  /// **'Welcome to NicotinaAI'**
-  String get welcomeToApp;
-
-  /// Instruction to select language on first launch
-  ///
-  /// In en, this message translates to:
-  /// **'Select your preferred language'**
-  String get selectLanguage;
+  /// **'Back to login'**
+  String get backToLogin;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:nicotinaai_flutter/widgets/skeleton_loading.dart';
 
 class StatisticsDashboardSkeleton extends StatelessWidget {
-  const StatisticsDashboardSkeleton({Key? key}) : super(key: key);
+  const StatisticsDashboardSkeleton({super.key});
 
   @override
   Widget build(BuildContext context) {

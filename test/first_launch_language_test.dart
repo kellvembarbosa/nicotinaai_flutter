@@ -1,13 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mockito/mockito.dart';
-import 'package:bloc_test/bloc_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:nicotinaai_flutter/blocs/locale/locale_bloc.dart';
-import 'package:nicotinaai_flutter/blocs/locale/locale_event.dart';
-import 'package:nicotinaai_flutter/blocs/locale/locale_state.dart';
 import 'package:nicotinaai_flutter/features/auth/screens/first_launch_language_screen.dart';
 import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -77,7 +73,6 @@ void main() {
       
       // The following languages should be in the language list
       // We need to scroll to find them all
-      final listFinder = find.byType(ListView);
       
       // Check English
       expect(find.text('English (US)'), findsOneWidget);

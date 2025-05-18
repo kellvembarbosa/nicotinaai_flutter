@@ -39,6 +39,10 @@ class _LoginScreenState extends State<LoginScreen> {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     
+    // Debug print to check current locale on login screen
+    print('🔍 LoginScreen building with locale: ${Localizations.localeOf(context)}');
+    print('🔍 Current translations test - Login: ${l10n.login}, WelcomeBack: ${l10n.welcomeBack}');
+    
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.login),

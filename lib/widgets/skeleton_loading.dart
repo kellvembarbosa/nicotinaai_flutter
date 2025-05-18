@@ -17,12 +17,12 @@ class SkeletonLoading extends StatefulWidget {
   final bool isCircle;
 
   const SkeletonLoading({
-    Key? key,
+    super.key,
     this.width,
     required this.height,
     this.borderRadius = 8,
     this.isCircle = false,
-  }) : super(key: key);
+  });
 
   @override
   State<SkeletonLoading> createState() => _SkeletonLoadingState();
@@ -98,7 +98,7 @@ class _SkeletonLoadingState extends State<SkeletonLoading>
 
 /// A skeleton card for health recovery items in the horizontal list
 class RecoveryItemSkeleton extends StatelessWidget {
-  const RecoveryItemSkeleton({Key? key}) : super(key: key);
+  const RecoveryItemSkeleton({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -161,7 +161,7 @@ class RecoveryItemSkeleton extends StatelessWidget {
 
 /// A skeleton for the health recovery detail screen
 class RecoveryDetailSkeleton extends StatelessWidget {
-  const RecoveryDetailSkeleton({Key? key}) : super(key: key);
+  const RecoveryDetailSkeleton({super.key});
 
   @override
   Widget build(BuildContext context) {

@@ -12,7 +12,7 @@ class AppFeedbackDialog extends StatefulWidget {
   final VoidCallback? onClosed;
 
   // Removed const from constructor since we have a non-constant field
-  const AppFeedbackDialog({Key? key, this.onClosed}) : super(key: key);
+  const AppFeedbackDialog({super.key, this.onClosed});
 
   @override
   State<AppFeedbackDialog> createState() => _AppFeedbackDialogState();

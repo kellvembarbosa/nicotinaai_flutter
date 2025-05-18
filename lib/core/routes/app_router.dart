@@ -227,6 +227,7 @@ class AppRouter {
     
     // Log detalhado sobre o estado de seleção de idioma
     print('🔍 [AppRouter] Estado de seleção de idioma - BlocState: $isLanguageSelectionComplete');
+    print('🔍 [AppRouter] Current locale: ${localeBloc.state.locale.languageCode}_${localeBloc.state.locale.countryCode ?? ""}');
     
     // Verificar se estamos tentando ir para a tela de login após a seleção de idioma
     if (currentLocation == AppRoutes.login.path && 

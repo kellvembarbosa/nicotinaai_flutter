@@ -1,19 +1,115 @@
 {
   "@@locale": "nl",
+  "textSeparator": " | ",
+  "@textSeparator": {
+    "description": "Separator for text items in UI (like between terms and privacy policy)"
+  },
+  "termsOfServiceUrl": "https://nicotina.ai/legal/terms-of-service",
+  "@termsOfServiceUrl": {
+    "description": "URL for Terms of Service"
+  },
+  "privacyPolicyUrl": "https://nicotina.ai/legal/privacy-policy",
+  "@privacyPolicyUrl": {
+    "description": "URL for Privacy Policy"
+  },
+  "loading": "Loading...",
+  "@loading": {
+    "description": "Text shown when content is loading"
+  },
   "appName": "NicotinaAI",
-  "welcomeBack": "Welkom terug",
-  "login": "Inloggen",
-  "email": "E-mail",
-  "password": "Wachtwoord",
-  "rememberMe": "Onthoud mij",
-  "forgotPassword": "Wachtwoord vergeten",
-  "noAccount": "Nog geen account?",
-  "register": "Registreren",
-  "days": "dagen",
+  "@appName": {
+    "description": "The name of the app"
+  },
+  "pageNotFound": "Page not found",
+  "@pageNotFound": {
+    "description": "Text shown when a page is not found"
+  },
+  "motivationalMessage": "Keep going! You're doing great!",
+  "@motivationalMessage": {
+    "description": "Motivational message for the user"
+  },
+  "incompleteOnboarding": "Incomplete Onboarding",
+  "@incompleteOnboarding": {
+    "description": "Title for dialog when onboarding is incomplete"
+  },
+  "completeAllStepsMessage": "Please complete all the onboarding steps before continuing.",
+  "@completeAllStepsMessage": {
+    "description": "Message shown when user tries to complete onboarding without finishing all steps"
+  },
   "ok": "OK",
-  "cancel": "Annuleren",
-  "confirm": "Bevestigen",
-  "save": "Opslaan",
-  "delete": "Verwijderen",
-  "loading": "Laden..."
+  "@ok": {
+    "description": "Generic OK button text"
+  },
+  "days": "days",
+  "@days": {
+    "description": "Text representing the plural of day"
+  },
+  "welcomeToApp": "Welcome to NicotinaAI",
+  "@welcomeToApp": {
+    "description": "Welcome message on first launch language screen"
+  },
+  "selectLanguage": "Select your preferred language",
+  "@selectLanguage": {
+    "description": "Instruction to select language on first launch"
+  },
+  "continueButton": "Continue",
+  "@continueButton": {
+    "description": "Continue button text"
+  },
+  "achievementFirstStep": "First Step",
+  "@achievementFirstStep": {
+    "description": "First step achievement"
+  },
+  "achievementFirstStepDescription": "Complete the onboarding process",
+  "@achievementFirstStepDescription": {
+    "description": "First step achievement description"
+  },
+  "achievementOneDayWonder": "One Day Wonder",
+  "@achievementOneDayWonder": {
+    "description": "One day achievement"
+  },
+  "achievementOneDayWonderDescription": "Stay smoke-free for 1 day",
+  "@achievementOneDayWonderDescription": {
+    "description": "One day achievement description"
+  },
+  "achievementWeekWarrior": "Week Warrior",
+  "@achievementWeekWarrior": {
+    "description": "Week warrior achievement"
+  },
+  "achievementWeekWarriorDescription": "Stay smoke-free for 7 days",
+  "@achievementWeekWarriorDescription": {
+    "description": "Week warrior achievement description"
+  },
+  "achievementMonthMaster": "Month Master",
+  "@achievementMonthMaster": {
+    "description": "Month master achievement"
+  },
+  "achievementMonthMasterDescription": "Stay smoke-free for 30 days",
+  "@achievementMonthMasterDescription": {
+    "description": "Month master achievement description"
+  },
+  "achievementMoneyMindful": "Money Mindful",
+  "@achievementMoneyMindful": {
+    "description": "Money mindful achievement"
+  },
+  "achievementMoneyMindfulDescription": "Save $50 by not smoking",
+  "@achievementMoneyMindfulDescription": {
+    "description": "Money mindful achievement description"
+  },
+  "achievementCenturion": "Centurion",
+  "@achievementCenturion": {
+    "description": "Centurion achievement"
+  },
+  "achievementCenturionDescription": "Save $100 by not smoking",
+  "@achievementCenturionDescription": {
+    "description": "Centurion achievement description"
+  },
+  "achievementCravingCrusher": "Craving Crusher",
+  "@achievementCravingCrusher": {
+    "description": "Craving crusher achievement"
+  },
+  "achievementCravingCrusherDescription": "Successfully resist 10 cravings",
+  "@achievementCravingCrusherDescription": {
+    "description": "Craving crusher achievement description"
+  }
 }

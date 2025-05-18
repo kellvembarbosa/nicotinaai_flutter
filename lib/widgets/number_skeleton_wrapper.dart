@@ -1,8 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:nicotinaai_flutter/blocs/skeleton/skeleton_bloc.dart';
-import 'package:nicotinaai_flutter/blocs/skeleton/skeleton_event.dart';
-import 'package:nicotinaai_flutter/blocs/skeleton/skeleton_state.dart' as skeleton_state;
 import 'package:nicotinaai_flutter/core/theme/app_theme.dart';
 import 'package:nicotinaai_flutter/widgets/skeleton_loading.dart';
 
@@ -31,7 +27,7 @@ class NumberSkeletonWrapper<T> extends StatelessWidget {
   final double skeletonBorderRadius;
 
   const NumberSkeletonWrapper({
-    Key? key,
+    super.key,
     required this.value,
     required this.formatter,
     required this.isLoading,
@@ -39,7 +35,7 @@ class NumberSkeletonWrapper<T> extends StatelessWidget {
     this.skeletonWidth,
     this.skeletonHeight = 24.0,
     this.skeletonBorderRadius = 4.0,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -93,12 +89,12 @@ class MoneySkeletonWrapper extends StatelessWidget {
   final TextStyle? style;
 
   const MoneySkeletonWrapper({
-    Key? key,
+    super.key,
     required this.valueInCents,
     required this.formatter,
     required this.isLoading,
     this.style,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

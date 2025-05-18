@@ -59,14 +59,26 @@ class LocaleBloc extends Bloc<LocaleEvent, LocaleState> {
     Emitter<LocaleState> emit,
   ) async {
     try {
+      print('🔍 Current locale before marking complete: ${state.locale.languageCode}_${state.locale.countryCode ?? ""}');
+      print('🔍 Current language selection status: ${state.isLanguageSelectionComplete}');
+      
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool(_languageSelectionKey, true);
       print('✅ Language selection marked as complete via event');
       
+      // Double check if the current locale is properly set before finalizing
+      final currentLocaleString = prefs.getString(_localeKey);
+      print('🔍 Stored locale in preferences: $currentLocaleString');
+      
       // Update state to reflect the change
       emit(state.copyWith(
         isLanguageSelectionComplete: true,
+        status: LocaleStatus.loaded,
+        isInitialized: true,
       ));
+      
+      print('✅ State updated - Language selection status: ${state.isLanguageSelectionComplete}');
+      print('✅ State updated - Current locale: ${state.locale.languageCode}_${state.locale.countryCode ?? ""}');
     } catch (e) {
       print('⚠️ Error marking language selection as complete via event: $e');
     }
@@ -77,11 +89,13 @@ class LocaleBloc extends Bloc<LocaleEvent, LocaleState> {
     InitializeLocale event,
     Emitter<LocaleState> emit,
   ) async {
+    print('🔍 Starting locale initialization...');
     emit(state.copyWith(status: LocaleStatus.loading));
 
     try {
       // Check if language selection has been completed before
       final isSelectionComplete = await isLanguageSelectionComplete();
+      print('🔍 Language selection completed: $isSelectionComplete');
       
       // First check if we can get the locale from Supabase (this takes precedence)
       String? savedLocale;
@@ -130,11 +144,27 @@ class LocaleBloc extends Bloc<LocaleEvent, LocaleState> {
 
       if (savedLocale != null) {
         final parts = savedLocale.split('_');
+        Locale? newLocale;
+        
         if (parts.length == 2) {
-          final newLocale = Locale(parts[0], parts[1]);
-          
+          newLocale = Locale(parts[0], parts[1]);
+          print('🔍 Created locale from parts: ${parts[0]}_${parts[1]}');
+        } else if (parts.length == 1) {
+          // Handle case where only language code is stored
+          newLocale = _getLocaleWithCountry(parts[0]);
+          print('🔍 Created locale from language code only: ${parts[0]} -> ${newLocale.languageCode}_${newLocale.countryCode}');
+        }
+        
+        if (newLocale != null) {
           // Check if the locale is supported
-          if (state.supportedLocales.contains(newLocale)) {
+          final isSupported = state.supportedLocales.any((loc) => 
+            loc.languageCode == newLocale!.languageCode &&
+            (loc.countryCode == null || loc.countryCode == newLocale.countryCode)
+          );
+          
+          if (isSupported) {
+            print('✅ Found supported locale: ${newLocale.languageCode}_${newLocale.countryCode}');
+            
             emit(state.copyWith(
               status: LocaleStatus.loaded,
               locale: newLocale,
@@ -142,17 +172,24 @@ class LocaleBloc extends Bloc<LocaleEvent, LocaleState> {
               isLanguageSelectionComplete: isSelectionComplete,
             ));
             
-            // Make sure SharedPreferences is in sync
+            print('✅ State updated with locale: ${newLocale.languageCode}_${newLocale.countryCode}');
+            
+            // Make sure SharedPreferences is in sync with proper format
             final prefs = await SharedPreferences.getInstance();
-            await prefs.setString(_localeKey, savedLocale);
+            final localeString = '${newLocale.languageCode}_${newLocale.countryCode}';
+            await prefs.setString(_localeKey, localeString);
+            print('💾 Ensured SharedPreferences has correct locale: $localeString');
             
             return;
+          } else {
+            print('⚠️ Found locale is not supported: ${newLocale.languageCode}_${newLocale.countryCode}');
           }
         }
       }
 
       // If no valid locale was found, set default (English) and save it
       const defaultLocale = Locale('en', 'US');
+      print('ℹ️ No valid locale found, using default: en_US');
       await _saveLocaleToPreferences(defaultLocale);
       
       emit(state.copyWith(
@@ -161,11 +198,25 @@ class LocaleBloc extends Bloc<LocaleEvent, LocaleState> {
         isInitialized: true,
         isLanguageSelectionComplete: isSelectionComplete,
       ));
+      
+      print('✅ State initialized with default locale: en_US');
     } catch (e) {
+      print('⚠️ Error initializing locale: $e');
       emit(state.copyWith(
         status: LocaleStatus.error,
         errorMessage: 'Failed to load locale: $e',
       ));
+    }
+  }
+  
+  /// Helper method to get appropriate locale with country code
+  Locale _getLocaleWithCountry(String languageCode) {
+    switch (languageCode) {
+      case 'en': return const Locale('en', 'US');
+      case 'es': return const Locale('es', 'ES');
+      case 'pt': return const Locale('pt', 'BR');
+      case 'fr': return const Locale('fr', 'FR');
+      default: return Locale(languageCode);
     }
   }
   
@@ -206,9 +257,14 @@ class LocaleBloc extends Bloc<LocaleEvent, LocaleState> {
     Emitter<LocaleState> emit,
   ) async {
     // If the locale is not supported, do nothing
-    if (!state.supportedLocales.contains(event.locale)) return;
+    if (!state.supportedLocales.contains(event.locale)) {
+      print('⚠️ Attempted to set unsupported locale: ${event.locale.languageCode}_${event.locale.countryCode}');
+      return;
+    }
 
     try {
+      print('🔄 Starting locale change to: ${event.locale.languageCode}_${event.locale.countryCode ?? ""}');
+      
       // First save to preferences to ensure persistence
       await _saveLocaleToPreferences(event.locale);
       
@@ -216,9 +272,10 @@ class LocaleBloc extends Bloc<LocaleEvent, LocaleState> {
       emit(state.copyWith(
         status: LocaleStatus.loaded,
         locale: event.locale,
+        isInitialized: true, // Ensure initialized is set to true
       ));
       
-      print('🔤 Locale changed to: ${event.locale.languageCode}_${event.locale.countryCode}');
+      print('✅ Locale changed to: ${event.locale.languageCode}_${event.locale.countryCode ?? ""} (Status: ${state.status})');
     } catch (e) {
       print('⚠️ Error changing locale: $e');
       emit(state.copyWith(

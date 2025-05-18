@@ -18,10 +18,10 @@ class AppLocalizationsEs extends AppLocalizations {
   String get privacyPolicyUrl => 'https://nicotina.ai/legal/privacy-policy';
 
   @override
-  String get incompleteOnboarding => 'Onboarding Incompleto';
+  String get incompleteOnboarding => 'Incorporación Incompleta';
 
   @override
-  String get completeAllStepsMessage => 'Por favor, complete todos los pasos del onboarding antes de continuar.';
+  String get completeAllStepsMessage => 'Por favor, complete todos los pasos antes de continuar.';
 
   @override
   String get ok => 'OK';
@@ -30,1233 +30,1276 @@ class AppLocalizationsEs extends AppLocalizations {
   String get days => 'días';
 
   @override
-  String get helpScreenTitle => '¿Cómo podemos ayudarte?';
+  String get welcomeToApp => 'Bienvenido a NicotinaAI';
 
   @override
-  String get selectAllInterests => 'Selecciona todas las opciones que te interesen';
-
-  @override
-  String get helpScreenExplanation => 'Ofrecemos diferentes recursos para apoyar tu camino. Selecciona todo lo que creas que puede ayudar.';
-
-  @override
-  String get dailyTips => 'Consejos diarios';
-
-  @override
-  String get dailyTipsDescription => 'Recibe consejos prácticos todos los días para apoyar tu camino';
-
-  @override
-  String get customReminders => 'Recordatorios personalizados';
-
-  @override
-  String get customRemindersDescription => 'Notificaciones para mantenerte motivado y en el camino correcto';
-
-  @override
-  String get progressMonitoring => 'Monitoreo de progreso';
-
-  @override
-  String get progressMonitoringDescription => 'Sigue visualmente tu progreso a lo largo del tiempo';
-
-  @override
-  String get supportCommunity => 'Comunidad de apoyo';
-
-  @override
-  String get supportCommunityDescription => 'Conéctate con otros en un camino similar';
-
-  @override
-  String get cigaretteAlternatives => 'Alternativas al cigarrillo';
-
-  @override
-  String get cigaretteAlternativesDescription => 'Sugerencias de actividades y productos para reemplazar el hábito';
-
-  @override
-  String get savingsCalculator => 'Calculadora de Ahorro';
-
-  @override
-  String get savingsCalculatorDescription => 'Ve cuánto dinero estás ahorrando al reducir o dejar de fumar';
-
-  @override
-  String get modifyPreferencesAnytime => 'Puedes modificar estas preferencias en cualquier momento en la configuración de la aplicación.';
-
-  @override
-  String get personalizeScreenTitle => '¿Cuándo sueles fumar más?';
-
-  @override
-  String get personalizeScreenSubtitle => 'Selecciona los momentos en que sientes más deseos de fumar';
-
-  @override
-  String get afterMeals => 'Después de las comidas';
-
-  @override
-  String get duringWorkBreaks => 'Durante descansos laborales';
-
-  @override
-  String get inSocialEvents => 'En eventos sociales';
-
-  @override
-  String get whenStressed => 'Cuando estoy estresado';
-
-  @override
-  String get withCoffeeOrAlcohol => 'Cuando bebo café o alcohol';
-
-  @override
-  String get whenBored => 'Cuando estoy aburrido';
-
-  @override
-  String homeDaysWithoutSmoking(int days) {
-    return '$days días sin fumar';
-  }
-
-  @override
-  String homeGreeting(String name) {
-    return '¡Hola, $name! 👋';
-  }
-
-  @override
-  String get homeHealthRecovery => 'Recuperación de Salud';
-
-  @override
-  String get homeTaste => 'Gusto';
-
-  @override
-  String get homeSmell => 'Olfato';
-
-  @override
-  String get homeCirculation => 'Circulación';
-
-  @override
-  String get homeLungs => 'Pulmones';
-
-  @override
-  String get homeHeart => 'Corazón';
-
-  @override
-  String get homeMinutesLifeGained => 'minutos de vida\nganados';
-
-  @override
-  String get homeLungCapacity => 'capacidad\npulmonar';
-
-  @override
-  String get homeNextMilestone => 'Próximo Hito';
-
-  @override
-  String homeNextMilestoneDescription(int days) {
-    return 'En $days días: Mejora el flujo sanguíneo';
-  }
-
-  @override
-  String get homeRecentAchievements => 'Logros Recientes';
-
-  @override
-  String get homeSeeAll => 'Ver todos';
-
-  @override
-  String get homeFirstDay => 'Primer Día';
-
-  @override
-  String get homeFirstDayDescription => '¡Has pasado 24 horas sin fumar!';
-
-  @override
-  String get homeOvercoming => 'Superación';
-
-  @override
-  String get homeOvercomingDescription => 'Niveles de nicotina eliminados del cuerpo';
-
-  @override
-  String get homePersistence => 'Persistencia';
-
-  @override
-  String get homePersistenceDescription => '¡Una semana entera sin cigarrillos!';
-
-  @override
-  String get homeTodayStats => 'Estadísticas de Hoy';
-
-  @override
-  String get homeCravingsResisted => 'Antojos\nResistidos';
-
-  @override
-  String get homeMinutesGainedToday => 'Minutos de Vida\nGanados Hoy';
-
-  @override
-  String get achievementCategoryAll => 'Todos';
-
-  @override
-  String get achievementCategoryHealth => 'Salud';
-
-  @override
-  String get achievementCategoryTime => 'Tiempo';
-
-  @override
-  String get achievementCategorySavings => 'Ahorro';
-
-  @override
-  String get achievementCategoryHabits => 'Hábitos';
-
-  @override
-  String get achievementUnlocked => '¡Logro Desbloqueado!';
-
-  @override
-  String get achievementInProgress => 'En progreso';
-
-  @override
-  String get achievementCompleted => 'Completado';
-
-  @override
-  String get achievementCurrentProgress => 'Tu Progreso Actual';
-
-  @override
-  String achievementLevel(int level) {
-    return 'Nivel $level';
-  }
-
-  @override
-  String achievementDaysWithoutSmoking(int days) {
-    return '$days días sin fumar';
-  }
-
-  @override
-  String achievementNextLevel(String time) {
-    return 'Próximo nivel: $time';
-  }
-
-  @override
-  String get achievementBenefitCO2 => 'CO2 Normal';
-
-  @override
-  String get achievementBenefitTaste => 'Gusto Mejorado';
-
-  @override
-  String get achievementBenefitCirculation => 'Circulación +15%';
-
-  @override
-  String get achievementFirstDay => 'Primer Día';
-
-  @override
-  String get achievementFirstDayDescription => 'Completa 24 horas sin fumar';
-
-  @override
-  String get achievementOneWeek => 'Una Semana';
-
-  @override
-  String get achievementOneWeekDescription => '¡Una semana sin fumar!';
-
-  @override
-  String get achievementImprovedCirculation => 'Circulación Mejorada';
-
-  @override
-  String get achievementImprovedCirculationDescription => 'Niveles de oxígeno normalizados';
-
-  @override
-  String get achievementInitialSavings => 'Ahorro Inicial';
-
-  @override
-  String get achievementInitialSavingsDescription => 'Ahorra el equivalente a 1 paquete de cigarrillos';
-
-  @override
-  String get achievementTwoWeeks => 'Dos Semanas';
-
-  @override
-  String get achievementTwoWeeksDescription => '¡Dos semanas completas sin fumar!';
-
-  @override
-  String get achievementSubstantialSavings => 'Ahorro Sustancial';
-
-  @override
-  String get achievementSubstantialSavingsDescription => 'Ahorra el equivalente a 10 paquetes de cigarrillos';
-
-  @override
-  String get achievementCleanBreathing => 'Respiración Limpia';
-
-  @override
-  String get achievementCleanBreathingDescription => 'Capacidad pulmonar aumentada en un 30%';
-
-  @override
-  String get achievementOneMonth => 'Un Mes';
-
-  @override
-  String get achievementOneMonthDescription => '¡Un mes entero sin fumar!';
-
-  @override
-  String get achievementNewHabitExercise => 'Nuevo Hábito: Ejercicio';
-
-  @override
-  String get achievementNewHabitExerciseDescription => 'Registra 5 días de ejercicio';
-
-  @override
-  String percentCompleted(int percent) {
-    return '$percent% completado';
-  }
-
-  @override
-  String get appName => 'NicotinaAI';
-
-  @override
-  String get welcomeBack => 'Bienvenido de Nuevo';
-
-  @override
-  String get loginToContinue => 'Inicia sesión para continuar';
-
-  @override
-  String get email => 'Correo electrónico';
-
-  @override
-  String get emailHint => 'ejemplo@correo.com';
-
-  @override
-  String get password => 'Contraseña';
-
-  @override
-  String get rememberMe => 'Recordarme';
-
-  @override
-  String get forgotPassword => 'Olvidé mi contraseña';
-
-  @override
-  String get login => 'Iniciar sesión';
-
-  @override
-  String get noAccount => '¿No tienes una cuenta?';
-
-  @override
-  String get register => 'Registrar';
-
-  @override
-  String get emailRequired => 'Por favor, introduce tu correo electrónico';
-
-  @override
-  String get emailInvalid => 'Por favor, introduce un correo electrónico válido';
-
-  @override
-  String get passwordRequired => 'Por favor, introduce tu contraseña';
-
-  @override
-  String get settings => 'Configuración';
-
-  @override
-  String get home => 'Casa';
-
-  @override
-  String get achievements => 'Logros';
-
-  @override
-  String get profile => 'Perfil';
-
-  @override
-  String get editProfile => 'Editar Perfil';
-
-  @override
-  String get appSettings => 'Configuración de la Aplicación';
-
-  @override
-  String get notifications => 'Notificaciones';
-
-  @override
-  String get manageNotifications => 'Gestionar notificaciones';
-
-  @override
-  String get language => 'Idioma';
-
-  @override
-  String get changeLanguage => 'Cambiar el idioma de la aplicación';
-
-  @override
-  String get theme => 'Tema';
-
-  @override
-  String get dark => 'Oscuro';
-
-  @override
-  String get light => 'Claro';
-
-  @override
-  String get system => 'Sistema';
-
-  @override
-  String get habitTracking => 'Seguimiento de Hábitos';
-
-  @override
-  String get cigarettesPerDay => 'Cigarrillos por día antes de dejar';
-
-  @override
-  String get configureHabits => 'Configura tus hábitos anteriores';
-
-  @override
-  String get packPrice => 'Precio del paquete';
-
-  @override
-  String get setPriceForCalculations => 'Establecer el precio para cálculos de ahorro';
-
-  @override
-  String get startDate => 'Fecha de inicio';
-
-  @override
-  String get whenYouQuitSmoking => 'Cuando dejaste de fumar';
-
-  @override
-  String get account => 'Cuenta';
-
-  @override
-  String get resetPassword => 'Restablecer contraseña';
-
-  @override
-  String get changePassword => 'Cambiar tu contraseña de acceso';
-
-  @override
-  String get deleteAccount => 'Eliminar cuenta';
-
-  @override
-  String get permanentlyRemoveAccount => 'Eliminar permanentemente tu cuenta';
-
-  @override
-  String get deleteAccountTitle => 'Eliminar Cuenta';
-
-  @override
-  String get deleteAccountConfirmation => '¿Estás seguro de que deseas eliminar tu cuenta? Esta acción es irreversible y todos tus datos se perderán.';
-
-  @override
-  String get logout => 'Cerrar sesión';
-
-  @override
-  String get logoutFromAccount => 'Desconectar de tu cuenta';
-
-  @override
-  String get logoutTitle => 'Cerrar sesión';
-
-  @override
-  String get logoutConfirmation => '¿Estás seguro de que deseas cerrar sesión de tu cuenta?';
-
-  @override
-  String get about => 'Acerca de';
-
-  @override
-  String get privacyPolicy => 'Política de Privacidad';
-
-  @override
-  String get readPrivacyPolicy => 'Lee nuestra política de privacidad';
-
-  @override
-  String get termsOfUse => 'Términos de Uso';
-
-  @override
-  String get viewTermsOfUse => 'Ver los términos de uso de la aplicación';
-
-  @override
-  String get aboutApp => 'Sobre la Aplicación';
-
-  @override
-  String get appInfo => 'Versión e información de la aplicación';
-
-  @override
-  String version(String version) {
-    return 'Versión $version';
-  }
-
-  @override
-  String get cancel => 'Cancelar';
-
-  @override
-  String get confirm => 'Confirmar';
-
-  @override
-  String get save => 'Guardar';
-
-  @override
-  String get delete => 'Eliminar';
-
-  @override
-  String get next => 'Siguiente';
-
-  @override
-  String get back => 'Atrás';
-
-  @override
-  String get finish => 'Finalizar';
-
-  @override
-  String get cigarettesPerDayQuestion => '¿Cuántos cigarrillos fumas al día?';
-
-  @override
-  String get cigarettesPerDaySubtitle => 'Esto nos ayuda a entender tu nivel de consumo';
-
-  @override
-  String get exactNumber => 'Número exacto: ';
-
-  @override
-  String get selectConsumptionLevel => 'O selecciona tu nivel de consumo:';
-
-  @override
-  String get low => 'Bajo';
-
-  @override
-  String get moderate => 'Moderado';
-
-  @override
-  String get high => 'Alto';
-
-  @override
-  String get veryHigh => 'Muy Alto';
-
-  @override
-  String get upTo5 => 'Hasta 5 cigarrillos por día';
-
-  @override
-  String get sixTo15 => '6 a 15 cigarrillos por día';
-
-  @override
-  String get sixteenTo25 => '16 a 25 cigarrillos por día';
-
-  @override
-  String get moreThan25 => 'Más de 25 cigarrillos por día';
-
-  @override
-  String get selectConsumptionLevelError => 'Por favor, selecciona tu nivel de consumo';
-
-  @override
-  String get welcomeToNicotinaAI => 'Bienvenido a NicotinaAI';
-
-  @override
-  String get personalAssistant => 'Tu asistente personal para dejar de fumar';
-
-  @override
-  String get start => 'Comenzar';
-
-  @override
-  String get breatheFreedom => 'RESPIRA LIBERTAD. TU NUEVA VIDA COMIENZA AHORA.';
-
-  @override
-  String get personalizeExperience => 'Vamos a personalizar tu experiencia para ayudarte a alcanzar tus objetivos de dejar de fumar. Responde algunas preguntas para comenzar.';
-
-  @override
-  String get cigarettesPerPackQuestion => '¿Cuántos cigarrillos vienen en un paquete?';
-
-  @override
-  String get selectStandardAmount => 'Selecciona la cantidad estándar para tus paquetes de cigarrillos';
-
-  @override
-  String get packSizesInfo => 'Los paquetes de cigarrillos generalmente vienen con 10 o 20 unidades. Selecciona la cantidad que corresponde a los paquetes que compras.';
-
-  @override
-  String get tenCigarettes => '10 cigarrillos';
-
-  @override
-  String get twentyCigarettes => '20 cigarrillos';
-
-  @override
-  String get smallPack => 'Paquete pequeño/compacto';
-
-  @override
-  String get standardPack => 'Paquete estándar/tradicional';
-
-  @override
-  String get otherQuantity => 'Otra cantidad';
-
-  @override
-  String get selectCustomValue => 'Selecciona un valor personalizado';
-
-  @override
-  String get quantity => 'Cantidad: ';
-
-  @override
-  String get packSizeHelp => 'Esta información nos ayuda a calcular con precisión tu consumo y los beneficios de reducir o dejar de fumar.';
-
-  @override
-  String get packPriceQuestion => '¿Cuánto cuesta un paquete de cigarrillos?';
-
-  @override
-  String get helpCalculateFinancial => 'Esto nos ayuda a calcular tu ahorro financiero';
-
-  @override
-  String get enterAveragePrice => 'Introduce el precio promedio que pagas por un paquete de cigarrillos.';
-
-  @override
-  String get priceHelp => 'Esta información nos ayuda a mostrarte cuánto ahorrarás al reducir o dejar de fumar.';
-
-  @override
-  String get productTypeQuestion => '¿Qué tipo de producto consumes?';
-
-  @override
-  String get selectApplicable => 'Selecciona lo que se aplica a ti';
-
-  @override
-  String get helpPersonalizeStrategy => 'Esto nos ayuda a personalizar estrategias y recomendaciones para tu caso específico.';
-
-  @override
-  String get cigaretteOnly => 'Solo cigarrillos tradicionales';
-
-  @override
-  String get traditionalCigarettes => 'Cigarrillos de tabaco convencionales';
-
-  @override
-  String get vapeOnly => 'Solo vaporizador/cigarrillos electrónicos';
-
-  @override
-  String get electronicDevices => 'Dispositivos electrónicos de vapeo';
-
-  @override
-  String get both => 'Ambos';
-
-  @override
-  String get useBoth => 'Uso tanto cigarrillos tradicionales como electrónicos';
-
-  @override
-  String get productTypeHelp => 'Diferentes productos contienen diferentes cantidades de nicotina y pueden requerir distintas estrategias para reducción o cese.';
-
-  @override
-  String get pleaseSelectProductType => 'Por favor, selecciona un tipo de producto';
-
-  @override
-  String get goalQuestion => '¿Cuál es tu objetivo?';
-
-  @override
-  String get selectGoal => 'Selecciona lo que quieres lograr';
-
-  @override
-  String get goalExplanation => 'Establecer un objetivo claro es esencial para tu éxito. Queremos ayudarte a lograr lo que deseas.';
-
-  @override
-  String get reduceConsumption => 'Reducir el consumo';
-
-  @override
-  String get reduceDescription => 'Quiero fumar menos cigarrillos y tener más control sobre el hábito';
-
-  @override
-  String get reduce => 'Reducir';
-
-  @override
-  String get quitSmoking => 'Dejar de fumar';
-
-  @override
-  String get quitDescription => 'Quiero dejar completamente los cigarrillos y vivir libre de tabaco';
-
-  @override
-  String get quit => 'Dejar';
-
-  @override
-  String get goalHelp => 'Adaptaremos nuestros recursos y recomendaciones según tu objetivo. Puedes modificarlo más tarde si cambias de opinión.';
-
-  @override
-  String get pleaseSelectGoal => 'Por favor, selecciona un objetivo';
-
-  @override
-  String get timelineQuestionReduce => '¿Cuándo quieres reducir el consumo?';
-
-  @override
-  String get timelineQuestionQuit => '¿Cuándo quieres dejar de fumar?';
-
-  @override
-  String get establishDeadline => 'Establece un plazo que te parezca alcanzable';
-
-  @override
-  String get timelineExplanation => 'Un cronograma realista aumenta tus posibilidades de éxito. Elige un plazo con el que te sientas cómodo.';
-
-  @override
-  String get sevenDays => '7 días';
-
-  @override
-  String get sevenDaysDescription => 'Quiero resultados rápidos y estoy comprometido';
-
-  @override
-  String get fourteenDays => '14 días';
-
-  @override
-  String get fourteenDaysDescription => 'Un plazo equilibrado para cambiar hábitos';
-
-  @override
-  String get thirtyDays => '30 días';
-
-  @override
-  String get thirtyDaysDescription => 'Un mes para un cambio gradual y sostenible';
-
-  @override
-  String get noDeadline => 'Sin plazo definido';
-
-  @override
-  String get noDeadlineDescription => 'Prefiero ir a mi propio ritmo';
-
-  @override
-  String get timelineHelp => 'No te preocupes si no logras tu objetivo exactamente en el plazo. Lo importante es el progreso continuo.';
-
-  @override
-  String get pleaseSelectTimeline => 'Por favor, selecciona un plazo';
-
-  @override
-  String challengeQuestion(String goalText) {
-    return '¿Qué hace difícil $goalText para ti?';
-  }
-
-  @override
-  String get identifyChallenge => 'Identificar tu principal desafío nos ayuda a proporcionar mejor apoyo';
-
-  @override
-  String get challengeExplanation => 'Entender lo que hace difícil dejar el cigarrillo es el primer paso para superar ese obstáculo.';
-
-  @override
-  String get stressAnxiety => 'Estrés y ansiedad';
-
-  @override
-  String get stressDescription => 'Fumo para lidiar con situaciones estresantes y ansiedad';
-
-  @override
-  String get habitStrength => 'Fuerza del hábito';
-
-  @override
-  String get habitDescription => 'Fumar ya es parte de mi rutina diaria';
-
-  @override
-  String get socialInfluence => 'Influencia social';
-
-  @override
-  String get socialDescription => 'Personas a mi alrededor fuman o me animan a fumar';
-
-  @override
-  String get physicalDependence => 'Dependencia física';
-
-  @override
-  String get dependenceDescription => 'Experimento síntomas físicos cuando estoy sin fumar';
-
-  @override
-  String get challengeHelp => 'Tus respuestas nos ayudan a personalizar consejos y estrategias más efectivas para tu caso específico.';
-
-  @override
-  String get pleaseSelectChallenge => 'Por favor, selecciona un desafío';
-
-  @override
-  String get locationsQuestion => '¿Dónde sueles fumar?';
-
-  @override
-  String get selectCommonPlaces => 'Selecciona los lugares donde más a menudo fumas';
-
-  @override
-  String get locationsExplanation => 'Conocer tus lugares habituales nos ayuda a identificar patrones y crear estrategias específicas.';
-
-  @override
-  String get atHome => 'En casa';
-
-  @override
-  String get homeDetails => 'Balcón, sala, oficina';
-
-  @override
-  String get atWork => 'En el trabajo/escuela';
-
-  @override
-  String get workDetails => 'Durante descansos o pausas';
-
-  @override
-  String get inCar => 'En el coche/transporte';
-
-  @override
-  String get carDetails => 'Durante viajes';
-
-  @override
-  String get socialEvents => 'En eventos sociales';
-
-  @override
-  String get socialDetails => 'Bares, fiestas, restaurantes';
-
-  @override
-  String get outdoors => 'Al aire libre';
-
-  @override
-  String get outdoorsDetails => 'Parques, aceras, áreas exteriores';
-
-  @override
-  String get otherPlaces => 'Otros lugares';
-
-  @override
-  String get otherPlacesDetails => 'Cuando estoy ansioso, independientemente del lugar';
-
-  @override
-  String get locationsHelp => 'Identificar los lugares más comunes ayuda a evitar desencadenantes y crear estrategias para cambiar hábitos.';
+  String get selectLanguage => 'Selecciona tu idioma preferido';
 
   @override
   String get continueButton => 'Continuar';
 
   @override
-  String get allDone => '¡Todo listo!';
+  String get achievementFirstStep => 'Primer Paso';
 
   @override
-  String get personalizedJourney => 'Tu viaje personalizado comienza ahora';
+  String get achievementFirstStepDescription => 'Completar el proceso de incorporación';
 
   @override
-  String get startMyJourney => 'Comenzar Mi Viaje';
+  String get achievementOneDayWonder => 'Maravilla de Un Día';
 
   @override
-  String get congratulations => '¡Felicitaciones por dar el primer paso!';
+  String get achievementOneDayWonderDescription => 'Permanecer sin fumar durante 1 día';
 
   @override
-  String personalizedPlanReduce(String timelineText) {
-    return 'Hemos creado un plan personalizado basado en tus respuestas para ayudarte a reducir el consumo $timelineText.';
-  }
+  String get achievementWeekWarrior => 'Guerrero Semanal';
 
   @override
-  String personalizedPlanQuit(String timelineText) {
-    return 'Hemos creado un plan personalizado basado en tus respuestas para ayudarte a dejar de fumar $timelineText.';
-  }
+  String get achievementWeekWarriorDescription => 'Permanecer sin fumar durante 7 días';
 
   @override
-  String get yourPersonalizedSummary => 'Tu resumen personalizado';
+  String get achievementMonthMaster => 'Maestro Mensual';
 
   @override
-  String get dailyConsumption => 'Consumo diario';
+  String get achievementMonthMasterDescription => 'Permanecer sin fumar durante 30 días';
 
   @override
-  String cigarettesPerDayValue(int count) {
-    return '$count cigarrillos por día';
-  }
+  String get achievementMoneyMindful => 'Consciente del Dinero';
 
   @override
-  String get potentialMonthlySavings => 'Ahorro mensual potencial';
+  String get achievementMoneyMindfulDescription => 'Ahorrar \$50 al no fumar';
 
   @override
-  String get yourGoal => 'Tu objetivo';
+  String get achievementCenturion => 'Centurión';
 
   @override
-  String get mainChallenge => 'Tu principal desafío';
+  String get achievementCenturionDescription => 'Ahorrar \$100 al no fumar';
 
   @override
-  String get personalized => 'Monitoreo personalizado';
+  String get achievementCravingCrusher => 'Aplastador de Antojos';
 
   @override
-  String get personalizedDescription => 'Sigue tu progreso basado en tus hábitos';
-
-  @override
-  String get importantAchievements => 'Logros importantes';
-
-  @override
-  String get achievementsDescription => 'Celebra cada hito en tu viaje';
-
-  @override
-  String get supportWhenNeeded => 'Apoyo cuando lo necesitas';
-
-  @override
-  String get supportDescription => 'Consejos y estrategias para momentos difíciles';
-
-  @override
-  String get guaranteedResults => 'Resultados garantizados';
-
-  @override
-  String get resultsDescription => 'Con nuestra tecnología basada en ciencia';
-
-  @override
-  String loadingError(String error) {
-    return 'Error al completar: $error';
-  }
-
-  @override
-  String get developer => 'Desarrollador';
-
-  @override
-  String get developerMode => 'Modo Desarrollador';
-
-  @override
-  String get enableDebugging => 'Habilitar depuración detallada y seguimiento';
-
-  @override
-  String get dashboard => 'Panel';
-
-  @override
-  String get viewDetailedTracking => 'Ver panel de seguimiento detallado';
-
-  @override
-  String get currency => 'Moneda';
-
-  @override
-  String get changeCurrency => 'Cambiar moneda';
-
-  @override
-  String get setCurrencyForCalculations => 'Establecer la moneda para cálculos de ahorro';
-
-  @override
-  String get search => 'Buscar';
-
-  @override
-  String get noResults => 'No se encontraron resultados';
-
-  @override
-  String get listView => 'Vista de lista';
-
-  @override
-  String get gridView => 'Vista de cuadrícula';
-
-  @override
-  String get atYourOwnPace => 'a tu propio ritmo';
-
-  @override
-  String get nextSevenDays => 'en los próximos 7 días';
-
-  @override
-  String get nextTwoWeeks => 'en las próximas 2 semanas';
-
-  @override
-  String get nextMonth => 'en el próximo mes';
-
-  @override
-  String get notSpecified => 'No especificado';
-
-  @override
-  String get registerCraving => 'Registrar Antojo';
-
-  @override
-  String get registerCravingSubtitle => 'Cuando sientas ganas';
-
-  @override
-  String get newRecord => 'Nuevo Registro';
-
-  @override
-  String get newRecordSubtitle => 'Cuando fumes';
-
-  @override
-  String get whereAreYou => '¿Dónde estás?';
-
-  @override
-  String get work => 'Trabajo';
-
-  @override
-  String get car => 'Coche';
-
-  @override
-  String get restaurant => 'Restaurante';
-
-  @override
-  String get bar => 'Bar';
-
-  @override
-  String get street => 'Calle';
-
-  @override
-  String get park => 'Parque';
-
-  @override
-  String get others => 'Otros';
-
-  @override
-  String get notes => 'Notas (opcional)';
-
-  @override
-  String get howAreYouFeeling => '¿Cómo te sientes?';
-
-  @override
-  String get whatTriggeredCraving => '¿Qué desencadenó tu antojo?';
-
-  @override
-  String get stress => 'Estrés';
-
-  @override
-  String get boredom => 'Aburrimiento';
-
-  @override
-  String get socialSituation => 'Situación social';
-
-  @override
-  String get afterMeal => 'Después de comer';
-
-  @override
-  String get coffee => 'Café';
-
-  @override
-  String get alcohol => 'Alcohol';
-
-  @override
-  String get craving => 'Antojo';
-
-  @override
-  String get other => 'Otro';
-
-  @override
-  String get intensityLevel => 'Nivel de intensidad';
-
-  @override
-  String get mild => 'Suave';
-
-  @override
-  String get intense => 'Intenso';
-
-  @override
-  String get veryIntense => 'Muy intenso';
-
-  @override
-  String get pleaseSelectLocation => 'Por favor, selecciona tu ubicación';
-
-  @override
-  String get pleaseSelectTrigger => 'Por favor, selecciona qué desencadenó tu antojo';
-
-  @override
-  String get pleaseSelectIntensity => 'Por favor, selecciona el nivel de intensidad';
-
-  @override
-  String get whatsTheReason => '¿Cuál es el motivo?';
-
-  @override
-  String get anxiety => 'Ansiedad';
-
-  @override
-  String get pleaseSelectReason => 'Por favor, selecciona un motivo';
-
-  @override
-  String get howDoYouFeel => '¿Cómo te sientes? ¿Qué podrías haber hecho diferente?';
-
-  @override
-  String get didYouResist => '¿Resististe?';
-
-  @override
-  String get yes => 'Sí';
-
-  @override
-  String get no => 'No';
-
-  @override
-  String get howMuchDidYouSmoke => '¿Cuánto fumaste?';
-
-  @override
-  String get oneOrLess => '1 o menos';
-
-  @override
-  String get twoToFive => '2-5';
-
-  @override
-  String get moreThanFive => 'Más de 5';
-
-  @override
-  String get pleaseSelectAmount => 'Por favor, selecciona cuánto fumaste';
-
-  @override
-  String get howLongDidItLast => '¿Cuánto duró?';
-
-  @override
-  String get lessThan5min => 'Menos de 5 min';
-
-  @override
-  String get fiveToFifteenMin => '5-15 min';
-
-  @override
-  String get moreThan15min => 'Más de 15 min';
-
-  @override
-  String get pleaseSelectDuration => 'Por favor, selecciona cuánto duró';
-
-  @override
-  String get selectCurrency => 'Selecciona tu moneda';
-
-  @override
-  String get selectCurrencySubtitle => 'Elige la moneda para los cálculos financieros';
-
-  @override
-  String get preselectedCurrency => 'Hemos preseleccionado tu moneda local. Puedes cambiarla si es necesario.';
-
-  @override
-  String get pleaseCompleteAllFields => 'Por favor, completa todos los campos requeridos para continuar';
-
-  @override
-  String get understood => 'Entendido';
-
-  @override
-  String get commonPrices => 'Precios comunes de paquetes';
-
-  @override
-  String get refresh => 'Actualizar';
-
-  @override
-  String get errorLoadingNotifications => 'Error al cargar notificaciones';
-
-  @override
-  String get noNotificationsYet => '¡Aún no hay notificaciones!';
-
-  @override
-  String get emptyNotificationsDescription => 'Continúa usando la aplicación para recibir mensajes motivacionales y logros.';
-
-  @override
-  String get motivationalMessage => 'Mensaje Motivacional';
-
-  @override
-  String claimReward(int xp) {
-    return 'Reclamar $xp XP';
-  }
-
-  @override
-  String rewardClaimed(int xp) {
-    return 'Recompensa reclamada: $xp XP';
-  }
-
-  @override
-  String get dailyMotivation => 'Motivación Diaria';
-
-  @override
-  String get dailyMotivationDescription => 'Tu motivación diaria personalizada está aquí. ¡Ábrela para obtener tu recompensa de XP!';
-
-  @override
-  String get retry => 'Reintentar';
-
-  @override
-  String get cravingResistedRecorded => '¡Resistencia al antojo registrada exitosamente!';
-
-  @override
-  String get cravingRecorded => '¡Antojo registrado exitosamente!';
-
-  @override
-  String get errorSavingCraving => 'Error al guardar antojo. Toca para reintentar.';
-
-  @override
-  String get recordSaved => '¡Registro guardado exitosamente!';
-
-  @override
-  String get tapToRetry => 'Toca para reintentar';
-
-  @override
-  String get syncError => 'Error de sincronización';
+  String get achievementCravingCrusherDescription => 'Resistir con éxito 10 antojos';
 
   @override
   String get loading => 'Cargando...';
 
   @override
-  String get tryAgain => 'Intentar de nuevo';
+  String get appName => 'NicotinaAI';
 
   @override
-  String get errorLoadingData => 'Error al cargar datos';
+  String get pageNotFound => 'Página no encontrada';
 
   @override
-  String get noRecoveriesFound => 'No se encontraron recuperaciones de salud';
+  String get motivationalMessage => '¡Sigue adelante! ¡Lo estás haciendo genial!';
 
   @override
-  String get noRecentRecoveries => 'No hay recuperaciones de salud recientes para mostrar';
+  String get helpScreenTitle => 'How can we help you?';
 
   @override
-  String get viewAllRecoveries => 'Ver Todas las Recuperaciones de Salud';
+  String get selectAllInterests => 'Select all options that interest you';
 
   @override
-  String get healthRecovery => 'Recuperación de Salud';
+  String get helpScreenExplanation => 'We offer different resources to support your journey. Select everything you think might help.';
 
   @override
-  String get seeAll => 'Ver todo';
+  String get dailyTips => 'Daily tips';
 
   @override
-  String get achieved => 'Logrado';
+  String get dailyTipsDescription => 'Receive practical tips every day to support your journey';
 
   @override
-  String get progress => 'Progreso';
+  String get customReminders => 'Custom reminders';
 
   @override
-  String daysToAchieve(int days) {
-    return '$days días para lograr';
-  }
+  String get customRemindersDescription => 'Notifications to keep you motivated and on track';
 
   @override
-  String daysRemaining(int days) {
-    return '$days días restantes';
-  }
+  String get progressMonitoring => 'Progress monitoring';
 
   @override
-  String achievedOn(DateTime date) {
-    final intl.DateFormat dateDateFormat = intl.DateFormat.yMMMd(localeName);
-    final String dateString = dateDateFormat.format(date);
-
-    return 'Logrado el $dateString';
-  }
+  String get progressMonitoringDescription => 'Visually track your progress over time';
 
   @override
-  String daysSmokeFree(int days) {
-    return '$days días sin fumar';
-  }
+  String get supportCommunity => 'Support community';
 
   @override
-  String get keepGoing => '¡Sigue así!';
+  String get supportCommunityDescription => 'Connect with others on a similar journey';
 
   @override
-  String get encouragementMessage => 'Estás haciendo un gran progreso. Cada día sin fumar te acerca más a alcanzar este hito de salud.';
+  String get cigaretteAlternatives => 'Cigarette alternatives';
 
   @override
-  String get recoveryAchievedMessage => 'Tu cuerpo ya se ha recuperado en esta área. Sigue con el buen trabajo para mantener y mejorar aún más tu salud.';
+  String get cigaretteAlternativesDescription => 'Suggestions for activities and products to replace the habit';
 
   @override
-  String get scienceBehindIt => 'La Ciencia Detrás';
+  String get savingsCalculator => 'Savings Calculator';
 
   @override
-  String get generalHealthScienceInfo => 'Cuando dejas de fumar, tu cuerpo comienza una serie de procesos de curación. Estos comienzan minutos después de tu último cigarrillo y continúan durante años, restaurando gradualmente tu salud a la de un no fumador.';
+  String get savingsCalculatorDescription => 'See how much money you\'re saving by reducing or quitting smoking';
 
   @override
-  String get tasteScienceInfo => 'Cuando fumas, los químicos del tabaco dañan las papilas gustativas y reducen tu capacidad de saborear. Después de solo unos días sin fumar, estos receptores de sabor comienzan a sanar, permitiéndote experimentar más sabores y disfrutar más de la comida.';
+  String get modifyPreferencesAnytime => 'You can modify these preferences at any time in the app settings.';
 
   @override
-  String get smellScienceInfo => 'Fumar daña los nervios olfativos que transmiten información de olor al cerebro. En pocos días después de dejar de fumar, estos nervios comienzan a recuperarse, mejorando gradualmente tu sentido del olfato y permitiéndote detectar olores más sutiles.';
+  String get personalizeScreenTitle => 'When do you usually smoke the most?';
 
   @override
-  String get bloodOxygenScienceInfo => 'El monóxido de carbono de los cigarrillos se une a la hemoglobina en tu sangre, reduciendo su capacidad para transportar oxígeno. En 12-24 horas después de dejar de fumar, los niveles de monóxido de carbono caen dramáticamente, permitiendo que tu sangre transporte oxígeno más eficazmente.';
+  String get personalizeScreenSubtitle => 'Select the times when you feel the most urge to smoke';
 
   @override
-  String get carbonMonoxideScienceInfo => 'El humo del cigarrillo contiene monóxido de carbono, que desplaza el oxígeno en tu sangre. Dentro de 12 horas después de dejar de fumar, los niveles de monóxido de carbono vuelven a la normalidad, y los niveles de oxígeno en tu cuerpo aumentan significativamente.';
+  String get afterMeals => 'After meals';
 
   @override
-  String get nicotineScienceInfo => 'La nicotina tiene una vida media de aproximadamente 2 horas, lo que significa que toma aproximadamente 72 horas (3 días) para que toda la nicotina sea eliminada de tu cuerpo. Una vez que la nicotina desaparece, los síntomas físicos de abstinencia comienzan a disminuir.';
+  String get duringWorkBreaks => 'During work breaks';
 
   @override
-  String get improvedBreathingScienceInfo => 'Después de 7 días sin fumar, la función pulmonar comienza a mejorar a medida que disminuye la inflamación y los pulmones comienzan a limpiar la mucosidad acumulada. Notarás menos tos y respiración más fácil, especialmente durante la actividad física.';
+  String get inSocialEvents => 'At social events';
 
   @override
-  String get improvedCirculationScienceInfo => 'Después de dos semanas sin fumar, tu circulación mejora significativamente. Los vasos sanguíneos se dilatan, la presión arterial se normaliza, y más oxígeno llega a tus músculos y órganos, haciendo que la actividad física sea más fácil y menos extenuante.';
+  String get whenStressed => 'When I\'m stressed';
 
   @override
-  String get decreasedCoughingScienceInfo => 'Un mes después de dejar de fumar, los cilios (pequeñas estructuras similares a pelos) en tus pulmones comienzan a crecer de nuevo. Estos ayudan a limpiar tus pulmones y reducir infecciones. Tu tos y falta de aliento continúan disminuyendo.';
+  String get withCoffeeOrAlcohol => 'When drinking coffee or alcohol';
 
   @override
-  String get lungCiliaScienceInfo => 'Después de 3 meses sin fumar, tu función pulmonar puede mejorar hasta un 30%. Los cilios en tus pulmones han crecido en gran medida, mejorando la capacidad de tus pulmones para limpiarse, combatir infecciones y reducir la mucosidad.';
+  String get whenBored => 'When I\'m bored';
 
   @override
-  String get reducedHeartDiseaseRiskScienceInfo => 'Después de un año sin fumar, tu riesgo de enfermedad coronaria disminuye aproximadamente a la mitad del de un fumador. Tu función cardíaca continúa mejorando a medida que los vasos sanguíneos sanan y la circulación mejora.';
+  String get homeHealthRecovery => 'Health Recovery';
 
   @override
-  String get viewHealthRecoveries => 'Ver Recuperaciones de Salud';
+  String get homeTaste => 'Taste';
 
   @override
-  String get recoveryNotFound => 'Recuperación de salud no encontrada';
+  String get homeSmell => 'Smell';
 
   @override
-  String get trackYourHealthJourney => 'Sigue Tu Camino de Salud';
+  String get homeCirculation => 'Circulation';
 
   @override
-  String get healthRecoveryDescription => 'Ve cómo tu cuerpo se recupera después de dejar de fumar';
+  String get homeLungs => 'Lungs';
 
   @override
-  String get somethingWentWrong => 'Algo salió mal, por favor inténtalo de nuevo';
+  String get homeHeart => 'Heart';
 
   @override
-  String get profileInformation => 'Profile Information';
+  String get homeMinutesLifeGained => 'minutes of life\ngained';
 
   @override
-  String get editProfileDescription => 'Update your profile information below.';
+  String get homeLungCapacity => 'lung\ncapacity';
 
   @override
-  String get enterName => 'Enter your name';
+  String get homeNextMilestone => 'Next Milestone';
 
   @override
-  String get profileUpdatedSuccessfully => 'Profile updated successfully';
+  String get homeRecentAchievements => 'Recent Achievements';
 
   @override
-  String get comingSoon => 'Próximamente';
+  String get homeSeeAll => 'See all';
 
   @override
-  String get registerFirstCigarette => 'Registra tu primer cigarrillo para ver la recuperación de salud';
+  String get homeFirstDay => 'First Day';
 
   @override
-  String get errorOccurred => 'Ocurrió un error';
+  String get homeFirstDayDescription => 'You\'ve gone 24 hours without smoking!';
 
   @override
-  String get pageNotFound => 'Page not found';
+  String get homeOvercoming => 'Overcoming';
 
   @override
-  String get resetLinkSent => 'Reset link sent!';
+  String get homeOvercomingDescription => 'Nicotine levels eliminated from body';
 
   @override
-  String get checkEmailInstructions => 'Check your email for instructions to reset your password.';
+  String get homePersistence => 'Persistence';
 
   @override
-  String get backToLogin => 'Back to login';
+  String get homePersistenceDescription => 'A whole week without cigarettes!';
 
   @override
-  String get forgotPasswordInstructions => 'Enter your email address and we\'ll send you instructions to reset your password.';
+  String get homeTodayStats => 'Today\'s Statistics';
 
   @override
-  String get sendResetLink => 'Send reset link';
+  String get homeCravingsResisted => 'Cravings\nResisted';
 
   @override
-  String get createAccount => 'Create Account';
+  String get homeMinutesGainedToday => 'Minutes of Life\nGained Today';
+
+  @override
+  String get achievementCategoryAll => 'All';
+
+  @override
+  String get achievementCategoryHealth => 'Health';
+
+  @override
+  String get achievementCategoryTime => 'Time';
+
+  @override
+  String get achievementCategorySavings => 'Savings';
+
+  @override
+  String get achievementCategoryHabits => 'Habits';
+
+  @override
+  String get achievementUnlocked => 'Achievement Unlocked!';
+
+  @override
+  String get achievementInProgress => 'In progress';
+
+  @override
+  String get achievementCompleted => 'Completed';
+
+  @override
+  String get achievementCurrentProgress => 'Your Current Progress';
+
+  @override
+  String get achievementBenefitCO2 => 'Normal CO2';
+
+  @override
+  String get achievementBenefitTaste => 'Improved Taste';
+
+  @override
+  String get achievementBenefitCirculation => 'Circulation +15%';
+
+  @override
+  String get achievementFirstDay => 'First Day';
+
+  @override
+  String get achievementFirstDayDescription => 'Complete 24 hours without smoking';
+
+  @override
+  String get achievementOneWeek => 'One Week';
+
+  @override
+  String get achievementOneWeekDescription => 'One week without smoking!';
+
+  @override
+  String get achievementImprovedCirculation => 'Improved Circulation';
+
+  @override
+  String get achievementImprovedCirculationDescription => 'Normalized oxygen levels';
+
+  @override
+  String get achievementInitialSavings => 'Initial Savings';
+
+  @override
+  String get achievementInitialSavingsDescription => 'Save the equivalent of 1 pack of cigarettes';
+
+  @override
+  String get achievementTwoWeeks => 'Two Weeks';
+
+  @override
+  String get achievementTwoWeeksDescription => 'Two full weeks without smoking!';
+
+  @override
+  String get achievementSubstantialSavings => 'Substantial Savings';
+
+  @override
+  String get achievementSubstantialSavingsDescription => 'Save the equivalent of 10 packs of cigarettes';
+
+  @override
+  String get achievementCleanBreathing => 'Clean Breathing';
+
+  @override
+  String get achievementCleanBreathingDescription => 'Lung capacity increased by 30%';
+
+  @override
+  String get achievementOneMonth => 'One Month';
+
+  @override
+  String get achievementOneMonthDescription => 'A full month without smoking!';
+
+  @override
+  String get achievementNewHabitExercise => 'New Habit: Exercise';
+
+  @override
+  String get achievementNewHabitExerciseDescription => 'Record 5 days of exercise';
+
+  @override
+  String get welcomeBack => 'Welcome Back';
+
+  @override
+  String get loginToContinue => 'Login to continue';
+
+  @override
+  String get email => 'Email';
+
+  @override
+  String get emailHint => 'example@email.com';
+
+  @override
+  String get password => 'Password';
+
+  @override
+  String get rememberMe => 'Remember me';
+
+  @override
+  String get forgotPassword => 'Forgot my password';
+
+  @override
+  String get login => 'Login';
+
+  @override
+  String get noAccount => 'Don\'t have an account?';
+
+  @override
+  String get register => 'Register';
+
+  @override
+  String get emailRequired => 'Please enter your email';
+
+  @override
+  String get emailInvalid => 'Please enter a valid email';
+
+  @override
+  String get passwordRequired => 'Please enter your password';
+
+  @override
+  String get settings => 'Settings';
+
+  @override
+  String get home => 'Home';
+
+  @override
+  String get achievements => 'Achievements';
+
+  @override
+  String get profile => 'Profile';
+
+  @override
+  String get editProfile => 'Edit Profile';
+
+  @override
+  String get appSettings => 'App Settings';
+
+  @override
+  String get notifications => 'Notifications';
+
+  @override
+  String get manageNotifications => 'Manage notifications';
+
+  @override
+  String get language => 'Language';
+
+  @override
+  String get changeLanguage => 'Change the app language';
+
+  @override
+  String get theme => 'Theme';
+
+  @override
+  String get dark => 'Dark';
+
+  @override
+  String get light => 'Light';
+
+  @override
+  String get system => 'System';
+
+  @override
+  String get habitTracking => 'Habit Tracking';
+
+  @override
+  String get cigarettesPerDay => 'Cigarettes per day before quitting';
+
+  @override
+  String get configureHabits => 'Configure your previous habits';
+
+  @override
+  String get packPrice => 'Pack price';
+
+  @override
+  String get setPriceForCalculations => 'Set the price for savings calculations';
+
+  @override
+  String get startDate => 'Start date';
+
+  @override
+  String get whenYouQuitSmoking => 'When you quit smoking';
+
+  @override
+  String get account => 'Account';
+
+  @override
+  String get resetPassword => 'Reset password';
+
+  @override
+  String get changePassword => 'Change your login password';
+
+  @override
+  String get deleteAccount => 'Delete account';
+
+  @override
+  String get permanentlyRemoveAccount => 'Permanently remove your account';
+
+  @override
+  String get deleteAccountTitle => 'Delete Account';
+
+  @override
+  String get deleteAccountConfirmation => 'Are you sure you want to delete your account? This action is irreversible and all your data will be lost.';
+
+  @override
+  String get logout => 'Logout';
+
+  @override
+  String get logoutFromAccount => 'Log out from your account';
+
+  @override
+  String get logoutTitle => 'Logout';
+
+  @override
+  String get logoutConfirmation => 'Are you sure you want to log out of your account?';
+
+  @override
+  String get about => 'About';
+
+  @override
+  String get privacyPolicy => 'Privacy Policy';
+
+  @override
+  String get readPrivacyPolicy => 'Read our privacy policy';
+
+  @override
+  String get termsOfUse => 'Terms of Use';
+
+  @override
+  String get viewTermsOfUse => 'View the app\'s terms of use';
+
+  @override
+  String get aboutApp => 'About the App';
+
+  @override
+  String get appInfo => 'App version and information';
+
+  @override
+  String get cancel => 'Cancel';
+
+  @override
+  String get confirm => 'Confirm';
+
+  @override
+  String get save => 'Save';
+
+  @override
+  String get delete => 'Delete';
+
+  @override
+  String get next => 'Next';
+
+  @override
+  String get back => 'Back';
+
+  @override
+  String get finish => 'Finish';
+
+  @override
+  String get cigarettesPerDayQuestion => 'How many cigarettes do you smoke per day?';
+
+  @override
+  String get cigarettesPerDaySubtitle => 'This helps us understand your consumption level';
+
+  @override
+  String get exactNumber => 'Exact number: ';
+
+  @override
+  String get selectConsumptionLevel => 'Or select your consumption level:';
+
+  @override
+  String get low => 'Low';
+
+  @override
+  String get moderate => 'Moderate';
+
+  @override
+  String get high => 'High';
+
+  @override
+  String get veryHigh => 'Very High';
+
+  @override
+  String get upTo5 => 'Up to 5 cigarettes per day';
+
+  @override
+  String get sixTo15 => '6 to 15 cigarettes per day';
+
+  @override
+  String get sixteenTo25 => '16 to 25 cigarettes per day';
+
+  @override
+  String get moreThan25 => 'More than 25 cigarettes per day';
+
+  @override
+  String get selectConsumptionLevelError => 'Please select your consumption level';
+
+  @override
+  String get welcomeToNicotinaAI => 'Welcome to NicotinaAI';
+
+  @override
+  String get personalAssistant => 'Your personal assistant to quit smoking';
+
+  @override
+  String get start => 'Start';
+
+  @override
+  String get breatheFreedom => 'BREATHE FREEDOM. YOUR NEW LIFE STARTS NOW.';
+
+  @override
+  String get personalizeExperience => 'Let\'s personalize your experience to help you achieve your goals of quitting smoking. Answer a few questions to get started.';
+
+  @override
+  String get cigarettesPerPackQuestion => 'How many cigarettes come in a pack?';
+
+  @override
+  String get selectStandardAmount => 'Select the standard amount for your cigarette packs';
+
+  @override
+  String get packSizesInfo => 'Cigarette packs typically come with 10 or 20 units. Select the amount that corresponds to the packs you buy.';
+
+  @override
+  String get tenCigarettes => '10 cigarettes';
+
+  @override
+  String get twentyCigarettes => '20 cigarettes';
+
+  @override
+  String get smallPack => 'Small/compact pack';
+
+  @override
+  String get standardPack => 'Standard/traditional pack';
+
+  @override
+  String get otherQuantity => 'Other quantity';
+
+  @override
+  String get selectCustomValue => 'Select a custom value';
+
+  @override
+  String get quantity => 'Quantity: ';
+
+  @override
+  String get packSizeHelp => 'This information helps us accurately calculate your consumption and the benefits of reducing or quitting smoking.';
+
+  @override
+  String get packPriceQuestion => 'How much does a pack of cigarettes cost?';
+
+  @override
+  String get helpCalculateFinancial => 'This helps us calculate your financial savings';
+
+  @override
+  String get enterAveragePrice => 'Enter the average price you pay for a pack of cigarettes.';
+
+  @override
+  String get priceHelp => 'This information helps us show you how much you\'ll save by reducing or quitting smoking.';
+
+  @override
+  String get productTypeQuestion => 'What type of product do you consume?';
+
+  @override
+  String get selectApplicable => 'Select what applies to you';
+
+  @override
+  String get helpPersonalizeStrategy => 'This helps us personalize strategies and recommendations for your specific case.';
+
+  @override
+  String get cigaretteOnly => 'Traditional cigarettes only';
+
+  @override
+  String get traditionalCigarettes => 'Conventional tobacco cigarettes';
+
+  @override
+  String get vapeOnly => 'Vape/e-cigarettes only';
+
+  @override
+  String get electronicDevices => 'Electronic vaping devices';
+
+  @override
+  String get both => 'Both';
+
+  @override
+  String get useBoth => 'I use both traditional and electronic cigarettes';
+
+  @override
+  String get productTypeHelp => 'Different products contain different amounts of nicotine and may require different strategies for reduction or cessation.';
+
+  @override
+  String get pleaseSelectProductType => 'Please select a product type';
+
+  @override
+  String get goalQuestion => 'What is your goal?';
+
+  @override
+  String get selectGoal => 'Select what you want to achieve';
+
+  @override
+  String get goalExplanation => 'Setting a clear goal is essential for your success. We want to help you achieve what you desire.';
+
+  @override
+  String get reduceConsumption => 'Reduce consumption';
+
+  @override
+  String get reduceDescription => 'I want to smoke fewer cigarettes and have more control over the habit';
+
+  @override
+  String get reduce => 'Reduce';
+
+  @override
+  String get quitSmoking => 'Quit smoking';
+
+  @override
+  String get quitDescription => 'I want to completely quit cigarettes and live tobacco-free';
+
+  @override
+  String get quit => 'Quit';
+
+  @override
+  String get goalHelp => 'We\'ll adapt our resources and recommendations based on your goal. You can modify it later if you change your mind.';
+
+  @override
+  String get pleaseSelectGoal => 'Please select a goal';
+
+  @override
+  String get timelineQuestionReduce => 'When do you want to reduce consumption?';
+
+  @override
+  String get timelineQuestionQuit => 'When do you want to quit smoking?';
+
+  @override
+  String get establishDeadline => 'Set a deadline that seems achievable to you';
+
+  @override
+  String get timelineExplanation => 'A realistic timeline increases your chances of success. Choose a timeframe you\'re comfortable with.';
+
+  @override
+  String get sevenDays => '7 days';
+
+  @override
+  String get sevenDaysDescription => 'I want quick results and I\'m committed';
+
+  @override
+  String get fourteenDays => '14 days';
+
+  @override
+  String get fourteenDaysDescription => 'A balanced timeframe for changing habits';
+
+  @override
+  String get thirtyDays => '30 days';
+
+  @override
+  String get thirtyDaysDescription => 'A month for gradual and sustainable change';
+
+  @override
+  String get noDeadline => 'No defined deadline';
+
+  @override
+  String get noDeadlineDescription => 'I prefer to go at my own pace';
+
+  @override
+  String get timelineHelp => 'Don\'t worry if you don\'t achieve your goal exactly within the timeframe. What matters is continuous progress.';
+
+  @override
+  String get pleaseSelectTimeline => 'Please select a timeline';
+
+  @override
+  String get identifyChallenge => 'Identifying your main challenge helps us provide better support';
+
+  @override
+  String get challengeExplanation => 'Understanding what makes quitting cigarettes difficult is the first step to overcoming that obstacle.';
+
+  @override
+  String get stressAnxiety => 'Stress and anxiety';
+
+  @override
+  String get stressDescription => 'I smoke to deal with stressful situations and anxiety';
+
+  @override
+  String get habitStrength => 'Habit strength';
+
+  @override
+  String get habitDescription => 'Smoking is already part of my daily routine';
+
+  @override
+  String get socialInfluence => 'Social influence';
+
+  @override
+  String get socialDescription => 'People around me smoke or encourage me to smoke';
+
+  @override
+  String get physicalDependence => 'Physical dependence';
+
+  @override
+  String get dependenceDescription => 'I experience physical symptoms when I\'m without smoking';
+
+  @override
+  String get challengeHelp => 'Your answers help us personalize advice and strategies that are more effective for your specific case.';
+
+  @override
+  String get pleaseSelectChallenge => 'Please select a challenge';
+
+  @override
+  String get locationsQuestion => 'Where do you usually smoke?';
+
+  @override
+  String get selectCommonPlaces => 'Select the places where you most often smoke';
+
+  @override
+  String get locationsExplanation => 'Knowing your usual places helps us identify patterns and create specific strategies.';
+
+  @override
+  String get atHome => 'At home';
+
+  @override
+  String get homeDetails => 'Balcony, living room, office';
+
+  @override
+  String get atWork => 'At work/school';
+
+  @override
+  String get workDetails => 'During breaks or pauses';
+
+  @override
+  String get inCar => 'In the car/transport';
+
+  @override
+  String get carDetails => 'During trips';
+
+  @override
+  String get socialEvents => 'At social events';
+
+  @override
+  String get socialDetails => 'Bars, parties, restaurants';
+
+  @override
+  String get outdoors => 'Outdoors';
+
+  @override
+  String get outdoorsDetails => 'Parks, sidewalks, outdoor areas';
+
+  @override
+  String get otherPlaces => 'Other places';
+
+  @override
+  String get otherPlacesDetails => 'When I\'m anxious, regardless of location';
+
+  @override
+  String get locationsHelp => 'Identifying the most common places helps to avoid triggers and create strategies to change habits.';
+
+  @override
+  String get allDone => 'All Done!';
+
+  @override
+  String get personalizedJourney => 'Your personalized journey begins now';
+
+  @override
+  String get startMyJourney => 'Start My Journey';
+
+  @override
+  String get congratulations => 'Congratulations on taking the first step!';
+
+  @override
+  String get yourPersonalizedSummary => 'Your personalized summary';
+
+  @override
+  String get dailyConsumption => 'Daily consumption';
+
+  @override
+  String get potentialMonthlySavings => 'Potential monthly savings';
+
+  @override
+  String get yourGoal => 'Your goal';
+
+  @override
+  String get mainChallenge => 'Your main challenge';
+
+  @override
+  String get personalized => 'Personalized monitoring';
+
+  @override
+  String get personalizedDescription => 'Track your progress based on your habits';
+
+  @override
+  String get importantAchievements => 'Important achievements';
+
+  @override
+  String get achievementsDescription => 'Celebrate each milestone in your journey';
+
+  @override
+  String get supportWhenNeeded => 'Support when you need it';
+
+  @override
+  String get supportDescription => 'Tips and strategies for difficult moments';
+
+  @override
+  String get guaranteedResults => 'Guaranteed results';
+
+  @override
+  String get resultsDescription => 'With our science-based technology';
+
+  @override
+  String get developer => 'Developer';
+
+  @override
+  String get developerMode => 'Developer Mode';
+
+  @override
+  String get enableDebugging => 'Enable detailed debugging and tracking';
+
+  @override
+  String get dashboard => 'Dashboard';
+
+  @override
+  String get viewDetailedTracking => 'View detailed tracking dashboard';
+
+  @override
+  String get currency => 'Currency';
+
+  @override
+  String get changeCurrency => 'Change currency';
+
+  @override
+  String get setCurrencyForCalculations => 'Set the currency for savings calculations';
+
+  @override
+  String get search => 'Search';
+
+  @override
+  String get noResults => 'No results found';
+
+  @override
+  String get listView => 'List view';
+
+  @override
+  String get gridView => 'Grid view';
+
+  @override
+  String get atYourOwnPace => 'at your own pace';
+
+  @override
+  String get nextSevenDays => 'in the next 7 days';
+
+  @override
+  String get nextTwoWeeks => 'in the next 2 weeks';
+
+  @override
+  String get nextMonth => 'in the next month';
+
+  @override
+  String get notSpecified => 'Not specified';
+
+  @override
+  String get registerCraving => 'Register Craving';
+
+  @override
+  String get registerCravingSubtitle => 'When you feel the urge';
+
+  @override
+  String get newRecord => 'New Record';
+
+  @override
+  String get newRecordSubtitle => 'When you smoke';
+
+  @override
+  String get whereAreYou => 'Where are you?';
+
+  @override
+  String get work => 'Work';
+
+  @override
+  String get car => 'Car';
+
+  @override
+  String get restaurant => 'Restaurant';
+
+  @override
+  String get bar => 'Bar';
+
+  @override
+  String get street => 'Street';
+
+  @override
+  String get park => 'Park';
+
+  @override
+  String get others => 'Others';
+
+  @override
+  String get notes => 'Notes (optional)';
+
+  @override
+  String get howAreYouFeeling => 'How are you feeling?';
+
+  @override
+  String get whatTriggeredCraving => 'What triggered your craving?';
+
+  @override
+  String get stress => 'Stress';
+
+  @override
+  String get boredom => 'Boredom';
+
+  @override
+  String get socialSituation => 'Social situation';
+
+  @override
+  String get afterMeal => 'After eating';
+
+  @override
+  String get coffee => 'Coffee';
+
+  @override
+  String get alcohol => 'Alcohol';
+
+  @override
+  String get craving => 'Craving';
+
+  @override
+  String get other => 'Other';
+
+  @override
+  String get intensityLevel => 'Intensity level';
+
+  @override
+  String get mild => 'Mild';
+
+  @override
+  String get intense => 'Intense';
+
+  @override
+  String get veryIntense => 'Very intense';
+
+  @override
+  String get pleaseSelectLocation => 'Please select your location';
+
+  @override
+  String get pleaseSelectTrigger => 'Please select what triggered your craving';
+
+  @override
+  String get pleaseSelectIntensity => 'Please select the intensity level';
+
+  @override
+  String get whatsTheReason => 'What\'s the reason?';
+
+  @override
+  String get anxiety => 'Anxiety';
+
+  @override
+  String get pleaseSelectReason => 'Please select a reason';
+
+  @override
+  String get howDoYouFeel => 'How do you feel? What could you have done differently?';
+
+  @override
+  String get didYouResist => 'Did you resist?';
+
+  @override
+  String get yes => 'Yes';
+
+  @override
+  String get no => 'No';
+
+  @override
+  String get howMuchDidYouSmoke => 'How much did you smoke?';
+
+  @override
+  String get oneOrLess => '1 or less';
+
+  @override
+  String get twoToFive => '2-5';
+
+  @override
+  String get moreThanFive => 'More than 5';
+
+  @override
+  String get pleaseSelectAmount => 'Please select how much you smoked';
+
+  @override
+  String get howLongDidItLast => 'How long did it last?';
+
+  @override
+  String get lessThan5min => 'Less than 5 min';
+
+  @override
+  String get fiveToFifteenMin => '5-15 min';
+
+  @override
+  String get moreThan15min => 'More than 15 min';
+
+  @override
+  String get pleaseSelectDuration => 'Please select how long it lasted';
+
+  @override
+  String get selectCurrency => 'Select your currency';
+
+  @override
+  String get selectCurrencySubtitle => 'Choose the currency for financial calculations';
+
+  @override
+  String get preselectedCurrency => 'We\'ve preselected your local currency. You can change it if needed.';
+
+  @override
+  String get pleaseCompleteAllFields => 'Please complete all required fields to continue';
+
+  @override
+  String get understood => 'Understood';
+
+  @override
+  String get commonPrices => 'Common pack prices';
+
+  @override
+  String get refresh => 'Refresh';
+
+  @override
+  String get errorLoadingNotifications => 'Error loading notifications';
+
+  @override
+  String get noNotificationsYet => 'No notifications yet!';
+
+  @override
+  String get emptyNotificationsDescription => 'Continue using the app to receive motivational messages and achievements.';
+
+  @override
+  String get dailyMotivation => 'Daily Motivation';
+
+  @override
+  String get dailyMotivationDescription => 'Your personalized daily motivation is here. Open it to get your XP reward!';
+
+  @override
+  String get retry => 'Retry';
+
+  @override
+  String get cravingResistedRecorded => 'Craving resistance successfully recorded!';
+
+  @override
+  String get cravingRecorded => 'Craving successfully recorded!';
+
+  @override
+  String get errorSavingCraving => 'Error saving craving. Tap to retry.';
+
+  @override
+  String get recordSaved => 'Record successfully saved!';
+
+  @override
+  String get tapToRetry => 'Tap to retry';
+
+  @override
+  String get syncError => 'Sync error';
+
+  @override
+  String get tryAgain => 'Try again';
+
+  @override
+  String get errorLoadingData => 'Error loading data';
+
+  @override
+  String get noRecoveriesFound => 'No health recoveries found';
+
+  @override
+  String get noRecentRecoveries => 'No recent health recoveries to show';
+
+  @override
+  String get viewAllRecoveries => 'View All Health Recoveries';
+
+  @override
+  String get healthRecovery => 'Health Recovery';
+
+  @override
+  String get seeAll => 'See all';
+
+  @override
+  String get achieved => 'Achieved';
+
+  @override
+  String get progress => 'Progress';
+
+  @override
+  String get keepGoing => 'Keep going!';
+
+  @override
+  String get encouragementMessage => 'You\'re making great progress. Each day without smoking brings you closer to reaching this health milestone.';
+
+  @override
+  String get recoveryAchievedMessage => 'Your body has already recovered in this area. Keep up the good work to maintain and further improve your health.';
+
+  @override
+  String get scienceBehindIt => 'The Science Behind It';
+
+  @override
+  String get generalHealthScienceInfo => 'When you quit smoking, your body begins a series of healing processes. These start minutes after your last cigarette and continue for years, gradually restoring your health to that of a non-smoker.';
+
+  @override
+  String get tasteScienceInfo => 'When you smoke, chemicals in tobacco damage taste buds and reduce your ability to taste. After just a few days without smoking, these taste receptors begin to heal, allowing you to experience more flavors and enjoy food more.';
+
+  @override
+  String get smellScienceInfo => 'Smoking damages the olfactory nerves that transmit smell information to the brain. Within a few days after quitting, these nerves begin to recover, gradually improving your sense of smell and allowing you to detect more subtle odors.';
+
+  @override
+  String get bloodOxygenScienceInfo => 'Carbon monoxide from cigarettes binds to hemoglobin in your blood, reducing its ability to carry oxygen. Within 12-24 hours after quitting, carbon monoxide levels drop dramatically, allowing your blood to carry oxygen more effectively.';
+
+  @override
+  String get carbonMonoxideScienceInfo => 'Cigarette smoke contains carbon monoxide, which displaces oxygen in your blood. Within 12 hours after quitting, carbon monoxide levels return to normal, and oxygen levels in your body significantly increase.';
+
+  @override
+  String get nicotineScienceInfo => 'Nicotine has a half-life of approximately 2 hours, meaning it takes about 72 hours (3 days) for all nicotine to be eliminated from your body. Once nicotine is gone, physical withdrawal symptoms begin to diminish.';
+
+  @override
+  String get improvedBreathingScienceInfo => 'After 7 days without smoking, lung function begins to improve as inflammation decreases and lungs begin to clear accumulated mucus. You\'ll notice less coughing and easier breathing, especially during physical activity.';
+
+  @override
+  String get improvedCirculationScienceInfo => 'After two weeks without smoking, your circulation significantly improves. Blood vessels dilate, blood pressure normalizes, and more oxygen reaches your muscles and organs, making physical activity easier and less strenuous.';
+
+  @override
+  String get decreasedCoughingScienceInfo => 'One month after quitting, the cilia (tiny hair-like structures) in your lungs begin to regrow. These help clean your lungs and reduce infections. Your cough and shortness of breath continue to decrease.';
+
+  @override
+  String get lungCiliaScienceInfo => 'After 3 months without smoking, your lung function can improve by up to 30%. The cilia in your lungs have largely regrown, improving your lungs\' ability to clean themselves, fight infection, and reduce mucus.';
+
+  @override
+  String get reducedHeartDiseaseRiskScienceInfo => 'After a year without smoking, your risk of coronary heart disease decreases to about half that of a smoker. Your heart function continues to improve as blood vessels heal and circulation improves.';
+
+  @override
+  String get viewHealthRecoveries => 'View Health Recoveries';
+
+  @override
+  String get recoveryNotFound => 'Health recovery not found';
+
+  @override
+  String get trackYourHealthJourney => 'Track Your Health Journey';
+
+  @override
+  String get healthRecoveryDescription => 'See how your body recovers after quitting smoking';
+
+  @override
+  String get somethingWentWrong => 'Something went wrong, please try again';
+
+  @override
+  String get comingSoon => 'Coming Soon';
+
+  @override
+  String get registerFirstCigarette => 'Register your first cigarette to see health recovery';
+
+  @override
+  String get errorOccurred => 'An error occurred';
+
+  @override
+  String get feedbackTitle => 'We value your feedback';
+
+  @override
+  String get skip => 'Skip';
+
+  @override
+  String get howIsYourExperience => 'How is your experience?';
+
+  @override
+  String get enjoyingApp => 'Are you enjoying the app?';
+
+  @override
+  String get notReally => 'Not really';
+
+  @override
+  String get yesImEnjoying => 'Yes, I\'m enjoying it!';
+
+  @override
+  String get yesILikeIt => 'Yes, I like it!';
+
+  @override
+  String get rateApp => 'Would you rate the app?';
+
+  @override
+  String get howWouldYouRateApp => 'How would you rate our app?';
+
+  @override
+  String get yourOpinionMatters => 'Your opinion matters to us';
+
+  @override
+  String get weAreConstantlyImproving => 'We are constantly improving our app based on user feedback';
+
+  @override
+  String get later => 'Later';
+
+  @override
+  String get tellUsIssues => 'Tell us what\'s not right';
+
+  @override
+  String get helpUsImprove => 'Help us improve by telling us what we can do better:';
+
+  @override
+  String get feedbackCategory => 'Feedback category';
+
+  @override
+  String get interface => 'Interface';
+
+  @override
+  String get features => 'Features';
+
+  @override
+  String get performance => 'Performance';
+
+  @override
+  String get statisticsAccuracy => 'Statistics Accuracy';
+
+  @override
+  String get accuracyOfStatistics => 'Accuracy of statistics';
+
+  @override
+  String get yourFeedback => 'Your feedback';
+
+  @override
+  String get describeProblem => 'Describe what we can improve...';
+
+  @override
+  String get describeWhatToImprove => 'Describe what we could improve...';
+
+  @override
+  String get whatCouldBeBetter => 'What could be better?';
+
+  @override
+  String get sendFeedback => 'Send feedback';
+
+  @override
+  String get thankYouForFeedback => 'Thank you for your feedback!';
+
+  @override
+  String get gladYouLikeIt => 'We\'re glad you like it!';
+
+  @override
+  String get wouldYouRateOnStore => 'Would you rate our app on the store?';
+
+  @override
+  String get rateAppStore => 'Would you like to rate the app on the store?';
+
+  @override
+  String get alreadyRated => 'I\'ve already rated';
+
+  @override
+  String get rateNow => 'Rate now';
+
+  @override
+  String get feedbackError => 'Oops, something went wrong';
+
+  @override
+  String get couldNotSaveFeedback => 'Could not save your feedback';
+
+  @override
+  String get understand => 'I understand';
+
+  @override
+  String get monday => 'Monday';
+
+  @override
+  String get tuesday => 'Tuesday';
+
+  @override
+  String get wednesday => 'Wednesday';
+
+  @override
+  String get thursday => 'Thursday';
+
+  @override
+  String get friday => 'Friday';
+
+  @override
+  String get saturday => 'Saturday';
+
+  @override
+  String get sunday => 'Sunday';
 
   @override
   String get fillInformation => 'Fill in your information to create an account';
@@ -1289,262 +1332,17 @@ class AppLocalizationsEs extends AppLocalizations {
   String get alreadyAccount => 'Already have an account?';
 
   @override
-  String get currentPassword => 'Current Password';
+  String get resetLinkSent => 'Reset link sent';
 
   @override
-  String get newPassword => 'New Password';
+  String get checkEmailInstructions => 'Check your email for instructions on how to reset your password';
 
   @override
-  String get changePasswordDescription => 'Enter your current password and a new password to update your access credentials.';
+  String get forgotPasswordInstructions => 'Enter your email and we\'ll send you instructions to reset your password';
 
   @override
-  String get passwordChangedSuccessfully => 'Password changed successfully';
+  String get sendResetLink => 'Send reset link';
 
   @override
-  String get forgotPasswordTitle => 'Forgot your password?';
-
-  @override
-  String get forgotPasswordSubtitle => 'We can send you a link to reset your password via email.';
-
-  @override
-  String get deleteAccountWarningTitle => 'This Action Cannot Be Undone';
-
-  @override
-  String get deleteAccountWarning => 'All your data, including tracking history, achievements, and settings will be permanently deleted. This action cannot be reversed.';
-
-  @override
-  String get confirmDeleteAccount => 'I understand this is permanent';
-
-  @override
-  String get confirmDeleteAccountSubtitle => 'I understand that all my data will be permanently deleted and cannot be recovered.';
-
-  @override
-  String get confirmDeleteRequired => 'Please confirm that you understand this action is permanent.';
-
-  @override
-  String get accountDeleted => 'Your account has been deleted successfully.';
-
-  @override
-  String get changeDate => 'Change date';
-
-  @override
-  String get selectDate => 'Select date';
-
-  @override
-  String get clearDate => 'Clear date';
-
-  @override
-  String get suggestedDates => 'Suggested dates';
-
-  @override
-  String get today => 'Today';
-
-  @override
-  String get yesterday => 'Yesterday';
-
-  @override
-  String get oneWeekAgo => 'One week ago';
-
-  @override
-  String get twoWeeksAgo => 'Two weeks ago';
-
-  @override
-  String get oneMonthAgo => 'One month ago';
-
-  @override
-  String get feedbackTitle => 'Valoramos tu opinión';
-
-  @override
-  String get skip => 'Omitir';
-
-  @override
-  String get howIsYourExperience => '¿Cómo ha sido tu experiencia?';
-
-  @override
-  String get enjoyingApp => '¿Estás disfrutando la aplicación?';
-
-  @override
-  String get notReally => 'No realmente';
-
-  @override
-  String get yesImEnjoying => '¡Sí, me gusta!';
-
-  @override
-  String get yesILikeIt => '¡Sí, me gusta!';
-
-  @override
-  String get rateApp => '¿Cómo calificarías la aplicación?';
-
-  @override
-  String get howWouldYouRateApp => '¿Cómo calificarías nuestra aplicación?';
-
-  @override
-  String get yourOpinionMatters => 'Tu opinión es importante para nosotros';
-
-  @override
-  String get weAreConstantlyImproving => 'Estamos mejorando constantemente nuestra aplicación basándonos en los comentarios de los usuarios';
-
-  @override
-  String get later => 'Más tarde';
-
-  @override
-  String get tellUsIssues => 'Cuéntanos qué no está bien';
-
-  @override
-  String get helpUsImprove => 'Ayúdanos a mejorar diciéndonos qué podemos hacer mejor:';
-
-  @override
-  String get feedbackCategory => 'Categoría del comentario';
-
-  @override
-  String get interface => 'Interfaz';
-
-  @override
-  String get features => 'Funciones';
-
-  @override
-  String get performance => 'Rendimiento';
-
-  @override
-  String get statisticsAccuracy => 'Precisión de Estadísticas';
-
-  @override
-  String get accuracyOfStatistics => 'Precisión de las estadísticas';
-
-  @override
-  String get yourFeedback => 'Tu comentario';
-
-  @override
-  String get describeProblem => 'Describe qué podemos mejorar...';
-
-  @override
-  String get describeWhatToImprove => 'Describe qué podríamos mejorar...';
-
-  @override
-  String get whatCouldBeBetter => '¿Qué podría ser mejor?';
-
-  @override
-  String get sendFeedback => 'Enviar comentario';
-
-  @override
-  String get thankYouForFeedback => '¡Agradecemos tu comentario!';
-
-  @override
-  String get gladYouLikeIt => '¡Nos alegra que te guste!';
-
-  @override
-  String get wouldYouRateOnStore => '¿Calificarías nuestra app en la tienda?';
-
-  @override
-  String get rateAppStore => '¿Te gustaría calificar la aplicación en la tienda?';
-
-  @override
-  String get alreadyRated => 'Ya he calificado';
-
-  @override
-  String get rateNow => 'Calificar ahora';
-
-  @override
-  String get feedbackError => 'Ups, algo salió mal';
-
-  @override
-  String get couldNotSaveFeedback => 'No se pudo guardar tu comentario';
-
-  @override
-  String get understand => 'Entiendo';
-
-  @override
-  String get stayInformed => 'Stay Informed';
-
-  @override
-  String get receiveTimelyCues => 'Receive timely cues and important information';
-
-  @override
-  String get importantReminders => 'IMPORTANT REMINDERS FOR YOUR JOURNEY';
-
-  @override
-  String get notificationsHelp => 'Notifications provide timely reminders, motivation, and important milestone alerts to help you stay on track with your goal.';
-
-  @override
-  String get allowNotifications => 'Allow Notifications';
-
-  @override
-  String get notificationsEnabled => 'Notifications enabled successfully!';
-
-  @override
-  String get notificationPermissionFailed => 'There was a problem enabling notifications';
-
-  @override
-  String get requesting => 'Requesting...';
-
-  @override
-  String get skipForNow => 'Skip for now';
-
-  @override
-  String get onboardingLoadError => 'Error loading onboarding';
-
-  @override
-  String get unknownError => 'Unknown error';
-
-  @override
-  String todayAt(String time) {
-    return 'Today at $time';
-  }
-
-  @override
-  String yesterdayAt(String time) {
-    return 'Yesterday at $time';
-  }
-
-  @override
-  String dayOfWeekAt(String weekday, String time) {
-    return '$weekday at $time';
-  }
-
-  @override
-  String dateTimeFormat(String day, String month, String year, String time) {
-    return '$day/$month/$year at $time';
-  }
-
-  @override
-  String get monday => 'Monday';
-
-  @override
-  String get tuesday => 'Tuesday';
-
-  @override
-  String get wednesday => 'Wednesday';
-
-  @override
-  String get thursday => 'Thursday';
-
-  @override
-  String get friday => 'Friday';
-
-  @override
-  String get saturday => 'Saturday';
-
-  @override
-  String get sunday => 'Sunday';
-
-  @override
-  String get errorUserNotAuthenticated => 'Error: User not authenticated';
-
-  @override
-  String get registeringCravingResisted => 'Registering resisted craving...';
-
-  @override
-  String get registeringCraving => 'Registering craving...';
-
-  @override
-  String get userNotAuthenticated => 'Not authenticated';
-
-  @override
-  String get errorLabel => 'Error';
-
-  @override
-  String get welcomeToApp => 'Bienvenido a NicotinaAI';
-
-  @override
-  String get selectLanguage => 'Selecciona tu idioma preferido';
+  String get backToLogin => 'Back to login';
 }

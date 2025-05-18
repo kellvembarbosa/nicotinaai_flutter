@@ -65,8 +65,27 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Force refresh the localization context to ensure we get the latest translations
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
+    
+    final currentLocale = Localizations.localeOf(context);
+    // Debug print to check current locale
+    print('🔍 RegisterScreen building with locale: $currentLocale');
+    print('🔍 Current translations test - Register: ${l10n.register}, CreateAccount: ${l10n.createAccount}');
+    
+    // Log all the translations being used on this screen to identify any issues
+    print('🔍 Testing all register screen translations:');
+    print('  - Register: ${l10n.register}');
+    print('  - CreateAccount: ${l10n.createAccount}');
+    print('  - FillInformation: ${l10n.fillInformation}');
+    print('  - Name: ${l10n.name}');
+    print('  - Email: ${l10n.email}');
+    print('  - Password: ${l10n.password}');
+    print('  - ConfirmPassword: ${l10n.confirmPassword}');
+    print('  - TermsConditions: ${l10n.termsConditionsAgree}');
+    print('  - Login: ${l10n.login}');
+    print('  - AlreadyAccount: ${l10n.alreadyAccount}');
     
     return Scaffold(
       appBar: AppBar(

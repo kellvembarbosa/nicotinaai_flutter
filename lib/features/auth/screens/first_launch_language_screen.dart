@@ -111,11 +111,14 @@ class _FirstLaunchLanguageScreenState extends State<FirstLaunchLanguageScreen> w
       localeBloc.add(MarkLanguageSelectionComplete());
       print('✅ Language selection mark complete event dispatched');
       
-      // Give a moment for the state to update
-      await Future.delayed(const Duration(milliseconds: 300));
+      // Print the current locale that will be used
+      print('🔤 Selected locale for app: ${currentLocale.languageCode}_${currentLocale.countryCode}');
       
-      // Aguardar atualização do estado
-      await Future.delayed(const Duration(milliseconds: 800));
+      // Give more time for the state to update - increase delays for stability
+      await Future.delayed(const Duration(milliseconds: 500));
+      
+      // Aguardar atualização do estado com tempo maior
+      await Future.delayed(const Duration(milliseconds: 1000));
       
       // Importante: Verificar novamente para garantir
       final isComplete = await localeBloc.isLanguageSelectionComplete();

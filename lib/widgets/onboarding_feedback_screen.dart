@@ -14,9 +14,9 @@ class OnboardingFeedbackScreen extends StatefulWidget {
   final VoidCallback onComplete;
 
   const OnboardingFeedbackScreen({
-    Key? key, 
+    super.key, 
     required this.onComplete,
-  }) : super(key: key);
+  });
 
   @override
   State<OnboardingFeedbackScreen> createState() => _OnboardingFeedbackScreenState();
@@ -100,7 +100,7 @@ class _OnboardingFeedbackScreenState extends State<OnboardingFeedbackScreen> {
   }
   
   Widget _buildLoadingScreen(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     
     return SafeArea(
       child: Center(
@@ -120,7 +120,7 @@ class _OnboardingFeedbackScreenState extends State<OnboardingFeedbackScreen> {
   }
 
   Widget _buildSatisfactionScreen(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
@@ -200,7 +200,7 @@ class _OnboardingFeedbackScreenState extends State<OnboardingFeedbackScreen> {
   }
 
   Widget _buildRatingScreen(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
@@ -282,7 +282,7 @@ class _OnboardingFeedbackScreenState extends State<OnboardingFeedbackScreen> {
   }
 
   Widget _buildFeedbackFormScreen(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     final TextEditingController feedbackController = TextEditingController();
     final focusNode = FocusNode();
     
@@ -425,7 +425,7 @@ class _OnboardingFeedbackScreenState extends State<OnboardingFeedbackScreen> {
   }
 
   Widget _buildReviewRequestScreen(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     
     // Automatically request in-app review when this screen is shown for ratings 4-5
     if (!_hasTriggeredReview) {
@@ -516,7 +516,7 @@ class _OnboardingFeedbackScreenState extends State<OnboardingFeedbackScreen> {
   }
 
   Widget _buildErrorScreen(BuildContext context, String message) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
