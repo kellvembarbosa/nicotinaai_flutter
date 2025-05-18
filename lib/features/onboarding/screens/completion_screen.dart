@@ -13,6 +13,7 @@ import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
 import 'package:nicotinaai_flutter/services/analytics/analytics_service.dart';
 import 'package:nicotinaai_flutter/utils/supported_currencies.dart';
 import 'package:nicotinaai_flutter/utils/currency_utils.dart';
+import 'package:nicotinaai_flutter/utils/dialog_utils.dart';
 import 'dart:ui';
 
 class CompletionScreen extends StatefulWidget {
@@ -152,59 +153,8 @@ class _CompletionScreenState extends State<CompletionScreen> {
             ],
           ),
           onNext: () async {
-            // Criar uma chave global para o diálogo de carregamento
-            final navigatorKey = GlobalKey<NavigatorState>();
-            var dialogOpen = false;
-            
-            // Função para mostrar o diálogo com a chave do navegador
-            void showLoadingDialog() {
-              if (context.mounted && !dialogOpen) {
-                dialogOpen = true;
-                showDialog(
-                  context: context,
-                  barrierDismissible: false,
-                  builder: (dialogContext) => WillPopScope(
-                    // Impedir fechamento por back button
-                    onWillPop: () async => false,
-                    child: Center(
-                      child: CircularProgressIndicator(
-                        color: context.primaryColor,
-                      ),
-                    ),
-                  ),
-                );
-              }
-            }
-            
-            // Função para fechar o diálogo com segurança
-            void hideLoadingDialog() {
-              if (dialogOpen && context.mounted) {
-                try {
-                  Navigator.of(context).pop();
-                  dialogOpen = false;
-                } catch (e) {
-                  print('⚠️ [CompletionScreen] Erro ao fechar diálogo: $e');
-                }
-              }
-            }
-            
-            // Configurar um timeout de segurança para garantir que o diálogo não fique preso
-            Future.delayed(const Duration(seconds: 20), () {
-              if (dialogOpen) {
-                print('⏱️ [CompletionScreen] Timeout - Fechando diálogo de carregamento');
-                hideLoadingDialog();
-                
-                // Tentar navegar para a tela principal se ainda não navegou
-                if (context.mounted) {
-                  print('⏱️ [CompletionScreen] Tentando navegação de fallback após timeout');
-                  try {
-                    context.go(AppRoutes.main.path);
-                  } catch (e) {
-                    print('⚠️ [CompletionScreen] Erro na navegação de fallback: $e');
-                  }
-                }
-              }
-            });
+            // Flag para rastrear se o usuário já navegou para evitar navegações duplicadas
+            bool hasNavigated = false;
             
             // Rastrear o evento em todos os adaptadores
             await AnalyticsService().trackEventOnlyPaid(
@@ -220,8 +170,21 @@ class _CompletionScreenState extends State<CompletionScreen> {
                 // Ação a ser executada quando o recurso pago é ativado
                 print('💰 [CompletionScreen] Feature paga ativada');
                 
-                // Mostrar indicador de carregamento
-                showLoadingDialog();
+                // Mostrar diálogo de carregamento com timeout automático de 3 segundos
+                DialogUtils.showLoadingWithTimeout(
+                  context, 
+                  message: localizations.loading,
+                  timeoutSeconds: 3,
+                  onTimeout: () {
+                    print('⏱️ [CompletionScreen] Timeout de 3 segundos do loading expirou');
+                    // Navegar para a tela principal se o timeout ocorrer e ainda não navegamos
+                    if (context.mounted && !hasNavigated) {
+                      print('⏱️ [CompletionScreen] Navegando após timeout');
+                      hasNavigated = true;
+                      context.go(AppRoutes.main.path);
+                    }
+                  }
+                );
 
                 try {
                   // VALIDAÇÃO: Verificar se todas as etapas foram concluídas
@@ -248,19 +211,18 @@ class _CompletionScreenState extends State<CompletionScreen> {
                   // Se chegou aqui, o onboarding foi completado com sucesso
                   print('✅ [CompletionScreen] Onboarding completado com sucesso');
                   
-                  // Fechar o diálogo de carregamento e navegar
-                  hideLoadingDialog();
+                  // Navegar para a tela principal (não precisamos fechar o diálogo pois o DialogUtils já vai cuidar disso)
                   
                   // Navegar imediatamente para a tela principal
-                  if (context.mounted) {
+                  if (context.mounted && !hasNavigated) {
                     print('🚀 [CompletionScreen] Navegando para a tela principal');
+                    hasNavigated = true;
                     context.go(AppRoutes.main.path);
                   }
                 } catch (e) {
                   print('❌ [CompletionScreen] Erro ao completar onboarding: $e');
 
-                  // Mesmo com erro, tentar fechar diálogo e realizar a navegação
-                  hideLoadingDialog();
+                  // Mesmo com erro, tentar realizar a navegação (o diálogo será fechado automaticamente)
                   
                   if (context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
@@ -272,8 +234,11 @@ class _CompletionScreenState extends State<CompletionScreen> {
                     );
 
                     // Navegação de fallback mesmo com erro
-                    print('⚠️ [CompletionScreen] Navegando com fallback');
-                    context.go(AppRoutes.main.path);
+                    if (!hasNavigated) {
+                      print('⚠️ [CompletionScreen] Navegando com fallback');
+                      hasNavigated = true;
+                      context.go(AppRoutes.main.path);
+                    }
                   }
                 }
               },

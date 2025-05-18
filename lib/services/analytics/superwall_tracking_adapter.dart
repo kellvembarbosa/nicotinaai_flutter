@@ -61,12 +61,49 @@ class SuperwallTrackingAdapter implements TrackingAdapter {
     Map<String, dynamic>? parameters,
     required VoidCallback onPaidFeature,
   }) async {
-    if (!_isInitialized || !_isTrackingEnabled) return;
-    sw.Superwall.shared.registerPlacement(
-      eventName,
-      params: parameters?.cast<String, Object>(),
-      feature: onPaidFeature,
-    );
+    if (!_isInitialized || !_isTrackingEnabled) {
+      // If not initialized, execute feature directly without paywall
+      debugPrint('⚠️ SuperwallTrackingAdapter not initialized or disabled, executing feature directly');
+      onPaidFeature();
+      return;
+    }
+    
+    try {
+      // Set a timeout to ensure the feature gets executed in case of any issues
+      bool featureExecuted = false;
+      
+      // Add a safety timeout to prevent infinite loading - reduced to just 3 seconds
+      Future.delayed(const Duration(seconds: 3), () {
+        if (!featureExecuted) {
+          debugPrint('⏱️ SuperwallTrackingAdapter timeout - force executing feature after 3 seconds');
+          featureExecuted = true;
+          onPaidFeature();
+        }
+      });
+      
+      // A API Superwall não tem o parâmetro completion
+      // Vamos usar apenas os parâmetros suportados
+      sw.Superwall.shared.registerPlacement(
+        eventName,
+        params: parameters?.cast<String, Object>(),
+        feature: () {
+          // Mark as executed
+          if (!featureExecuted) {
+            featureExecuted = true;
+            onPaidFeature();
+          } else {
+            debugPrint('⚠️ SuperwallTrackingAdapter: feature already executed, ignoring duplicate call');
+          }
+        },
+        // O parâmetro handler não é usado, mas está disponível na API
+        // Não vamos usá-lo pois não é necessário para nosso caso
+        // e o timeout já garante que a feature será executada
+      );
+    } catch (e) {
+      // In case of error, execute the feature directly as fallback
+      debugPrint('❌ SuperwallTrackingAdapter error during registerPlacement: $e');
+      onPaidFeature();
+    }
   }
 
   @override
