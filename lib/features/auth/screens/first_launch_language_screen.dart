@@ -22,6 +22,7 @@ class _FirstLaunchLanguageScreenState extends State<FirstLaunchLanguageScreen> w
   late AnimationController _controller;
   late Animation<double> _fadeInAnimation;
   late Animation<Offset> _slideAnimation;
+  bool _isLoading = false;
   
   @override
   void initState() {
@@ -59,6 +60,11 @@ class _FirstLaunchLanguageScreenState extends State<FirstLaunchLanguageScreen> w
   }
 
   void _onContinue() async {
+    // Show loading indicator
+    setState(() {
+      _isLoading = true;
+    });
+    
     // Get access to the LocaleBloc
     final localeBloc = context.read<LocaleBloc>();
     
@@ -133,6 +139,13 @@ class _FirstLaunchLanguageScreenState extends State<FirstLaunchLanguageScreen> w
       }
     } catch (e) {
       print('⚠️ Error during language selection: $e');
+      
+      // Hide loading indicator on error
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -236,7 +249,7 @@ class _FirstLaunchLanguageScreenState extends State<FirstLaunchLanguageScreen> w
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 24.0),
                         child: ElevatedButton(
-                          onPressed: _onContinue,
+                          onPressed: _isLoading ? null : _onContinue,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: context.primaryColor,
                             foregroundColor: Colors.white,
@@ -244,14 +257,38 @@ class _FirstLaunchLanguageScreenState extends State<FirstLaunchLanguageScreen> w
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
+                            disabledBackgroundColor: context.primaryColor.withOpacity(0.6),
+                            disabledForegroundColor: Colors.white70,
                           ),
-                          child: Text(
-                            l10n.continueButton,
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
+                          child: _isLoading
+                              ? Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    SizedBox(
+                                      width: 20,
+                                      height: 20,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 3,
+                                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Text(
+                                      l10n.loading,
+                                      style: const TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                )
+                              : Text(
+                                  l10n.continueButton,
+                                  style: const TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                         ),
                       ),
                     ],

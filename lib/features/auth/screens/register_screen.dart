@@ -316,7 +316,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                         ),
                                       );
                                       UrlLauncherUtils.launchURL(
-                                        'https://nicotina.ai/legal/terms-of-service',
+                                        l10n.termsOfServiceUrl,
                                         context: context,
                                       );
                                     },
@@ -329,7 +329,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     ),
                                   ),
                                   Text(
-                                    " | ",
+                                    l10n.textSeparator,
                                     style: theme.textTheme.bodySmall,
                                   ),
                                   GestureDetector(
@@ -341,7 +341,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                         ),
                                       );
                                       UrlLauncherUtils.launchURL(
-                                        'https://nicotina.ai/legal/privacy-policy',
+                                        l10n.privacyPolicyUrl,
                                         context: context,
                                       );
                                     },

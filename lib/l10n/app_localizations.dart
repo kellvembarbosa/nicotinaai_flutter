@@ -107,6 +107,24 @@ abstract class AppLocalizations {
     Locale('pt')
   ];
 
+  /// Separator for text items in UI (like between terms and privacy policy)
+  ///
+  /// In en, this message translates to:
+  /// **' | '**
+  String get textSeparator;
+
+  /// URL for Terms of Service
+  ///
+  /// In en, this message translates to:
+  /// **'https://nicotina.ai/legal/terms-of-service'**
+  String get termsOfServiceUrl;
+
+  /// URL for Privacy Policy
+  ///
+  /// In en, this message translates to:
+  /// **'https://nicotina.ai/legal/privacy-policy'**
+  String get privacyPolicyUrl;
+
   /// Title for dialog when onboarding is incomplete
   ///
   /// In en, this message translates to:

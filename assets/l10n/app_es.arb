@@ -1,5 +1,8 @@
 {
   "@@locale": "es",
+  "textSeparator": " | ",
+  "termsOfServiceUrl": "https://nicotina.ai/legal/terms-of-service",
+  "privacyPolicyUrl": "https://nicotina.ai/legal/privacy-policy",
   "incompleteOnboarding": "Onboarding Incompleto",
   "@incompleteOnboarding": {
     "description": "Título para el diálogo cuando el onboarding está incompleto"

@@ -9,6 +9,15 @@ class AppLocalizationsDe extends AppLocalizations {
   AppLocalizationsDe([String locale = 'de']) : super(locale);
 
   @override
+  String get textSeparator => ' | ';
+
+  @override
+  String get termsOfServiceUrl => 'https://nicotina.ai/legal/terms-of-service';
+
+  @override
+  String get privacyPolicyUrl => 'https://nicotina.ai/legal/privacy-policy';
+
+  @override
   String get incompleteOnboarding => 'Incomplete Onboarding';
 
   @override

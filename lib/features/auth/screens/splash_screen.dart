@@ -164,7 +164,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
             // App name
             Text(
-              'Nicotina.AI',
+              l10n.appName,
               style: Theme.of(
                 context,
               ).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),

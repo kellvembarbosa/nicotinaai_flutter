@@ -1,5 +1,8 @@
 {
   "de": [
+    "textSeparator",
+    "termsOfServiceUrl",
+    "privacyPolicyUrl",
     "incompleteOnboarding",
     "completeAllStepsMessage",
     "helpScreenTitle",
@@ -553,6 +556,9 @@
   ],
 
   "fr": [
+    "textSeparator",
+    "termsOfServiceUrl",
+    "privacyPolicyUrl",
     "achievementFirstDay",
     "achievementFirstDayDescription",
     "achievementOneWeek",
@@ -650,6 +656,9 @@
   ],
 
   "it": [
+    "textSeparator",
+    "termsOfServiceUrl",
+    "privacyPolicyUrl",
     "todayAt",
     "yesterdayAt",
     "dayOfWeekAt",
@@ -671,6 +680,9 @@
   ],
 
   "nl": [
+    "textSeparator",
+    "termsOfServiceUrl",
+    "privacyPolicyUrl",
     "incompleteOnboarding",
     "completeAllStepsMessage",
     "helpScreenTitle",
@@ -1152,6 +1164,9 @@
   ],
 
   "pl": [
+    "textSeparator",
+    "termsOfServiceUrl",
+    "privacyPolicyUrl",
     "incompleteOnboarding",
     "completeAllStepsMessage",
     "helpScreenTitle",

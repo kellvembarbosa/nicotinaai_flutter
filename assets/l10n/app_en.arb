@@ -1,5 +1,17 @@
 {
   "@@locale": "en",
+  "textSeparator": " | ",
+  "@textSeparator": {
+    "description": "Separator for text items in UI (like between terms and privacy policy)"
+  },
+  "termsOfServiceUrl": "https://nicotina.ai/legal/terms-of-service",
+  "@termsOfServiceUrl": {
+    "description": "URL for Terms of Service"
+  },
+  "privacyPolicyUrl": "https://nicotina.ai/legal/privacy-policy",
+  "@privacyPolicyUrl": {
+    "description": "URL for Privacy Policy"
+  },
   "incompleteOnboarding": "Incomplete Onboarding",
   "@incompleteOnboarding": {
     "description": "Title for dialog when onboarding is incomplete"
