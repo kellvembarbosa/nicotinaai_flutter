@@ -419,6 +419,18 @@ abstract class AppLocalizations {
   /// **'When I\'m bored'**
   String get whenBored;
 
+  /// Days without smoking counter
+  ///
+  /// In en, this message translates to:
+  /// **'{days} days without smoking'**
+  String homeDaysWithoutSmoking(int days);
+
+  /// Greeting with user name
+  ///
+  /// In en, this message translates to:
+  /// **'Hello, {name}!'**
+  String homeGreeting(String name);
+
   /// Health recovery section title
   ///
   /// In en, this message translates to:
@@ -472,6 +484,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Next Milestone'**
   String get homeNextMilestone;
+
+  /// Next milestone description
+  ///
+  /// In en, this message translates to:
+  /// **'Next milestone in {days} days'**
+  String homeNextMilestoneDescription(int days);
 
   /// Recent achievements section title
   ///
@@ -592,6 +610,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Your Current Progress'**
   String get achievementCurrentProgress;
+
+  /// Achievement level
+  ///
+  /// In en, this message translates to:
+  /// **'Level {level}'**
+  String achievementLevel(int level);
+
+  /// Days without smoking on achievements screen
+  ///
+  /// In en, this message translates to:
+  /// **'{days} days without smoking'**
+  String achievementDaysWithoutSmoking(int days);
+
+  /// Next achievement level
+  ///
+  /// In en, this message translates to:
+  /// **'Next level: {time}'**
+  String achievementNextLevel(String time);
 
   /// CO2 benefit label
   ///
@@ -718,6 +754,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Record 5 days of exercise'**
   String get achievementNewHabitExerciseDescription;
+
+  /// Percentage completed
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}% completed'**
+  String percentCompleted(int percent);
 
   /// Login screen title
   ///
@@ -1030,6 +1072,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'App version and information'**
   String get appInfo;
+
+  /// App version
+  ///
+  /// In en, this message translates to:
+  /// **'Version {version}'**
+  String version(String version);
 
   /// Cancel button
   ///
@@ -1691,6 +1739,12 @@ abstract class AppLocalizations {
   /// **'Daily consumption'**
   String get dailyConsumption;
 
+  /// Value for cigarettes per day
+  ///
+  /// In en, this message translates to:
+  /// **'{count} cigarettes per day'**
+  String cigarettesPerDayValue(int count);
+
   /// Label for potential monthly savings
   ///
   /// In en, this message translates to:
@@ -2309,6 +2363,30 @@ abstract class AppLocalizations {
   /// **'Progress'**
   String get progress;
 
+  /// Text showing days without smoking
+  ///
+  /// In en, this message translates to:
+  /// **'{days} days smoke free'**
+  String daysSmokeFree(int days);
+
+  /// Text showing days required to achieve a recovery
+  ///
+  /// In en, this message translates to:
+  /// **'Days to achieve: {days}'**
+  String daysToAchieve(int days);
+
+  /// Text showing days remaining to achieve a recovery
+  ///
+  /// In en, this message translates to:
+  /// **'{days} days remaining'**
+  String daysRemaining(int days);
+
+  /// Text showing when a recovery was achieved
+  ///
+  /// In en, this message translates to:
+  /// **'Achieved on {date}'**
+  String achievedOn(DateTime date);
+
   /// Encouragement message
   ///
   /// In en, this message translates to:
@@ -2651,6 +2729,84 @@ abstract class AppLocalizations {
   /// **'I understand'**
   String get understand;
 
+  /// Error message when onboarding fails to load
+  ///
+  /// In en, this message translates to:
+  /// **'Error loading onboarding'**
+  String get onboardingLoadError;
+
+  /// Generic message for unknown errors
+  ///
+  /// In en, this message translates to:
+  /// **'An unknown error occurred'**
+  String get unknownError;
+
+  /// Error message when user is not authenticated
+  ///
+  /// In en, this message translates to:
+  /// **'You must be logged in to perform this action'**
+  String get errorUserNotAuthenticated;
+
+  /// Message shown when user is not authenticated
+  ///
+  /// In en, this message translates to:
+  /// **'You are not logged in'**
+  String get userNotAuthenticated;
+
+  /// Message shown when registering a resisted craving
+  ///
+  /// In en, this message translates to:
+  /// **'Registering craving resisted...'**
+  String get registeringCravingResisted;
+
+  /// Message shown when registering a craving
+  ///
+  /// In en, this message translates to:
+  /// **'Registering craving...'**
+  String get registeringCraving;
+
+  /// Question about quitting challenge with goal text placeholder
+  ///
+  /// In en, this message translates to:
+  /// **'What makes it difficult to {goalText}?'**
+  String challengeQuestion(String goalText);
+
+  /// Text explaining personalized plan for reducing consumption
+  ///
+  /// In en, this message translates to:
+  /// **'We\'ve created a personalized plan to help you reduce your cigarette consumption {timelineText}. This plan is based on your habits and preferences.'**
+  String personalizedPlanReduce(String timelineText);
+
+  /// Text explaining personalized plan for quitting smoking
+  ///
+  /// In en, this message translates to:
+  /// **'We\'ve created a personalized plan to help you quit smoking {timelineText}. This plan is based on your habits and preferences.'**
+  String personalizedPlanQuit(String timelineText);
+
+  /// Text for showing today's date with time
+  ///
+  /// In en, this message translates to:
+  /// **'Today at {time}'**
+  String todayAt(String time);
+
+  /// Text for showing yesterday's date with time
+  ///
+  /// In en, this message translates to:
+  /// **'Yesterday at {time}'**
+  String yesterdayAt(String time);
+
+  /// Text for showing day of week with time
+  ///
+  /// In en, this message translates to:
+  /// **'{weekday} at {time}'**
+  String dayOfWeekAt(String weekday, String time);
+
+  /// Format for showing a complete date with time
+  ///
+  /// In en, this message translates to:
+  /// **'{day}/{month}/{year} at {time}'**
+  String dateTimeFormat(String day, String month, String year, String time);
+
   /// Name of the day of the week: Monday
   ///
   /// In en, this message translates to:
@@ -2782,6 +2938,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Back to login'**
   String get backToLogin;
+
+  /// Button text to create a new account
+  ///
+  /// In en, this message translates to:
+  /// **'Create Account'**
+  String get createAccount;
+
+  /// Title for notification permission screen
+  ///
+  /// In en, this message translates to:
+  /// **'Stay Informed'**
+  String get stayInformed;
+
+  /// Subtitle for notification permission screen
+  ///
+  /// In en, this message translates to:
+  /// **'Receive timely cues and reminders to help with your journey'**
+  String get receiveTimelyCues;
+
+  /// Title for reminders section in notification permission screen
+  ///
+  /// In en, this message translates to:
+  /// **'Important Reminders'**
+  String get importantReminders;
+
+  /// Explanation text about the benefits of notifications
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications help you stay on track with your goals, provide timely support during difficult moments, and celebrate your achievements.'**
+  String get notificationsHelp;
+
+  /// Text shown when requesting permissions
+  ///
+  /// In en, this message translates to:
+  /// **'Requesting...'**
+  String get requesting;
+
+  /// Button text to allow notifications
+  ///
+  /// In en, this message translates to:
+  /// **'Allow Notifications'**
+  String get allowNotifications;
+
+  /// Message shown when notifications are enabled
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications enabled successfully'**
+  String get notificationsEnabled;
+
+  /// Text for skipping an optional step
+  ///
+  /// In en, this message translates to:
+  /// **'Skip for now'**
+  String get skipForNow;
+
+  /// Message shown when notification permission request fails
+  ///
+  /// In en, this message translates to:
+  /// **'Notification permission was not granted'**
+  String get notificationPermissionFailed;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

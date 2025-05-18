@@ -84,14 +84,14 @@ class AchievementLocalizer {
       String desc = l10n.achievementMoneyMindfulDescription;
       
       // Replace the currency pattern with the user's preferred currency
-      return desc.replaceAll(patterns[0], '$currencySymbol50');
+      return desc.replaceAll(patterns[0], formatCurrency(locale, currencySymbol, '50'));
     } 
     // Handle Centurion achievement (100 units)
     else if (achievementId == 'c1824daf-0d0b-4850-ad40-580fbb972510') {
       String desc = l10n.achievementCenturionDescription;
       
       // Replace the currency pattern with the user's preferred currency
-      return desc.replaceAll(patterns[1], '$currencySymbol100');
+      return desc.replaceAll(patterns[1], formatCurrency(locale, currencySymbol, '100'));
     }
     
     // If not a financial achievement, just return the regular description

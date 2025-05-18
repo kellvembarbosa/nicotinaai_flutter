@@ -25,7 +25,7 @@ class _InterestsScreenState extends State<InterestsScreen> {
     // Load saved data if available
     final bloc = context.read<OnboardingBloc>();
     final onboarding = bloc.state.onboarding;
-    
+
     if (onboarding != null && onboarding.quitChallenge != null) {
       switch (onboarding.quitChallenge) {
         case QuitChallenge.stress:
@@ -49,23 +49,17 @@ class _InterestsScreenState extends State<InterestsScreen> {
   @override
   Widget build(BuildContext context) {
     final localizations = AppLocalizations.of(context);
-    
+
     return BlocBuilder<OnboardingBloc, OnboardingState>(
       builder: (context, state) {
         final onboarding = state.onboarding;
-        
+
         if (onboarding == null) {
-          return const Scaffold(
-            body: Center(
-              child: CircularProgressIndicator(),
-            ),
-          );
+          return const Scaffold(body: Center(child: CircularProgressIndicator()));
         }
 
         // Determine correct goal text for the challenge question
-        final String goalText = onboarding.goal == GoalType.reduce
-            ? 'reduzir'
-            : 'parar de fumar';
+        final String goalText = onboarding.goal == GoalType.reduce ? 'reduzir' : 'parar de fumar';
 
         return OnboardingContainer(
           title: localizations.challengeQuestion(goalText),
@@ -74,7 +68,7 @@ class _InterestsScreenState extends State<InterestsScreen> {
           content: Column(
             children: [
               const SizedBox(height: 16),
-              
+
               // Stress option
               OptionCard(
                 selected: _selectedChallenge == 'stress',
@@ -86,9 +80,9 @@ class _InterestsScreenState extends State<InterestsScreen> {
                 label: localizations.stressAnxiety,
                 description: localizations.stressDescription,
               ),
-              
+
               const SizedBox(height: 12),
-              
+
               // Habit option
               OptionCard(
                 selected: _selectedChallenge == 'habit',
@@ -100,9 +94,9 @@ class _InterestsScreenState extends State<InterestsScreen> {
                 label: localizations.habitStrength,
                 description: localizations.habitDescription,
               ),
-              
+
               const SizedBox(height: 12),
-              
+
               // Social option
               OptionCard(
                 selected: _selectedChallenge == 'social',
@@ -114,9 +108,9 @@ class _InterestsScreenState extends State<InterestsScreen> {
                 label: localizations.socialInfluence,
                 description: localizations.socialDescription,
               ),
-              
+
               const SizedBox(height: 12),
-              
+
               // Addiction option
               OptionCard(
                 selected: _selectedChallenge == 'addiction',
@@ -128,17 +122,15 @@ class _InterestsScreenState extends State<InterestsScreen> {
                 label: localizations.physicalDependence,
                 description: localizations.dependenceDescription,
               ),
-              
+
               const SizedBox(height: 24),
-              
+
               // Informational text
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24),
                 child: Text(
                   localizations.challengeHelp,
-                  style: context.textTheme.bodyMedium!.copyWith(
-                    color: context.subtitleColor,
-                  ),
+                  style: context.textTheme.bodyMedium!.copyWith(color: context.subtitleColor),
                   textAlign: TextAlign.center,
                 ),
               ),
@@ -148,7 +140,7 @@ class _InterestsScreenState extends State<InterestsScreen> {
           onNext: () {
             // Map selection to corresponding enum
             QuitChallenge? challenge;
-            
+
             switch (_selectedChallenge) {
               case 'stress':
                 challenge = QuitChallenge.stress;
@@ -163,26 +155,21 @@ class _InterestsScreenState extends State<InterestsScreen> {
                 challenge = QuitChallenge.addiction;
                 break;
             }
-            
+
             // Update the model
             if (challenge != null) {
-              final updated = onboarding.copyWith(
-                quitChallenge: challenge,
-              );
-              
+              final updated = onboarding.copyWith(quitChallenge: challenge);
+
               // Enviar evento de atualização do onboarding
               context.read<OnboardingBloc>().add(UpdateOnboarding(updated));
-              
+
               // Avançar para o próximo passo
               context.read<OnboardingBloc>().add(NextOnboardingStep());
             } else {
               // Show error message if no challenge is selected
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(localizations.pleaseSelectChallenge),
-                  duration: const Duration(seconds: 2),
-                ),
-              );
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text(localizations.pleaseSelectChallenge), duration: const Duration(seconds: 2)));
             }
           },
         );

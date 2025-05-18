@@ -217,6 +217,7 @@
       }
     }
   },
+  "homeDaysWithoutSmoking": "{days} days without smoking",
   "@homeGreeting": {
     "description": "Greeting with user name",
     "placeholders": {
@@ -226,6 +227,7 @@
       }
     }
   },
+  "homeGreeting": "Hello, {name}!",
   "homeHealthRecovery": "Health Recovery",
   "@homeHealthRecovery": {
     "description": "Health recovery section title"
@@ -271,6 +273,7 @@
       }
     }
   },
+  "homeNextMilestoneDescription": "Next milestone in {days} days",
   "homeRecentAchievements": "Recent Achievements",
   "@homeRecentAchievements": {
     "description": "Recent achievements section title"
@@ -351,6 +354,7 @@
   "@achievementCurrentProgress": {
     "description": "Current progress section title"
   },
+  "achievementLevel": "Level {level}",
   "@achievementLevel": {
     "description": "Achievement level",
     "placeholders": {
@@ -360,6 +364,7 @@
       }
     }
   },
+  "achievementDaysWithoutSmoking": "{days} days without smoking",
   "@achievementDaysWithoutSmoking": {
     "description": "Days without smoking on achievements screen",
     "placeholders": {
@@ -369,6 +374,7 @@
       }
     }
   },
+  "achievementNextLevel": "Next level: {time}",
   "@achievementNextLevel": {
     "description": "Next achievement level",
     "placeholders": {
@@ -462,6 +468,7 @@
   "@achievementNewHabitExerciseDescription": {
     "description": "New exercise habit achievement description"
   },
+  "percentCompleted": "{percent}% completed",
   "@percentCompleted": {
     "description": "Percentage completed",
     "placeholders": {
@@ -679,6 +686,7 @@
   "@appInfo": {
     "description": "Description of about the app item"
   },
+  "version": "Version {version}",
   "@version": {
     "description": "App version",
     "placeholders": {
@@ -1155,6 +1163,7 @@
   "@dailyConsumption": {
     "description": "Label for daily consumption in summary"
   },
+  "cigarettesPerDayValue": "{count} cigarettes per day",
   "@cigarettesPerDayValue": {
     "description": "Value for cigarettes per day",
     "placeholders": {
@@ -1643,6 +1652,37 @@
       }
     }
   },
+  "daysSmokeFree": "{days} days smoke free",
+  "@daysToAchieve": {
+    "description": "Text showing days required to achieve a recovery",
+    "placeholders": {
+      "days": {
+        "type": "int",
+        "example": "7"
+      }
+    }
+  },
+  "daysToAchieve": "Days to achieve: {days}",
+  "@daysRemaining": {
+    "description": "Text showing days remaining to achieve a recovery",
+    "placeholders": {
+      "days": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "daysRemaining": "{days} days remaining",
+  "@achievedOn": {
+    "description": "Text showing when a recovery was achieved",
+    "placeholders": {
+      "date": {
+        "type": "DateTime",
+        "format": "yMMMd"
+      }
+    }
+  },
+  "achievedOn": "Achieved on {date}",
   "keepGoing": "Keep going!",
   "@keepGoing": {
     "description": "Encouragement message"
@@ -1871,6 +1911,61 @@
   "@understand": {
     "description": "Acknowledgment button text"
   },
+  "onboardingLoadError": "Error loading onboarding",
+  "@onboardingLoadError": {
+    "description": "Error message when onboarding fails to load"
+  },
+  "unknownError": "An unknown error occurred",
+  "@unknownError": {
+    "description": "Generic message for unknown errors"
+  },
+  "errorUserNotAuthenticated": "You must be logged in to perform this action",
+  "@errorUserNotAuthenticated": {
+    "description": "Error message when user is not authenticated"
+  },
+  "userNotAuthenticated": "You are not logged in",
+  "@userNotAuthenticated": {
+    "description": "Message shown when user is not authenticated"
+  },
+  "registeringCravingResisted": "Registering craving resisted...",
+  "@registeringCravingResisted": {
+    "description": "Message shown when registering a resisted craving"
+  },
+  "registeringCraving": "Registering craving...",
+  "@registeringCraving": {
+    "description": "Message shown when registering a craving"
+  },
+  "challengeQuestion": "What makes it difficult to {goalText}?",
+  "@challengeQuestion": {
+    "description": "Question about quitting challenge with goal text placeholder",
+    "placeholders": {
+      "goalText": {
+        "type": "String",
+        "example": "quit smoking"
+      }
+    }
+  },
+  "personalizedPlanReduce": "We've created a personalized plan to help you reduce your cigarette consumption {timelineText}. This plan is based on your habits and preferences.",
+  "@personalizedPlanReduce": {
+    "description": "Text explaining personalized plan for reducing consumption",
+    "placeholders": {
+      "timelineText": {
+        "type": "String",
+        "example": "in the next 7 days"
+      }
+    }
+  },
+  "personalizedPlanQuit": "We've created a personalized plan to help you quit smoking {timelineText}. This plan is based on your habits and preferences.",
+  "@personalizedPlanQuit": {
+    "description": "Text explaining personalized plan for quitting smoking",
+    "placeholders": {
+      "timelineText": {
+        "type": "String",
+        "example": "in the next 7 days"
+      }
+    }
+  },
+  "todayAt": "Today at {time}",
   "@todayAt": {
     "description": "Text for showing today's date with time",
     "placeholders": {
@@ -1880,6 +1975,7 @@
       }
     }
   },
+  "yesterdayAt": "Yesterday at {time}",
   "@yesterdayAt": {
     "description": "Text for showing yesterday's date with time",
     "placeholders": {
@@ -1889,6 +1985,7 @@
       }
     }
   },
+  "dayOfWeekAt": "{weekday} at {time}",
   "@dayOfWeekAt": {
     "description": "Text for showing day of week with time",
     "placeholders": {
@@ -1902,6 +1999,7 @@
       }
     }
   },
+  "dateTimeFormat": "{day}/{month}/{year} at {time}",
   "@dateTimeFormat": {
     "description": "Format for showing a complete date with time",
     "placeholders": {
@@ -2010,5 +2108,45 @@
   "backToLogin": "Back to login",
   "@backToLogin": {
     "description": "Link to go back to the login screen"
+  },
+  "createAccount": "Create Account",
+  "@createAccount": {
+    "description": "Button text to create a new account"
+  },
+  "stayInformed": "Stay Informed",
+  "@stayInformed": {
+    "description": "Title for notification permission screen"
+  },
+  "receiveTimelyCues": "Receive timely cues and reminders to help with your journey",
+  "@receiveTimelyCues": {
+    "description": "Subtitle for notification permission screen"
+  },
+  "importantReminders": "Important Reminders",
+  "@importantReminders": {
+    "description": "Title for reminders section in notification permission screen"
+  },
+  "notificationsHelp": "Notifications help you stay on track with your goals, provide timely support during difficult moments, and celebrate your achievements.",
+  "@notificationsHelp": {
+    "description": "Explanation text about the benefits of notifications"
+  },
+  "requesting": "Requesting...",
+  "@requesting": {
+    "description": "Text shown when requesting permissions"
+  },
+  "allowNotifications": "Allow Notifications",
+  "@allowNotifications": {
+    "description": "Button text to allow notifications"
+  },
+  "notificationsEnabled": "Notifications enabled successfully",
+  "@notificationsEnabled": {
+    "description": "Message shown when notifications are enabled"
+  },
+  "skipForNow": "Skip for now",
+  "@skipForNow": {
+    "description": "Text for skipping an optional step"
+  },
+  "notificationPermissionFailed": "Notification permission was not granted",
+  "@notificationPermissionFailed": {
+    "description": "Message shown when notification permission request fails"
   }
 }

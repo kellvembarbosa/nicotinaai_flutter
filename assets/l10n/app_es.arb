@@ -418,11 +418,11 @@
       }
     }
   },
-  "dayOfWeekAt": "{day} a las {time}",
+  "dayOfWeekAt": "{weekday} a las {time}",
   "@dayOfWeekAt": {
     "description": "Day of week at specific time",
     "placeholders": {
-      "day": {
+      "weekday": {
         "type": "String",
         "example": "Lunes"
       },

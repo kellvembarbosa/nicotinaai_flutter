@@ -93,52 +93,52 @@ class AppLocalizationsEs extends AppLocalizations {
   String get motivationalMessage => '¡Sigue adelante! ¡Lo estás haciendo genial!';
 
   @override
-  String get helpScreenTitle => 'How can we help you?';
+  String get helpScreenTitle => '¿Cómo podemos ayudarte?';
 
   @override
-  String get selectAllInterests => 'Select all options that interest you';
+  String get selectAllInterests => 'Seleccione todas las opciones que le interesen';
 
   @override
-  String get helpScreenExplanation => 'We offer different resources to support your journey. Select everything you think might help.';
+  String get helpScreenExplanation => 'Ofrecemos diferentes recursos para apoyar tu viaje. Selecciona todo lo que creas que podría ayudar.';
 
   @override
-  String get dailyTips => 'Daily tips';
+  String get dailyTips => 'Consejos diarios';
 
   @override
-  String get dailyTipsDescription => 'Receive practical tips every day to support your journey';
+  String get dailyTipsDescription => 'Recibe consejos prácticos todos los días para apoyar tu viaje';
 
   @override
-  String get customReminders => 'Custom reminders';
+  String get customReminders => 'Recordatorios personalizados';
 
   @override
-  String get customRemindersDescription => 'Notifications to keep you motivated and on track';
+  String get customRemindersDescription => 'Notificaciones para mantenerte motivado y en el camino correcto';
 
   @override
-  String get progressMonitoring => 'Progress monitoring';
+  String get progressMonitoring => 'Monitoreo de progreso';
 
   @override
-  String get progressMonitoringDescription => 'Visually track your progress over time';
+  String get progressMonitoringDescription => 'Sigue visualmente tu progreso a lo largo del tiempo';
 
   @override
-  String get supportCommunity => 'Support community';
+  String get supportCommunity => 'Comunidad de apoyo';
 
   @override
-  String get supportCommunityDescription => 'Connect with others on a similar journey';
+  String get supportCommunityDescription => 'Conéctate con otros en un viaje similar';
 
   @override
-  String get cigaretteAlternatives => 'Cigarette alternatives';
+  String get cigaretteAlternatives => 'Alternativas al cigarrillo';
 
   @override
-  String get cigaretteAlternativesDescription => 'Suggestions for activities and products to replace the habit';
+  String get cigaretteAlternativesDescription => 'Sugerencias de actividades y productos para reemplazar el hábito';
 
   @override
-  String get savingsCalculator => 'Savings Calculator';
+  String get savingsCalculator => 'Calculadora de Ahorros';
 
   @override
-  String get savingsCalculatorDescription => 'See how much money you\'re saving by reducing or quitting smoking';
+  String get savingsCalculatorDescription => 'Ve cuánto dinero estás ahorrando al reducir o dejar de fumar';
 
   @override
-  String get modifyPreferencesAnytime => 'You can modify these preferences at any time in the app settings.';
+  String get modifyPreferencesAnytime => 'Puedes modificar estas preferencias en cualquier momento en la configuración de la aplicación.';
 
   @override
   String get personalizeScreenTitle => 'When do you usually smoke the most?';
@@ -165,6 +165,16 @@ class AppLocalizationsEs extends AppLocalizations {
   String get whenBored => 'When I\'m bored';
 
   @override
+  String homeDaysWithoutSmoking(int days) {
+    return '$days días sin fumar';
+  }
+
+  @override
+  String homeGreeting(String name) {
+    return 'Hola, $name';
+  }
+
+  @override
   String get homeHealthRecovery => 'Health Recovery';
 
   @override
@@ -183,46 +193,51 @@ class AppLocalizationsEs extends AppLocalizations {
   String get homeHeart => 'Heart';
 
   @override
-  String get homeMinutesLifeGained => 'minutes of life\ngained';
+  String get homeMinutesLifeGained => 'Minutos de vida ganados';
 
   @override
-  String get homeLungCapacity => 'lung\ncapacity';
+  String get homeLungCapacity => 'Capacidad pulmonar';
 
   @override
-  String get homeNextMilestone => 'Next Milestone';
+  String get homeNextMilestone => 'Próximo hito';
 
   @override
-  String get homeRecentAchievements => 'Recent Achievements';
+  String homeNextMilestoneDescription(int days) {
+    return 'A $days días de tu próximo logro de salud';
+  }
 
   @override
-  String get homeSeeAll => 'See all';
+  String get homeRecentAchievements => 'Logros recientes';
 
   @override
-  String get homeFirstDay => 'First Day';
+  String get homeSeeAll => 'Ver todos';
 
   @override
-  String get homeFirstDayDescription => 'You\'ve gone 24 hours without smoking!';
+  String get homeFirstDay => 'Primer día';
 
   @override
-  String get homeOvercoming => 'Overcoming';
+  String get homeFirstDayDescription => '¡Completaste tu primer día sin fumar!';
 
   @override
-  String get homeOvercomingDescription => 'Nicotine levels eliminated from body';
+  String get homeOvercoming => 'Superación';
 
   @override
-  String get homePersistence => 'Persistence';
+  String get homeOvercomingDescription => '3 días completos sin cigarrillos';
 
   @override
-  String get homePersistenceDescription => 'A whole week without cigarettes!';
+  String get homePersistence => 'Persistencia';
 
   @override
-  String get homeTodayStats => 'Today\'s Statistics';
+  String get homePersistenceDescription => 'Una semana entera sin fumar';
 
   @override
-  String get homeCravingsResisted => 'Cravings\nResisted';
+  String get homeTodayStats => 'Estadísticas de hoy';
 
   @override
-  String get homeMinutesGainedToday => 'Minutes of Life\nGained Today';
+  String get homeCravingsResisted => 'Antojos resistidos hoy';
+
+  @override
+  String get homeMinutesGainedToday => 'Minutos ganados hoy';
 
   @override
   String get achievementCategoryAll => 'All';
@@ -252,6 +267,21 @@ class AppLocalizationsEs extends AppLocalizations {
   String get achievementCurrentProgress => 'Your Current Progress';
 
   @override
+  String achievementLevel(int level) {
+    return 'Level $level';
+  }
+
+  @override
+  String achievementDaysWithoutSmoking(int days) {
+    return '$days days without smoking';
+  }
+
+  @override
+  String achievementNextLevel(String time) {
+    return 'Next level: $time';
+  }
+
+  @override
   String get achievementBenefitCO2 => 'Normal CO2';
 
   @override
@@ -279,10 +309,10 @@ class AppLocalizationsEs extends AppLocalizations {
   String get achievementImprovedCirculationDescription => 'Normalized oxygen levels';
 
   @override
-  String get achievementInitialSavings => 'Initial Savings';
+  String get achievementInitialSavings => 'Primeros ahorros';
 
   @override
-  String get achievementInitialSavingsDescription => 'Save the equivalent of 1 pack of cigarettes';
+  String get achievementInitialSavingsDescription => 'Has ahorrado tus primeros 25 al no fumar';
 
   @override
   String get achievementTwoWeeks => 'Two Weeks';
@@ -315,19 +345,24 @@ class AppLocalizationsEs extends AppLocalizations {
   String get achievementNewHabitExerciseDescription => 'Record 5 days of exercise';
 
   @override
+  String percentCompleted(int percent) {
+    return '$percent% completed';
+  }
+
+  @override
   String get welcomeBack => 'Welcome Back';
 
   @override
   String get loginToContinue => 'Login to continue';
 
   @override
-  String get email => 'Email';
+  String get email => 'Correo electrónico';
 
   @override
   String get emailHint => 'example@email.com';
 
   @override
-  String get password => 'Password';
+  String get password => 'Contraseña';
 
   @override
   String get rememberMe => 'Remember me';
@@ -336,22 +371,22 @@ class AppLocalizationsEs extends AppLocalizations {
   String get forgotPassword => 'Forgot my password';
 
   @override
-  String get login => 'Login';
+  String get login => 'Iniciar sesión';
 
   @override
   String get noAccount => 'Don\'t have an account?';
 
   @override
-  String get register => 'Register';
+  String get register => 'Registro';
 
   @override
-  String get emailRequired => 'Please enter your email';
+  String get emailRequired => 'El correo electrónico es obligatorio';
 
   @override
-  String get emailInvalid => 'Please enter a valid email';
+  String get emailInvalid => 'Por favor introduzca un correo electrónico válido';
 
   @override
-  String get passwordRequired => 'Please enter your password';
+  String get passwordRequired => 'La contraseña es obligatoria';
 
   @override
   String get settings => 'Settings';
@@ -453,13 +488,13 @@ class AppLocalizationsEs extends AppLocalizations {
   String get about => 'About';
 
   @override
-  String get privacyPolicy => 'Privacy Policy';
+  String get privacyPolicy => 'Política de privacidad';
 
   @override
   String get readPrivacyPolicy => 'Read our privacy policy';
 
   @override
-  String get termsOfUse => 'Terms of Use';
+  String get termsOfUse => 'Términos de uso';
 
   @override
   String get viewTermsOfUse => 'View the app\'s terms of use';
@@ -471,13 +506,18 @@ class AppLocalizationsEs extends AppLocalizations {
   String get appInfo => 'App version and information';
 
   @override
-  String get cancel => 'Cancel';
+  String version(String version) {
+    return 'Version $version';
+  }
+
+  @override
+  String get cancel => 'Cancelar';
 
   @override
   String get confirm => 'Confirm';
 
   @override
-  String get save => 'Save';
+  String get save => 'Guardar';
 
   @override
   String get delete => 'Delete';
@@ -507,7 +547,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get low => 'Low';
 
   @override
-  String get moderate => 'Moderate';
+  String get moderate => 'Moderado';
 
   @override
   String get high => 'High';
@@ -792,13 +832,18 @@ class AppLocalizationsEs extends AppLocalizations {
   String get startMyJourney => 'Start My Journey';
 
   @override
-  String get congratulations => 'Congratulations on taking the first step!';
+  String get congratulations => '¡Felicidades por tu progreso!';
 
   @override
   String get yourPersonalizedSummary => 'Your personalized summary';
 
   @override
   String get dailyConsumption => 'Daily consumption';
+
+  @override
+  String cigarettesPerDayValue(int count) {
+    return '$count cigarettes per day';
+  }
 
   @override
   String get potentialMonthlySavings => 'Potential monthly savings';
@@ -816,13 +861,13 @@ class AppLocalizationsEs extends AppLocalizations {
   String get personalizedDescription => 'Track your progress based on your habits';
 
   @override
-  String get importantAchievements => 'Important achievements';
+  String get importantAchievements => 'Logros importantes';
 
   @override
-  String get achievementsDescription => 'Celebrate each milestone in your journey';
+  String get achievementsDescription => 'Cada día sin fumar es un logro. Tu viaje está lleno de pequeñas victorias que van sumando hacia una vida más saludable.';
 
   @override
-  String get supportWhenNeeded => 'Support when you need it';
+  String get supportWhenNeeded => 'Apoyo';
 
   @override
   String get supportDescription => 'Tips and strategies for difficult moments';
@@ -885,16 +930,16 @@ class AppLocalizationsEs extends AppLocalizations {
   String get notSpecified => 'Not specified';
 
   @override
-  String get registerCraving => 'Register Craving';
+  String get registerCraving => 'Registrar antojo';
 
   @override
-  String get registerCravingSubtitle => 'When you feel the urge';
+  String get registerCravingSubtitle => 'Registro de antojos de fumar';
 
   @override
-  String get newRecord => 'New Record';
+  String get newRecord => 'Nuevo registro';
 
   @override
-  String get newRecordSubtitle => 'When you smoke';
+  String get newRecordSubtitle => 'Registro de episodio de fumar';
 
   @override
   String get whereAreYou => 'Where are you?';
@@ -927,40 +972,40 @@ class AppLocalizationsEs extends AppLocalizations {
   String get howAreYouFeeling => 'How are you feeling?';
 
   @override
-  String get whatTriggeredCraving => 'What triggered your craving?';
+  String get whatTriggeredCraving => '¿Qué desencadenó tu antojo?';
 
   @override
-  String get stress => 'Stress';
+  String get stress => 'Estrés';
 
   @override
-  String get boredom => 'Boredom';
+  String get boredom => 'Aburrimiento';
 
   @override
-  String get socialSituation => 'Social situation';
+  String get socialSituation => 'Situación social';
 
   @override
-  String get afterMeal => 'After eating';
+  String get afterMeal => 'Después de comer';
 
   @override
-  String get coffee => 'Coffee';
+  String get coffee => 'Café';
 
   @override
   String get alcohol => 'Alcohol';
 
   @override
-  String get craving => 'Craving';
+  String get craving => 'Antojo fuerte';
 
   @override
-  String get other => 'Other';
+  String get other => 'Otro';
 
   @override
   String get intensityLevel => 'Intensity level';
 
   @override
-  String get mild => 'Mild';
+  String get mild => 'Leve';
 
   @override
-  String get intense => 'Intense';
+  String get intense => 'Intenso';
 
   @override
   String get veryIntense => 'Very intense';
@@ -978,7 +1023,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get whatsTheReason => 'What\'s the reason?';
 
   @override
-  String get anxiety => 'Anxiety';
+  String get anxiety => 'Ansiedad';
 
   @override
   String get pleaseSelectReason => 'Please select a reason';
@@ -996,7 +1041,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get no => 'No';
 
   @override
-  String get howMuchDidYouSmoke => 'How much did you smoke?';
+  String get howMuchDidYouSmoke => '¿Cuánto fumaste?';
 
   @override
   String get oneOrLess => '1 or less';
@@ -1098,16 +1143,39 @@ class AppLocalizationsEs extends AppLocalizations {
   String get viewAllRecoveries => 'View All Health Recoveries';
 
   @override
-  String get healthRecovery => 'Health Recovery';
+  String get healthRecovery => 'Recuperación de salud';
 
   @override
-  String get seeAll => 'See all';
+  String get seeAll => 'Ver todo';
 
   @override
   String get achieved => 'Achieved';
 
   @override
   String get progress => 'Progress';
+
+  @override
+  String daysSmokeFree(int days) {
+    return '$days days smoke free';
+  }
+
+  @override
+  String daysToAchieve(int days) {
+    return 'Days to achieve: $days';
+  }
+
+  @override
+  String daysRemaining(int days) {
+    return '$days days remaining';
+  }
+
+  @override
+  String achievedOn(DateTime date) {
+    final intl.DateFormat dateDateFormat = intl.DateFormat.yMMMd(localeName);
+    final String dateString = dateDateFormat.format(date);
+
+    return 'Achieved on $dateString';
+  }
 
   @override
   String get keepGoing => 'Keep going!';
@@ -1170,10 +1238,10 @@ class AppLocalizationsEs extends AppLocalizations {
   String get somethingWentWrong => 'Something went wrong, please try again';
 
   @override
-  String get comingSoon => 'Coming Soon';
+  String get comingSoon => 'Próximamente';
 
   @override
-  String get registerFirstCigarette => 'Register your first cigarette to see health recovery';
+  String get registerFirstCigarette => 'Registra tu información para comenzar a ver tu progreso';
 
   @override
   String get errorOccurred => 'An error occurred';
@@ -1281,55 +1349,108 @@ class AppLocalizationsEs extends AppLocalizations {
   String get understand => 'I understand';
 
   @override
-  String get monday => 'Monday';
+  String get onboardingLoadError => 'Error loading onboarding';
 
   @override
-  String get tuesday => 'Tuesday';
+  String get unknownError => 'An unknown error occurred';
 
   @override
-  String get wednesday => 'Wednesday';
+  String get errorUserNotAuthenticated => 'You must be logged in to perform this action';
 
   @override
-  String get thursday => 'Thursday';
+  String get userNotAuthenticated => 'You are not logged in';
 
   @override
-  String get friday => 'Friday';
+  String get registeringCravingResisted => 'Registering craving resisted...';
 
   @override
-  String get saturday => 'Saturday';
+  String get registeringCraving => 'Registering craving...';
 
   @override
-  String get sunday => 'Sunday';
+  String challengeQuestion(String goalText) {
+    return 'What makes it difficult to $goalText?';
+  }
 
   @override
-  String get fillInformation => 'Fill in your information to create an account';
+  String personalizedPlanReduce(String timelineText) {
+    return 'We\'ve created a personalized plan to help you reduce your cigarette consumption $timelineText. This plan is based on your habits and preferences.';
+  }
 
   @override
-  String get name => 'Name';
+  String personalizedPlanQuit(String timelineText) {
+    return 'We\'ve created a personalized plan to help you quit smoking $timelineText. This plan is based on your habits and preferences.';
+  }
 
   @override
-  String get nameRequired => 'Please enter your name';
+  String todayAt(String time) {
+    return 'Hoy a las $time';
+  }
 
   @override
-  String get passwordTooShort => 'Password must be at least 6 characters';
+  String yesterdayAt(String time) {
+    return 'Ayer a las $time';
+  }
 
   @override
-  String get confirmPassword => 'Confirm Password';
+  String dayOfWeekAt(String weekday, String time) {
+    return '$weekday a las $time';
+  }
 
   @override
-  String get confirmPasswordRequired => 'Please confirm your password';
+  String dateTimeFormat(String day, String month, String year, String time) {
+    return '$day/$month/$year $time';
+  }
 
   @override
-  String get passwordsDoNotMatch => 'Passwords do not match';
+  String get monday => 'Lunes';
 
   @override
-  String get termsConditionsAgree => 'I agree to the Terms and Conditions';
+  String get tuesday => 'Martes';
 
   @override
-  String get termsConditionsRequired => 'Please accept the Terms and Conditions to continue';
+  String get wednesday => 'Miércoles';
 
   @override
-  String get alreadyAccount => 'Already have an account?';
+  String get thursday => 'Jueves';
+
+  @override
+  String get friday => 'Viernes';
+
+  @override
+  String get saturday => 'Sábado';
+
+  @override
+  String get sunday => 'Domingo';
+
+  @override
+  String get fillInformation => 'Complete sus datos para registrarse';
+
+  @override
+  String get name => 'Nombre';
+
+  @override
+  String get nameRequired => 'El nombre es obligatorio';
+
+  @override
+  String get passwordTooShort => 'La contraseña debe tener al menos 6 caracteres';
+
+  @override
+  String get confirmPassword => 'Confirmar contraseña';
+
+  @override
+  String get confirmPasswordRequired => 'Confirmar contraseña es obligatorio';
+
+  @override
+  String get passwordsDoNotMatch => 'Las contraseñas no coinciden';
+
+  @override
+  String get termsConditionsAgree => 'Acepto los términos y condiciones';
+
+  @override
+  String get termsConditionsRequired => 'Debe aceptar los términos y condiciones para continuar';
+
+  @override
+  String get alreadyAccount => '¿Ya tienes una cuenta?';
 
   @override
   String get resetLinkSent => 'Reset link sent';
@@ -1345,4 +1466,34 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get backToLogin => 'Back to login';
+
+  @override
+  String get createAccount => 'Crear cuenta';
+
+  @override
+  String get stayInformed => 'Stay Informed';
+
+  @override
+  String get receiveTimelyCues => 'Receive timely cues and reminders to help with your journey';
+
+  @override
+  String get importantReminders => 'Important Reminders';
+
+  @override
+  String get notificationsHelp => 'Notifications help you stay on track with your goals, provide timely support during difficult moments, and celebrate your achievements.';
+
+  @override
+  String get requesting => 'Requesting...';
+
+  @override
+  String get allowNotifications => 'Allow Notifications';
+
+  @override
+  String get notificationsEnabled => 'Notifications enabled successfully';
+
+  @override
+  String get skipForNow => 'Skip for now';
+
+  @override
+  String get notificationPermissionFailed => 'Notification permission was not granted';
 }

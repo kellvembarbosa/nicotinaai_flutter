@@ -25,12 +25,10 @@ class StatisticsDashboardScreen extends StatefulWidget {
   const StatisticsDashboardScreen({Key? key}) : super(key: key);
 
   @override
-  State<StatisticsDashboardScreen> createState() =>
-      _StatisticsDashboardScreenState();
+  State<StatisticsDashboardScreen> createState() => _StatisticsDashboardScreenState();
 }
 
-class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen>
-    with SingleTickerProviderStateMixin {
+class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen> with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
   @override
@@ -75,9 +73,7 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen>
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: () {
-              context.read<TrackingBloc>().add(
-                RefreshAllData(forceRefresh: true),
-              );
+              context.read<TrackingBloc>().add(RefreshAllData(forceRefresh: true));
             },
           ),
         ],
@@ -86,12 +82,7 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen>
           labelColor: context.primaryColor,
           unselectedLabelColor: context.subtitleColor,
           indicatorColor: context.primaryColor,
-          tabs: [
-            Tab(text: 'Overview'),
-            Tab(text: 'Savings'),
-            Tab(text: 'Cravings'),
-            Tab(text: 'Health'),
-          ],
+          tabs: [Tab(text: 'Overview'), Tab(text: 'Savings'), Tab(text: 'Cravings'), Tab(text: 'Health')],
         ),
       ),
       body: BlocBuilder<TrackingBloc, TrackingState>(
@@ -105,10 +96,7 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen>
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(
-                    'Error: ${state.errorMessage}',
-                    textAlign: TextAlign.center,
-                  ),
+                  Text('Error: ${state.errorMessage}', textAlign: TextAlign.center),
                   const SizedBox(height: 16),
                   ElevatedButton(
                     onPressed: () {
@@ -124,9 +112,7 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen>
 
           return RefreshIndicator(
             onRefresh: () async {
-              context.read<TrackingBloc>().add(
-                RefreshAllData(forceRefresh: true),
-              );
+              context.read<TrackingBloc>().add(RefreshAllData(forceRefresh: true));
               // Esperar pelo menos 500ms para dar feedback visual ao usuário
               await Future.delayed(const Duration(milliseconds: 500));
             },
@@ -136,11 +122,7 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen>
                 _buildOverviewTab(context, state.userStats),
                 _buildSavingsTab(context, state.userStats),
                 _buildCravingsTab(context, state.cravings),
-                _buildHealthTab(
-                  context,
-                  state.userStats,
-                  state.userHealthRecoveries,
-                ),
+                _buildHealthTab(context, state.userStats, state.userHealthRecoveries),
               ],
             ),
           );
@@ -157,19 +139,12 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen>
       builder: (context, currencyState) {
         // Debug para verificar qual moeda está sendo usada
         if (stats?.moneySaved != null) {
-          debugPrint(
-            '🔄 Moeda atual: ${currencyState.currencySymbol} (${currencyState.currencyCode}) - Economia: ${stats!.moneySaved} centavos',
-          );
+          debugPrint('🔄 Moeda atual: ${currencyState.currencySymbol} (${currencyState.currencyCode}) - Economia: ${stats!.moneySaved} centavos');
         }
 
         if (stats == null) {
           return const Center(
-            child: Padding(
-              padding: EdgeInsets.all(20.0),
-              child: Text(
-                'No stats available yet. Start tracking to see your progress!',
-              ),
-            ),
+            child: Padding(padding: EdgeInsets.all(20.0), child: Text('No stats available yet. Start tracking to see your progress!')),
           );
         }
 
@@ -239,16 +214,10 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen>
             _buildStatsCard(
               context,
               l10n.potentialMonthlySavings,
-              context.read<CurrencyBloc>().format(
-                _calculateCumulativeSavings(
-                  stats,
-                  context.read<CurrencyBloc>(),
-                ),
-              ),
+              context.read<CurrencyBloc>().format(_calculateCumulativeSavings(stats, context.read<CurrencyBloc>())),
               Icons.account_balance_wallet,
               Colors.blue,
-              subtitle:
-                  'Based on cravings resisted: ${context.read<TrackingBloc>().getCravingsResisted()}',
+              subtitle: 'Based on cravings resisted: ${context.read<TrackingBloc>().getCravingsResisted()}',
             ),
 
             const SizedBox(height: 24),
@@ -268,13 +237,7 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen>
                       decoration: BoxDecoration(
                         color: context.cardColor,
                         borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withAlpha(13),
-                            offset: const Offset(0, 4),
-                            blurRadius: 12,
-                          ),
-                        ],
+                        boxShadow: [BoxShadow(color: Colors.black.withAlpha(13), offset: const Offset(0, 4), blurRadius: 12)],
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -285,53 +248,24 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen>
                             children: [
                               Container(
                                 padding: const EdgeInsets.all(8),
-                                decoration: BoxDecoration(
-                                  color: Colors.deepPurple.withAlpha(51),
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: const Icon(
-                                  Icons.inventory_2,
-                                  color: Colors.deepPurple,
-                                  size: 24,
-                                ),
+                                decoration: BoxDecoration(color: Colors.deepPurple.withAlpha(51), borderRadius: BorderRadius.circular(8)),
+                                child: const Icon(Icons.inventory_2, color: Colors.deepPurple, size: 24),
                               ),
-                              const Icon(
-                                Icons.arrow_upward,
-                                color: Colors.green,
-                                size: 16,
-                              ),
+                              const Icon(Icons.arrow_upward, color: Colors.green, size: 16),
                             ],
                           ),
                           const SizedBox(height: 16),
                           Text(
-                            stats.packPrice != null
-                                ? context.read<CurrencyBloc>().format(
-                                  stats.packPrice!,
-                                )
-                                : 'Not set',
-                            style: TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                              color: context.contentColor,
-                            ),
+                            stats.packPrice != null ? context.read<CurrencyBloc>().format(stats.packPrice!) : 'Not set',
+                            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: context.contentColor),
                           ),
                           const SizedBox(height: 8),
-                          Text(
-                            'Price per Pack',
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: context.subtitleColor,
-                            ),
-                          ),
+                          Text('Price per Pack', style: TextStyle(fontSize: 14, color: context.subtitleColor)),
                           if (stats.cigarettesPerPack != null) ...[
                             const SizedBox(height: 4),
                             Text(
                               '${stats.cigarettesPerPack} cigarettes/pack',
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: context.subtitleColor.withAlpha(179),
-                                fontStyle: FontStyle.italic,
-                              ),
+                              style: TextStyle(fontSize: 12, color: context.subtitleColor.withAlpha(179), fontStyle: FontStyle.italic),
                             ),
                           ],
                         ],
@@ -345,13 +279,7 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen>
                       decoration: BoxDecoration(
                         color: context.cardColor,
                         borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withAlpha(13),
-                            offset: const Offset(0, 4),
-                            blurRadius: 12,
-                          ),
-                        ],
+                        boxShadow: [BoxShadow(color: Colors.black.withAlpha(13), offset: const Offset(0, 4), blurRadius: 12)],
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -362,43 +290,19 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen>
                             children: [
                               Container(
                                 padding: const EdgeInsets.all(8),
-                                decoration: BoxDecoration(
-                                  color: Colors.indigo.withAlpha(51),
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: const Icon(
-                                  Icons.local_offer,
-                                  color: Colors.indigo,
-                                  size: 24,
-                                ),
+                                decoration: BoxDecoration(color: Colors.indigo.withAlpha(51), borderRadius: BorderRadius.circular(8)),
+                                child: const Icon(Icons.local_offer, color: Colors.indigo, size: 24),
                               ),
-                              const Icon(
-                                Icons.arrow_upward,
-                                color: Colors.green,
-                                size: 16,
-                              ),
+                              const Icon(Icons.arrow_upward, color: Colors.green, size: 16),
                             ],
                           ),
                           const SizedBox(height: 16),
                           Text(
-                            _calculateUnitPrice(
-                              stats,
-                              context.read<CurrencyBloc>(),
-                            ),
-                            style: TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                              color: context.contentColor,
-                            ),
+                            _calculateUnitPrice(stats, context.read<CurrencyBloc>()),
+                            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: context.contentColor),
                           ),
                           const SizedBox(height: 8),
-                          Text(
-                            'Price per Unit',
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: context.subtitleColor,
-                            ),
-                          ),
+                          Text('Price per Unit', style: TextStyle(fontSize: 14, color: context.subtitleColor)),
                         ],
                       ),
                     ),
@@ -420,18 +324,11 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen>
       builder: (context, currencyState) {
         // Debug para verificar qual moeda está sendo usada
         if (stats?.moneySaved != null) {
-          debugPrint(
-            '🔄 Moeda atual: ${currencyState.currencySymbol} (${currencyState.currencyCode}) - Economia: ${stats!.moneySaved} centavos',
-          );
+          debugPrint('🔄 Moeda atual: ${currencyState.currencySymbol} (${currencyState.currencyCode}) - Economia: ${stats!.moneySaved} centavos');
         }
 
         if (stats == null) {
-          return const Center(
-            child: Padding(
-              padding: EdgeInsets.all(20.0),
-              child: Text('No savings data available yet.'),
-            ),
-          );
+          return const Center(child: Padding(padding: EdgeInsets.all(20.0), child: Text('No savings data available yet.')));
         }
 
         // Generate data for the savings chart based on actual calculations
@@ -444,11 +341,8 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen>
           print('   - Cigarros por dia: ${stats.cigarettesPerDay}');
           print('   - Economia total (DB): ${stats.moneySaved} centavos');
 
-          if (stats.packPrice != null &&
-              stats.cigarettesPerPack != null &&
-              stats.cigarettesPerPack! > 0) {
-            final pricePerCigarette =
-                stats.packPrice! / stats.cigarettesPerPack!;
+          if (stats.packPrice != null && stats.cigarettesPerPack != null && stats.cigarettesPerPack! > 0) {
+            final pricePerCigarette = stats.packPrice! / stats.cigarettesPerPack!;
             print('   - Preço do maço: ${stats.packPrice} centavos');
             print('   - Cigarros por maço: ${stats.cigarettesPerPack}');
             print('   - Preço por cigarro: $pricePerCigarette centavos');
@@ -457,24 +351,19 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen>
 
         // Calcula economia real por dia com base nos cravings resistidos
         // e no preço por cigarro
-        final cravingsResisted =
-            context.read<TrackingBloc>().getCravingsResisted();
+        final cravingsResisted = context.read<TrackingBloc>().getCravingsResisted();
         double dailySavingCents;
 
         // Se temos informações de preço, calcular economia real
-        if (stats.packPrice != null &&
-            stats.cigarettesPerPack != null &&
-            stats.cigarettesPerPack! > 0) {
+        if (stats.packPrice != null && stats.cigarettesPerPack != null && stats.cigarettesPerPack! > 0) {
           final pricePerCigarette = stats.packPrice! / stats.cigarettesPerPack!;
           // Usar cigarros por dia como base para economia diária
-          final cigarettesPerDay =
-              stats.cigarettesPerDay ?? 10; // Valor padrão se não disponível
+          final cigarettesPerDay = stats.cigarettesPerDay ?? 10; // Valor padrão se não disponível
           dailySavingCents = cigarettesPerDay * pricePerCigarette;
         } else {
           // Fallback: usar um valor estimado de acordo com a moeda atual
           // 10,00 unidades da moeda atual (normalmente equivalente a R$10, $10, €10, etc.)
-          dailySavingCents =
-              1000.0; // 1000 centavos = 10 unidades da moeda, independente de qual seja
+          dailySavingCents = 1000.0; // 1000 centavos = 10 unidades da moeda, independente de qual seja
         }
 
         if (kDebugMode) {
@@ -482,21 +371,14 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen>
         }
 
         // Gerar pontos do gráfico com valores crescentes de economia
-        final List<FlSpot> savingsSpots = List.generate(days > 0 ? days : 7, (
-          index,
-        ) {
+        final List<FlSpot> savingsSpots = List.generate(days > 0 ? days : 7, (index) {
           // Economia acumulada até o dia (index+1)
           final dayNumber = index + 1;
-          final cumulativeSavings =
-              dayNumber *
-              dailySavingCents /
-              100; // Convertido para unidades da moeda para exibição
+          final cumulativeSavings = dayNumber * dailySavingCents / 100; // Convertido para unidades da moeda para exibição
 
           if (kDebugMode && index % 3 == 0) {
             final currencyBloc = context.read<CurrencyBloc>();
-            print(
-              '   - Dia ${index + 1}: economia acumulada = ${(cumulativeSavings).toStringAsFixed(2)} ${currencyBloc.state.currencyCode}',
-            );
+            print('   - Dia ${index + 1}: economia acumulada = ${(cumulativeSavings).toStringAsFixed(2)} ${currencyBloc.state.currencyCode}');
           }
 
           return FlSpot(index.toDouble(), cumulativeSavings);
@@ -514,13 +396,10 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen>
             _buildStatsCard(
               context,
               l10n.savingsCalculator,
-              currencyBloc.format(
-                _calculateCumulativeSavings(stats, currencyBloc),
-              ),
+              currencyBloc.format(_calculateCumulativeSavings(stats, currencyBloc)),
               Icons.account_balance_wallet,
               Colors.blue,
-              subtitle:
-                  'Based on cravings resisted: ${context.read<TrackingBloc>().getCravingsResisted()}',
+              subtitle: 'Based on cravings resisted: ${context.read<TrackingBloc>().getCravingsResisted()}',
             ),
 
             const SizedBox(height: 24),
@@ -535,9 +414,7 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen>
                   child: _buildStatsCard(
                     context,
                     'Month',
-                    currencyBloc.format(
-                      _calculateProjectedSavings(stats, 30, currencyBloc),
-                    ),
+                    currencyBloc.format(_calculateProjectedSavings(stats, 30, currencyBloc)),
                     Icons.calendar_month,
                     Colors.teal,
                   ),
@@ -547,9 +424,7 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen>
                   child: _buildStatsCard(
                     context,
                     'Year',
-                    currencyBloc.format(
-                      _calculateProjectedSavings(stats, 365, currencyBloc),
-                    ),
+                    currencyBloc.format(_calculateProjectedSavings(stats, 365, currencyBloc)),
                     Icons.cake,
                     Colors.amber,
                   ),
@@ -570,13 +445,7 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen>
                 decoration: BoxDecoration(
                   color: context.cardColor,
                   borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withAlpha(13),
-                      offset: const Offset(0, 4),
-                      blurRadius: 12,
-                    ),
-                  ],
+                  boxShadow: [BoxShadow(color: Colors.black.withAlpha(13), offset: const Offset(0, 4), blurRadius: 12)],
                 ),
                 child: LineChart(
                   LineChartData(
@@ -595,18 +464,10 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen>
                           showTitles: true,
                           getTitlesWidget: (value, meta) {
                             // Mostrar só o primeiro dia, o último e os múltiplos de 7
-                            if (value == 0 ||
-                                value % 7 == 0 ||
-                                value == days - 1) {
+                            if (value == 0 || value % 7 == 0 || value == days - 1) {
                               return Padding(
                                 padding: const EdgeInsets.only(top: 8.0),
-                                child: Text(
-                                  '${value.toInt() + 1}d',
-                                  style: TextStyle(
-                                    color: context.subtitleColor,
-                                    fontSize: 10,
-                                  ),
-                                ),
+                                child: Text('${value.toInt() + 1}d', style: TextStyle(color: context.subtitleColor, fontSize: 10)),
                               );
                             }
                             return const SizedBox();
@@ -635,37 +496,25 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen>
                               yLabel = '$symbol${value.toInt()}';
                             } else {
                               // Valores grandes (1000+): mostrar como X.X mil com símbolo da moeda atual
-                              yLabel =
-                                  '$symbol${(value / 1000).toStringAsFixed(1)}k';
+                              yLabel = '$symbol${(value / 1000).toStringAsFixed(1)}k';
                             }
 
                             return Padding(
                               padding: const EdgeInsets.only(right: 8.0),
-                              child: Text(
-                                yLabel,
-                                style: TextStyle(
-                                  color: context.subtitleColor,
-                                  fontSize: 10,
-                                ),
-                              ),
+                              child: Text(yLabel, style: TextStyle(color: context.subtitleColor, fontSize: 10)),
                             );
                           },
                           // Intervalo entre as linhas do eixo Y
                           interval:
-                              savingsSpots.isNotEmpty &&
-                                      savingsSpots.last.y > 20
+                              savingsSpots.isNotEmpty && savingsSpots.last.y > 20
                                   ? savingsSpots.last.y /
                                       5 // Dividir em 5 partes
                                   : 10, // Intervalo padrão
                           reservedSize: 40, // Mais espaço para os valores
                         ),
                       ),
-                      topTitles: AxisTitles(
-                        sideTitles: SideTitles(showTitles: false),
-                      ),
-                      rightTitles: AxisTitles(
-                        sideTitles: SideTitles(showTitles: false),
-                      ),
+                      topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                      rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
                     ),
                     borderData: FlBorderData(show: false),
                     lineBarsData: [
@@ -675,10 +524,7 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen>
                         color: Colors.green,
                         barWidth: 3,
                         dotData: FlDotData(show: false),
-                        belowBarData: BarAreaData(
-                          show: true,
-                          color: Colors.green.withAlpha(26),
-                        ),
+                        belowBarData: BarAreaData(show: true, color: Colors.green.withAlpha(26)),
                       ),
                     ],
                   ),
@@ -692,21 +538,13 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen>
                 // Chart explanation
                 Text(
                   'Estimated savings based on your daily cigarette consumption',
-                  style: TextStyle(
-                    color: context.contentColor,
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(color: context.contentColor, fontSize: 14, fontWeight: FontWeight.bold),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 4),
                 Text(
                   l10n.savingsCalculatorDescription,
-                  style: TextStyle(
-                    color: context.subtitleColor,
-                    fontSize: 12,
-                    fontStyle: FontStyle.italic,
-                  ),
+                  style: TextStyle(color: context.subtitleColor, fontSize: 12, fontStyle: FontStyle.italic),
                   textAlign: TextAlign.center,
                 ),
               ],
@@ -729,13 +567,7 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen>
                       decoration: BoxDecoration(
                         color: context.cardColor,
                         borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withAlpha(13),
-                            offset: const Offset(0, 4),
-                            blurRadius: 12,
-                          ),
-                        ],
+                        boxShadow: [BoxShadow(color: Colors.black.withAlpha(13), offset: const Offset(0, 4), blurRadius: 12)],
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -746,48 +578,23 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen>
                             children: [
                               Container(
                                 padding: const EdgeInsets.all(8),
-                                decoration: BoxDecoration(
-                                  color: Colors.indigo.withAlpha(51),
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: const Icon(
-                                  Icons.local_offer,
-                                  color: Colors.indigo,
-                                  size: 24,
-                                ),
+                                decoration: BoxDecoration(color: Colors.indigo.withAlpha(51), borderRadius: BorderRadius.circular(8)),
+                                child: const Icon(Icons.local_offer, color: Colors.indigo, size: 24),
                               ),
-                              const Icon(
-                                Icons.arrow_upward,
-                                color: Colors.green,
-                                size: 16,
-                              ),
+                              const Icon(Icons.arrow_upward, color: Colors.green, size: 16),
                             ],
                           ),
                           const SizedBox(height: 16),
                           Text(
                             _calculateUnitPrice(stats, currencyBloc),
-                            style: TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                              color: context.contentColor,
-                            ),
+                            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: context.contentColor),
                           ),
                           const SizedBox(height: 8),
-                          Text(
-                            'Unit Cost',
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: context.subtitleColor,
-                            ),
-                          ),
+                          Text('Unit Cost', style: TextStyle(fontSize: 14, color: context.subtitleColor)),
                           const SizedBox(height: 4),
                           Text(
                             'Per cigarette',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: context.subtitleColor.withAlpha(179),
-                              fontStyle: FontStyle.italic,
-                            ),
+                            style: TextStyle(fontSize: 12, color: context.subtitleColor.withAlpha(179), fontStyle: FontStyle.italic),
                           ),
                         ],
                       ),
@@ -800,13 +607,7 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen>
                       decoration: BoxDecoration(
                         color: context.cardColor,
                         borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withAlpha(13),
-                            offset: const Offset(0, 4),
-                            blurRadius: 12,
-                          ),
-                        ],
+                        boxShadow: [BoxShadow(color: Colors.black.withAlpha(13), offset: const Offset(0, 4), blurRadius: 12)],
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -817,48 +618,23 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen>
                             children: [
                               Container(
                                 padding: const EdgeInsets.all(8),
-                                decoration: BoxDecoration(
-                                  color: Colors.green.withAlpha(51),
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: const Icon(
-                                  Icons.smoke_free,
-                                  color: Colors.green,
-                                  size: 24,
-                                ),
+                                decoration: BoxDecoration(color: Colors.green.withAlpha(51), borderRadius: BorderRadius.circular(8)),
+                                child: const Icon(Icons.smoke_free, color: Colors.green, size: 24),
                               ),
-                              const Icon(
-                                Icons.arrow_upward,
-                                color: Colors.green,
-                                size: 16,
-                              ),
+                              const Icon(Icons.arrow_upward, color: Colors.green, size: 16),
                             ],
                           ),
                           const SizedBox(height: 16),
                           Text(
                             '${context.read<TrackingBloc>().getCravingsResisted()}',
-                            style: TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                              color: context.contentColor,
-                            ),
+                            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: context.contentColor),
                           ),
                           const SizedBox(height: 8),
-                          Text(
-                            'Cravings Resisted',
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: context.subtitleColor,
-                            ),
-                          ),
+                          Text('Cravings Resisted', style: TextStyle(fontSize: 14, color: context.subtitleColor)),
                           const SizedBox(height: 4),
                           Text(
                             'Cigarettes not smoked',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: context.subtitleColor.withAlpha(179),
-                              fontStyle: FontStyle.italic,
-                            ),
+                            style: TextStyle(fontSize: 12, color: context.subtitleColor.withAlpha(179), fontStyle: FontStyle.italic),
                           ),
                         ],
                       ),
@@ -877,12 +653,7 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen>
     final l10n = AppLocalizations.of(context);
 
     if (cravings.isEmpty) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Text(l10n.emptyNotificationsDescription),
-        ),
-      );
+      return Center(child: Padding(padding: const EdgeInsets.all(20.0), child: Text(l10n.emptyNotificationsDescription)));
     }
 
     // Get accurate craving counts from TrackingBloc normalizer
@@ -901,8 +672,7 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen>
     }
 
     final totalCravings = resistedCount + smokedCount + alternativeCount;
-    final resistedPercentage =
-        totalCravings > 0 ? (resistedCount / totalCravings * 100).round() : 0;
+    final resistedPercentage = totalCravings > 0 ? (resistedCount / totalCravings * 100).round() : 0;
 
     // Data will be directly used in the pie chart sections
 
@@ -927,15 +697,7 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen>
         // Cravings stats
         Row(
           children: [
-            Expanded(
-              child: _buildStatsCard(
-                context,
-                'Resisted',
-                resistedCount.toString(),
-                Icons.check_circle,
-                Colors.green,
-              ),
-            ),
+            Expanded(child: _buildStatsCard(context, 'Resisted', resistedCount.toString(), Icons.check_circle, Colors.green)),
             const SizedBox(width: 16),
             Expanded(
               child: _buildStatsCard(
@@ -963,13 +725,7 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen>
             decoration: BoxDecoration(
               color: context.cardColor,
               borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withAlpha(13),
-                  offset: const Offset(0, 4),
-                  blurRadius: 12,
-                ),
-              ],
+              boxShadow: [BoxShadow(color: Colors.black.withAlpha(13), offset: const Offset(0, 4), blurRadius: 12)],
             ),
             child: PieChart(
               PieChartData(
@@ -979,33 +735,21 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen>
                     value: resistedCount.toDouble(),
                     title: '$resistedCount',
                     radius: 80,
-                    titleStyle: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
+                    titleStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
                   ),
                   PieChartSectionData(
                     color: Colors.red,
                     value: smokedCount.toDouble(),
                     title: '$smokedCount',
                     radius: 80,
-                    titleStyle: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
+                    titleStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
                   ),
                   PieChartSectionData(
                     color: Colors.blue,
                     value: alternativeCount.toDouble(),
                     title: '$alternativeCount',
                     radius: 80,
-                    titleStyle: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
+                    titleStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
                   ),
                 ],
                 centerSpaceRadius: 40,
@@ -1035,27 +779,16 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen>
         _buildSectionHeader(context, 'Recent Cravings'),
         const SizedBox(height: 16),
 
-        ...cravings
-            .take(5)
-            .map((craving) => _buildCravingListItem(context, craving)),
+        ...cravings.take(5).map((craving) => _buildCravingListItem(context, craving)),
       ],
     );
   }
 
-  Widget _buildHealthTab(
-    BuildContext context,
-    UserStats? stats,
-    List<UserHealthRecovery> healthRecoveries,
-  ) {
+  Widget _buildHealthTab(BuildContext context, UserStats? stats, List<UserHealthRecovery> healthRecoveries) {
     final l10n = AppLocalizations.of(context);
 
     if (stats == null) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Text(l10n.noRecoveriesFound),
-        ),
-      );
+      return Center(child: Padding(padding: const EdgeInsets.all(20.0), child: Text(l10n.noRecoveriesFound)));
     }
 
     final daysSmokeFree = stats.currentStreakDays;
@@ -1118,21 +851,10 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen>
               children: [
                 _buildSectionHeader(context, 'Recovery Timeline'),
                 const SizedBox(height: 16),
-                ...healthRecoveries
-                    .take(5)
-                    .map(
-                      (recovery) => _buildHealthRecoveryItem(
-                        context,
-                        recovery,
-                        daysSmokeFree,
-                      ),
-                    ),
+                ...healthRecoveries.take(5).map((recovery) => _buildHealthRecoveryItem(context, recovery, daysSmokeFree)),
               ],
             )
-            : Padding(
-              padding: const EdgeInsets.symmetric(vertical: 24.0),
-              child: Center(child: Text(l10n.noRecentRecoveries)),
-            ),
+            : Padding(padding: const EdgeInsets.symmetric(vertical: 24.0), child: Center(child: Text(l10n.noRecentRecoveries))),
       ],
     );
   }
@@ -1140,38 +862,17 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen>
   Widget _buildSectionHeader(BuildContext context, String title) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Text(
-        title,
-        style: TextStyle(
-          fontSize: 18,
-          fontWeight: FontWeight.bold,
-          color: context.primaryColor,
-        ),
-      ),
+      child: Text(title, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: context.primaryColor)),
     );
   }
 
-  Widget _buildStatsCard(
-    BuildContext context,
-    String title,
-    String value,
-    IconData icon,
-    Color color, {
-    String? subtitle,
-    String? suffix,
-  }) {
+  Widget _buildStatsCard(BuildContext context, String title, String value, IconData icon, Color color, {String? subtitle, String? suffix}) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: context.cardColor,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withAlpha(13),
-            offset: const Offset(0, 4),
-            blurRadius: 12,
-          ),
-        ],
+        boxShadow: [BoxShadow(color: Colors.black.withAlpha(13), offset: const Offset(0, 4), blurRadius: 12)],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1180,10 +881,7 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen>
             children: [
               Container(
                 padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: color.withAlpha(51),
-                  borderRadius: BorderRadius.circular(8),
-                ),
+                decoration: BoxDecoration(color: color.withAlpha(51), borderRadius: BorderRadius.circular(8)),
                 child: Icon(icon, color: color, size: 20),
               ),
               const Spacer(),
@@ -1197,43 +895,23 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen>
               Expanded(
                 child: Text(
                   value,
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: context.contentColor,
-                  ),
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: context.contentColor),
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
               if (suffix != null)
                 Padding(
                   padding: const EdgeInsets.only(left: 4.0, bottom: 4.0),
-                  child: Text(
-                    suffix,
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: context.subtitleColor,
-                    ),
-                  ),
+                  child: Text(suffix, style: TextStyle(fontSize: 14, color: context.subtitleColor)),
                 ),
             ],
           ),
           const SizedBox(height: 8),
-          Text(
-            title,
-            style: TextStyle(fontSize: 14, color: context.subtitleColor),
-          ),
+          Text(title, style: TextStyle(fontSize: 14, color: context.subtitleColor)),
           if (subtitle != null)
             Padding(
               padding: const EdgeInsets.only(top: 4.0),
-              child: Text(
-                subtitle,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: context.subtitleColor.withAlpha(179),
-                  fontStyle: FontStyle.italic,
-                ),
-              ),
+              child: Text(subtitle, style: TextStyle(fontSize: 12, color: context.subtitleColor.withAlpha(179), fontStyle: FontStyle.italic)),
             ),
         ],
       ),
@@ -1243,11 +921,7 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen>
   Widget _buildCravingListItem(BuildContext context, Craving craving) {
     final dateFormat = DateFormat('MMM d, h:mm a');
     final outcomeColors = [Colors.green, Colors.red, Colors.blue];
-    final outcomeIcons = [
-      Icons.check_circle,
-      Icons.smoking_rooms,
-      Icons.swap_horiz,
-    ];
+    final outcomeIcons = [Icons.check_circle, Icons.smoking_rooms, Icons.swap_horiz];
     final outcomeTexts = ['Resisted', 'Smoked', 'Alternative'];
 
     // Convert CravingOutcome enum to int index
@@ -1259,7 +933,7 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen>
     } else if (craving.outcome == CravingOutcome.alternative) {
       outcomeIndex = 2;
     }
-    
+
     // Using a more flexible layout approach without fixed height
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -1274,15 +948,8 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen>
         children: [
           Container(
             padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: outcomeColors[outcomeIndex].withAlpha(51),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              outcomeIcons[outcomeIndex],
-              color: outcomeColors[outcomeIndex],
-              size: 20,
-            ),
+            decoration: BoxDecoration(color: outcomeColors[outcomeIndex].withAlpha(51), shape: BoxShape.circle),
+            child: Icon(outcomeIcons[outcomeIndex], color: outcomeColors[outcomeIndex], size: 20),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -1296,20 +963,11 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen>
                     Flexible(
                       child: Text(
                         _getCravingIntensityText(craving.intensity),
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: context.contentColor,
-                        ),
+                        style: TextStyle(fontWeight: FontWeight.bold, color: context.contentColor),
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                    Text(
-                      outcomeTexts[outcomeIndex],
-                      style: TextStyle(
-                        color: outcomeColors[outcomeIndex],
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
+                    Text(outcomeTexts[outcomeIndex], style: TextStyle(color: outcomeColors[outcomeIndex], fontWeight: FontWeight.w500)),
                   ],
                 ),
                 const SizedBox(height: 4),
@@ -1322,10 +980,7 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen>
                 if (craving.location != null)
                   Text(
                     craving.location!,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: context.subtitleColor.withAlpha(179),
-                    ),
+                    style: TextStyle(fontSize: 12, color: context.subtitleColor.withAlpha(179)),
                     overflow: TextOverflow.ellipsis,
                     maxLines: 1,
                   ),
@@ -1337,11 +992,7 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen>
     );
   }
 
-  Widget _buildHealthRecoveryItem(
-    BuildContext context,
-    UserHealthRecovery recovery,
-    int daysSmokeFree,
-  ) {
+  Widget _buildHealthRecoveryItem(BuildContext context, UserHealthRecovery recovery, int daysSmokeFree) {
     final l10n = AppLocalizations.of(context);
     final bool isAchieved = recovery.isAchieved;
     final Color statusColor = isAchieved ? Colors.green : Colors.orange;
@@ -1350,13 +1001,7 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen>
     final trackingState = context.read<TrackingBloc>().state;
     final recoveryDetails = trackingState.healthRecoveries.firstWhere(
       (r) => r.id == recovery.recoveryId,
-      orElse:
-          () => HealthRecovery(
-            id: recovery.recoveryId,
-            name: 'Unknown Recovery',
-            description: '',
-            daysToAchieve: recovery.daysToAchieve,
-          ),
+      orElse: () => HealthRecovery(id: recovery.recoveryId, name: 'Unknown Recovery', description: '', daysToAchieve: recovery.daysToAchieve),
     );
 
     // Calculate percentage
@@ -1386,23 +1031,14 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen>
                   children: [
                     Text(
                       recoveryDetails.name,
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: context.contentColor,
-                      ),
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: context.contentColor),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      isAchieved
-                          ? l10n.achievedOn(recovery.achievedAt)
-                          : l10n.daysToAchieve(daysRequired),
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: context.subtitleColor,
-                      ),
+                      isAchieved ? l10n.achievedOn(recovery.achievedAt) : l10n.daysToAchieve(daysRequired),
+                      style: TextStyle(fontSize: 12, color: context.subtitleColor),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -1411,17 +1047,10 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen>
               ),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: statusColor.withAlpha(51),
-                  borderRadius: BorderRadius.circular(12),
-                ),
+                decoration: BoxDecoration(color: statusColor.withAlpha(51), borderRadius: BorderRadius.circular(12)),
                 child: Text(
                   isAchieved ? l10n.achieved : l10n.progress,
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    color: statusColor,
-                  ),
+                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: statusColor),
                 ),
               ),
             ],
@@ -1430,18 +1059,11 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen>
             const SizedBox(height: 12),
             ClipRRect(
               borderRadius: BorderRadius.circular(10),
-              child: LinearProgressIndicator(
-                value: percentage,
-                backgroundColor: Colors.grey.withAlpha(51),
-                color: statusColor,
-                minHeight: 10,
-              ),
+              child: LinearProgressIndicator(value: percentage, backgroundColor: Colors.grey.withAlpha(51), color: statusColor, minHeight: 10),
             ),
             const SizedBox(height: 8),
             Text(
-              l10n.daysRemaining(
-                (daysRequired - daysSmokeFree).clamp(0, daysRequired),
-              ),
+              l10n.daysRemaining((daysRequired - daysSmokeFree).clamp(0, daysRequired)),
               style: TextStyle(fontSize: 12, color: statusColor),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
@@ -1455,16 +1077,9 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen>
   Widget _buildLegendItem(BuildContext context, String label, Color color) {
     return Row(
       children: [
-        Container(
-          width: 12,
-          height: 12,
-          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-        ),
+        Container(width: 12, height: 12, decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
         const SizedBox(width: 8),
-        Text(
-          label,
-          style: TextStyle(fontSize: 12, color: context.subtitleColor),
-        ),
+        Text(label, style: TextStyle(fontSize: 12, color: context.subtitleColor)),
       ],
     );
   }
@@ -1472,13 +1087,9 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen>
   /// Calcula as economias acumuladas com base nos cigarros evitados realmente
   int _calculateCumulativeSavings(UserStats stats, CurrencyBloc currencyBloc) {
     // Se não tiver as informações necessárias, retorna a economia atual do banco de dados
-    if (stats.packPrice == null ||
-        stats.cigarettesPerPack == null ||
-        stats.cigarettesPerPack == 0) {
+    if (stats.packPrice == null || stats.cigarettesPerPack == null || stats.cigarettesPerPack == 0) {
       if (kDebugMode) {
-        print(
-          '💰 [Dashboard] Informações insuficientes para cálculo de economia:',
-        );
+        print('💰 [Dashboard] Informações insuficientes para cálculo de economia:');
         print('   - Preço do maço: ${stats.packPrice}');
         print('   - Cigarros por maço: ${stats.cigarettesPerPack}');
         print('   - Usando valor do banco: ${stats.moneySaved} centavos');
@@ -1487,8 +1098,7 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen>
     }
 
     // Usa o valor de cravings resistidos em vez de cigarros evitados
-    final int cravingsResisted =
-        context.read<TrackingBloc>().getCravingsResisted();
+    final int cravingsResisted = context.read<TrackingBloc>().getCravingsResisted();
     if (cravingsResisted <= 0) {
       if (kDebugMode) {
         print('💰 [Dashboard] Nenhum craving resistido ainda:');
@@ -1499,12 +1109,10 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen>
     }
 
     // Calcula o preço por unidade (em centavos)
-    final double pricePerCigarette =
-        stats.packPrice! / stats.cigarettesPerPack!;
+    final double pricePerCigarette = stats.packPrice! / stats.cigarettesPerPack!;
 
     // Calcula a economia acumulada com base nos cravings resistidos (cada craving = 1 cigarro)
-    final int cumulativeSavings =
-        (cravingsResisted * pricePerCigarette).round();
+    final int cumulativeSavings = (cravingsResisted * pricePerCigarette).round();
 
     if (kDebugMode) {
       print('💰 [Dashboard] Cálculo de economia acumulada:');
@@ -1519,9 +1127,7 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen>
 
       // Teste a formatação do pricePerCigarette diretamente para debug
       final int unitPriceInCents = pricePerCigarette.round();
-      print(
-        '   - Preço unitário formatado: ${currencyBloc.format(unitPriceInCents)}',
-      );
+      print('   - Preço unitário formatado: ${currencyBloc.format(unitPriceInCents)}');
     }
 
     // Use o valor do banco se for maior - isso resolve o problema quando o
@@ -1540,8 +1146,7 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen>
     if (cumulativeSavings < 100 && cravingsResisted > 3) {
       // Se o valor é muito pequeno mas temos muitos cravings resistidos,
       // provavelmente há um erro no preço por cigarro
-      final int estimatedSavings =
-          cravingsResisted * 100; // Estimate 1 real per cigarette
+      final int estimatedSavings = cravingsResisted * 100; // Estimate 1 real per cigarette
 
       if (kDebugMode) {
         print('💰 [Dashboard] Valor calculado muito baixo, usando estimativa:');
@@ -1556,11 +1161,7 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen>
   }
 
   /// Calcula as economias projetadas para um determinado período com base nos dados do usuário
-  int _calculateProjectedSavings(
-    UserStats stats,
-    int daysInPeriod,
-    CurrencyBloc currencyBloc,
-  ) {
+  int _calculateProjectedSavings(UserStats stats, int daysInPeriod, CurrencyBloc currencyBloc) {
     // Se não tiver as informações necessárias, retorna 0
     if (stats.packPrice == null ||
         stats.cigarettesPerPack == null ||
@@ -1568,9 +1169,7 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen>
         stats.cigarettesPerDay == null ||
         stats.cigarettesPerDay == 0) {
       if (kDebugMode) {
-        print(
-          '💰 [Dashboard] Informações insuficientes para projeção de economia:',
-        );
+        print('💰 [Dashboard] Informações insuficientes para projeção de economia:');
         print('   - Preço do maço: ${stats.packPrice} centavos');
         print('   - Cigarros por maço: ${stats.cigarettesPerPack}');
         print('   - Cigarros por dia: ${stats.cigarettesPerDay}');
@@ -1580,42 +1179,31 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen>
     }
 
     // Calcula o preço por unidade (em centavos)
-    final double pricePerCigarette =
-        stats.packPrice! / stats.cigarettesPerPack!;
+    final double pricePerCigarette = stats.packPrice! / stats.cigarettesPerPack!;
 
     // Calcula os cigarros que seriam fumados no período
     final int cigarettesPerDay = stats.cigarettesPerDay!;
     final int cigarettesInPeriod = cigarettesPerDay * daysInPeriod;
 
     // Calcula a economia projetada para o período
-    final int projectedSavings =
-        (cigarettesInPeriod * pricePerCigarette).round();
+    final int projectedSavings = (cigarettesInPeriod * pricePerCigarette).round();
 
     if (kDebugMode) {
-      print(
-        '💰 [Dashboard] AUDITORIA de economias projetadas para $daysInPeriod dias:',
-      );
+      print('💰 [Dashboard] AUDITORIA de economias projetadas para $daysInPeriod dias:');
       print('   - Preço do maço: ${stats.packPrice} centavos');
       print('   - Cigarros por maço: ${stats.cigarettesPerPack}');
       print('   - Preço por cigarro: $pricePerCigarette centavos');
       print('   - Cigarros por dia (DB): $cigarettesPerDay');
-      print(
-        '   - Cigarros no período ($daysInPeriod dias): $cigarettesInPeriod',
-      );
-      print(
-        '   - Cálculo: $cigarettesInPeriod cigarros * $pricePerCigarette centavos = $projectedSavings centavos',
-      );
+      print('   - Cigarros no período ($daysInPeriod dias): $cigarettesInPeriod');
+      print('   - Cálculo: $cigarettesInPeriod cigarros * $pricePerCigarette centavos = $projectedSavings centavos');
       print('   - Economia projetada: $projectedSavings centavos');
       print('   - Formatado: ${currencyBloc.format(projectedSavings)}');
 
       // Valores para teste e depuração
       final testDailyRate = 20; // Valor comum para fumantes
       final testCigarettesInPeriod = testDailyRate * daysInPeriod;
-      final testProjected =
-          (testCigarettesInPeriod * pricePerCigarette).round();
-      print(
-        '   - TESTE com 20 cigarros/dia: $testCigarettesInPeriod cigarros no período',
-      );
+      final testProjected = (testCigarettesInPeriod * pricePerCigarette).round();
+      print('   - TESTE com 20 cigarros/dia: $testCigarettesInPeriod cigarros no período');
       print('   - TESTE economia projetada: $testProjected centavos');
       print('   - TESTE formatado: ${currencyBloc.format(testProjected)}');
     }
@@ -1626,13 +1214,10 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen>
 
     if (cigarettesPerDay < minimumPerDay) {
       final int reasonableAmount = minimumPerDay * daysInPeriod;
-      final int reasonableSavings =
-          (reasonableAmount * pricePerCigarette).round();
+      final int reasonableSavings = (reasonableAmount * pricePerCigarette).round();
 
       if (kDebugMode) {
-        print(
-          '💰 [Dashboard] Cigarros por dia muito baixo ($cigarettesPerDay), usando valor razoável ($minimumPerDay):',
-        );
+        print('💰 [Dashboard] Cigarros por dia muito baixo ($cigarettesPerDay), usando valor razoável ($minimumPerDay):');
         print('   - Cigarros no período original: $cigarettesInPeriod');
         print('   - Cigarros no período ajustado: $reasonableAmount');
         print('   - Economia projetada original: $projectedSavings centavos');
@@ -1645,18 +1230,13 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen>
     // Se o valor projetado é muito baixo, podemos estar com um problema de preço por cigarro
     if (projectedSavings < 100 * daysInPeriod && cigarettesInPeriod > 3) {
       // Usar o valor mínimo de 1 unidade da moeda atual por cigarro (independente da moeda)
-      final int minimumSavings =
-          cigarettesInPeriod * 100; // 1 unidade da moeda por cigarro
+      final int minimumSavings = cigarettesInPeriod * 100; // 1 unidade da moeda por cigarro
 
       if (kDebugMode) {
         print('💰 [Dashboard] Projeção muito baixa, usando estimativa mínima:');
-        print(
-          '   - Preço por cigarro muito baixo: $pricePerCigarette centavos',
-        );
+        print('   - Preço por cigarro muito baixo: $pricePerCigarette centavos');
         print('   - Valor projetado original: $projectedSavings centavos');
-        print(
-          '   - Valor mínimo estimado: $minimumSavings centavos (1 unidade da moeda por cigarro)',
-        );
+        print('   - Valor mínimo estimado: $minimumSavings centavos (1 unidade da moeda por cigarro)');
       }
 
       return minimumSavings;
@@ -1668,13 +1248,9 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen>
   /// Calcula o preço unitário de cada cigarro com base no preço do maço e na quantidade de cigarros por maço
   String _calculateUnitPrice(UserStats stats, CurrencyBloc currencyBloc) {
     // Se não tiver as informações necessárias, retorna "Not available"
-    if (stats.packPrice == null ||
-        stats.cigarettesPerPack == null ||
-        stats.cigarettesPerPack == 0) {
+    if (stats.packPrice == null || stats.cigarettesPerPack == null || stats.cigarettesPerPack == 0) {
       if (kDebugMode) {
-        print(
-          '💰 [Dashboard] Informações insuficientes para cálculo de preço unitário:',
-        );
+        print('💰 [Dashboard] Informações insuficientes para cálculo de preço unitário:');
         print('   - Preço do maço: ${stats.packPrice}');
         print('   - Cigarros por maço: ${stats.cigarettesPerPack}');
       }
@@ -1683,8 +1259,7 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen>
 
     // Calcula o preço por unidade (em centavos) - usando divisão com ponto flutuante e arredondamento
     // para ser consistente com o cálculo em ImprovedStatsCalculator
-    final double pricePerCigarette =
-        stats.packPrice! / stats.cigarettesPerPack!;
+    final double pricePerCigarette = stats.packPrice! / stats.cigarettesPerPack!;
     final int unitPriceInCents = pricePerCigarette.round();
 
     if (kDebugMode) {
@@ -1705,9 +1280,7 @@ class _StatisticsDashboardScreenState extends State<StatisticsDashboardScreen>
     // Se o preço por unidade for muito baixo (menos de 3 centavos), provavelmente há um erro nos dados
     if (unitPriceInCents < 3) {
       if (kDebugMode) {
-        print(
-          '💰 [Dashboard] Preço por unidade muito baixo, usando valor mínimo:',
-        );
+        print('💰 [Dashboard] Preço por unidade muito baixo, usando valor mínimo:');
         print('   - Valor original: $unitPriceInCents centavos');
         print('   - Usando valor mínimo: 100 centavos (R\$1,00)');
       }

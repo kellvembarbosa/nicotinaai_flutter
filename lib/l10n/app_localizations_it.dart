@@ -165,6 +165,16 @@ class AppLocalizationsIt extends AppLocalizations {
   String get whenBored => 'When I\'m bored';
 
   @override
+  String homeDaysWithoutSmoking(int days) {
+    return '$days days without smoking';
+  }
+
+  @override
+  String homeGreeting(String name) {
+    return 'Hello, $name!';
+  }
+
+  @override
   String get homeHealthRecovery => 'Health Recovery';
 
   @override
@@ -190,6 +200,11 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get homeNextMilestone => 'Next Milestone';
+
+  @override
+  String homeNextMilestoneDescription(int days) {
+    return 'Next milestone in $days days';
+  }
 
   @override
   String get homeRecentAchievements => 'Recent Achievements';
@@ -250,6 +265,21 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get achievementCurrentProgress => 'Your Current Progress';
+
+  @override
+  String achievementLevel(int level) {
+    return 'Level $level';
+  }
+
+  @override
+  String achievementDaysWithoutSmoking(int days) {
+    return '$days days without smoking';
+  }
+
+  @override
+  String achievementNextLevel(String time) {
+    return 'Next level: $time';
+  }
 
   @override
   String get achievementBenefitCO2 => 'Normal CO2';
@@ -313,6 +343,11 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get achievementNewHabitExerciseDescription => 'Record 5 days of exercise';
+
+  @override
+  String percentCompleted(int percent) {
+    return '$percent% completed';
+  }
 
   @override
   String get welcomeBack => 'Welcome Back';
@@ -469,6 +504,11 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get appInfo => 'App version and information';
+
+  @override
+  String version(String version) {
+    return 'Version $version';
+  }
 
   @override
   String get cancel => 'Cancel';
@@ -801,6 +841,11 @@ class AppLocalizationsIt extends AppLocalizations {
   String get dailyConsumption => 'Daily consumption';
 
   @override
+  String cigarettesPerDayValue(int count) {
+    return '$count cigarettes per day';
+  }
+
+  @override
   String get potentialMonthlySavings => 'Potential monthly savings';
 
   @override
@@ -1110,6 +1155,29 @@ class AppLocalizationsIt extends AppLocalizations {
   String get progress => 'Progress';
 
   @override
+  String daysSmokeFree(int days) {
+    return '$days days smoke free';
+  }
+
+  @override
+  String daysToAchieve(int days) {
+    return 'Days to achieve: $days';
+  }
+
+  @override
+  String daysRemaining(int days) {
+    return '$days days remaining';
+  }
+
+  @override
+  String achievedOn(DateTime date) {
+    final intl.DateFormat dateDateFormat = intl.DateFormat.yMMMd(localeName);
+    final String dateString = dateDateFormat.format(date);
+
+    return 'Achieved on $dateString';
+  }
+
+  @override
   String get keepGoing => 'Keep going!';
 
   @override
@@ -1281,6 +1349,59 @@ class AppLocalizationsIt extends AppLocalizations {
   String get understand => 'I understand';
 
   @override
+  String get onboardingLoadError => 'Error loading onboarding';
+
+  @override
+  String get unknownError => 'An unknown error occurred';
+
+  @override
+  String get errorUserNotAuthenticated => 'You must be logged in to perform this action';
+
+  @override
+  String get userNotAuthenticated => 'You are not logged in';
+
+  @override
+  String get registeringCravingResisted => 'Registering craving resisted...';
+
+  @override
+  String get registeringCraving => 'Registering craving...';
+
+  @override
+  String challengeQuestion(String goalText) {
+    return 'What makes it difficult to $goalText?';
+  }
+
+  @override
+  String personalizedPlanReduce(String timelineText) {
+    return 'We\'ve created a personalized plan to help you reduce your cigarette consumption $timelineText. This plan is based on your habits and preferences.';
+  }
+
+  @override
+  String personalizedPlanQuit(String timelineText) {
+    return 'We\'ve created a personalized plan to help you quit smoking $timelineText. This plan is based on your habits and preferences.';
+  }
+
+  @override
+  String todayAt(String time) {
+    return 'Today at $time';
+  }
+
+  @override
+  String yesterdayAt(String time) {
+    return 'Yesterday at $time';
+  }
+
+  @override
+  String dayOfWeekAt(String weekday, String time) {
+    return '$weekday at $time';
+  }
+
+  @override
+  String dateTimeFormat(String day, String month, String year, String time) {
+    return '$day/$month/$year at $time';
+  }
+
+  @override
   String get monday => 'Monday';
 
   @override
@@ -1345,4 +1466,34 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get backToLogin => 'Back to login';
+
+  @override
+  String get createAccount => 'Create Account';
+
+  @override
+  String get stayInformed => 'Stay Informed';
+
+  @override
+  String get receiveTimelyCues => 'Receive timely cues and reminders to help with your journey';
+
+  @override
+  String get importantReminders => 'Important Reminders';
+
+  @override
+  String get notificationsHelp => 'Notifications help you stay on track with your goals, provide timely support during difficult moments, and celebrate your achievements.';
+
+  @override
+  String get requesting => 'Requesting...';
+
+  @override
+  String get allowNotifications => 'Allow Notifications';
+
+  @override
+  String get notificationsEnabled => 'Notifications enabled successfully';
+
+  @override
+  String get skipForNow => 'Skip for now';
+
+  @override
+  String get notificationPermissionFailed => 'Notification permission was not granted';
 }
