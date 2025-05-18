@@ -202,32 +202,117 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
     Emitter<OnboardingState> emit,
   ) async {
     try {
+      // Verificar valores críticos e aplicar valores padrão se nulos
+      OnboardingModel onboardingToSave = event.onboarding;
+      bool valuesWereNull = false;
+      
+      // Verificar packPrice
+      if (onboardingToSave.packPrice == null && 
+          onboardingToSave.cigarettesPerPack == null) {
+        // Se ambos são nulos, verificamos a origem para decidir o que fazer
+        
+        // Verificar se estamos na tela de preço do maço (aqui deveríamos ter packPrice)
+        final isPackPriceScreen = state.currentStep == 6;
+        // Verificar se estamos na tela de cigarros por maço (aqui deveríamos ter cigarettesPerPack)
+        final isCigarettesPerPackScreen = state.currentStep == 7;
+        
+        if (isPackPriceScreen) {
+          debugPrint('⚠️ [OnboardingBloc] packPrice é null na tela de preço do maço!');
+          // Usar valor padrão de 10,00
+          onboardingToSave = onboardingToSave.copyWith(packPrice: 1000);
+          valuesWereNull = true;
+        }
+        
+        if (isCigarettesPerPackScreen) {
+          debugPrint('⚠️ [OnboardingBloc] cigarettesPerPack é null na tela de cigarros por maço!');
+          // Usar valor padrão de 20 cigarros
+          onboardingToSave = onboardingToSave.copyWith(cigarettesPerPack: 20);
+          valuesWereNull = true;
+        }
+      } else {
+        // Verificações individuais
+        if (onboardingToSave.packPrice == null) {
+          debugPrint('⚠️ [OnboardingBloc] ALERTA: packPrice é null, usando valor padrão');
+          // Verificar se já temos um valor salvo no estado
+          final currentPrice = state.onboarding?.packPrice;
+          onboardingToSave = onboardingToSave.copyWith(
+            packPrice: currentPrice ?? 1000 // 10,00 valor padrão
+          );
+          valuesWereNull = true;
+        }
+        
+        if (onboardingToSave.cigarettesPerPack == null) {
+          debugPrint('⚠️ [OnboardingBloc] ALERTA: cigarettesPerPack é null, usando valor padrão');
+          // Verificar se já temos um valor salvo no estado
+          final currentCigarettesPerPack = state.onboarding?.cigarettesPerPack;
+          onboardingToSave = onboardingToSave.copyWith(
+            cigarettesPerPack: currentCigarettesPerPack ?? 20 // 20 cigarros padrão
+          );
+          valuesWereNull = true;
+        }
+      }
+      
+      if (valuesWereNull) {
+        debugPrint('🔄 [OnboardingBloc] Valores nulos detectados e corrigidos:');
+        debugPrint('  - packPrice: ${onboardingToSave.packPrice} centavos (era: ${event.onboarding.packPrice})');
+        debugPrint('  - cigarettesPerPack: ${onboardingToSave.cigarettesPerPack} cigarros (era: ${event.onboarding.cigarettesPerPack})');
+      }
+      
+      // Atualizar estado com o modelo corrigido
       emit(state.copyWith(
         status: OnboardingStatus.saving,
-        onboarding: event.onboarding,
+        onboarding: onboardingToSave,
       ));
       
-      debugPrint('🔄 [OnboardingBloc] Atualizando onboarding');
+      // Log detalhado para depuração
+      debugPrint('🔄 [OnboardingBloc] Atualizando onboarding com:');
+      debugPrint('  - packPrice: ${onboardingToSave.packPrice} centavos');
+      debugPrint('  - cigarettesPerPack: ${onboardingToSave.cigarettesPerPack} cigarros');
+      debugPrint('  - cigarettesPerDayCount: ${onboardingToSave.cigarettesPerDayCount}');
+      debugPrint('  - packPriceCurrency: ${onboardingToSave.packPriceCurrency}');
       
       // Salvar localmente primeiro
-      await _saveLocalOnboarding(event.onboarding);
+      await _saveLocalOnboarding(onboardingToSave);
       
       // Depois tentar salvar no Supabase se houver conexão
       try {
         debugPrint('🔄 [OnboardingBloc] Salvando no Supabase');
-        final savedOnboarding = await _repository.saveOnboarding(event.onboarding);
+        final savedOnboarding = await _repository.saveOnboarding(onboardingToSave);
+        
+        // Verificar se os dados foram salvos corretamente
         debugPrint('✅ [OnboardingBloc] Onboarding atualizado com sucesso no Supabase');
-        emit(state.copyWith(
-          status: OnboardingStatus.loaded,
-          onboarding: savedOnboarding,
-        ));
+        debugPrint('  - ID: ${savedOnboarding.id}');
+        debugPrint('  - packPrice salvo: ${savedOnboarding.packPrice} centavos');
+        debugPrint('  - cigarettesPerPack salvo: ${savedOnboarding.cigarettesPerPack} cigarros');
+        
+        // Verificar se os valores foram preservados corretamente
+        final packPricePreserved = savedOnboarding.packPrice == onboardingToSave.packPrice;
+        final cigarettesPerPackPreserved = savedOnboarding.cigarettesPerPack == onboardingToSave.cigarettesPerPack;
+        
+        if (!packPricePreserved || !cigarettesPerPackPreserved) {
+          debugPrint('⚠️ [OnboardingBloc] ALERTA: Valores não preservados após salvamento!');
+          debugPrint('  - packPrice preservado: $packPricePreserved');
+          debugPrint('  - cigarettesPerPack preservado: $cigarettesPerPackPreserved');
+          
+          // Se os valores não foram preservados, usar versão local
+          emit(state.copyWith(
+            status: OnboardingStatus.loaded,
+            onboarding: onboardingToSave,
+          ));
+        } else {
+          // Valores preservados, usar versão do servidor
+          emit(state.copyWith(
+            status: OnboardingStatus.loaded,
+            onboarding: savedOnboarding,
+          ));
+        }
       } catch (e) {
         debugPrint('⚠️ [OnboardingBloc] Erro ao salvar no Supabase: $e');
         // Se falhar o salvamento no Supabase, manter o estado como loaded
         // mas com os dados do armazenamento local
         emit(state.copyWith(
           status: OnboardingStatus.loaded,
-          onboarding: event.onboarding,
+          onboarding: onboardingToSave,
         ));
       }
     } catch (e) {
@@ -360,6 +445,46 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
         return;
       }
       
+      // Verificar valores do onboarding antes de completar
+      final onboarding = state.onboarding!;
+      debugPrint('📋 [OnboardingBloc] Valores do onboarding a serem salvos:');
+      debugPrint('   - packPrice: ${onboarding.packPrice} centavos');
+      debugPrint('   - cigarettesPerPack: ${onboarding.cigarettesPerPack} cigarros');
+      debugPrint('   - cigarettesPerDayCount: ${onboarding.cigarettesPerDayCount} cigarros');
+      
+      // Verificar se temos os valores necessários para concluir o onboarding
+      if (onboarding.packPrice == null || onboarding.cigarettesPerPack == null) {
+        debugPrint('⚠️ [OnboardingBloc] ALERTA: Valores importantes são nulos!');
+        
+        // Criar uma cópia com valores padrão para campos nulos
+        OnboardingModel updatedOnboarding = onboarding.copyWith(
+          packPrice: onboarding.packPrice ?? 1000, // 10,00 valor padrão
+          cigarettesPerPack: onboarding.cigarettesPerPack ?? 20, // 20 cigarros padrão
+          cigarettesPerDayCount: onboarding.cigarettesPerDayCount ?? 10, // 10 cigarros/dia padrão
+        );
+        
+        // Salvar a versão atualizada
+        await _saveLocalOnboarding(updatedOnboarding);
+        
+        // Atualizar estado com valores preenchidos
+        emit(state.copyWith(
+          onboarding: updatedOnboarding,
+        ));
+        
+        // Garantir que a versão atualizada seja salva no Supabase
+        try {
+          final savedOnboarding = await _repository.saveOnboarding(updatedOnboarding);
+          // Atualizar o estado com a versão salva no servidor
+          emit(state.copyWith(
+            onboarding: savedOnboarding,
+          ));
+          debugPrint('✅ [OnboardingBloc] Valores padrão salvos com sucesso no onboarding');
+        } catch (e) {
+          debugPrint('⚠️ [OnboardingBloc] Erro ao salvar valores padrão: $e');
+          // Continuar mesmo com erro, usaremos a versão local atualizada
+        }
+      }
+      
       // Verificar se estamos na tela de conclusão (última etapa)
       final isCompletionScreen = state.currentStep == state.totalSteps;
       
@@ -432,6 +557,12 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
       // Sempre usar o onboarding atual, apenas atualizando o status para completo
       final updated = state.onboarding!.copyWith(completed: true);
       
+      // Log dos valores que serão sincronizados
+      debugPrint('📊 [OnboardingBloc] Dados finais do onboarding:');
+      debugPrint('   - packPrice: ${updated.packPrice} centavos');
+      debugPrint('   - cigarettesPerPack: ${updated.cigarettesPerPack} cigarros');
+      debugPrint('   - cigarettesPerDayCount: ${updated.cigarettesPerDayCount} cigarros');
+      
       // Atualizar o estado local PRIMEIRO - isso é o mais importante
       debugPrint('✅ [OnboardingBloc] Definindo estado como COMPLETO');
       emit(OnboardingState.completed(updated));
@@ -449,6 +580,10 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
       // Salvar no Supabase - não aguardar retorno para não bloquear UI
       debugPrint('☁️ [OnboardingBloc] Enviando status completo para Supabase');
       
+      // MÚLTIPLAS TENTATIVAS DE SINCRONIZAÇÃO
+      int syncAttempts = 0;
+      bool syncSuccess = false;
+      
       // Usamos Future.sync para não bloquear, mas ainda manter o controle de erros
       Future.sync(() async {
         try {
@@ -460,14 +595,38 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
             await _repository.completeOnboarding(savedOnboarding.id!);
             debugPrint('✅ [OnboardingBloc] Status salvo no Supabase com sucesso');
             
-            // IMPORTANTE: Sincronizar dados do onboarding para UserStats
-            debugPrint('🔄 [OnboardingBloc] Sincronizando dados do onboarding para UserStats');
+            // PRIMEIRA TENTATIVA DE SINCRONIZAÇÃO
+            debugPrint('🔄 [OnboardingBloc] Primeira tentativa de sincronização (1/3)');
             final syncService = OnboardingSyncService();
-            final syncSuccess = await syncService.syncOnboardingDataToUserStats();
+            syncSuccess = await syncService.syncOnboardingDataToUserStats();
+            syncAttempts++;
+            
             if (syncSuccess) {
-              debugPrint('✅ [OnboardingBloc] Dados do onboarding sincronizados com UserStats');
+              debugPrint('✅ [OnboardingBloc] Dados sincronizados com sucesso na tentativa $syncAttempts');
             } else {
-              debugPrint('⚠️ [OnboardingBloc] Falha ao sincronizar dados com UserStats');
+              // SEGUNDA TENTATIVA APÓS DELAY
+              debugPrint('⚠️ [OnboardingBloc] Primeira tentativa falhou, tentando de novo (2/3)...');
+              await Future.delayed(const Duration(milliseconds: 500));
+              
+              syncSuccess = await syncService.syncOnboardingDataToUserStats();
+              syncAttempts++;
+              
+              if (syncSuccess) {
+                debugPrint('✅ [OnboardingBloc] Dados sincronizados com sucesso na tentativa $syncAttempts');
+              } else {
+                // TERCEIRA TENTATIVA APÓS DELAY MAIOR
+                debugPrint('⚠️ [OnboardingBloc] Segunda tentativa falhou, tentando final (3/3)...');
+                await Future.delayed(const Duration(seconds: 1));
+                
+                syncSuccess = await syncService.syncOnboardingDataToUserStats();
+                syncAttempts++;
+                
+                if (syncSuccess) {
+                  debugPrint('✅ [OnboardingBloc] Dados sincronizados com sucesso na tentativa $syncAttempts');
+                } else {
+                  debugPrint('❌ [OnboardingBloc] Todas as $syncAttempts tentativas de sincronização falharam');
+                }
+              }
             }
           }
         } catch (e) {
@@ -475,12 +634,20 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
           // Erro no servidor não afeta a experiência do usuário
           // O estado local já está atualizado para completo
           
-          // Tenta sincronizar mesmo em caso de erro
-          debugPrint('🔄 [OnboardingBloc] Tentando sincronizar dados do onboarding para UserStats mesmo após erro');
-          OnboardingSyncService().syncOnboardingDataToUserStats().catchError((_) {
-            debugPrint('⚠️ [OnboardingBloc] Falha na tentativa de sincronização após erro');
-            return false; // Indica que a sincronização falhou
-          });
+          // Última tentativa de sincronização após erro
+          debugPrint('🔄 [OnboardingBloc] Tentativa de sincronização após erro de salvamento');
+          
+          final syncService = OnboardingSyncService();
+          try {
+            syncSuccess = await syncService.syncOnboardingDataToUserStats();
+            if (syncSuccess) {
+              debugPrint('✅ [OnboardingBloc] Dados sincronizados com sucesso após erro');
+            } else {
+              debugPrint('❌ [OnboardingBloc] Falha na sincronização após erro');
+            }
+          } catch (syncError) {
+            debugPrint('❌ [OnboardingBloc] Erro na sincronização: $syncError');
+          }
         }
       });
       

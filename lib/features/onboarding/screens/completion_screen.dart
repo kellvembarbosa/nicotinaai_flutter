@@ -152,6 +152,60 @@ class _CompletionScreenState extends State<CompletionScreen> {
             ],
           ),
           onNext: () async {
+            // Criar uma chave global para o diálogo de carregamento
+            final navigatorKey = GlobalKey<NavigatorState>();
+            var dialogOpen = false;
+            
+            // Função para mostrar o diálogo com a chave do navegador
+            void showLoadingDialog() {
+              if (context.mounted && !dialogOpen) {
+                dialogOpen = true;
+                showDialog(
+                  context: context,
+                  barrierDismissible: false,
+                  builder: (dialogContext) => WillPopScope(
+                    // Impedir fechamento por back button
+                    onWillPop: () async => false,
+                    child: Center(
+                      child: CircularProgressIndicator(
+                        color: context.primaryColor,
+                      ),
+                    ),
+                  ),
+                );
+              }
+            }
+            
+            // Função para fechar o diálogo com segurança
+            void hideLoadingDialog() {
+              if (dialogOpen && context.mounted) {
+                try {
+                  Navigator.of(context).pop();
+                  dialogOpen = false;
+                } catch (e) {
+                  print('⚠️ [CompletionScreen] Erro ao fechar diálogo: $e');
+                }
+              }
+            }
+            
+            // Configurar um timeout de segurança para garantir que o diálogo não fique preso
+            Future.delayed(const Duration(seconds: 20), () {
+              if (dialogOpen) {
+                print('⏱️ [CompletionScreen] Timeout - Fechando diálogo de carregamento');
+                hideLoadingDialog();
+                
+                // Tentar navegar para a tela principal se ainda não navegou
+                if (context.mounted) {
+                  print('⏱️ [CompletionScreen] Tentando navegação de fallback após timeout');
+                  try {
+                    context.go(AppRoutes.main.path);
+                  } catch (e) {
+                    print('⚠️ [CompletionScreen] Erro na navegação de fallback: $e');
+                  }
+                }
+              }
+            });
+            
             // Rastrear o evento em todos os adaptadores
             await AnalyticsService().trackEventOnlyPaid(
               'start_my_journey',
@@ -165,18 +219,9 @@ class _CompletionScreenState extends State<CompletionScreen> {
               onPaidFeature: () async {
                 // Ação a ser executada quando o recurso pago é ativado
                 print('💰 [CompletionScreen] Feature paga ativada');
+                
                 // Mostrar indicador de carregamento
-                // ignore: use_build_context_synchronously
-                showDialog(
-                  context: context,
-                  barrierDismissible: false,
-                  builder:
-                      (context) => Center(
-                        child: CircularProgressIndicator(
-                          color: context.primaryColor,
-                        ),
-                      ),
-                );
+                showLoadingDialog();
 
                 try {
                   // VALIDAÇÃO: Verificar se todas as etapas foram concluídas
@@ -186,14 +231,16 @@ class _CompletionScreenState extends State<CompletionScreen> {
                   // o onboarding a partir desta tela
                   debugPrint('✅ [CompletionScreen] Completando onboarding a partir da tela final');
                   
-                  // Primeiro, garantir que o progresso está atualizado
-                  final totalSteps = context.read<OnboardingBloc>().state.totalSteps;
-                  
-                  // Como estamos na última etapa, podemos prosseguir diretamente com 
-                  // a conclusão sem verificações adicionais, pois estamos na tela final
-                  
-                  // Agora completa o onboarding
-                  context.read<OnboardingBloc>().add(CompleteOnboarding());
+                  if (context.mounted) {
+                    // Primeiro, garantir que o progresso está atualizado
+                    final totalSteps = context.read<OnboardingBloc>().state.totalSteps;
+                    
+                    // Como estamos na última etapa, podemos prosseguir diretamente com 
+                    // a conclusão sem verificações adicionais, pois estamos na tela final
+                    
+                    // Agora completa o onboarding
+                    context.read<OnboardingBloc>().add(CompleteOnboarding());
+                  }
 
                   // Pequeno delay para garantir que o estado seja propagado
                   await Future.delayed(const Duration(milliseconds: 500));
@@ -202,24 +249,20 @@ class _CompletionScreenState extends State<CompletionScreen> {
                   print('✅ [CompletionScreen] Onboarding completado com sucesso');
                   
                   // Fechar o diálogo de carregamento e navegar
+                  hideLoadingDialog();
+                  
+                  // Navegar imediatamente para a tela principal
                   if (context.mounted) {
-                    Navigator.of(context).pop();
-
-                    // Navegar imediatamente para a tela principal
-                    print(
-                      '🚀 [CompletionScreen] Navegando para a tela principal',
-                    );
+                    print('🚀 [CompletionScreen] Navegando para a tela principal');
                     context.go(AppRoutes.main.path);
                   }
                 } catch (e) {
-                  print(
-                    '❌ [CompletionScreen] Erro ao completar onboarding: $e',
-                  );
+                  print('❌ [CompletionScreen] Erro ao completar onboarding: $e');
 
-                  // Mesmo com erro, tentar realizar a navegação
+                  // Mesmo com erro, tentar fechar diálogo e realizar a navegação
+                  hideLoadingDialog();
+                  
                   if (context.mounted) {
-                    Navigator.of(context).pop();
-
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         content: Text(localizations.somethingWentWrong),

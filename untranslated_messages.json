@@ -474,7 +474,10 @@
     "errorUserNotAuthenticated",
     "registeringCravingResisted",
     "registeringCraving",
-    "userNotAuthenticated"
+    "userNotAuthenticated",
+    "errorLabel",
+    "welcomeToApp",
+    "selectLanguage"
   ],
 
   "es": [
@@ -545,7 +548,8 @@
     "errorUserNotAuthenticated",
     "registeringCravingResisted",
     "registeringCraving",
-    "userNotAuthenticated"
+    "userNotAuthenticated",
+    "errorLabel"
   ],
 
   "fr": [
@@ -639,7 +643,10 @@
     "errorUserNotAuthenticated",
     "registeringCravingResisted",
     "registeringCraving",
-    "userNotAuthenticated"
+    "userNotAuthenticated",
+    "errorLabel",
+    "welcomeToApp",
+    "selectLanguage"
   ],
 
   "it": [
@@ -657,7 +664,10 @@
     "errorUserNotAuthenticated",
     "registeringCravingResisted",
     "registeringCraving",
-    "userNotAuthenticated"
+    "userNotAuthenticated",
+    "errorLabel",
+    "welcomeToApp",
+    "selectLanguage"
   ],
 
   "nl": [
@@ -1135,7 +1145,10 @@
     "errorUserNotAuthenticated",
     "registeringCravingResisted",
     "registeringCraving",
-    "userNotAuthenticated"
+    "userNotAuthenticated",
+    "errorLabel",
+    "welcomeToApp",
+    "selectLanguage"
   ],
 
   "pl": [
@@ -1613,7 +1626,10 @@
     "errorUserNotAuthenticated",
     "registeringCravingResisted",
     "registeringCraving",
-    "userNotAuthenticated"
+    "userNotAuthenticated",
+    "errorLabel",
+    "welcomeToApp",
+    "selectLanguage"
   ],
 
   "pt": [
@@ -1672,6 +1688,7 @@
     "unknownError",
     "registeringCravingResisted",
     "registeringCraving",
-    "userNotAuthenticated"
+    "userNotAuthenticated",
+    "errorLabel"
   ]
 }

@@ -1529,4 +1529,13 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get userNotAuthenticated => 'Not authenticated';
+
+  @override
+  String get errorLabel => 'Error';
+
+  @override
+  String get welcomeToApp => 'Bem-vindo ao NicotinaAI';
+
+  @override
+  String get selectLanguage => 'Selecione seu idioma preferido';
 }

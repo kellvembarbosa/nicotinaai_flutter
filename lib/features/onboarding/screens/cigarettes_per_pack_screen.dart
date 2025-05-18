@@ -149,6 +149,8 @@ class _CigarettesPerPackScreenState extends State<CigarettesPerPackScreen> {
             ],
           ),
           onNext: () {
+            debugPrint('🚬 [CigarettesPerPackScreen] Salvando cigarros por maço: $_cigarettesPerPack');
+            
             final updated = currentOnboarding.copyWith(
               cigarettesPerPack: _cigarettesPerPack,
             );
@@ -156,8 +158,11 @@ class _CigarettesPerPackScreenState extends State<CigarettesPerPackScreen> {
             // Enviar evento de atualização do onboarding
             context.read<OnboardingBloc>().add(UpdateOnboarding(updated));
             
-            // Avançar para o próximo passo
-            context.read<OnboardingBloc>().add(NextOnboardingStep());
+            // Pequeno delay para garantir que a atualização seja processada
+            Future.delayed(const Duration(milliseconds: 300), () {
+              // Avançar para o próximo passo
+              context.read<OnboardingBloc>().add(NextOnboardingStep());
+            });
           },
           canProceed: true, // Sempre pode avançar pois há valores padrão selecionados
         );

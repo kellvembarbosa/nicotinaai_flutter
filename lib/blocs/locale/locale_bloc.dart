@@ -14,6 +14,7 @@ class LocaleBloc extends Bloc<LocaleEvent, LocaleState> {
     on<ChangeLocale>(_onChangeLocale);
     on<ResetToDefaultLocale>(_onResetToDefaultLocale);
     on<CheckLanguageSelectionStatus>(_onCheckLanguageSelectionStatus);
+    on<MarkLanguageSelectionComplete>(_onMarkLanguageSelectionComplete);
   }
 
   /// Checks if the user has already completed the language selection process
@@ -50,6 +51,25 @@ class LocaleBloc extends Bloc<LocaleEvent, LocaleState> {
     emit(state.copyWith(
       isLanguageSelectionComplete: isComplete,
     ));
+  }
+  
+  /// Event handler for marking language selection complete
+  Future<void> _onMarkLanguageSelectionComplete(
+    MarkLanguageSelectionComplete event,
+    Emitter<LocaleState> emit,
+  ) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool(_languageSelectionKey, true);
+      print('✅ Language selection marked as complete via event');
+      
+      // Update state to reflect the change
+      emit(state.copyWith(
+        isLanguageSelectionComplete: true,
+      ));
+    } catch (e) {
+      print('⚠️ Error marking language selection as complete via event: $e');
+    }
   }
 
   /// Loads the saved locale from SharedPreferences and Supabase

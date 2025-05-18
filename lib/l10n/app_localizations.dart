@@ -3052,6 +3052,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Not authenticated'**
   String get userNotAuthenticated;
+
+  /// Generic label for error messages
+  ///
+  /// In en, this message translates to:
+  /// **'Error'**
+  String get errorLabel;
+
+  /// Welcome message on first launch language screen
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome to NicotinaAI'**
+  String get welcomeToApp;
+
+  /// Instruction to select language on first launch
+  ///
+  /// In en, this message translates to:
+  /// **'Select your preferred language'**
+  String get selectLanguage;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

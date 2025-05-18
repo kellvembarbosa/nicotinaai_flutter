@@ -101,11 +101,12 @@ class _FirstLaunchLanguageScreenState extends State<FirstLaunchLanguageScreen> w
       await Future.delayed(const Duration(milliseconds: 800));
       
       // Importante: Marcar como completo ANTES de redirecionar
-      await localeBloc.markLanguageSelectionComplete();
-      print('✅ Language selection marked as complete');
+      // Use the event instead of the method for proper state handling
+      localeBloc.add(MarkLanguageSelectionComplete());
+      print('✅ Language selection mark complete event dispatched');
       
-      // Forçar atualização imediata do estado com uma emissão direta
-      localeBloc.add(CheckLanguageSelectionStatus());
+      // Give a moment for the state to update
+      await Future.delayed(const Duration(milliseconds: 300));
       
       // Aguardar atualização do estado
       await Future.delayed(const Duration(milliseconds: 800));
@@ -137,6 +138,9 @@ class _FirstLaunchLanguageScreenState extends State<FirstLaunchLanguageScreen> w
 
   @override
   Widget build(BuildContext context) {
+    // Get localization instance
+    final l10n = AppLocalizations.of(context);
+    
     // Check if language selection is already completed, redirect if it is
     final localeBloc = context.read<LocaleBloc>();
     localeBloc.isLanguageSelectionComplete().then((isComplete) {

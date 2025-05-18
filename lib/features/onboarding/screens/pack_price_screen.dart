@@ -411,6 +411,8 @@ class _PackPriceScreenState extends State<PackPriceScreen> {
               // Converte o valor para centavos para armazenar no modelo
               final priceInCents = (_currentValue * 100).round();
               
+              debugPrint('💰 [PackPriceScreen] Salvando preço do maço: $priceInCents centavos');
+              
               final updated = currentOnboarding.copyWith(
                 packPrice: priceInCents,
               );
@@ -418,8 +420,11 @@ class _PackPriceScreenState extends State<PackPriceScreen> {
               // Enviar evento de atualização do onboarding
               context.read<OnboardingBloc>().add(UpdateOnboarding(updated));
               
-              // Avançar para o próximo passo
-              context.read<OnboardingBloc>().add(NextOnboardingStep());
+              // Pequeno delay para garantir que a atualização seja processada
+              Future.delayed(const Duration(milliseconds: 300), () {
+                // Avançar para o próximo passo
+                context.read<OnboardingBloc>().add(NextOnboardingStep());
+              });
             }
           },
           canProceed: _isValid,
