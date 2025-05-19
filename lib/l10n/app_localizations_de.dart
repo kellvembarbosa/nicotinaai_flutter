@@ -879,6 +879,11 @@ class AppLocalizationsDe extends AppLocalizations {
   String get resultsDescription => 'With our science-based technology';
 
   @override
+  String loadingError(String error) {
+    return 'Error loading: $error';
+  }
+
+  @override
   String get developer => 'Developer';
 
   @override
@@ -1101,6 +1106,16 @@ class AppLocalizationsDe extends AppLocalizations {
   String get emptyNotificationsDescription => 'Continue using the app to receive motivational messages and achievements.';
 
   @override
+  String claimReward(int xp) {
+    return 'Claim +$xp XP';
+  }
+
+  @override
+  String rewardClaimed(int xp) {
+    return '+$xp XP claimed!';
+  }
+
+  @override
   String get dailyMotivation => 'Daily Motivation';
 
   @override
@@ -1156,7 +1171,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String daysSmokeFree(int days) {
-    return '$days days smoke free';
+    return '$days days smoke-free';
   }
 
   @override

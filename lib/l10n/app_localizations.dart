@@ -1811,6 +1811,12 @@ abstract class AppLocalizations {
   /// **'With our science-based technology'**
   String get resultsDescription;
 
+  /// Error message during completion
+  ///
+  /// In en, this message translates to:
+  /// **'Error: {error}'**
+  String loadingError(String error);
+
   /// Developer section title
   ///
   /// In en, this message translates to:
@@ -2254,6 +2260,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Continue using the app to receive motivational messages and achievements.'**
   String get emptyNotificationsDescription;
+
+  /// Text for claim reward button
+  ///
+  /// In en, this message translates to:
+  /// **'Claim reward: {xp} XP'**
+  String claimReward(int xp);
+
+  /// Text shown when reward is claimed
+  ///
+  /// In en, this message translates to:
+  /// **'Reward claimed: {xp} XP'**
+  String rewardClaimed(int xp);
 
   /// Title for daily motivation section
   ///
