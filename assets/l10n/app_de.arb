@@ -208,6 +208,7 @@
   "@whenBored": {
     "description": "Option for smoking when bored"
   },
+  "homeDaysWithoutSmoking": "{days} days without smoking",
   "@homeDaysWithoutSmoking": {
     "description": "Days without smoking counter",
     "placeholders": {
@@ -217,6 +218,7 @@
       }
     }
   },
+  "homeGreeting": "Hello, {name}!",
   "@homeGreeting": {
     "description": "Greeting with user name",
     "placeholders": {
@@ -262,6 +264,7 @@
   "@homeNextMilestone": {
     "description": "Next milestone title"
   },
+  "homeNextMilestoneDescription": "Next milestone in {days} days",
   "@homeNextMilestoneDescription": {
     "description": "Next milestone description",
     "placeholders": {
@@ -351,6 +354,7 @@
   "@achievementCurrentProgress": {
     "description": "Current progress section title"
   },
+  "achievementLevel": "Level {level}",
   "@achievementLevel": {
     "description": "Achievement level",
     "placeholders": {
@@ -360,6 +364,7 @@
       }
     }
   },
+  "achievementDaysWithoutSmoking": "{days} days without smoking",
   "@achievementDaysWithoutSmoking": {
     "description": "Days without smoking on achievements screen",
     "placeholders": {
@@ -369,6 +374,7 @@
       }
     }
   },
+  "achievementNextLevel": "Next level: {time}",
   "@achievementNextLevel": {
     "description": "Next achievement level",
     "placeholders": {
@@ -462,6 +468,7 @@
   "@achievementNewHabitExerciseDescription": {
     "description": "New exercise habit achievement description"
   },
+  "percentCompleted": "{percent}% completed",
   "@percentCompleted": {
     "description": "Percentage completed",
     "placeholders": {
@@ -679,6 +686,7 @@
   "@appInfo": {
     "description": "Description of about the app item"
   },
+  "version": "Version {version}",
   "@version": {
     "description": "App version",
     "placeholders": {
@@ -992,6 +1000,7 @@
   "@pleaseSelectTimeline": {
     "description": "Error message when no timeline is selected"
   },
+  "challengeQuestion": "What makes it difficult to {goalText}?",
   "@challengeQuestion": {
     "description": "Question about quitting challenge with goal text placeholder",
     "placeholders": {
@@ -1129,6 +1138,7 @@
   "@congratulations": {
     "description": "Congratulatory text on completion screen"
   },
+  "personalizedPlanReduce": "We've created a personalized plan to help you reduce your cigarette consumption {timelineText}. This plan is based on your habits and preferences.",
   "@personalizedPlanReduce": {
     "description": "Text explaining personalized plan for reducing consumption",
     "placeholders": {
@@ -1138,6 +1148,7 @@
       }
     }
   },
+  "personalizedPlanQuit": "We've created a personalized plan to help you quit smoking {timelineText}. This plan is based on your habits and preferences.",
   "@personalizedPlanQuit": {
     "description": "Text explaining personalized plan for quitting smoking",
     "placeholders": {
@@ -1155,6 +1166,7 @@
   "@dailyConsumption": {
     "description": "Label for daily consumption in summary"
   },
+  "cigarettesPerDayValue": "{count} cigarettes per day",
   "@cigarettesPerDayValue": {
     "description": "Value for cigarettes per day",
     "placeholders": {
@@ -1208,6 +1220,7 @@
   "@resultsDescription": {
     "description": "Description for guaranteed results"
   },
+  "loadingError": "Error loading: {error}",
   "@loadingError": {
     "description": "Error message during completion",
     "placeholders": {
@@ -1517,6 +1530,7 @@
   "@achievementUnlocked": {
     "description": "Title for achievement notification"
   },
+  "claimReward": "Claim +{xp} XP",
   "@claimReward": {
     "description": "Text for claim reward button",
     "placeholders": {
@@ -1526,6 +1540,7 @@
       }
     }
   },
+  "rewardClaimed": "+{xp} XP claimed!",
   "@rewardClaimed": {
     "description": "Text shown when reward is claimed",
     "placeholders": {
@@ -1607,6 +1622,7 @@
   "@progress": {
     "description": "Label for progress status"
   },
+  "daysToAchieve": "Days to achieve: {days}",
   "@daysToAchieve": {
     "description": "Text showing days required to achieve a recovery",
     "placeholders": {
@@ -1616,6 +1632,7 @@
       }
     }
   },
+  "daysRemaining": "{days} days remaining",
   "@daysRemaining": {
     "description": "Text showing days remaining to achieve a recovery",
     "placeholders": {
@@ -1625,6 +1642,7 @@
       }
     }
   },
+  "achievedOn": "Achieved on {date}",
   "@achievedOn": {
     "description": "Text showing when a recovery was achieved",
     "placeholders": {
@@ -1634,6 +1652,7 @@
       }
     }
   },
+  "daysSmokeFree": "{days} days smoke-free",
   "@daysSmokeFree": {
     "description": "Text showing days without smoking",
     "placeholders": {
@@ -1871,6 +1890,7 @@
   "@understand": {
     "description": "Acknowledgment button text"
   },
+  "todayAt": "Today at {time}",
   "@todayAt": {
     "description": "Text for showing today's date with time",
     "placeholders": {
@@ -1880,6 +1900,7 @@
       }
     }
   },
+  "yesterdayAt": "Yesterday at {time}",
   "@yesterdayAt": {
     "description": "Text for showing yesterday's date with time",
     "placeholders": {
@@ -1889,6 +1910,7 @@
       }
     }
   },
+  "dayOfWeekAt": "{weekday} at {time}",
   "@dayOfWeekAt": {
     "description": "Text for showing day of week with time",
     "placeholders": {
@@ -1902,6 +1924,7 @@
       }
     }
   },
+  "dateTimeFormat": "{day}/{month}/{year} at {time}",
   "@dateTimeFormat": {
     "description": "Format for showing a complete date with time",
     "placeholders": {

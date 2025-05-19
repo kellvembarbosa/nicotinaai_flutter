@@ -1217,6 +1217,7 @@
   "@resultsDescription": {
     "description": "Description for guaranteed results"
   },
+  "loadingError": "Error: {error}",
   "@loadingError": {
     "description": "Error message during completion",
     "placeholders": {
@@ -1526,6 +1527,7 @@
   "@achievementUnlocked": {
     "description": "Title for achievement notification"
   },
+  "claimReward": "Claim reward: {xp} XP",
   "@claimReward": {
     "description": "Text for claim reward button",
     "placeholders": {
@@ -1535,6 +1537,7 @@
       }
     }
   },
+  "rewardClaimed": "Reward claimed: {xp} XP",
   "@rewardClaimed": {
     "description": "Text shown when reward is claimed",
     "placeholders": {
