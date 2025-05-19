@@ -97,27 +97,27 @@ PODS:
   - path_provider_foundation (0.0.1):
     - Flutter
     - FlutterMacOS
-  - PostHog (3.25.0)
+  - PostHog (3.25.1)
   - posthog_flutter (0.0.1):
     - Flutter
     - FlutterMacOS
     - PostHog (~> 3.22)
   - PromisesObjC (2.4.0)
-  - purchases_flutter (8.8.0):
+  - purchases_flutter (8.8.1):
     - Flutter
-    - PurchasesHybridCommon (= 13.29.1)
-  - PurchasesHybridCommon (13.29.1):
-    - RevenueCat (= 5.22.2)
-  - RevenueCat (5.22.2)
+    - PurchasesHybridCommon (= 13.32.0)
+  - PurchasesHybridCommon (13.32.0):
+    - RevenueCat (= 5.24.0)
+  - RevenueCat (5.24.0)
   - shared_preferences_foundation (0.0.1):
     - Flutter
     - FlutterMacOS
   - Superscript (0.2.4)
-  - SuperwallKit (4.3.0):
+  - SuperwallKit (4.3.11):
     - Superscript (= 0.2.4)
   - superwallkit_flutter (0.0.1):
     - Flutter
-    - SuperwallKit (= 4.3.0)
+    - SuperwallKit (= 4.3.11)
   - url_launcher_ios (0.0.1):
     - Flutter
 
@@ -226,18 +226,18 @@ SPEC CHECKSUMS:
   in_app_review: a31b5257259646ea78e0e35fc914979b0031d011
   nanopb: 438bc412db1928dac798aa6fd75726007be04262
   path_provider_foundation: 2b6b4c569c0fb62ec74538f866245ac84301af46
-  PostHog: a475f31e1b6a4058b2326f23b38573a40f4a8173
+  PostHog: 3e08dcbe2612b90ca4a546bbc8e9a401dd04bb17
   posthog_flutter: 6d1041c7da77eb2032c27b72df103439af64cb8c
   PromisesObjC: f5707f49cb48b9636751c5b2e7d227e43fba9f47
-  purchases_flutter: 99eb96d8daa90ea62efa155c07fcb78557ca94f4
-  PurchasesHybridCommon: 1728ff834821ecfc85e987a565d51eda36213958
-  RevenueCat: 234d2361e453ce1282cee7e18449d01aba45ebbf
+  purchases_flutter: 474338fe3d5c6477a4188ecd258a9ee859c03b56
+  PurchasesHybridCommon: 662aa1f4769ff4ef594e35adf1a5d0ad7b3d08b7
+  RevenueCat: 2d3639d30b8a71cbfe3d99cef8243c602793e0ec
   shared_preferences_foundation: fcdcbc04712aee1108ac7fda236f363274528f78
   Superscript: ede1cf73124c02ba1e120fbe5e15d3c4b12020a0
-  SuperwallKit: 953b1a572c6fec762727d610926c9b518e553176
-  superwallkit_flutter: 2cc329529ba466fd236284107c519568ce0ef877
+  SuperwallKit: d10f379a6aa30a598d9eff806aad4ba34b83cb51
+  superwallkit_flutter: 0bcdbaf0d91d539051e6c695512208109fd1398d
   url_launcher_ios: 5334b05cef931de560670eeae103fd3e431ac3fe
 
-PODFILE CHECKSUM: dc12903f49e55eaa36d813dab9163e3608885807
+PODFILE CHECKSUM: 30419906ee9ac2a13361fade75ce76311d05b3a3
 
 COCOAPODS: 1.15.2

@@ -24,8 +24,6 @@ class PostHogTrackingAdapter implements TrackingAdapter {
       config.debug = kDebugMode;
       config.captureApplicationLifecycleEvents = true;
       config.sessionReplay = true;
-      config.sessionReplayConfig.maskAllTexts = false;
-      config.sessionReplayConfig.maskAllImages = false;
       config.flushAt = 1;
       config.host = _host;
 

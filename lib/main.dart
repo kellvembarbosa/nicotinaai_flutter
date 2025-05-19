@@ -10,8 +10,6 @@ import 'package:nicotinaai_flutter/config/supabase_config.dart';
 import 'package:nicotinaai_flutter/core/routes/app_router.dart';
 import 'package:nicotinaai_flutter/core/services/db_check_service.dart';
 import 'package:nicotinaai_flutter/features/auth/repositories/auth_repository.dart';
-import 'package:nicotinaai_flutter/features/home/repositories/craving_repository.dart';
-import 'package:nicotinaai_flutter/features/home/repositories/smoking_record_repository.dart';
 import 'package:nicotinaai_flutter/features/onboarding/repositories/onboarding_repository.dart';
 import 'package:nicotinaai_flutter/features/tracking/repositories/tracking_repository.dart';
 import 'package:nicotinaai_flutter/features/achievements/services/achievement_service.dart';
@@ -23,7 +21,6 @@ import 'package:nicotinaai_flutter/services/notification_service.dart';
 import 'package:nicotinaai_flutter/services/supabase_diagnostic.dart';
 import 'package:nicotinaai_flutter/features/settings/repositories/settings_repository.dart';
 import 'package:superwallkit_flutter/superwallkit_flutter.dart' as sw;
-import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:nicotinaai_flutter/services/revenue_cat_service.dart';
 import 'package:nicotinaai_flutter/services/revenue_cat_purchase_controller.dart';
 import 'package:flutter/foundation.dart';
@@ -51,14 +48,15 @@ import 'package:nicotinaai_flutter/blocs/tracking/tracking_event.dart';
 import 'package:nicotinaai_flutter/blocs/analytics/analytics_bloc.dart';
 import 'package:nicotinaai_flutter/blocs/analytics/analytics_event.dart';
 import 'package:nicotinaai_flutter/blocs/app_feedback/app_feedback_bloc.dart';
-import 'package:nicotinaai_flutter/blocs/app_feedback/app_feedback_event.dart';
 
 void main() async {
   // Garante que os widgets estão iniciados antes de chamar código nativo
   WidgetsFlutterBinding.ensureInitialized();
 
   // Configura a aparência da barra de status
-  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(statusBarColor: Colors.transparent));
+  SystemChrome.setSystemUIOverlayStyle(
+    const SystemUiOverlayStyle(statusBarColor: Colors.transparent),
+  );
 
   // Initialize BlocObserver for debugging
   Bloc.observer = AppBlocObserver();
@@ -73,7 +71,9 @@ void main() async {
   try {
     // Verifica se o Firebase já está inicializado
     if (Firebase.apps.isEmpty) {
-      await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
       debugPrint('✅ Firebase initialized successfully');
     } else {
       debugPrint('✅ Firebase was already initialized, skipping');
@@ -88,7 +88,8 @@ void main() async {
     final revenueCatService = RevenueCatService();
     await revenueCatService.initialize(
       apiKey: _getRevenueCatApiKey(),
-      observerMode: false, // Definir como false, pois o Superwall precisa que o RevenueCat gerencie as compras
+      observerMode:
+          false, // Definir como false, pois o Superwall precisa que o RevenueCat gerencie as compras
     );
     debugPrint('✅ RevenueCat initialized successfully');
   } catch (e) {
@@ -102,7 +103,10 @@ void main() async {
     final purchaseController = RevenueCatPurchaseController();
 
     // Configure Superwall with purchase controller
-    sw.Superwall.configure(_getSuperwallApiKey(), purchaseController: purchaseController);
+    sw.Superwall.configure(
+      _getSuperwallApiKey(),
+      purchaseController: purchaseController,
+    );
 
     // Sync subscription status initially
     await purchaseController.configureAndSyncSubscriptionStatus();
@@ -170,7 +174,9 @@ void main() async {
       debugPrint('✅ Table smoking_logs exists');
     } catch (e) {
       debugPrint('❌ Table smoking_logs does not exist or is not accessible');
-      debugPrint('⚠️ SECURITY NOTE: Tables should be created using Supabase migrations or MCP functions');
+      debugPrint(
+        '⚠️ SECURITY NOTE: Tables should be created using Supabase migrations or MCP functions',
+      );
 
       // Log diagnostic info
       await SupabaseDiagnostic.logDiagnosticReport(tableName: 'smoking_logs');
@@ -178,14 +184,23 @@ void main() async {
 
     // Check viewed_achievements
     try {
-      await SupabaseConfig.client.from('viewed_achievements').select('*').limit(1);
+      await SupabaseConfig.client
+          .from('viewed_achievements')
+          .select('*')
+          .limit(1);
       debugPrint('✅ Table viewed_achievements exists');
     } catch (e) {
-      debugPrint('❌ Table viewed_achievements does not exist or is not accessible');
-      debugPrint('⚠️ SECURITY NOTE: Tables should be created using Supabase migrations or MCP functions');
+      debugPrint(
+        '❌ Table viewed_achievements does not exist or is not accessible',
+      );
+      debugPrint(
+        '⚠️ SECURITY NOTE: Tables should be created using Supabase migrations or MCP functions',
+      );
 
       // Log diagnostic info
-      await SupabaseDiagnostic.logDiagnosticReport(tableName: 'viewed_achievements');
+      await SupabaseDiagnostic.logDiagnosticReport(
+        tableName: 'viewed_achievements',
+      );
     }
   } else {
     debugPrint('✅ Todas as tabelas essenciais estão disponíveis');
@@ -196,12 +211,14 @@ void main() async {
   final onboardingRepository = OnboardingRepository();
   final trackingRepository = TrackingRepository();
   final settingsRepository = SettingsRepository();
-  
+
   // Cria serviços
   final appFeedbackService = AppFeedbackService();
-  
+
   // Initialize achievement notification service
-  final achievementNotifications = AchievementNotificationService(FlutterLocalNotificationsPlugin());
+  final achievementNotifications = AchievementNotificationService(
+    FlutterLocalNotificationsPlugin(),
+  );
 
   runApp(
     MyApp(
@@ -259,7 +276,9 @@ class MyApp extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         // Auth BLoC
-        BlocProvider<AuthBloc>(create: (context) => AuthBloc(authRepository: authRepository)),
+        BlocProvider<AuthBloc>(
+          create: (context) => AuthBloc(authRepository: authRepository),
+        ),
 
         // Connectivity BLoC
         BlocProvider<ConnectivityBloc>(
@@ -267,10 +286,17 @@ class MyApp extends StatelessWidget {
         ),
 
         // Skeleton BLoC for testing
-        BlocProvider<SkeletonBloc>(create: (context) => SkeletonBloc(fetchData: () async => "Test data")),
+        BlocProvider<SkeletonBloc>(
+          create: (context) => SkeletonBloc(fetchData: () async => "Test data"),
+        ),
 
         // TrackingBloc
-        BlocProvider<TrackingBloc>(create: (context) => TrackingBloc(repository: trackingRepository)..add(InitializeTracking())),
+        BlocProvider<TrackingBloc>(
+          create:
+              (context) =>
+                  TrackingBloc(repository: trackingRepository)
+                    ..add(InitializeTracking()),
+        ),
 
         // Unified TrackingBloc now handles both cravings and smoking records
 
@@ -280,7 +306,10 @@ class MyApp extends StatelessWidget {
         BlocProvider<CurrencyBloc>(
           create: (context) {
             final authBloc = context.read<AuthBloc>();
-            return CurrencyBloc(authBloc: authBloc, authRepository: authRepository)..add(InitializeCurrency());
+            return CurrencyBloc(
+              authBloc: authBloc,
+              authRepository: authRepository,
+            )..add(InitializeCurrency());
           },
         ),
 
@@ -319,9 +348,15 @@ class MyApp extends StatelessWidget {
         // AchievementBloc - Substitui o AchievementProvider
         BlocProvider<AchievementBloc>(
           create: (context) {
-            final achievementService = AchievementService(SupabaseConfig.client, trackingRepository);
+            final achievementService = AchievementService(
+              SupabaseConfig.client,
+              trackingRepository,
+            );
 
-            final achievementBloc = AchievementBloc(service: achievementService, notificationService: achievementNotifications);
+            final achievementBloc = AchievementBloc(
+              service: achievementService,
+              notificationService: achievementNotifications,
+            );
 
             // Inicializa o bloc
             achievementBloc.add(InitializeAchievements());
@@ -338,11 +373,16 @@ class MyApp extends StatelessWidget {
         ),
 
         // AnalyticsBloc - Novo BLoC para analytics
-        BlocProvider<AnalyticsBloc>(create: (context) => AnalyticsBloc()..add(const InitializeAnalyticsEvent())),
-        
+        BlocProvider<AnalyticsBloc>(
+          create:
+              (context) =>
+                  AnalyticsBloc()..add(const InitializeAnalyticsEvent()),
+        ),
+
         // AppFeedbackBloc - Novo BLoC para feedback do usuário
         BlocProvider<AppFeedbackBloc>(
-          create: (context) => AppFeedbackBloc(feedbackService: appFeedbackService),
+          create:
+              (context) => AppFeedbackBloc(feedbackService: appFeedbackService),
         ),
 
         // Todos os providers legados foram removidos
@@ -354,14 +394,17 @@ class MyApp extends StatelessWidget {
           final onboardingBloc = context.read<OnboardingBloc>();
 
           // Criar router usando BLoCs para evitar loop de reconstrução
-          final appRouter = AppRouter(authBloc: authBloc, onboardingBloc: onboardingBloc);
+          final appRouter = AppRouter(
+            authBloc: authBloc,
+            onboardingBloc: onboardingBloc,
+          );
 
           // Use BlocBuilder para obter o tema e locale atuais
           return BlocBuilder<LocaleBloc, LocaleState>(
             builder: (context, localeState) {
               return BlocBuilder<ThemeBloc, theme_state.ThemeState>(
                 builder: (context, themeState) {
-                  // Vamos usar MaterialApp normal com routes separados para que 
+                  // Vamos usar MaterialApp normal com routes separados para que
                   // o Navigator.pushNamed funcione para a tela de login
                   return MaterialApp(
                     title: 'NicotinaAI',
@@ -374,30 +417,36 @@ class MyApp extends StatelessWidget {
 
                     // Configuração de localização usando LocaleBloc
                     locale: localeState.locale,
-                    localizationsDelegates: AppLocalizations.localizationsDelegates,
+                    localizationsDelegates:
+                        AppLocalizations.localizationsDelegates,
                     supportedLocales: localeState.supportedLocales,
                     // Debug: log the locale being applied
                     onGenerateTitle: (context) {
-                      print('🌍 MaterialApp applying locale: ${localeState.locale.languageCode}_${localeState.locale.countryCode}');
+                      print(
+                        '🌍 MaterialApp applying locale: ${localeState.locale.languageCode}_${localeState.locale.countryCode}',
+                      );
                       return 'NicotinaAI';
                     },
 
                     // Usamos o router para a navegação principal
                     home: Router(
                       routerDelegate: appRouter.router.routerDelegate,
-                      routeInformationParser: appRouter.router.routeInformationParser,
-                      routeInformationProvider: appRouter.router.routeInformationProvider,
+                      routeInformationParser:
+                          appRouter.router.routeInformationParser,
+                      routeInformationProvider:
+                          appRouter.router.routeInformationProvider,
                     ),
-                    
+
                     // Defina rotas nomeadas para pushNamedAndRemoveUntil
                     routes: {
-                      '/login': (context) => Scaffold(
-                        body: Center(
-                          child: Text(AppLocalizations.of(context).loading),
-                        ),
-                      ),
+                      '/login':
+                          (context) => Scaffold(
+                            body: Center(
+                              child: Text(AppLocalizations.of(context).loading),
+                            ),
+                          ),
                     },
-                    
+
                     // Envolver toda a aplicação com ConnectivityOverlay
                     builder: (context, child) {
                       return ConnectivityOverlay(child: child!);
