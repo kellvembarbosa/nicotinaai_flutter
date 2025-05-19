@@ -21,10 +21,7 @@ class PostHogTrackingAdapter implements TrackingAdapter {
     try {
       // Inicializar PostHog - versão 5.0.0
       final config = PostHogConfig(_apiKey);
-      config.debug = kDebugMode;
-      config.captureApplicationLifecycleEvents = true;
       config.sessionReplay = true;
-      config.flushAt = 1;
       config.host = _host;
 
       // O método setup retorna Future<void>, não uma instância de Posthog
