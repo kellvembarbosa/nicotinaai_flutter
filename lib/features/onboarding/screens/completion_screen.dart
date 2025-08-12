@@ -170,21 +170,15 @@ class _CompletionScreenState extends State<CompletionScreen> {
                 // Ação a ser executada quando o recurso pago é ativado
                 print('💰 [CompletionScreen] Feature paga ativada');
                 
-                // Mostrar diálogo de carregamento com timeout automático de 3 segundos
-                DialogUtils.showLoadingWithTimeout(
-                  context, 
-                  message: localizations.loading,
-                  timeoutSeconds: 3,
-                  onTimeout: () {
-                    print('⏱️ [CompletionScreen] Timeout de 3 segundos do loading expirou');
-                    // Navegar para a tela principal se o timeout ocorrer e ainda não navegamos
-                    if (context.mounted && !hasNavigated) {
-                      print('⏱️ [CompletionScreen] Navegando após timeout');
-                      hasNavigated = true;
-                      context.go(AppRoutes.main.path);
-                    }
+                // Não mostra mais o diálogo de carregamento
+                // Configura um timeout para garantir que a navegação ocorra mesmo se houver problemas
+                Future.delayed(const Duration(seconds: 3), () {
+                  if (context.mounted && !hasNavigated) {
+                    print('⏱️ [CompletionScreen] Timeout de segurança expirou');
+                    hasNavigated = true;
+                    context.go(AppRoutes.main.path);
                   }
-                );
+                });
 
                 try {
                   // VALIDAÇÃO: Verificar se todas as etapas foram concluídas

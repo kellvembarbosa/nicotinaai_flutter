@@ -104,6 +104,14 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       await NotificationService().saveFcmTokenAfterLogin();
       print('🔔 [AuthBloc] Token FCM salvo após login');
       
+      // Request tracking permissions for Facebook attribution
+      try {
+        await _analyticsService.requestTrackingPermissions();
+        print('🔍 [AuthBloc] Requested tracking permissions for better attribution');
+      } catch (trackingError) {
+        print('⚠️ [AuthBloc] Failed to request tracking permissions: $trackingError');
+      }
+      
       // Initialize user identity and track login event across all platforms
       try {
         // Initialize user identity (RevenueCat, Superwall, PostHog)
@@ -149,6 +157,14 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       // Salvar o token FCM para o usuário recém-registrado
       await NotificationService().saveFcmTokenAfterLogin();
       print('🔔 [AuthBloc] Token FCM salvo após registro');
+      
+      // Request tracking permissions for Facebook attribution
+      try {
+        await _analyticsService.requestTrackingPermissions();
+        print('🔍 [AuthBloc] Requested tracking permissions for better attribution');
+      } catch (trackingError) {
+        print('⚠️ [AuthBloc] Failed to request tracking permissions: $trackingError');
+      }
       
       // Initialize user identity and track signup event across all platforms
       try {

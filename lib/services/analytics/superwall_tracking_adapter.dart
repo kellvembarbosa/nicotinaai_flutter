@@ -72,10 +72,10 @@ class SuperwallTrackingAdapter implements TrackingAdapter {
       // Set a timeout to ensure the feature gets executed in case of any issues
       bool featureExecuted = false;
       
-      // Add a safety timeout to prevent infinite loading - reduced to just 3 seconds
-      Future.delayed(const Duration(seconds: 3), () {
+      // Add a safety timeout to prevent infinite loading - reduced to just 2 seconds for faster response
+      Future.delayed(const Duration(seconds: 2), () {
         if (!featureExecuted) {
-          debugPrint('⏱️ SuperwallTrackingAdapter timeout - force executing feature after 3 seconds');
+          debugPrint('⏱️ SuperwallTrackingAdapter timeout - force executing feature after 2 seconds');
           featureExecuted = true;
           onPaidFeature();
         }

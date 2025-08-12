@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:superwallkit_flutter/superwallkit_flutter.dart' as sw;
 import 'package:nicotinaai_flutter/services/analytics/analytics_service.dart';
+import 'package:nicotinaai_flutter/services/analytics/facebook_tracking_adapter.dart';
 import 'package:nicotinaai_flutter/services/revenue_cat_service.dart';
 import 'package:nicotinaai_flutter/features/auth/models/user_model.dart';
 
@@ -13,6 +14,7 @@ class IdentityService {
   IdentityService._internal();
 
   final AnalyticsService _analyticsService = AnalyticsService();
+  final FacebookTrackingAdapter _facebookTrackingAdapter = FacebookTrackingAdapter();
   final RevenueCatService _revenueCatService = RevenueCatService();
 
   /// Initialize user identity across all platforms
@@ -68,25 +70,52 @@ class IdentityService {
   /// Identify user on all platforms
   Future<void> _identifyOnAllPlatforms(String userId, String email, Map<String, dynamic> attributes) async {
     try {
-      // 1. Identify with analytics service (includes PostHog and Superwall)
+      // 1. Collect device identifiers for attribution
+      await _revenueCatService.collectDeviceIdentifiers();
+      
+      // 2. Set Facebook Anonymous ID in RevenueCat if available
+      try {
+        final fbAnonymousId = await _facebookTrackingAdapter.getAnonymousId();
+        if (fbAnonymousId != null && fbAnonymousId.isNotEmpty) {
+          await _revenueCatService.setFacebookAnonymousId(fbAnonymousId);
+          debugPrint('✅ Facebook Anonymous ID set in RevenueCat: $fbAnonymousId');
+        } else {
+          debugPrint('⚠️ Facebook Anonymous ID not available');
+        }
+      } catch (fbError) {
+        debugPrint('⚠️ Failed to set Facebook Anonymous ID: $fbError');
+      }
+
+      // 3. Identify with analytics service (includes PostHog and Superwall)
       await _analyticsService.setUserProperties(userId: userId, email: email, additionalProperties: attributes);
 
-      // 2. Identify directly with RevenueCat
+      // 4. Identify directly with RevenueCat
       await _revenueCatService.identifyUser(userId);
 
-      // 3. Set user attributes directly in Superwall
+      // 5. Set user attributes directly in Superwall
       // Even though the analytics adapter already does this, setting it directly ensures consistency
       sw.Superwall.shared.setUserAttributes(attributes.cast<String, Object>());
 
-      // 4. Sync subscription status to ensure Superwall has the latest state
+      // 6. Sync subscription status to ensure Superwall has the latest state
       await syncSubscriptionStatus();
 
-      // 5. Add email as an alias in RevenueCat (helps with subscription management)
+      // 7. Add email and other attributes in RevenueCat
       try {
-        await Purchases.setAttributes({'email': email});
-        debugPrint('✅ Email attribute set in RevenueCat');
+        final Map<String, String> rcAttributes = {'email': email};
+        
+        // Add additional useful attributes for better user tracking
+        if (attributes.containsKey('name') && attributes['name'] != null) {
+          rcAttributes['name'] = attributes['name'].toString();
+        }
+        
+        if (attributes.containsKey('currency_code') && attributes['currency_code'] != null) {
+          rcAttributes['currency_code'] = attributes['currency_code'].toString();
+        }
+        
+        await _revenueCatService.setAttributes(rcAttributes);
+        debugPrint('✅ User attributes set in RevenueCat');
       } catch (e) {
-        debugPrint('⚠️ Failed to set email attribute in RevenueCat: $e');
+        debugPrint('⚠️ Failed to set attributes in RevenueCat: $e');
       }
 
       debugPrint('✅ User identified across all platforms');

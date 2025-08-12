@@ -42,14 +42,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
   void initState() {
     super.initState();
     _loadNotificationSettings();
-    
+
     // Track screen visit for feedback
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _feedbackService.trackScreenVisit();
       _checkForFeedback();
     });
   }
-  
+
   // Check if feedback should be shown
   Future<void> _checkForFeedback() async {
     if (mounted) {
@@ -145,7 +145,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         } else {
                           print('⚠️ Router not found in context!');
                           // Fallback navigation
-                          Navigator.pushNamed(context, AppRoutes.editProfile.path);
+                          Navigator.pushNamed(
+                            context,
+                            AppRoutes.editProfile.path,
+                          );
                         }
                       },
                       icon: const Icon(Icons.edit),
@@ -560,39 +563,72 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
                               // First close the dialog
                               Navigator.of(context).pop();
-                              
+
                               // Perform a direct logout using a combination of Repository and navigation
                               try {
+                                // Mostrar diálogo de carregamento enquanto o logout é processado
+                                showDialog(
+                                  context: context,
+                                  barrierDismissible: false,
+                                  builder:
+                                      (context) => WillPopScope(
+                                        onWillPop: () async => false,
+                                        child: Dialog(
+                                          backgroundColor: Colors.white,
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(20),
+                                            child: Column(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                const CircularProgressIndicator(),
+                                                const SizedBox(height: 16),
+                                                Text(localizations.logout),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                );
+
                                 // Get the AuthBloc
                                 final authBloc = context.read<AuthBloc>();
-                                
-                                // Declare the subscription variable before assigning it
-                                late final StreamSubscription subscription;
-                                
-                                // Add a listener to the AuthBloc to detect when logout is complete
-                                subscription = authBloc.stream.listen((state) {
-                                  if (!state.isAuthenticated && context.mounted) {
-                                    print('✅ Logout complete, user is no longer authenticated.');
-                                    
-                                    // Cancel subscription to avoid memory leaks
-                                    subscription.cancel();
-                                    
-                                    // Manual navigation after logout is complete
-                                    WidgetsBinding.instance.addPostFrameCallback((_) {
-                                      print('🚀 Manually navigating to login screen after logout');
-                                      Navigator.pushNamedAndRemoveUntil(context, AppRoutes.login.path, (route) => false);
-                                    });
-                                  }
-                                });
-                                
+
                                 // Trigger the logout
-                                authBloc.add(const LogoutRequested());
-                                print('🔄 Logout requested, waiting for completion...');
-                                
+                                authBloc.add(LogoutRequested(context: context));
+                                print('🔄 Logout requested...');
+
+                                // Aguardar um pouco para dar tempo de processar o logout
+                                await Future.delayed(
+                                  const Duration(seconds: 1),
+                                );
+
+                                // Garantir navegação para a tela de login
+                                if (context.mounted) {
+                                  print(
+                                    '🚀 Navegando para tela de login após logout',
+                                  );
+
+                                  // Fechar qualquer diálogo aberto
+                                  if (Navigator.of(context).canPop()) {
+                                    Navigator.of(context).pop();
+                                  }
+
+                                  // Navegar para login sem histórico
+                                  Navigator.of(context).pushNamedAndRemoveUntil(
+                                    AppRoutes.login.path,
+                                    (route) => false,
+                                  );
+                                }
                               } catch (e) {
                                 print('⚠️ Error during logout: $e');
                                 // Fallback navigation on error
-                                Navigator.pushNamedAndRemoveUntil(context, AppRoutes.login.path, (route) => false);
+                                if (context.mounted) {
+                                  Navigator.pushNamedAndRemoveUntil(
+                                    context,
+                                    AppRoutes.login.path,
+                                    (route) => false,
+                                  );
+                                }
                               }
                             },
                             style: ElevatedButton.styleFrom(

@@ -183,6 +183,24 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
     
     print('🎯 [DeleteAccountScreen] Exibindo diálogo de sucesso de exclusão');
     
+    // Garantir navegação para login após um pequeno atraso
+    // mesmo se o usuário não interagir com o diálogo
+    Future.delayed(const Duration(seconds: 3), () {
+      if (mounted) {
+        print('⏱️ [DeleteAccountScreen] Tempo limite para navegação após exclusão da conta');
+        // Fechar qualquer diálogo aberto antes de navegar
+        if (Navigator.of(context).canPop()) {
+          Navigator.of(context).pop();
+        }
+        
+        // Garantir navegação para a tela de login
+        Navigator.of(context).pushNamedAndRemoveUntil(
+          AppRoutes.login.path,
+          (route) => false
+        );
+      }
+    });
+    
     // Mostrar um diálogo de sucesso e feedback sobre o tipo de exclusão
     showDialog(
       context: context,
@@ -220,7 +238,10 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
                 onPressed: () {
                   Navigator.of(context).pop();
                   // Após fechar o diálogo, redirecionar para a tela de login
-                  context.go(AppRoutes.login.path);
+                  Navigator.of(context).pushNamedAndRemoveUntil(
+                    AppRoutes.login.path,
+                    (route) => false
+                  );
                 },
                 style: TextButton.styleFrom(
                   foregroundColor: Colors.blue,

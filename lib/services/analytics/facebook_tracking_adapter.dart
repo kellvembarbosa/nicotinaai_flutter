@@ -74,6 +74,34 @@ class FacebookTrackingAdapter implements TrackingAdapter {
       return false;
     }
   }
+  
+  /// Get the Facebook Anonymous ID as a synchronous call
+  /// Note: This might return null if called before initialization
+  Future<String?>? get anonymousId {
+    try {
+      return _facebookAppEvents.getAnonymousId();
+    } catch (e) {
+      debugPrint('❌ [FacebookTracking] Error getting anonymous ID: $e');
+      return null;
+    }
+  }
+
+  /// Get the Facebook Anonymous ID as a Future (to handle async initialization)
+  /// This method ensures the adapter is initialized before getting the ID
+  Future<String?> getAnonymousId() async {
+    if (!_isInitialized) {
+      await initialize();
+    }
+    
+    try {
+      final id = _facebookAppEvents.getAnonymousId();
+      debugPrint('🔍 [FacebookTracking] Retrieved Facebook Anonymous ID: ${id != null ? '✅ Found' : '⚠️ Not available'}');
+      return id;
+    } catch (e) {
+      debugPrint('❌ [FacebookTracking] Error getting anonymous ID: $e');
+      return null;
+    }
+  }
 
   @override
   Future<void> trackEvent(

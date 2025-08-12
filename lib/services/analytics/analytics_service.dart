@@ -259,6 +259,12 @@ class AnalyticsService {
     // On Android or if Facebook adapter is not available, return true by default
     return true;
   }
+  
+  /// Alias for requestTrackingAuthorization to ensure backward compatibility
+  /// Returns true if permission was granted, false otherwise
+  Future<bool> requestTrackingPermissions() async {
+    return requestTrackingAuthorization();
+  }
 
   /// Track an event on all adapters and handle paid feature access
   /// 

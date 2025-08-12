@@ -20,9 +20,9 @@ class RevenueCatService {
       await Purchases.configure(PurchasesConfiguration(apiKey));
 
       _isInitialized = true;
-      debugPrint('RevenueCat initialized successfully');
+      debugPrint('✅ RevenueCat initialized successfully');
     } catch (e) {
-      debugPrint('Failed to initialize RevenueCat: $e');
+      debugPrint('❌ Failed to initialize RevenueCat: $e');
       rethrow;
     }
   }
@@ -33,7 +33,7 @@ class RevenueCatService {
       final customerInfo = await Purchases.getCustomerInfo();
       return customerInfo.entitlements.active.keys.toList();
     } catch (e) {
-      debugPrint('Failed to get active subscriptions: $e');
+      debugPrint('❌ Failed to get active subscriptions: $e');
       return [];
     }
   }
@@ -44,7 +44,7 @@ class RevenueCatService {
       final customerInfo = await Purchases.getCustomerInfo();
       return customerInfo.entitlements.active.containsKey(entitlementId);
     } catch (e) {
-      debugPrint('Failed to check entitlement: $e');
+      debugPrint('❌ Failed to check entitlement: $e');
       return false;
     }
   }
@@ -53,9 +53,9 @@ class RevenueCatService {
   Future<void> identifyUser(String userId) async {
     try {
       await Purchases.logIn(userId);
-      debugPrint('User identified with RevenueCat: $userId');
+      debugPrint('👤 User identified with RevenueCat: $userId');
     } catch (e) {
-      debugPrint('Failed to identify user with RevenueCat: $e');
+      debugPrint('❌ Failed to identify user with RevenueCat: $e');
       rethrow;
     }
   }
@@ -64,9 +64,9 @@ class RevenueCatService {
   Future<void> resetUser() async {
     try {
       await Purchases.logOut();
-      debugPrint('RevenueCat user reset');
+      debugPrint('🧹 RevenueCat user reset');
     } catch (e) {
-      debugPrint('Failed to reset RevenueCat user: $e');
+      debugPrint('❌ Failed to reset RevenueCat user: $e');
       rethrow;
     }
   }
@@ -76,7 +76,7 @@ class RevenueCatService {
     try {
       return await Purchases.getOfferings();
     } catch (e) {
-      debugPrint('Failed to get offerings: $e');
+      debugPrint('❌ Failed to get offerings: $e');
       return null;
     }
   }
@@ -87,7 +87,7 @@ class RevenueCatService {
       final customerInfo = await Purchases.purchasePackage(package);
       return customerInfo;
     } catch (e) {
-      debugPrint('Failed to purchase package: $e');
+      debugPrint('❌ Failed to purchase package: $e');
       return null;
     }
   }
@@ -98,8 +98,41 @@ class RevenueCatService {
       final info = await Purchases.restorePurchases();
       return info;
     } catch (e) {
-      debugPrint('Failed to restore purchases: $e');
+      debugPrint('❌ Failed to restore purchases: $e');
       return null;
+    }
+  }
+
+  /// Set Facebook Anonymous ID for RevenueCat for better attribution
+  Future<void> setFacebookAnonymousId(String fbAnonymousId) async {
+    try {
+      await Purchases.setFBAnonymousID(fbAnonymousId);
+      debugPrint('📱 Facebook Anonymous ID set in RevenueCat: $fbAnonymousId');
+    } catch (e) {
+      debugPrint('❌ Failed to set Facebook Anonymous ID in RevenueCat: $e');
+      rethrow;
+    }
+  }
+
+  /// Collect device identifiers for better attribution
+  Future<void> collectDeviceIdentifiers() async {
+    try {
+      await Purchases.collectDeviceIdentifiers();
+      debugPrint('📱 Device identifiers collected for RevenueCat');
+    } catch (e) {
+      debugPrint('❌ Failed to collect device identifiers for RevenueCat: $e');
+      rethrow;
+    }
+  }
+
+  /// Set user attributes in RevenueCat for better customer tracking
+  Future<void> setAttributes(Map<String, String> attributes) async {
+    try {
+      await Purchases.setAttributes(attributes);
+      debugPrint('👤 Attributes set in RevenueCat: $attributes');
+    } catch (e) {
+      debugPrint('❌ Failed to set attributes in RevenueCat: $e');
+      rethrow;
     }
   }
 }
