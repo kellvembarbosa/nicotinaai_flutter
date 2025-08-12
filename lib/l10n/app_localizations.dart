@@ -3016,6 +3016,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Notification permission was not granted'**
   String get notificationPermissionFailed;
+
+  /// Error message when purchase fails
+  ///
+  /// In en, this message translates to:
+  /// **'Error processing purchase. Please try again.'**
+  String get purchaseError;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

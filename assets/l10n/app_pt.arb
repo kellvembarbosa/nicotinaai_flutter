@@ -595,5 +595,9 @@
   "supportWhenNeeded": "Suporte quando precisar",
   "@supportWhenNeeded": {
     "description": "Title for support benefit"
+  },
+  "purchaseError": "Erro ao processar compra. Tente novamente.",
+  "@purchaseError": {
+    "description": "Error message when purchase fails"
   }
 }

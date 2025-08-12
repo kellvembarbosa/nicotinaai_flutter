@@ -1511,4 +1511,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get notificationPermissionFailed => 'Notification permission was not granted';
+
+  @override
+  String get purchaseError => 'Error processing purchase. Please try again.';
 }

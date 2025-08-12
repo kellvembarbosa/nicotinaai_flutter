@@ -15,6 +15,7 @@ import 'package:nicotinaai_flutter/widgets/app_icon_widget.dart';
 import 'package:nicotinaai_flutter/widgets/platform_loading_indicator.dart';
 import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
 import 'package:nicotinaai_flutter/utils/url_launcher_utils.dart';
+import 'package:nicotinaai_flutter/features/paywall/presentation/widgets/post_signup_paywall.dart';
 
 class RegisterScreen extends StatefulWidget {
   // Rota definida no AppRoutes
@@ -63,6 +64,35 @@ class _RegisterScreenState extends State<RegisterScreen> {
     }
   }
 
+  void _showPostSignupPaywall(BuildContext context) {
+    Future.delayed(const Duration(milliseconds: 500), () {
+      if (mounted && context.mounted) {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => PostSignupPaywall(
+              onPurchaseComplete: () {
+                if (mounted && context.mounted) {
+                  _navigateToSplash();
+                }
+              },
+              onClose: () {
+                if (mounted && context.mounted) {
+                  _navigateToSplash();
+                }
+              },
+            ),
+            fullscreenDialog: true,
+          ),
+        );
+      }
+    });
+  }
+
+  void _navigateToSplash() {
+    final router = GoRouter.of(context);
+    router.go('/splash');
+  }
+
   @override
   Widget build(BuildContext context) {
     // Force refresh the localization context to ensure we get the latest translations
@@ -99,17 +129,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
             final analyticsService = AnalyticsService();
             analyticsService.requestTrackingAuthorization();
             
-            // Navegar para a SplashScreen em vez da rota inicial
-            // A SplashScreen já tem a lógica para verificar onboarding e redirecionar adequadamente
-            // Use GoRouter.of instead of context.go to avoid assertion error
-            final router = GoRouter.of(context);
-            if (router != null) {
-              router.go(SplashScreen.routeName);
-            } else {
-              print('⚠️ Router not found in context during navigation to splash!');
-              // Fallback navigation
-              Navigator.pushNamedAndRemoveUntil(context, SplashScreen.routeName, (route) => false);
-            }
+            // Show post-signup paywall before proceeding
+            _showPostSignupPaywall(context);
           }
           
           // Show error messages

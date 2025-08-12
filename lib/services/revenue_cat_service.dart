@@ -27,6 +27,16 @@ class RevenueCatService {
     }
   }
 
+  /// Get customer info
+  Future<CustomerInfo> getCustomerInfo() async {
+    try {
+      return await Purchases.getCustomerInfo();
+    } catch (e) {
+      debugPrint('❌ Failed to get customer info: $e');
+      rethrow;
+    }
+  }
+
   /// Get the current active subscriptions for the user
   Future<List<String>> getActiveSubscriptions() async {
     try {

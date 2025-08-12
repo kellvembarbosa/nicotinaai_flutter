@@ -2,7 +2,6 @@ import 'package:flutter/foundation.dart';
 import 'package:nicotinaai_flutter/services/analytics/tracking_adapter.dart';
 import 'package:nicotinaai_flutter/services/analytics/facebook_tracking_adapter.dart';
 import 'package:nicotinaai_flutter/services/analytics/posthog_tracking_adapter.dart';
-import 'package:nicotinaai_flutter/services/analytics/superwall_tracking_adapter.dart';
 
 /// Central service for tracking analytics
 class AnalyticsService {
@@ -20,7 +19,6 @@ class AnalyticsService {
   void _registerDefaultFactories() {
     _registry.registerFactory(FacebookTrackingAdapterFactory());
     _registry.registerFactory(PostHogTrackingAdapterFactory());
-    _registry.registerFactory(SuperwallTrackingAdapterFactory());
   }
 
   /// Initialize the analytics service with default adapters
@@ -35,13 +33,6 @@ class AnalyticsService {
     }
 
     // Note: PostHog adapter is not added by default since it requires an API key
-
-    // Add Superwall adapter by default
-    final superwallAdapter = _registry.createAdapter('Superwall');
-    if (superwallAdapter != null) {
-      _adapters.add(superwallAdapter);
-      await superwallAdapter.initialize();
-    }
 
     debugPrint(
       '✅ [AnalyticsService] Initialized with ${_adapters.length} adapters',
@@ -268,14 +259,12 @@ class AnalyticsService {
 
   /// Track an event on all adapters and handle paid feature access
   /// 
-  /// This method can be used to restrict specific features to paid users.
-  /// The Superwall adapter will show a paywall when appropriate.
-  /// The `onPaidFeature` callback will only be executed for paid users or
-  /// after they complete the paywall flow.
+  /// This method now directly executes the onPaidFeature callback and tracks the event.
+  /// The paywall logic should be handled separately using the PaywallService.
   /// 
   /// Example usage:
   /// ```dart
-  /// // Example: Restricting craving registration to paid users
+  /// // Example: Craving registration with paywall check
   /// final craving = CravingModel(
   ///   trigger: 'stress',
   ///   intensity: 'high',
@@ -291,7 +280,7 @@ class AnalyticsService {
   ///     'intensity': craving.intensity,
   ///   },
   ///   onPaidFeature: () {
-  ///     // This code only executes for paid users or after paywall completion
+  ///     // This code executes immediately
   ///     trackingBloc.add(SaveCraving(craving: craving));
   ///     trackingBloc.add(ForceUpdateStats());
   ///     
@@ -310,27 +299,13 @@ class AnalyticsService {
     }
 
     debugPrint(
-      '📊 [AnalyticsService] Tracking event (formerly only paid): $eventName with parameters: $parameters',
+      '📊 [AnalyticsService] Tracking event: $eventName with parameters: $parameters',
     );
 
     // Track event on all adapters
-    for (final adapter in _adapters) {
-      await adapter.trackEventOnlyPaid(
-        eventName,
-        parameters: parameters,
-        onPaidFeature: onPaidFeature,
-      );
-    }
-  }
-}
-
-// Superwall tracking adapter factory
-class SuperwallTrackingAdapterFactory implements TrackingAdapterFactory {
-  @override
-  String get adapterName => 'Superwall';
-
-  @override
-  TrackingAdapter create(TrackingAdapterConfig config) {
-    return SuperwallTrackingAdapter();
+    await trackEvent(eventName, parameters: parameters);
+    
+    // Execute the callback directly
+    onPaidFeature();
   }
 }

@@ -2151,5 +2151,9 @@
   "notificationPermissionFailed": "Notification permission was not granted",
   "@notificationPermissionFailed": {
     "description": "Message shown when notification permission request fails"
+  },
+  "purchaseError": "Error processing purchase. Please try again.",
+  "@purchaseError": {
+    "description": "Error message when purchase fails"
   }
 }

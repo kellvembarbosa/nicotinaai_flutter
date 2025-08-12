@@ -11,6 +11,7 @@ import 'package:nicotinaai_flutter/core/theme/app_theme.dart';
 import 'package:nicotinaai_flutter/features/home/models/craving_model.dart';
 import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
 import 'package:nicotinaai_flutter/services/analytics/analytics_service.dart';
+import 'package:nicotinaai_flutter/core/extensions/paywall_extensions.dart';
 
 class RegisterCravingSheet extends StatefulWidget {
   const RegisterCravingSheet({super.key});
@@ -1249,22 +1250,23 @@ class _RegisterCravingSheetState extends State<RegisterCravingSheet> {
       ),
     );
 
-    // Use AnalyticsService directly to track the event and restrict it to paid users
-    final analyticsService = AnalyticsService();
-    
-    // Track event with a paid feature callback - this will show a paywall if needed
-    analyticsService.trackEventOnlyPaid(
-      'register_craving', 
-      parameters: {
-        'trigger': _selectedReason,
-        'intensity': _selectedIntensity,
-        'location': _selectedLocation,
-        'resisted': _didResist,
-        'has_notes': _notesController.text.isNotEmpty,
-      },
-      onPaidFeature: () {
-        // This will only be executed if the user has a paid subscription
-        // or after they complete the paywall flow
+    // Use the new paywall system to check if user has access to premium feature
+    context.openPaywallIfNotPremium(
+      placementId: 'register_craving',
+      source: 'craving_registration',
+      onPremium: () {
+        // Track the analytics event
+        final analyticsService = AnalyticsService();
+        analyticsService.trackEvent(
+          'register_craving', 
+          parameters: {
+            'trigger': _selectedReason,
+            'intensity': _selectedIntensity,
+            'location': _selectedLocation,
+            'resisted': _didResist,
+            'has_notes': _notesController.text.isNotEmpty,
+          },
+        );
         
         // Dispatch the save event directly to the TrackingBloc
         trackingBloc.add(SaveCraving(craving: craving));

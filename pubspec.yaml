@@ -79,7 +79,6 @@ dependencies:
   bloc: ^9.0.0
   equatable: ^2.0.7
   posthog_flutter: ^5.0.0
-  superwallkit_flutter: ^2.2.1
   purchases_flutter: ^8.8.1
   flutter_native_splash: ^2.4.6
   in_app_review: ^2.0.10

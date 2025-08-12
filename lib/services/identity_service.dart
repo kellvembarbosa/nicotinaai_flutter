@@ -1,13 +1,12 @@
 import 'package:flutter/foundation.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
-import 'package:superwallkit_flutter/superwallkit_flutter.dart' as sw;
 import 'package:nicotinaai_flutter/services/analytics/analytics_service.dart';
 import 'package:nicotinaai_flutter/services/analytics/facebook_tracking_adapter.dart';
 import 'package:nicotinaai_flutter/services/revenue_cat_service.dart';
 import 'package:nicotinaai_flutter/features/auth/models/user_model.dart';
 
 /// A service to manage user identity across multiple platforms
-/// This ensures consistent user identification across RevenueCat, Superwall, and analytics services
+/// This ensures consistent user identification across RevenueCat and analytics services
 class IdentityService {
   static final IdentityService _instance = IdentityService._internal();
   factory IdentityService() => _instance;
@@ -57,9 +56,6 @@ class IdentityService {
       // Reset RevenueCat identity
       await _revenueCatService.resetUser();
 
-      // Reset Superwall identity
-      sw.Superwall.shared.reset();
-
       debugPrint('✅ User identity reset across all platforms');
     } catch (e) {
       debugPrint('⚠️ Error resetting user identity: $e');
@@ -86,18 +82,11 @@ class IdentityService {
         debugPrint('⚠️ Failed to set Facebook Anonymous ID: $fbError');
       }
 
-      // 3. Identify with analytics service (includes PostHog and Superwall)
+      // 3. Identify with analytics service (includes PostHog)
       await _analyticsService.setUserProperties(userId: userId, email: email, additionalProperties: attributes);
 
       // 4. Identify directly with RevenueCat
       await _revenueCatService.identifyUser(userId);
-
-      // 5. Set user attributes directly in Superwall
-      // Even though the analytics adapter already does this, setting it directly ensures consistency
-      sw.Superwall.shared.setUserAttributes(attributes.cast<String, Object>());
-
-      // 6. Sync subscription status to ensure Superwall has the latest state
-      await syncSubscriptionStatus();
 
       // 7. Add email and other attributes in RevenueCat
       try {
@@ -137,23 +126,25 @@ class IdentityService {
     }
   }
 
-  /// Sync subscription status from RevenueCat to Superwall
+  /// Get current subscription status from RevenueCat
   /// Should be called after purchases or when subscription status might have changed
-  Future<void> syncSubscriptionStatus() async {
+  Future<bool> getSubscriptionStatus() async {
     try {
       final customerInfo = await Purchases.getCustomerInfo();
 
       // Check if the user has any active entitlements
       final hasActiveSubscription = customerInfo.entitlements.active.isNotEmpty;
 
-      // Update Superwall's subscription status
       if (hasActiveSubscription) {
-        debugPrint('✅ User has active subscription, updated Superwall');
+        debugPrint('✅ User has active subscription');
       } else {
-        debugPrint('📝 User has no active subscription, updated Superwall');
+        debugPrint('📝 User has no active subscription');
       }
+      
+      return hasActiveSubscription;
     } catch (e) {
-      debugPrint('⚠️ Failed to sync subscription status: $e');
+      debugPrint('⚠️ Failed to get subscription status: $e');
+      return false;
     }
   }
 }

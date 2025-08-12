@@ -20,9 +20,8 @@ import 'package:nicotinaai_flutter/services/app_feedback_service.dart';
 import 'package:nicotinaai_flutter/services/notification_service.dart';
 import 'package:nicotinaai_flutter/services/supabase_diagnostic.dart';
 import 'package:nicotinaai_flutter/features/settings/repositories/settings_repository.dart';
-import 'package:superwallkit_flutter/superwallkit_flutter.dart' as sw;
 import 'package:nicotinaai_flutter/services/revenue_cat_service.dart';
-import 'package:nicotinaai_flutter/services/revenue_cat_purchase_controller.dart';
+import 'package:nicotinaai_flutter/core/services/paywall_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:nicotinaai_flutter/widgets/connectivity_overlay.dart';
 
@@ -97,24 +96,19 @@ void main() async {
     // Continue without RevenueCat if it fails
   }
 
-  // Initialize Superwall with RevenueCat integration
+  // Initialize PaywallService with RevenueCat
   try {
-    // Create RevenueCat purchase controller
-    final purchaseController = RevenueCatPurchaseController();
-
-    // Configure Superwall with purchase controller
-    sw.Superwall.configure(
-      _getSuperwallApiKey(),
-      purchaseController: purchaseController,
+    final revenueCatService = RevenueCatService();
+    
+    // Initialize PaywallService
+    PaywallService.instance.injectDependencies(
+      revenueCatService: revenueCatService,
     );
 
-    // Sync subscription status initially
-    await purchaseController.configureAndSyncSubscriptionStatus();
-
-    debugPrint('✅ Superwall initialized with RevenueCat integration');
+    debugPrint('✅ PaywallService initialized with RevenueCat integration');
   } catch (e) {
-    debugPrint('⚠️ Superwall initialization error: $e');
-    // Continue without Superwall if it fails
+    debugPrint('⚠️ PaywallService initialization error: $e');
+    // Continue without PaywallService if it fails
   }
 
   // Inicializa o serviço de notificações após Supabase e Firebase
@@ -125,7 +119,7 @@ void main() async {
     // API KEY do PostHog
     const apiKey = 'phc_6p1aoXFElcMePRqaKvhQq7J55xisFMoc0tfQXezeq4c';
 
-    // Primeiro inicializa o serviço (que adicionará Facebook e Superwall por padrão)
+    // Primeiro inicializa o serviço (que adicionará Facebook por padrão)
     final analyticsService = AnalyticsService();
     await analyticsService.initialize();
 
@@ -243,15 +237,6 @@ String _getRevenueCatApiKey() {
   }
 }
 
-String _getSuperwallApiKey() {
-  if (defaultTargetPlatform == TargetPlatform.android) {
-    return 'pk_8828c0ca657f179fcb24a7532d6cf8d5309d7879506a7e25'; // Android API key
-  } else if (defaultTargetPlatform == TargetPlatform.iOS) {
-    return 'pk_8828c0ca657f179fcb24a7532d6cf8d5309d7879506a7e25'; // iOS API key
-  } else {
-    return 'pk_8828c0ca657f179fcb24a7532d6cf8d5309d7879506a7e25'; // iOS API key
-  }
-}
 
 class MyApp extends StatelessWidget {
   final AuthRepository authRepository;

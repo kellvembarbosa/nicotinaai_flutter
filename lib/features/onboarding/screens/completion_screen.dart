@@ -13,7 +13,7 @@ import 'package:nicotinaai_flutter/l10n/app_localizations.dart';
 import 'package:nicotinaai_flutter/services/analytics/analytics_service.dart';
 import 'package:nicotinaai_flutter/utils/supported_currencies.dart';
 import 'package:nicotinaai_flutter/utils/currency_utils.dart';
-import 'package:nicotinaai_flutter/utils/dialog_utils.dart';
+import 'package:nicotinaai_flutter/core/services/paywall_service.dart';
 import 'dart:ui';
 
 class CompletionScreen extends StatefulWidget {
@@ -156,8 +156,8 @@ class _CompletionScreenState extends State<CompletionScreen> {
             // Flag para rastrear se o usuário já navegou para evitar navegações duplicadas
             bool hasNavigated = false;
             
-            // Rastrear o evento em todos os adaptadores
-            await AnalyticsService().trackEventOnlyPaid(
+            // Track analytics event
+            await AnalyticsService().trackEvent(
               'start_my_journey',
               parameters: {
                 'screen': 'completion',
@@ -166,77 +166,58 @@ class _CompletionScreenState extends State<CompletionScreen> {
                 'monthly_savings': monthlyCost,
                 'currency': onboarding.packPriceCurrency,
               },
-              onPaidFeature: () async {
-                // Ação a ser executada quando o recurso pago é ativado
-                print('💰 [CompletionScreen] Feature paga ativada');
-                
-                // Não mostra mais o diálogo de carregamento
-                // Configura um timeout para garantir que a navegação ocorra mesmo se houver problemas
-                Future.delayed(const Duration(seconds: 3), () {
-                  if (context.mounted && !hasNavigated) {
-                    print('⏱️ [CompletionScreen] Timeout de segurança expirou');
-                    hasNavigated = true;
-                    context.go(AppRoutes.main.path);
-                  }
-                });
-
-                try {
-                  // VALIDAÇÃO: Verificar se todas as etapas foram concluídas
-                  print('🔍 [CompletionScreen] Verificando se todas as etapas foram concluídas');
-                  
-                  // A tela de conclusão é a última etapa, então SEMPRE permitimos completar
-                  // o onboarding a partir desta tela
-                  debugPrint('✅ [CompletionScreen] Completando onboarding a partir da tela final');
-                  
-                  if (context.mounted) {
-                    // Primeiro, garantir que o progresso está atualizado
-                    final totalSteps = context.read<OnboardingBloc>().state.totalSteps;
-                    
-                    // Como estamos na última etapa, podemos prosseguir diretamente com 
-                    // a conclusão sem verificações adicionais, pois estamos na tela final
-                    
-                    // Agora completa o onboarding
-                    context.read<OnboardingBloc>().add(CompleteOnboarding());
-                  }
-
-                  // Pequeno delay para garantir que o estado seja propagado
-                  await Future.delayed(const Duration(milliseconds: 500));
-
-                  // Se chegou aqui, o onboarding foi completado com sucesso
-                  print('✅ [CompletionScreen] Onboarding completado com sucesso');
-                  
-                  // Navegar para a tela principal (não precisamos fechar o diálogo pois o DialogUtils já vai cuidar disso)
-                  
-                  // Navegar imediatamente para a tela principal
-                  if (context.mounted && !hasNavigated) {
-                    print('🚀 [CompletionScreen] Navegando para a tela principal');
-                    hasNavigated = true;
-                    context.go(AppRoutes.main.path);
-                  }
-                } catch (e) {
-                  print('❌ [CompletionScreen] Erro ao completar onboarding: $e');
-
-                  // Mesmo com erro, tentar realizar a navegação (o diálogo será fechado automaticamente)
-                  
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(localizations.somethingWentWrong),
-                        duration: const Duration(seconds: 2),
-                        behavior: SnackBarBehavior.floating,
-                      ),
-                    );
-
-                    // Navegação de fallback mesmo com erro
-                    if (!hasNavigated) {
-                      print('⚠️ [CompletionScreen] Navegando com fallback');
-                      hasNavigated = true;
-                      context.go(AppRoutes.main.path);
-                    }
-                  }
-                }
-              },
             );
+            
+            
+            // Configure a timeout for navigation safety
+            Future.delayed(const Duration(seconds: 3), () {
+              if (context.mounted && !hasNavigated) {
+                print('⏱️ [CompletionScreen] Timeout de segurança expirou');
+                hasNavigated = true;
+                context.go(AppRoutes.main.path);
+              }
+            });
+
+            try {
+              // Complete onboarding first
+              if (context.mounted) {
+                context.read<OnboardingBloc>().add(CompleteOnboarding());
+              }
+
+              // Small delay to ensure state propagation
+              await Future.delayed(const Duration(milliseconds: 500));
+              
+              // Show paywall after onboarding completion
+              if (context.mounted && !hasNavigated) {
+                await PaywallService.instance.showPaywallAfterOnboarding(context);
+              }
+
+              // Navigate to main screen
+              if (context.mounted && !hasNavigated) {
+                print('🚀 [CompletionScreen] Navegando para a tela principal');
+                hasNavigated = true;
+                context.go(AppRoutes.main.path);
+              }
+            } catch (e) {
+              print('❌ [CompletionScreen] Erro ao completar onboarding: $e');
+
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(localizations.somethingWentWrong),
+                    duration: const Duration(seconds: 2),
+                    behavior: SnackBarBehavior.floating,
+                  ),
+                );
+
+                // Navigation fallback even with error
+                if (!hasNavigated) {
+                  print('⚠️ [CompletionScreen] Navegando com fallback');
+                  hasNavigated = true;
+                  context.go(AppRoutes.main.path);
+                }
+              }
+            }
           },
         );
       },
@@ -377,39 +358,6 @@ class _CompletionScreenState extends State<CompletionScreen> {
     );
   }
 
-  // Lista de benefícios
-  Widget _buildBenefitsList(BuildContext context) {
-    final localizations = AppLocalizations.of(context);
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildBenefitItem(
-          context,
-          localizations.personalized,
-          localizations.personalizedDescription,
-        ),
-
-        _buildBenefitItem(
-          context,
-          localizations.importantAchievements,
-          localizations.achievementsDescription,
-        ),
-
-        _buildBenefitItem(
-          context,
-          localizations.supportWhenNeeded,
-          localizations.supportDescription,
-        ),
-
-        _buildBenefitItem(
-          context,
-          localizations.guaranteedResults,
-          localizations.resultsDescription,
-        ),
-      ],
-    );
-  }
 
   // Grid de benefícios otimizado para telas pequenas
   Widget _buildBenefitsGrid(BuildContext context) {
@@ -604,59 +552,4 @@ class _CompletionScreenState extends State<CompletionScreen> {
     );
   }
 
-  Widget _buildBenefitItem(
-    BuildContext context,
-    String title,
-    String description,
-  ) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 10.0), // Reduzido para 10
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(6), // Reduzido para 6
-            decoration: BoxDecoration(
-              color: context.primaryColor.withOpacity(0.15),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              Icons.star,
-              color: context.primaryColor,
-              size: 14, // Reduzido para 14
-            ),
-          ),
-          const SizedBox(width: 8), // Reduzido para 8
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: context.textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: context.contentColor,
-                    fontSize: 13, // Tamanho reduzido
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 2), // Reduzido para 2
-                Text(
-                  description,
-                  style: context.textTheme.bodySmall?.copyWith(
-                    color: context.subtitleColor,
-                    fontSize: 12, // Tamanho reduzido
-                    height: 1.2, // Altura de linha reduzida
-                  ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 }
